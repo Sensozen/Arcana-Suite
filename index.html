@@ -4212,22 +4212,8 @@ function fRClassBlock(){
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">✨ Intagliare Incantesimi (Lv.3)</div>';
       html+='<div style="font-size:10px;color:var(--muted)">Escludi '+sculptN+' creature dalle evocazioni · Evocatore Potenziato (Lv.10): +mod. INT ai danni</div></div>';
     }
-    // Gestione Libro degli Incantesimi
-    html+='<div style="'+boxS+'">';
-    html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">📕 Libro degli Incantesimi</div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">Inizia con 6 · +2 per livello (copiabili da pergamene)</div>';
-    var sb=C.spellbookSpells||[];
-    html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
-    sb.forEach(function(s,i){
-      html+='<span style="background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.3);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--text);display:flex;align-items:center;gap:4px">'+s.nome+(s.lv?' ('+s.lv+'°)':'')+' <span onclick="(function(){if(!C.spellbookSpells)return;C.spellbookSpells.splice('+i+',1);re();})()" style="cursor:pointer;color:var(--vdim)">✕</span></span>';
-    });
-    html+='</div>';
-    html+='<div style="display:flex;gap:4px">';
-    html+='<input id="sb-name" placeholder="Nome incantesimo..." style="flex:1;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 7px" onkeydown="if(event.key===\'Enter\')fAddSpellbookSpell()">';
-    html+='<input id="sb-lv" type="number" min="0" max="9" placeholder="Lv" style="width:40px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px;text-align:center">';
-    html+='<button onclick="fAddSpellbookSpell()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 8px;cursor:pointer">+</button>';
-    html+='</div>';
-    html+='</div>';
+    // Libro degli Incantesimi: gestito nella sezione Incantesimi
+
     // Maestria Incantesimi Lv.18
     if(lv>=18){
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">✨ Maestria degli Incantesimi (Lv.18)</div>';
@@ -4478,17 +4464,19 @@ function fFeatSlots(cls,lv){
 const FPC={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};
 function fSpentPB(){return Object.values(C.stats).reduce((a,v)=>a+(FPC[v]||0),0)}
 function fCanNext(){
-  // Step 0: Classe + Sottoclasse + Competenze Abilità
-  if(step===0){
+  // Step 0: Nome — richiede almeno 1 carattere
+  if(step===0) return !!(C.name&&C.name.trim());
+  // Step 1: Livello — always valid (ha default)
+  if(step===1) return true;
+  // Step 2: Classe + Sottoclasse + Competenze Abilità
+  if(step===2){
     if(!C.cls||!C.subclass) return false;
     const clData = CLASS_SKILLS[C.cls];
     if(clData && (C.classSkills||[]).length < clData.count) return false;
     return true;
   }
-  // Step 1: Livello — always valid (has default)
-  if(step===1) return true;
-  // Step 2: Competenze Armi/Armature + Padronanza
-  if(step===2){
+  // Step 3: Padronanza Armi (auto-skip se non applicabile)
+  if(step===3){
     const cl=fgCl();
     const mc=cl?cl.masteryCount||0:0;
     const ec=cl?cl.expertiseCount||0:0;
@@ -4496,32 +4484,26 @@ function fCanNext(){
     if(ec>0&&(C.expertiseSkills||[]).length<ec) return false;
     return true;
   }
-  // Step 3: Background — requires BG selected AND all overlaps resolved
-  if(step===3){
+  // Step 4: Background — richiede BG selezionato e sovrapposizioni risolte
+  if(step===4){
     if(!C.bg) return false;
     const bg = fgBg();
     if(bg){
       const bgSkEn = bg.skillsEn.split(' and ').map(s=>s.trim()).filter(Boolean);
       const clsProfs = C.classSkills || [];
-      const spProfs  = C.speciesSkills || [];
-      const overlaps = bgSkEn.filter(sk => clsProfs.includes(sk) || spProfs.includes(sk));
+      const overlaps = bgSkEn.filter(sk => clsProfs.includes(sk));
       const reps = C.bgSkillReplacements || {};
-      if(overlaps.some(sk => !reps[sk])) return false; // unresolved overlap
+      if(overlaps.some(sk => !reps[sk])) return false;
     }
     return true;
   }
-  // Step 4: Talenti — always valid
-  if(step===4) return true;
-  // Step 5: Caratteristiche
-  if(step===5&&C.statMethod==="standardarray") return FSN.every(s=>C.stats[s]>0);
-  // Step 6: Specie + Sottospecie + overlap resolution
-  if(step===6){
+  // Step 5: Specie + Sottospecie + overlap resolution
+  if(step===5){
     if(!C.species) return false;
     const sp=fgSp();
     if(sp?.subraces&&!C.subrace) return false;
     const spSkData=SPECIES_SKILLS[C.species];
     if(spSkData&&(C.speciesSkills||[]).length<spSkData.count) return false;
-    // Check species skill overlaps are resolved
     const chosen2 = C.speciesSkills || [];
     const clsProfs2 = C.classSkills || [];
     const bgProfs2  = fGetBgSkillProfs();
@@ -4530,12 +4512,15 @@ function fCanNext(){
     if(spOverlaps.some(sk => !spReps[sk])) return false;
     return true;
   }
-  // Step 7: Allineamento
-  if(step===7) return !!(C.alignment);
-  // Step 8: Lingue — always valid (Comune is automatic)
+  // Step 6: Allineamento
+  if(step===6) return !!(C.alignment);
+  // Step 7: Caratteristiche
+  if(step===7&&C.statMethod==="standardarray") return FSN.every(s=>C.stats[s]>0);
+  if(step===7) return true;
+  // Step 8: Lingue — always valid
   if(step===8) return true;
-  // Step 9: Nome
-  if(step===9) return !!(C.name&&C.name.trim());
+  // Step 9: Talenti — always valid
+  if(step===9) return true;
   return true;
 }
 
@@ -4673,16 +4658,16 @@ function fRGuided(){
     ${fRDots()}
     <div style="text-align:center;font-size:11px;color:var(--vdim);margin-bottom:14px;font-style:italic">${stepHints[step]||""}</div>
     ${step>0?fRSummary(sp,cl,bg,sr):""}
-    ${step===0?fRS0(cl):""}
+    ${step===0?fRS9():""}
     ${step===1?fRS1():""}
-    ${step===2?fRS2():""}
-    ${step===3?fRS3(bg):""}
-    ${step===4?fRS4():""}
-    ${step===5?fRS5():""}
-    ${step===6?fRS6():""}
-    ${step===7?fRS7():""}
+    ${step===2?fRS0(cl):""}
+    ${step===3?fRS2():""}
+    ${step===4?fRS3():""}
+    ${step===5?fRS6():""}
+    ${step===6?fRS7():""}
+    ${step===7?fRS5():""}
     ${step===8?fRS8():""}
-    ${step===9?fRS9():""}
+    ${step===9?fRS4():""}
     ${step===10?fRS10():""}
     ${step===11?fRS11(cl):""}
     <div class="nav">
@@ -4728,7 +4713,7 @@ function fRandomName(){
 // ── STEP 0: Identità & Specie ──
 function fRS0(cl){
   return`<div>
-    <div class="sec-title">🎯 ${ft("1 · Classe e Sottoclasse","1 · Class & Subclass")}</div>
+    <div class="sec-title">🎯 ${ft("3 · Classe e Sottoclasse","3 · Class & Subclass")}</div>
     <div class="ga" style="margin-bottom:14px">
       ${CLASSES.map(c=>`<div class="card ${C.cls===c.id?"sel":""}" onclick="fSelCl('${c.id}')">
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
@@ -4900,8 +4885,8 @@ function fRS2(){
   const mc=cl.masteryCount||0;
   const ec=cl.expertiseCount||0;
   if(mc===0 && ec===0){
-    // Skip step automatically
-    if(step===2){ step=3; re(); return ''; }
+    // Skip step automatically — passa direttamente al Background (step 4)
+    if(step===3){ step=4; re(); return ''; }
     return '';
   }
 
@@ -5717,7 +5702,7 @@ function fRS4(){
   }
 
   return `<div>
-    <div class="sec-title">⭐ ${ft("5 · Talenti e Capacità","5 · Feats & Abilities")}</div>
+    <div class="sec-title">⭐ ${ft("9 · Talenti e Capacità","9 · Feats & Abilities")}</div>
 
     <!-- Riepilogo livello (scelto allo step 0) -->
     <div style="margin-bottom:16px;padding:10px 12px;background:rgba(200,164,90,.07);border:1px solid rgba(200,164,90,.2);border-radius:3px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -6889,13 +6874,59 @@ const SUBCLASS_CASTER_IDS = {
   monk:    ['shadow','elements'],
 };
 
+// ═══════════════════════════════════════════════════════════════════════════
+// SISTEMA INCANTESIMI — riscrittura logica classi
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Solo il Mago ha un libro degli incantesimi
+function fHasSpellbook(){ return C.cls === 'wizard'; }
+
+// Caster che hanno lista "conosciuta" (permanente, non si prepara ogni giorno)
+function fIsKnownCaster(){ return C.cls === 'warlock' || C.cls === 'sorcerer'; }
+
+// Mago: prepara INT + livello incantesimi dal libro
+function fWizardMaxPrepared(){
+  const intMod = fcmod(fTotalStat('INT'));
+  return Math.max(1, (C.level||1) + intMod);
+}
+
+// Max incantesimi: per il Mago è la formula; per gli altri è dalla tabella
+function fGetMaxSpells(){
+  if(fHasSpellbook()) return fWizardMaxPrepared();
+  return SPELLS_KNOWN_TABLE[C.cls]?.[Math.min(C.level,20)-1] || 0;
+}
+
+// Formula testuale per caster preparati (usata nella UI)
+function fPreparedFormula(){
+  const isIt = lang==='it';
+  const lv = C.level||1;
+  switch(C.cls){
+    case 'wizard':  return (isIt?'INT':'INT')+'+Lv = '+fWizardMaxPrepared();
+    case 'cleric':  return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
+    case 'druid':   return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
+    case 'paladin': return (isIt?'CAR':'CHA')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('CHA')));
+    case 'ranger':  return (isIt?'SAG':'WIS')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('WIS')));
+    default: return '';
+  }
+}
+
+// IDs degli incantesimi nel libro del mago (per filtrare il picker "Prepara")
+function fSpellbookIds(){
+  if(!C.spellbookSpells||!C.spellbookSpells.length) return new Set();
+  const names = C.spellbookSpells.map(s=>s.nome.toLowerCase());
+  return new Set(
+    SPELLS
+      .filter(s=>names.includes(s.nome.toLowerCase()))
+      .map(s=>s.id)
+  );
+}
+
 function fHasSpellcasting(){
   const full = ['bard','cleric','druid','paladin','ranger','sorcerer','warlock','wizard'];
   if(full.includes(C.cls)) return true;
   return SUBCLASS_CASTER_IDS[C.cls]?.includes(C.subclass) || false;
 }
-function fIsKnownCaster(){   return !!SPELLS_KNOWN_TABLE[C.cls]; }
-function fIsPreparedCaster(){ return ['cleric','druid','wizard','paladin','ranger','bard','sorcerer','warlock'].includes(C.cls); }
+// fIsKnownCaster e fIsPreparedCaster definite sopra (riga ~6885)
 
 function fGetMaxCantrips(){
   const t = CANTRIPS_TABLE[C.cls];
@@ -7023,8 +7054,9 @@ function fRenderSpellPicker(){
       const secretClasses = ['Chierico','Druido','Mago','Cleric','Druid','Wizard'];
       if(!s.classi || !s.classi.some(c=>secretClasses.some(sc=>c.toLowerCase()===sc.toLowerCase()))) return false;
     } else if(srcMode === 'spellbook'){
-      // Mago: tutti gli incantesimi da Mago
       if(!s.classi || !s.classi.some(c=>c.toLowerCase().includes('mago')||c.toLowerCase().includes('wizard'))) return false;
+    } else if(srcMode === 'wizardprepare'){
+      var sbIds2=fSpellbookIds(); if(!sbIds2.has(s.id)) return false;
     } else {
       if(clsId && s.classi && s.classi.length){
         const hasClass = s.classi.some(cl =>
@@ -7105,7 +7137,13 @@ function fRenderSpellPicker(){
 
   // Selector scuola
   const schoolSel = `<select onchange="fSpSchool(this.value)" style="width:100%;background:#0a0a12;border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--text);font-size:11px;padding:5px;margin-bottom:8px;font-family:'Comfortaa',sans-serif">${scuole.map(sc=>`<option value="${sc}" ${sc===activeSchool?'selected':''}>${sc==='tutte'?'Tutte le scuole':sc}</option>`).join('')}</select>`;
-  const srcLabel = srcMode==='secrets'?`<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCDA Segreti Magici \u2014 lista Chierico + Druido + Mago</div>` : srcMode==='spellbook'?`<div style="font-size:10px;color:#3498db;background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCD6 Aggiungi al Libro degli Incantesimi</div>` : '';
+  const srcLabel = srcMode==='secrets'
+    ? `<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCDA Segreti Magici \u2014 lista Chierico + Druido + Mago</div>`
+    : srcMode==='spellbook'
+    ? `<div style="font-size:10px;color:#3498db;background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCD6 Aggiungi al Libro degli Incantesimi (nessun limite)</div>`
+    : srcMode==='wizardprepare'
+    ? `<div style="font-size:10px;color:#27ae60;background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCCB Prepara dal Libro \u2014 ${(C.spellbookSpells||[]).length} incantesimi disponibili</div>`
+    : '';
 
   modal.innerHTML = `
     <div class="sp-inner">
@@ -7175,7 +7213,28 @@ function fSpToggle(id){
 }
 
 function fSpAdd(){
-  addSelectedSpells();
+  const mode = typeof _spSourceMode !== 'undefined' ? _spSourceMode : 'class';
+
+  if(mode === 'spellbook'){
+    // Aggiunge al LIBRO degli incantesimi (C.spellbookSpells), non ai preparati
+    if(!C.spellbookSpells) C.spellbookSpells = [];
+    let added = 0;
+    state.selected.forEach(function(id){
+      const spell = SPELLS.find(function(s){ return s.id === id; });
+      if(!spell) return;
+      const alreadyInBook = C.spellbookSpells.some(function(b){ return b.nome.toLowerCase() === spell.nome.toLowerCase(); });
+      if(!alreadyInBook){
+        C.spellbookSpells.push({ nome: spell.nome, lv: spell.livello || 0 });
+        added++;
+      }
+    });
+    state.selected.clear();
+    if(added) showToast('✦ ' + added + ' aggiunt' + (added===1?'o':'i') + ' al Libro');
+  } else {
+    // Aggiunge ai preparati/conosciuti normali (wizardprepare, class, secrets)
+    addSelectedSpells();
+  }
+
   fCloseSpellPicker();
   re();
 }
@@ -7256,6 +7315,14 @@ function fOpenSpellPickerSpellbook(){
   fOpenSpellPicker();
 }
 
+function fOpenSpellPickerWizardPrepare(){
+  _spSourceMode = 'wizardprepare';
+  C._spellPickerTarget = 'spell';
+  _spActiveLevel = 'tutti';
+  _spSchool = 'tutte';
+  fOpenSpellPicker();
+}
+
 // ── F4.5: Reset slot su riposo ─────────────────────────────────────────────
 const _origResetSlots = fResetSlots;
 function fResetSlots(){
@@ -7268,55 +7335,122 @@ function fResetSlots(){
 function fRSpellsSection(){
   if(!fHasSpellcasting()) return '';
 
-  const isIt       = lang==='it';
-  const lv         = C.level;
-  const alwaysPrep = fGetAlwaysPrepared();
-
+  const isIt        = lang==='it';
+  const lv          = C.level;
+  const alwaysPrep  = fGetAlwaysPrepared();
   const maxCantrips = fGetMaxCantrips();
   const maxSpells   = fGetMaxSpells();
   const castStat    = fGetCastingStat();
   const castMod     = fcmod(fTotalStat(castStat));
   const castBonus   = fpb(lv)+castMod;
   const saveDC      = 8+fpb(lv)+castMod;
-  const isPrepCaster = fIsPreparedCaster();
+  const hasBook     = fHasSpellbook();      // solo mago
+  const isKnown     = fIsKnownCaster();     // warlock, sorcerer
+  const formula     = fPreparedFormula();   // formula testuale
 
-  // Array unico: preparedSpells contiene TUTTI (trucchetti + livellati)
   if(!C.preparedSpells) C.preparedSpells=[];
-  const allIds  = C.preparedSpells;
-  const allObjs = allIds.map(id=>SPELLS.find(s=>s.id===id)).filter(Boolean);
-
+  const allIds   = C.preparedSpells;
+  const allObjs  = allIds.map(id=>SPELLS.find(s=>s.id===id)).filter(Boolean);
   const cantripsArr  = allObjs.filter(s=>s.livello===0);
   const levSpellsArr = allObjs.filter(s=>s.livello>0);
   const curC = cantripsArr.length;
   const curS = levSpellsArr.length;
+  const cc = (n,m)=>n>=m?'var(--green)':n>0?'var(--gold)':'var(--dim)';
 
-  const cc = (n,m) => n>=m?'var(--green)':n>0?'var(--gold)':'var(--dim)';
+  // ── Etichette in base al tipo di caster ─────────────────────────────────
+  const sectionLabel = isKnown
+    ? (isIt?'⭐ Incantesimi Conosciuti':'⭐ Known Spells')
+    : (isIt?'📋 Incantesimi Preparati':'📋 Prepared Spells');
+  const addBtnLabel  = isKnown
+    ? (isIt?'+ Apprendi':'+ Learn')
+    : hasBook
+      ? (isIt?'+ Prepara dal Libro':'+ Prepare from Book')
+      : (isIt?'+ Prepara':'+ Prepare');
+  const emptyMsg = isKnown
+    ? (isIt?`Conosci fino a ${maxSpells} incantesimi.`:`Know up to ${maxSpells} spells.`)
+    : hasBook
+      ? (isIt?`Scegli fino a ${maxSpells} incantesimi da preparare dal libro.`:`Choose up to ${maxSpells} spells to prepare from your spellbook.`)
+      : (isIt?`Prepara fino a ${maxSpells} incantesimi dalla lista di classe.`:`Prepare up to ${maxSpells} spells from the class list.`);
 
-  // ── Riga incantesimo ────────────────────────────────────────────
-  function spellRow(s,always){
-    const isConc = s.id === C.concentratingSpell;
-    const concBg = isConc ? ';background:rgba(200,164,90,.06);border-left:2px solid var(--gold)' : '';
-    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04)${concBg}">
-      <span onclick="fShowSpellDetail(${s.id})" style="flex:1;font-size:12px;color:${always?'var(--muted)':'var(--text)'};font-weight:${always?'400':'500'};cursor:pointer">${s.nome}${isConc?'<span style="color:var(--gold);font-size:9px;margin-left:4px">\u25ce</span>':''}</span>
-      <span style="font-size:9px;color:var(--vdim);font-family:'Comfortaa', sans-serif">${s.scuola}</span>
-      ${s.concentrazione?`<span onclick="fSetConcentration(${s.id})" style="color:${isConc?'var(--gold)':'var(--vdim)'};font-size:10px;cursor:pointer" title="${isConc?'Perdi conc.':'Attiva conc.'}">${isConc?'\u25ce':'\u25cb'}</span>`:''}
+  // Funzione per aprire il picker corretto
+  const pickerFn = hasBook
+    ? 'fOpenSpellPickerWizardPrepare()'
+    : isKnown
+      ? "fOpenSpellPickerFor('spell')"
+      : "fOpenSpellPickerFor('spell')";
+
+  // ── Riga incantesimo ────────────────────────────────────────────────────
+  function spellRow(s, always){
+    const isConc   = s.id === C.concentratingSpell;
+    const concBg   = isConc ? ';background:rgba(200,164,90,.06);border-left:2px solid var(--gold)' : '';
+    const alwaysBg = always ? ';background:rgba(200,164,90,.04)' : '';
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04)${concBg}${alwaysBg}">
+      ${always ? '<span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>' : ''}
+      <span onclick="fShowSpellDetail(${s.id})" style="flex:1;font-size:12px;color:${always?'var(--gold2)':'var(--text)'};font-weight:${always?'500':'500'};cursor:pointer">${s.nome}${isConc?'<span style="color:var(--gold);font-size:9px;margin-left:4px">◎</span>':''}</span>
+      <span style="font-size:9px;color:var(--vdim);font-family:'Comfortaa',sans-serif">${s.scuola}</span>
+      ${s.concentrazione?`<span onclick="fSetConcentration(${s.id})" style="color:${isConc?'var(--gold)':'var(--vdim)'};font-size:10px;cursor:pointer" title="${isConc?'Perdi conc.':'Attiva conc.'}">${isConc?'◎':'○'}</span>`:''}
       ${s.rituale?`<span style="color:var(--vdim);font-size:9px">R</span>`:''}
-      ${always?`<span style="font-size:9px;color:var(--gold2)">\u2605</span>`:''}
       <button onclick="fShowSpellDetail(${s.id})" style="background:none;border:1px solid rgba(200,164,90,.2);border-radius:3px;cursor:pointer;color:var(--gold2);font-size:9px;padding:1px 5px">i</button>
-      ${always?'':`<button onclick="fRemovePreparedSpell(${s.id})" style="background:none;border:none;cursor:pointer;color:var(--vdim);font-size:13px;padding:0 3px" onmouseover="this.style.color='#c45a5a'" onmouseout="this.style.color=''">\u2715</button>`}
+      ${always?'':`<button onclick="fRemovePreparedSpell(${s.id})" style="background:none;border:none;cursor:pointer;color:var(--vdim);font-size:13px;padding:0 3px" onmouseover="this.style.color='#c45a5a'" onmouseout="this.style.color=''">✕</button>`}
     </div>`;
   }
 
   function alwaysNameRow(e){
     const db=SPELLS.find(s=>s.nome.toLowerCase()===e.nome.toLowerCase());
     if(db) return spellRow(db,true);
-    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04)">
-      <span style="flex:1;font-size:12px;color:var(--muted)">${e.nome}</span>
-      <span style="font-size:9px;color:var(--gold2)">★ ${e.fonte==='subclass'?'SC':'Sp.'}</span>
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(200,164,90,.04)">
+      <span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>
+      <span style="flex:1;font-size:12px;color:var(--gold2);font-weight:500">${e.nome}</span>
+      <span style="font-size:9px;color:var(--gold2);opacity:.6">${e.fonte==='subclass'?isIt?'Sottocl.':'Subcl.':isIt?'Sp.':'Sp.'}</span>
     </div>`;
   }
 
-  // ── Trucchetti ──────────────────────────────────────────────────
+  // ── Concentrazione banner ───────────────────────────────────────────────
+  const _cSp  = C.concentratingSpell ? SPELLS.find(s=>s.id===C.concentratingSpell) : null;
+  const _cBan = _cSp ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding:7px 10px;background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.35);border-radius:3px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gold);font-size:12px">◎ ${_cSp.nome}</span><span style="font-size:9px;color:var(--vdim)">concentrazione attiva</span></div>
+    <button onclick="fLoseConcentration()" style="background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:3px 8px;cursor:pointer">⬛ Perdi</button>
+  </div>` : '';
+
+  // ── Stat da incantatore ─────────────────────────────────────────────────
+  const statBar=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:8px 10px;background:rgba(13,10,6,.6);border:1px solid var(--border);border-radius:3px;font-size:11px">
+    <span><span style="color:var(--gold2)">Stat </span><span style="color:var(--gold);font-weight:700">${castStat}</span></span>
+    <span><span style="color:var(--gold2)">Att. </span><span style="color:var(--gold);font-weight:700">${castBonus>=0?'+':''}${castBonus}</span></span>
+    <span><span style="color:var(--gold2)">CD </span><span style="color:var(--gold);font-weight:700">${saveDC}</span></span>
+  </div>`;
+
+  // ── LIBRO DEGLI INCANTESIMI (solo Mago) ─────────────────────────────────
+  const bookSection = hasBook ? (function(){
+    const sb = C.spellbookSpells || [];
+    const sbByLv = {};
+    sb.forEach(function(s){ const l=s.lv||0; (sbByLv[l]=sbByLv[l]||[]).push(s); });
+    const sbLvls = Object.keys(sbByLv).sort((a,b)=>+a-+b);
+    return `<div style="margin-bottom:10px;padding:10px 12px;background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.3);border-radius:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${sb.length?'10px':'0'}">
+        <div>
+          <span style="font-family:'Comfortaa',sans-serif;font-size:10px;letter-spacing:1.5px;color:#3498db">📖 ${isIt?'Libro degli Incantesimi':'Spellbook'}</span>
+          <span style="color:#3498db;font-size:11px;font-weight:700;margin-left:8px">${sb.length} ${isIt?'incantesimi':'spells'}</span>
+          <span style="font-size:9px;color:var(--vdim);margin-left:6px">${isIt?'(nessun limite)':'(no limit)'}</span>
+        </div>
+        <button class="slot-add-btn" onclick="fOpenSpellPickerSpellbook()" style="border-color:rgba(52,152,219,.5);color:#3498db">
+          + ${isIt?'Aggiungi':'Add'}
+        </button>
+      </div>
+      ${sb.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px">
+        ${sbLvls.map(l=>`<div style="width:100%;margin-bottom:4px">
+          <div style="font-size:8px;color:#3498db;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">${l=='0'?(isIt?'Trucchetti':'Cantrips'):l+'° livello'}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${sbByLv[l].map((s,i)=>`<span style="background:rgba(52,152,219,.1);border:1px solid rgba(52,152,219,.25);border-radius:10px;padding:2px 8px;font-size:10px;color:#89c4f4;display:inline-flex;align-items:center;gap:4px">
+            ${s.nome}
+            <span onclick="(function(){if(!C.spellbookSpells)return;var idx=C.spellbookSpells.findIndex(function(x){return x.nome===\'${s.nome.replace(/'/g,"\\'")}\'&&x.lv===${s.lv||0};});if(idx>-1){C.spellbookSpells.splice(idx,1);re();}})()" style="cursor:pointer;color:var(--vdim);font-size:10px">✕</span>
+          </span>`).join('')}
+          </div>
+        </div>`).join('')}
+      </div>` : `<div style="color:var(--vdim);font-size:11px;font-style:italic;margin-top:6px">${isIt?'Il libro è vuoto. Aggiungi incantesimi dal pulsante sopra.':'The spellbook is empty. Add spells using the button above.'}</div>`}
+    </div>`;
+  })() : '';
+
+  // ── Trucchetti ─────────────────────────────────────────────────────────
   const cantripsAlways = alwaysPrep.filter(a=>{
     const db=SPELLS.find(s=>s.nome.toLowerCase()===a.nome.toLowerCase());
     return db&&db.livello===0;
@@ -7325,17 +7459,20 @@ function fRSpellsSection(){
     <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div>
-          <span style="font-family:'Comfortaa', sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">0° ${isIt?'Trucchetti':'Cantrips'}</span>
+          <span style="font-family:'Comfortaa',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">0° ${isIt?'Trucchetti':'Cantrips'}</span>
           <span style="color:${cc(curC,maxCantrips)};font-size:11px;font-weight:700;margin-left:8px">${curC}/${maxCantrips}</span>
         </div>
         <button class="slot-add-btn" onclick="fOpenSpellPickerFor('cantrip')" ${curC>=maxCantrips?'disabled style="opacity:.4"':''}>＋ ${isIt?'Aggiungi':'Add'}</button>
       </div>
-      ${cantripsAlways.map(alwaysNameRow).join('')}
+      ${cantripsAlways.length?`<div style="background:rgba(200,164,90,.04);border-left:2px solid var(--gold2);padding:4px 8px;margin-bottom:6px;border-radius:2px">
+        <div style="font-size:8px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">★ ${isIt?'Sempre preparati':'Always prepared'}</div>
+        ${cantripsAlways.map(alwaysNameRow).join('')}
+      </div>`:''}
       ${cantripsArr.map(s=>spellRow(s,false)).join('')}
       ${curC===0&&!cantripsAlways.length?`<div style="color:var(--vdim);font-size:11px;font-style:italic">${isIt?'Nessun trucchetto.':'No cantrips.'}</div>`:''}
     </div>` : '';
 
-  // ── Incantesimi levellati ───────────────────────────────────────
+  // ── Incantesimi levellati ───────────────────────────────────────────────
   const alwaysLev = alwaysPrep.filter(a=>{
     const db=SPELLS.find(s=>s.nome.toLowerCase()===a.nome.toLowerCase());
     return !db||db.livello>0;
@@ -7343,49 +7480,40 @@ function fRSpellsSection(){
   const byLv={};
   levSpellsArr.forEach(s=>{(byLv[s.livello]=byLv[s.livello]||[]).push(s);});
   const lvN={1:'1°',2:'2°',3:'3°',4:'4°',5:'5°',6:'6°',7:'7°',8:'8°',9:'9°'};
-  const formula = null; // PHB 2024: valore fisso da tabella
-  const prepLabel = fIsKnownCaster()
-    ? (isIt?'Conosciuti':'Known')
-    : (isIt?'Preparati':'Prepared');
 
   const levSection = maxSpells>0 ? `
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
         <div>
-          <span style="font-family:'Comfortaa', sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">${prepLabel}</span>
+          <span style="font-family:'Comfortaa',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">${sectionLabel}</span>
           <span style="color:${cc(curS,maxSpells)};font-size:11px;font-weight:700;margin-left:8px">${curS}/${maxSpells}</span>
-          ${alwaysLev.length?`<span style="color:var(--vdim);font-size:10px;margin-left:5px">+${alwaysLev.length}★</span>`:''}
-          ${formula?`<div style="font-size:9px;color:var(--vdim);margin-top:1px">${formula} = ${maxSpells}</div>`:''}
+          ${alwaysLev.length?`<span style="color:var(--gold2);font-size:10px;margin-left:5px">+${alwaysLev.length}★</span>`:''}
+          ${formula?`<div style="font-size:9px;color:var(--vdim);margin-top:2px">${formula}</div>`:''}
         </div>
-        <button class="slot-add-btn" onclick="fOpenSpellPickerFor('spell')" ${curS>=maxSpells?'disabled style="opacity:.4"':''}>＋ ${isPrepCaster?(isIt?'Prepara':'Prepare'):(isIt?'Apprendi':'Learn')}</button>
+        <button class="slot-add-btn" onclick="${pickerFn}" ${curS>=maxSpells&&!hasBook?'disabled style="opacity:.4"':''}>＋ ${addBtnLabel}</button>
       </div>
-      ${alwaysLev.length?`
-        <div style="margin-bottom:8px;padding:6px 8px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.15);border-radius:3px">
-          <div style="font-size:8px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">★ ${isIt?'Sempre preparati':'Always prepared'}</div>
-          ${alwaysLev.map(alwaysNameRow).join('')}
-        </div>` : ''}
+      ${alwaysLev.length?`<div style="margin-bottom:8px;padding:6px 8px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.2);border-radius:3px;border-left:2px solid var(--gold2)">
+        <div style="font-size:8px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">★ ${isIt?'Sempre preparati — non occupano slot':'Always prepared — no slot used'}</div>
+        ${alwaysLev.map(alwaysNameRow).join('')}
+      </div>` : ''}
       ${levSpellsArr.length===0
-        ? `<div style="color:var(--vdim);font-size:11px;font-style:italic;padding:4px 0">${isPrepCaster?(isIt?`Prepara fino a ${maxSpells} incantesimi.`:`Prepare up to ${maxSpells} spells.`):(isIt?`Conosci fino a ${maxSpells} incantesimi.`:`Know up to ${maxSpells} spells.`)}</div>`
+        ? `<div style="color:var(--vdim);font-size:11px;font-style:italic;padding:4px 0">${emptyMsg}</div>`
         : Object.keys(byLv).sort((a,b)=>+a-+b).map(lvl=>`
           <div style="margin-bottom:8px">
             <div style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:4px;display:flex;justify-content:space-between">
               <span>${lvN[lvl]||lvl+'°'}</span>
-              <button class="slot-add-btn" style="font-size:8px;padding:1px 5px" onclick="fOpenSpellPickerFor('spell',${lvl})">＋</button>
+              <button class="slot-add-btn" style="font-size:8px;padding:1px 5px" onclick="${pickerFn}">＋</button>
             </div>
             ${byLv[lvl].map(s=>spellRow(s,false)).join('')}
           </div>`).join('')
       }
     </div>` : '';
 
-  // ── Stat da incantatore ─────────────────────────────────────────
-  const statBar=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:8px 10px;background:rgba(13,10,6,.6);border:1px solid var(--border);border-radius:3px;font-size:11px">
-    <span><span style="color:var(--gold2)">${isIt?'Stat':'Stat'} </span><span style="color:var(--gold);font-weight:700">${castStat}</span></span>
-    <span><span style="color:var(--gold2)">${isIt?'Att. ':'Atk '}</span><span style="color:var(--gold);font-weight:700">${castBonus>=0?'+':''}${castBonus}</span></span>
-    <span><span style="color:var(--gold2)">CD </span><span style="color:var(--gold);font-weight:700">${saveDC}</span></span>
-  </div>`;
-
-  const _cSp = C.concentratingSpell ? SPELLS.find(s=>s.id===C.concentratingSpell) : null;
-  const _cBan = _cSp ? `<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;padding:7px 10px;background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.35);border-radius:3px;margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--gold);font-size:12px">\u25ce ${_cSp.nome}</span><span style="font-size:9px;color:var(--vdim)">concentrazione attiva</span></div><button onclick="fLoseConcentration()" style="background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:3px 8px;cursor:pointer">\u26ab Perdi</button></div>` : '';
+  // ── Segreti Magici Bardo (Lv.10+) ──────────────────────────────────────
+  const bardSecretsBar = (C.cls==='bard'&&lv>=10) ? `<div style="margin:8px 0;padding:7px 10px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:3px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+    <span style="font-size:11px;color:var(--gold2)">📚 ${isIt?'Segreti Magici (Lv.10+)':'Magical Secrets (Lv.10+)'}</span>
+    <button onclick="fOpenSpellPickerSecrets()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 10px;cursor:pointer">+ ${isIt?'Aggiungi da altra lista':'Add from other list'}</button>
+  </div>` : '';
 
   return `<div class="box">
     <div class="box-title">✨ ${isIt?'Incantesimi':'Spells'}</div>
@@ -7393,9 +7521,9 @@ function fRSpellsSection(){
     ${_cBan}
     ${fRSpellSlotsBlock(C.cls,lv,isIt)}
     ${fRWarlockBlock()}
-    ${(C.cls==='bard'&&(C.level||1)>=10) ? `<div style="margin:8px 0;padding:7px 10px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:3px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><span style="font-size:11px;color:var(--gold2)">\U0001f4da Segreti Magici (Lv.10+)</span><button onclick="fOpenSpellPickerSecrets()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 10px;cursor:pointer">\u002b Aggiungi da altra lista</button></div>` : ''}
-    ${(C.cls==='wizard') ? `<div style="margin:8px 0;padding:7px 10px;background:rgba(52,152,219,.06);border:1px solid rgba(52,152,219,.25);border-radius:3px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><span style="font-size:11px;color:#3498db">\U0001f4d6 Libro (${(C.spellbookSpells||[]).length} incantesimi)</span><button onclick="fOpenSpellPickerSpellbook()" style="background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#3498db;font-size:11px;padding:4px 10px;cursor:pointer">\u002b Aggiungi al libro</button></div>` : ''}
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+    ${bardSecretsBar}
+    ${bookSection}
+    <div style="margin-top:${bookSection?'4px':'14px'};padding-top:12px;border-top:1px solid var(--border)">
       ${cantripSection}
       ${levSection}
     </div>
@@ -7615,12 +7743,12 @@ function fGoBack(){
   if(step===0){screen='home';}
   else{
     step--;
-    // Skip step 2 backward if class has no mastery/expertise
-    if(step===2){
+    // Skip step 3 backward se classe senza padronanze/maestria
+    if(step===3){
       const cl=fgCl();
       const mc=cl?cl.masteryCount||0:0;
       const ec=cl?cl.expertiseCount||0:0;
-      if(mc===0&&ec===0) step=1;
+      if(mc===0&&ec===0) step=2;
     }
   }
   re();
@@ -7628,12 +7756,12 @@ function fGoBack(){
 function fGoNext(){
   if(step<FNSTEPS-1){
     step++;
-    // Skip step 2 (Padronanza) if class has no mastery/expertise
-    if(step===2){
+    // Skip step 3 (Padronanza) se classe senza padronanze/maestria
+    if(step===3){
       const cl=fgCl();
       const mc=cl?cl.masteryCount||0:0;
       const ec=cl?cl.expertiseCount||0:0;
-      if(mc===0&&ec===0) step=3;
+      if(mc===0&&ec===0) step=4;
     }
     if(step>=FNSTEPS-1){screen='sheet';}
   } else {
@@ -8344,7 +8472,7 @@ function fSkillMod(skillEn, statKey){
 function fRS5(){
   const spent=fSpentPB();
   return`<div>
-    <div class="sec-title">🎲 ${ft("6 · Punteggi di Caratteristica","6 · Ability Scores")}</div>
+    <div class="sec-title">🎲 ${ft("7 · Punteggi di Caratteristica","7 · Ability Scores")}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       ${[{id:"pointbuy",it:"Acquisto Punti",en:"Point Buy"},{id:"standardarray",it:"Array Standard",en:"Standard Array"},{id:"roll",it:"4d6 Scarta 1",en:"4d6 Drop Lowest"},{id:"manual",it:"Libero",en:"Manual"}].map(m=>`<button class="btn sm ${C.statMethod===m.id?"primary":""}" onclick="fSetMeth('${m.id}')">${lang==="it"?m.it:m.en}</button>`).join("")}
     </div>
@@ -8389,7 +8517,7 @@ function fRS6(){
   const sp=fgSp(); const sr=fgSr();
   return`
   <div>
-    <div class="sec-title">🌍 ${ft("7 · Specie","7 · Species")}</div>
+    <div class="sec-title">🌍 ${ft("5 · Specie","5 · Species")}</div>
 
     <div style="color:var(--muted);font-size:13px;margin-bottom:10px">${ft("Specie","Species")}</div>
     <div class="ga-sm" style="margin-bottom:14px">
@@ -8408,7 +8536,7 @@ function fRS6(){
 function fRS7(){
   return`
   <div>
-    <div class="sec-title">⚖️ ${ft("8 · Allineamento","8 · Alignment")}</div>
+    <div class="sec-title">⚖️ ${ft("6 · Allineamento","6 · Alignment")}</div>
     <div style="color:var(--muted);font-size:13px;margin-bottom:8px">${ft("Allineamento","Alignment")}</div>
     <div class="g3" style="max-width:340px">
       ${ALIGNMENTS.map(a=>`<div class="card ${C.alignment===a.id?"sel":""}" style="padding:7px;text-align:center" onclick="C.alignment='${a.id}';re()">
@@ -8428,7 +8556,7 @@ function fRS8(){
   const bgLangs = bg ? (isIt ? bg.it : bg.en) + ' (BG)' : '';
   return`
   <div>
-    <div class="sec-title">🗣️ ${ft("9 · Lingue","9 · Languages")}</div>
+    <div class="sec-title">🗣️ ${ft("8 · Lingue","8 · Languages")}</div>
     <div class="panel" style="margin-bottom:12px">
       <div class="sec-title">${ft("Lingue dalla Specie e Background","Languages from Species & Background")}</div>
       ${sp ? `<div class="sheet-row" style="padding:6px 0">
@@ -8444,19 +8572,17 @@ function fRS8(){
 `;
 }
 function fRS9(){
-  const sp=fgSp();
   return`
   <div>
-    <div class="sec-title">✍️ ${ft("10 · Nome","10 · Name")}</div>
-<!-- NOME — dopo la specie così 🎲 genera nomi coerenti -->
-    ${sp ? `<div style="margin-top:18px">
-      <label style="color:var(--muted);font-size:13px;display:block;margin-bottom:6px">${ft("Nome","Name")}</label>
-      <div style="display:flex;gap:8px">
-        <input id="fnm" value="${C.name}" placeholder="${ft('Nome del personaggio...','Character name...')}" oninput="C.name=this.value;fUpdNext()" style="flex:1">
-        <button class="btn sm" onclick="fRandomName()" title="${ft('Nome casuale della specie','Species random name')}" style="padding:10px 12px;font-size:14px">🎲</button>
-      </div>
-      <div style="font-size:10px;color:var(--vdim);margin-top:4px">🎲 ${ft("Genera un nome da","Name from")} ${lang==="it"?sp.it:sp.en}</div>
-    </div>` : `<div style="margin-top:16px;padding:10px 12px;background:rgba(200,164,90,.05);border:1px dashed rgba(200,164,90,.18);border-radius:3px;font-size:12px;color:var(--vdim)">← ${ft("Scegli prima una specie per il nome","Choose a species first for the name")}</div>`}
+    <div class="sec-title">✍️ ${ft("1 · Nome del Personaggio","1 · Character Name")}</div>
+    <div style="margin-top:24px;max-width:420px">
+      <label style="color:var(--muted);font-size:13px;display:block;margin-bottom:8px">${ft("Come si chiama il tuo personaggio?","What is your character's name?")}</label>
+      <input id="fnm" value="${C.name}" placeholder="${ft('Nome del personaggio...','Character name...')}"
+        oninput="C.name=this.value;fUpdNext()"
+        autofocus
+        style="width:100%;font-size:18px;font-family:'Comfortaa',sans-serif;padding:10px 14px;background:rgba(13,10,6,.9);border:2px solid var(--gold2);border-radius:4px;color:var(--gold)">
+      <div style="font-size:11px;color:var(--vdim);margin-top:8px">${ft("Puoi cambiarlo in qualsiasi momento dalla scheda del personaggio.","You can change it at any time from the character sheet.")}</div>
+    </div>
   </div>`;
 }
 
@@ -8596,7 +8722,7 @@ function fRS10(){
   const fields=[{k:"trait",it:"Tratto di Personalità",en:"Personality Trait",ph:ft("Come ti percepiscono?","How do others see you?"),suggest:true},{k:"ideal",it:"Ideale",en:"Ideal",ph:ft("In cosa credi?","What do you believe in?")},{k:"bond",it:"Legame",en:"Bond",ph:ft("Cosa ti lega al mondo?","What ties you to the world?")},{k:"flaw",it:"Difetto",en:"Flaw",ph:ft("Qual è il tuo punto debole?","What is your weakness?")}];
   return`
   <div>
-    <div class="sec-title">🪶 ${ft("11 · Personalità e Storia","11 · Personality & Story")}</div>
+    <div class="sec-title">🪶 ${ft("10 · Personalità e Storia","10 · Personality & Story")}</div>
     
     ${fields.map(f=>{
       const suggestBtn = f.suggest ? `<button onclick="fSuggestTrait()" type="button" style="font-size:11px;background:rgba(200,164,90,.15);border:1px solid var(--gold);color:var(--gold);padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.04em;margin-left:8px" title="${ft('Suggerisci tratto in base all\'allineamento','Suggest trait based on alignment')}">🎲 ${ft('Suggerisci','Suggest')}</button>` : '';
@@ -8612,7 +8738,7 @@ function fRS10(){
 function fRS11(cl){
   const eq=cl?FEQUIP[cl.id]:null;
   return`<div>
-    <div class="sec-title">🎒 ${ft("12 · Equipaggiamento","12 · Equipment")}</div>
+    <div class="sec-title">🎒 ${ft("11 · Equipaggiamento","11 · Equipment")}</div>
     ${cl&&eq?`<div class="box"><div class="box-title">${cl.icon} ${lang==="it"?cl.it:cl.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${lang==="it"?eq.it:eq.en}</div></div>`:""}
     <div class="box"><div class="box-title">${ft("Note","Notes")}</div><textarea rows="3" placeholder="${ft("Oggetti aggiuntivi...","Additional items...")}" oninput="C.equipNotes=this.value">${C.equipNotes||""}</textarea></div>
   </div>`;
