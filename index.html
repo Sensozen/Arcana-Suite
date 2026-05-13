@@ -3330,6 +3330,9 @@ function fLongRest(){
   C.wildShapeUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
   C.innateUsed=0;C.arcanaUsed={};
   C.divPunish={used:false};C.arcaneRecovUsed=false;
+  if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
+  C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
+  C.spettralCreatUsed=false;C.phantomDoppUsed=false;C.overchargeUsed=0;
   C.clockworkEquil={used:0};C.divIntUsed=false;
   if(C.palLayHands)C.palLayHands.cur=C.palLayHands.max;
   C.concentratingSpell=null;
@@ -4163,67 +4166,168 @@ function fRClassBlock(){
 
   // ── MAGO
   if(cl==='wizard'){
-    // Recupero Arcano (1×/giorno)
+    var intMod=Math.floor((fTotalStat('INT')-10)/2);
+
+    // ── LV.1: RECUPERO ARCANO ──────────────────────────────────────────────
     if(C.arcaneRecovUsed==null)C.arcaneRecovUsed=false;
+    var arcMax=Math.max(1,Math.ceil(lv/2));
     html+='<div style="'+boxS+'">';
     html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-    html+='<span style="font-size:11px;color:var(--gold2)">📖 Recupero Arcano (1×/giorno)</span>';
-    if(!C.arcaneRecovUsed){
-      html+='<button onclick="C.arcaneRecovUsed=true;re()" style="background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#3498db;font-size:11px;padding:3px 9px;cursor:pointer">Usa</button>';
-    } else {
-      html+='<span style="font-size:10px;color:var(--vdim)">Usato <button onclick="C.arcaneRecovUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';
-    }
+    html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">📖 Recupero Arcano (Lv.1)</span>';
+    if(!C.arcaneRecovUsed){html+='<button onclick="C.arcaneRecovUsed=true;re()" style="background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#3498db;font-size:11px;padding:3px 9px;cursor:pointer">Usa</button>';}
+    else{html+='<span style="font-size:10px;color:var(--vdim)">Usato (riposo lungo) <button onclick="C.arcaneRecovUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
     html+='</div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Recupera slot tot. lv ≤ ⌈Lv/2⌉ (max 5°) · riposo breve · 1×/giorno</div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Riposo breve: recupera slot tot. livelli ≤ '+arcMax+' (max 5°) · 1×/giorno</div>';
     html+='</div>';
-    // Scholar Lv.2
-    if(lv>=2){
-      html+='<div style="font-size:10px;color:var(--muted)">📚 Studioso (Lv.2): +2 lingue · maestria in Arcano e un\'altra abilità INT a scelta</div>';
-    }
-    // Presagio (Divinatore)
-    if(sc==='divination'&&lv>=3){
-      var pArr=C.divinatorPresage||[null,null];
-      html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🔮 Portento (2d20 a ogni riposo lungo)</div>';
-      html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">';
-      html+='<div style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--vdim)">d1</span><input type="number" min="1" max="20" placeholder="—" value="'+(pArr[0]||'')+'" oninput="if(!C.divinatorPresage)C.divinatorPresage=[null,null];C.divinatorPresage[0]=this.value?parseInt(this.value):null" style="width:48px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold);font-size:15px;padding:4px;text-align:center"></div>';
-      html+='<div style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--vdim)">d2</span><input type="number" min="1" max="20" placeholder="—" value="'+(pArr[1]||'')+'" oninput="if(!C.divinatorPresage)C.divinatorPresage=[null,null];C.divinatorPresage[1]=this.value?parseInt(this.value):null" style="width:48px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold);font-size:15px;padding:4px;text-align:center"></div>';
-      if(lv>=14){
-        html+='<div style="display:flex;align-items:center;gap:4px"><span style="font-size:10px;color:var(--vdim)">d3</span><input type="number" min="1" max="20" placeholder="—" value="'+(pArr[2]||'')+'" oninput="if(!C.divinatorPresage)C.divinatorPresage=[null,null,null];C.divinatorPresage[2]=this.value?parseInt(this.value):null" style="width:48px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold);font-size:15px;padding:4px;text-align:center"></div>';
-      }
-      html+='<button onclick="fResetPresage()" style="background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2);font-size:10px;padding:4px 8px;cursor:pointer">🎲 Tira</button>';
-      html+='</div>';
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Sostituisci qualsiasi tiro d20 con uno dei valori · ogni dado: 1 uso</div>';
-      html+='</div>';
-    }
-    // Protezione Abiuratoria (Abiuratore Lv.3+)
-    if(sc==='abjuration'&&lv>=3){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🛡️ Protezione Abiuratoria (Lv.3)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Lanci un\'abiurazione: PF temp = 2×livello spell + mod. INT · Magia Proiettata (Lv.6): estendi abiurazioni self a un alleato</div></div>';
-    }
-    // Illusioni Migliorate (Illusionista Lv.3)
-    if(sc==='illusion'&&lv>=3){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🌀 Illusioni Migliorate (Lv.3)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Illusione minore gratuita (include suono) · Doppio Illusorio (Lv.10): action bonus crea duplicato</div></div>';
-    }
-    // Intagliare Incantesimi (Invocatore Lv.3+)
-    if(sc==='evocation'&&lv>=3){
-      var sculptN=Math.max(1,Math.floor((fTotalStat('INT')-10)/2));
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">✨ Intagliare Incantesimi (Lv.3)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Escludi '+sculptN+' creature dalle evocazioni · Evocatore Potenziato (Lv.10): +mod. INT ai danni</div></div>';
-    }
-    // Libro degli Incantesimi: gestito nella sezione Incantesimi
 
-    // Maestria Incantesimi Lv.18
-    if(lv>=18){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">✨ Maestria degli Incantesimi (Lv.18)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Puoi lanciare 1 incantesimo 1° e 1 incantesimo 2° senza slot ogni riposo lungo</div></div>';
+    // ── LV.1: ADEPTO DEI RITUALI ───────────────────────────────────────────
+    html+='<div style="font-size:10px;color:var(--muted)">📜 Adepto dei Rituali (Lv.1): lancia incantesimi con [R] dal libro come rituali senza slot</div>';
+
+    // ── LV.2: STUDIOSO ─────────────────────────────────────────────────────
+    if(lv>=2){
+      html+='<div style="font-size:10px;color:var(--muted)">🎓 Studioso (Lv.2): maestria in Arcano, Indagare, Medicina, Natura, Religione o Storia (a scelta)</div>';
     }
-    // Sovraccaricare (Invocatore Lv.14)
-    if(sc==='evocation'&&lv>=14){
-      if(!C.overchargeUsed)C.overchargeUsed=0;
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">💥 Sovraccaricare Incantesimi (Lv.14)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Max danni invece di tirare per un\'evocazione 1°-5° · 1×/rip. lungo per incantesimo</div></div>';
+
+    // ── LV.5: MEMORIZZARE INCANTESIMI ──────────────────────────────────────
+    if(lv>=5){
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">🧠 Memorizzare Incantesimi (Lv.5)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Ogni volta che sali di livello: puoi sostituire incantesimi preparati con altri del libro gratuitamente (la lista cresce col livello)</div>';
+      html+='</div>';
+    }
+
+    // ── SOTTOCLASSI ────────────────────────────────────────────────────────
+    if(sc&&lv>=3){
+      html+='<div style="border-top:1px solid rgba(200,164,90,.2);margin:6px 0 4px;padding-top:8px">';
+      html+='<div style="font-size:9px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px">Sottoclasse: '+sc.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div>';
+
+      // ── ABIURATORE ─────────────────────────────────────────────────────
+      if(sc==='abjuration'){
+        // Interdizione Arcana (Lv.3) — tracker PF interattivo
+        var intMax=lv*2+intMod;
+        if(!C.arcaneWardHP)C.arcaneWardHP={max:intMax,cur:intMax};
+        var awCur=C.arcaneWardHP.cur||0;
+        var awMax=C.arcaneWardHP.max||intMax;
+        html+='<div style="'+boxS+';border-color:rgba(52,152,219,.4)">';
+        html+='<div style="font-size:11px;color:#3498db;font-weight:700;margin-bottom:6px">🛡️ Interdizione Arcana (Lv.3)</div>';
+        html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
+        html+='<span style="font-size:28px;font-weight:900;color:'+(awCur>0?'#3498db':'#e74c3c')+'">'+(awCur||0)+'</span>';
+        html+='<span style="font-size:14px;color:var(--vdim)">/ '+awMax+' PF</span>';
+        html+='</div>';
+        html+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
+        [-5,-1].forEach(function(n){html+='<button onclick="if(!C.arcaneWardHP)C.arcaneWardHP={max:'+awMax+',cur:'+awCur+'};C.arcaneWardHP.cur=Math.max(0,C.arcaneWardHP.cur'+n+');re()" style="background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;font-size:11px;padding:3px 7px;cursor:pointer">'+n+'</button>';});
+        html+='<button onclick="if(!C.arcaneWardHP)C.arcaneWardHP={max:'+awMax+',cur:'+awCur+'};C.arcaneWardHP.cur=Math.min(C.arcaneWardHP.max,C.arcaneWardHP.cur+'+lv*2+');re()" style="background:rgba(52,152,219,.12);border:1px solid rgba(52,152,219,.3);border-radius:3px;color:#3498db;font-size:10px;padding:3px 7px;cursor:pointer">+Abiurazione</button>';
+        html+='<button onclick="C.arcaneWardHP={max:'+awMax+',cur:'+awMax+'};re()" style="background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2);font-size:10px;padding:3px 7px;cursor:pointer">♺</button>';
+        html+='</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">PF max = 2×Lv+mod.INT = '+intMax+' · assorbe danni al posto del mago · si ricarica lanciando Abiurazione</div>';
+        html+='</div>';
+        if(lv>=6){html+='<div style="font-size:10px;color:var(--muted)">⚡ Interdizione Proiettata (Lv.6): reazione → danni a creatura entro 9m assorbiti dalla propria interdizione</div>';}
+        if(lv>=10){html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);margin-bottom:3px">🔮 Spezzamagia (Lv.10)</div><div style="font-size:10px;color:var(--muted)">Contrastare/dissolvi magie sempre preparati · dissolvi magie come azione bonus +comp. al tiro · lanci con slot → slot non speso se incantesimo non si ferma</div></div>';}
+        if(lv>=14){html+='<div style="font-size:10px;color:var(--muted)">🛡️ Resistenza agli Incantesimi (Lv.14): vantaggio TS contro incantesimi · resistenza ai danni da incantesimi</div>';}
+      }
+
+      // ── DIVINATORE ─────────────────────────────────────────────────────
+      if(sc==='divination'){
+        // Portento (Lv.3)
+        var p3=C.divinatorPresage||[null,null,null];
+        var pUsed=C.presageUsed||[false,false,false];
+        var nDice=lv>=14?3:2;
+        html+='<div style="'+boxS+';border-color:rgba(200,164,90,.4)">';
+        html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:6px">🔮 Portento (Lv.3)'+(lv>=14?' — Portento Superiore (3d20)':'')+'</div>';
+        html+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">';
+        for(var pi=0;pi<nDice;pi++){
+          var pv=p3[pi];
+          var pu=pUsed[pi]||false;
+          html+='<div style="display:flex;flex-direction:column;align-items:center;gap:3px">';
+          html+='<span style="font-size:9px;color:var(--vdim)">d'+(pi+1)+'</span>';
+          html+='<input type="number" min="1" max="20" placeholder="—" value="'+(pv||'')+'" oninput="if(!C.divinatorPresage)C.divinatorPresage=[null,null,null];C.divinatorPresage['+pi+']=this.value?parseInt(this.value):null" style="width:48px;background:'+(pu?'rgba(0,0,0,.4)':'#0a0a12')+';border:1px solid rgba(200,164,90,'+(pu?'.1':'.4')+');border-radius:3px;color:'+(pu?'var(--vdim)':'var(--gold)')+';font-size:18px;font-weight:900;padding:4px;text-align:center;opacity:'+(pu?'.4':'1')+'">';
+          html+='<button onclick="if(!C.presageUsed)C.presageUsed=[false,false,false];C.presageUsed['+pi+']=!C.presageUsed['+pi+'];re()" style="font-size:9px;background:none;border:1px solid rgba(200,164,90,'+(pu?'.2':'.4')+');border-radius:3px;color:var(--vdim);padding:1px 5px;cursor:pointer">'+(pu?'↩ riprist.':'Usa')+'</button>';
+          html+='</div>';
+        }
+        html+='<button onclick="(function(){var r=[];for(var i=0;i<'+nDice+';i++)r.push(Math.ceil(Math.random()*20));C.divinatorPresage=r;C.presageUsed=[false,false,false];re();})()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:5px 10px;cursor:pointer">🎲 Tira '+(nDice)+'d20</button>';
+        html+='</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Riposo lungo: tira '+nDice+'d20 · ogni valore sostituisce 1 prova con d20 (anche di alleati) · decidi prima del tiro</div>';
+        html+='</div>';
+        if(lv>=6){html+='<div style="font-size:10px;color:var(--muted)">⚡ Divinazione Esperta (Lv.6): lancia Divinazione con slot 2°+ → recupera 1 slot di livello inferiore (max 5°)</div>';}
+        if(lv>=10){
+          if(!C.thirdEyeUsed)C.thirdEyeUsed=false;
+          html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
+          html+='<span style="font-size:11px;color:var(--gold2)">👁️ Terzo Occhio (Lv.10)</span>';
+          if(!C.thirdEyeUsed){html+='<button onclick="C.thirdEyeUsed=true;re()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:3px 9px;cursor:pointer">Az. Bonus: Attiva</button>';}
+          else{html+='<span style="font-size:10px;color:var(--vdim)">Usato <button onclick="C.thirdEyeUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
+          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px">Scegli: Comprensione superiore · Scurovisione 36m · Vedere invisibilità · fino al prossimo riposo</div></div>';
+        }
+        if(lv>=14){html+='<div style="font-size:10px;color:var(--gold2)">🔮 Portento Superiore (Lv.14): ora tira 3d20 invece di 2</div>';}
+      }
+
+      // ── INVOCATORE (Evocatore) ──────────────────────────────────────────
+      if(sc==='evocation'){
+        html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">✨ Trucchetto Potente (Lv.3)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Trucchetto manca il bersaglio → subisce comunque metà dei danni (se applicabili)</div></div>';
+        if(lv>=6){
+          var sculptN=Math.max(1,1+Math.floor(0)); // = 1 + livello spell (dinamico)
+          html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">🌀 Plasmare Incantesimi (Lv.6)</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">Lanci Invocazione che colpisce campo visivo: scegli N creature = 1+livello slot → superano auto TS, no danni (o metà in caso normale)</div></div>';
+        }
+        if(lv>=10){
+          html+='<div style="font-size:10px;color:var(--muted)">💥 Invocazione Potente (Lv.10): +'+intMod+' ai danni delle Invocazioni</div>';
+        }
+        if(lv>=14){
+          if(!C.overchargeUsed)C.overchargeUsed=0;
+          html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
+          html+='<span style="font-size:11px;color:var(--gold2)">💥 Saturazione Magica (Lv.14)</span>';
+          html+='<span style="font-size:10px;color:var(--vdim)">Usi dopo riposo lungo: '+(C.overchargeUsed||0)+'</span>';
+          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px">Slot 1°-5° dannoso → max danni · Prima volta: nessun penalty · Reuso prima del rip. lungo: 2d12 per Lv spell necrotici (+1d12 ogni uso successivo)</div>';
+          html+='<div style="display:flex;gap:5px;margin-top:5px"><button onclick="C.overchargeUsed=(C.overchargeUsed||0)+1;re()" style="background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:2px 7px;cursor:pointer">+1 uso</button><button onclick="C.overchargeUsed=0;re()" style="background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--vdim);font-size:10px;padding:2px 7px;cursor:pointer">↩</button></div>';
+          html+='</div>';
+        }
+      }
+
+      // ── ILLUSIONISTA ────────────────────────────────────────────────────
+      if(sc==='illusion'){
+        html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">🌀 Illusioni Migliorate (Lv.3)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Illusioni senza componenti verbali · gittata Illusione ≥3m → +18m · conosce <em>Illusione minore</em> (bonus, non conta nel totale)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)"><em>Illusione minore</em> come azione bonus: riproduce suono E immagine contemporaneamente</div></div>';
+        if(lv>=6){
+          if(!C.spettralCreatUsed)C.spettralCreatUsed=false;
+          html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
+          html+='<span style="font-size:11px;color:var(--gold2)">👻 Creature Spettrali (Lv.6)</span>';
+          if(!C.spettralCreatUsed){html+='<button onclick="C.spettralCreatUsed=true;re()" style="background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.35);border-radius:3px;color:var(--gold);font-size:11px;padding:3px 9px;cursor:pointer">Usa versione illusoria</button>';}
+          else{html+='<span style="font-size:10px;color:var(--vdim)">Usata <button onclick="C.spettralCreatUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
+          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px"><em>Richiama bestia/folletto</em> sempre preparati · versione illusoria senza slot, PF dimezzati · 1×/riposo lungo</div></div>';
+        }
+        if(lv>=10){
+          if(!C.phantomDoppUsed)C.phantomDoppUsed=false;
+          html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
+          html+='<span style="font-size:11px;color:var(--gold2)">🪞 Sosia Illusorio (Lv.10)</span>';
+          if(!C.phantomDoppUsed){html+='<span style="font-size:10px;color:var(--muted)">Disponibile (reazione automatica)</span>';}
+          else{html+='<span style="font-size:10px;color:var(--vdim)">Usato <button onclick="C.phantomDoppUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
+          html+='<button onclick="C.phantomDoppUsed=true;re()" style="background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--vdim);font-size:10px;padding:2px 7px;cursor:pointer">Usato</button>';
+          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px">Reazione: colpito → sosia assorbe attacco (manca) · 1×/riposo breve o lungo · ripristino con slot 2°+ senza azione</div></div>';
+        }
+        if(lv>=14){
+          html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">✨ Realtà Illusoria (Lv.14)</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">Lanci Illusione con slot → scegli 1 oggetto non magico dell\'illusione, renderlo reale (azione bonus) per 1 min · non infligge danni/condizioni</div></div>';
+        }
+      }
+
+      html+='</div>'; // fine sezione sottoclasse
+    }
+
+    // ── LV.18: MAESTRIA NEGLI INCANTESIMI ─────────────────────────────────
+    if(lv>=18){
+      html+='<div style="'+boxS+';border-color:rgba(200,164,90,.5)">';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">✨ Maestria negli Incantesimi (Lv.18)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">1 incantesimo 1° e 1 incantesimo 2° a scelta: puoi lanciarli senza slot ogni riposo lungo · riposo lungo: cambia le scelte</div>';
+      html+='</div>';
+    }
+
+    // ── LV.20: INCANTESIMI PERSONALI ─────────────────────────────────────
+    if(lv>=20){
+      html+='<div style="'+boxS+';border-color:rgba(200,164,90,.7)">';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">👑 Incantesimi Personali (Lv.20)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Hai accesso a incantesimi speciali unici che riflettono la tua mastery assoluta della magia arcana</div>';
+      html+='</div>';
     }
   }
 
@@ -4393,7 +4497,13 @@ let C={
   divIntUsed:false,                 // Chierico: Intervento Divino usato
   divPunish:{used:false},           // Paladino: Punizione Divina senza slot
   palLayHands:null,                 // Paladino: Imposizione delle Mani {max,cur}
-  arcaneRecovUsed:false,            // Mago: Recupero Arcano usato
+  arcaneRecovUsed:false,arcaneWardHP:null,presageUsed:[false,false,false],thirdEyeUsed:false,spettralCreatUsed:false,phantomDoppUsed:false,overchargeUsed:0,            // Mago: Recupero Arcano usato
+  arcaneWardHP:null,                // Abiuratore: PF Interdizione Arcana {max,cur}
+  presageUsed:[false,false,false],  // Divinatore: dadi Portento usati
+  thirdEyeUsed:false,               // Divinatore: Terzo Occhio usato
+  spettralCreatUsed:false,          // Illusionista: Creature Spettrali usate
+  phantomDoppUsed:false,            // Illusionista: Sosia Illusorio usato
+  overchargeUsed:0,                 // Invocatore: usi Saturazione Magica
   clockworkEquil:{used:0},          // Stregone Meccanico: usi Ripristino
   lastWildSurge:null,concentratingSpell:null,tempHP:0,isConscious:true,
   concentratingSpell:null,
@@ -6884,10 +6994,11 @@ function fHasSpellbook(){ return C.cls === 'wizard'; }
 // Caster che hanno lista "conosciuta" (permanente, non si prepara ogni giorno)
 function fIsKnownCaster(){ return C.cls === 'warlock' || C.cls === 'sorcerer'; }
 
-// Mago: prepara INT + livello incantesimi dal libro
+// Mago: incantesimi preparati dalla tabella PHB 2024 (NON INT+Lv)
+const WIZARD_PREPARED_TABLE = [4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,23,24,25];
 function fWizardMaxPrepared(){
-  const intMod = fcmod(fTotalStat('INT'));
-  return Math.max(1, (C.level||1) + intMod);
+  const lv = Math.min(Math.max(C.level||1, 1), 20);
+  return WIZARD_PREPARED_TABLE[lv-1];
 }
 
 // Max incantesimi: per il Mago è la formula; per gli altri è dalla tabella
@@ -6901,7 +7012,7 @@ function fPreparedFormula(){
   const isIt = lang==='it';
   const lv = C.level||1;
   switch(C.cls){
-    case 'wizard':  return (isIt?'INT':'INT')+'+Lv = '+fWizardMaxPrepared();
+    case 'wizard':  return (isIt?'Da tabella':'From table')+' = '+fWizardMaxPrepared();
     case 'cleric':  return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
     case 'druid':   return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
     case 'paladin': return (isIt?'CAR':'CHA')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('CHA')));
