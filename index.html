@@ -8240,10 +8240,35 @@ function fSelSp(id){
   re();
 }
 function fSelSr(id){C.subrace=id;re();}
+// Mappa caratteristiche primarie per classe [1a:18, 2a:16, 3a:14, resto:10]
+const CLASS_PRIMARY_STATS = {
+  barbarian: ['STR','CON','DEX'],
+  bard:      ['CHA','DEX','CON'],
+  cleric:    ['WIS','CHA','CON'],
+  druid:     ['WIS','INT','CON'],
+  fighter:   ['STR','CON','DEX'],
+  monk:      ['DEX','WIS','CON'],
+  paladin:   ['STR','CHA','CON'],
+  ranger:    ['DEX','WIS','CON'],
+  rogue:     ['DEX','INT','CON'],
+  sorcerer:  ['CHA','CON','DEX'],
+  warlock:   ['CHA','CON','DEX'],
+  wizard:    ['INT','WIS','CON'],
+};
+
 function fSelCl(id){
-  C.cls=id;C.subclass=null;C.classSkills=[];
-  C.preparedSpells=[];C._spellTab='always';
-  C.weaponMasteries=[];C.expertiseSkills=[];
+  C.cls=id; C.subclass=null; C.classSkills=[];
+  C.preparedSpells=[]; C._spellTab='always';
+  C.weaponMasteries=[]; C.expertiseSkills=[];
+  // Imposta automaticamente le caratteristiche in base alla classe
+  const pri = CLASS_PRIMARY_STATS[id];
+  if(pri){
+    const vals = {STR:10,DEX:10,CON:10,INT:10,WIS:10,CHA:10};
+    vals[pri[0]] = 18;
+    vals[pri[1]] = 16;
+    vals[pri[2]] = 14;
+    C.stats = vals;
+  }
   re();
 }
 function fSelBg(id){
