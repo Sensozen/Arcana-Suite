@@ -1089,6 +1089,11 @@ function pwCheck(){
       <div style="color:#c8a45a;font-size:13px;font-weight:600;margin-bottom:5px">📲 <span id="exp-how"></span></div>
       <div style="color:#9a8060;font-size:12px;line-height:1.6" id="exp-instructions"></div>
       <button onclick="doPrint()" style="width:100%;display:block;background:linear-gradient(135deg,#8B5A2B,#5a3a1a);border:1px solid #c8a45a;color:#e8d5b0;padding:14px 20px;font-family:'Comfortaa', system-ui, sans-serif;font-size:16px;border-radius:3px;cursor:pointer;margin-top:10px">🖨️ <span id="exp-print-btn"></span></button>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="fSaveJSON()" style="flex:1;background:rgba(90,120,180,.15);border:1px solid #5a78b0;color:#8aabdf;padding:13px 10px;font-family:'Comfortaa', system-ui, sans-serif;font-size:14px;border-radius:3px;cursor:pointer">💾 Salva JSON</button>
+        <label style="flex:1;background:rgba(90,160,120,.15);border:1px solid #5a9a78;color:#7abf9a;padding:13px 10px;font-family:'Comfortaa', system-ui, sans-serif;font-size:14px;border-radius:3px;cursor:pointer;text-align:center">📂 Carica JSON<input type="file" accept=".json" onchange="fLoadJSON(event)" style="display:none"></label>
+      </div>
+      <div id="exp-load-msg" style="font-size:11px;color:#7abf9a;text-align:center;min-height:16px;margin-top:4px"></div>
       <button onclick="closeExport();nuovoPersonaggio()" style="width:100%;display:block;background:rgba(90,138,90,.15);border:1px solid #5a8a5a;color:#7aba7a;padding:14px 20px;font-family:'Comfortaa', system-ui, sans-serif;font-size:16px;border-radius:3px;cursor:pointer;margin-top:8px">⚔️ <span id="exp-new-btn"></span></button>
     </div>
   </div>
@@ -3505,21 +3510,26 @@ function fToggleMetamagic(m){
 function fResetPresage(){C.divinatorPresage=[null,null];re();}
 
 // ─── Helper F3.5-F3.7 ─────────────────────────────────────────────────────
+function fShowSorcMsg(msg,isErr){
+  if(!C._sorcMsg)C._sorcMsg={};
+  C._sorcMsg={text:msg,err:!!isErr,ts:Date.now()};
+  re();
+  setTimeout(function(){if(C._sorcMsg&&C._sorcMsg.ts&&Date.now()-C._sorcMsg.ts>=2800){C._sorcMsg=null;re();}},3000);
+}
 function fConvertSlotToSP(slotLv){
   if(!C.sorcPoints)C.sorcPoints={used:0};
   var spMax=fMaxSorcPoints(C.level||1);
   var avail=spMax-(C.sorcPoints.used||0);
-  if(avail+slotLv>spMax){alert('Hai già il massimo di punti stregoneria!');return;}
+  if(avail+slotLv>spMax){fShowSorcMsg('Hai già il massimo di punti stregoneria!',true);return;}
   C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-slotLv);
-  re();
+  fShowSorcMsg('+'+slotLv+' PS recuperati da slot '+slotLv+'°',false);
 }
 function fConvertSPtoSlot(slotLv,cost){
   if(!C.sorcPoints)C.sorcPoints={used:0};
   var avail=fMaxSorcPoints(C.level||1)-(C.sorcPoints.used||0);
-  if(avail<cost){alert('Punti insufficienti! Servono '+cost+' PS.');return;}
+  if(avail<cost){fShowSorcMsg('Punti insufficienti — servono '+cost+' PS',true);return;}
   C.sorcPoints.used=(C.sorcPoints.used||0)+cost;
-  re();
-  alert(cost+' PS spesi. Aggiungi 1 slot '+slotLv+'° agli slot disponibili!');
+  fShowSorcMsg(cost+' PS spesi → aggiungi 1 slot '+slotLv+'° ai tuoi slot disponibili',false);
 }
 function fUseClockworkEquil(){if(!C.clockworkEquil)C.clockworkEquil={used:0};var m=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.clockworkEquil.used<m)C.clockworkEquil.used++;re();}
 function fRestoreClockworkEquil(){if(C.clockworkEquil&&C.clockworkEquil.used>0)C.clockworkEquil.used--;re();}
@@ -4090,7 +4100,11 @@ function fRClassBlock(){
       var cost=spCost[lvl];
       html+='<button onclick="fConvertSPtoSlot('+lvl+','+cost+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+cost+'PS→'+lvl+'°</button>';
     });
-    html+='</div></div>';
+    html+='</div>';
+    if(C._sorcMsg&&C._sorcMsg.text){
+      html+='<div style="margin-top:6px;padding:5px 8px;border-radius:3px;font-size:11px;text-align:center;'+(C._sorcMsg.err?'background:rgba(180,60,60,.15);border:1px solid rgba(180,60,60,.35);color:#e07070':'background:rgba(60,160,100,.12);border:1px solid rgba(60,180,100,.3);color:#7add9a')+'">'+(C._sorcMsg.err?'⚠ ':'✓ ')+C._sorcMsg.text+'</div>';
+    }
+    html+='</div>';
     // Metamagia
     if(lv>=2){
       var metaOpts=['Celato','Distante','Esteso','Intensificato','Mirato','Potenziato','Preciso','Raddoppiato','Rapido','Trasmutato'];
@@ -5530,6 +5544,35 @@ function fOpenExport(){
 function closeExport(){
   document.getElementById('export-modal').style.display='none';
   document.body.style.overflow='';
+}
+function fSaveJSON(){
+  var name=(C.name||'personaggio').replace(/\s+/g,'_').toLowerCase();
+  var data=JSON.stringify(C,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=name+'_arcana.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function fLoadJSON(evt){
+  var file=evt.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var loaded=JSON.parse(e.target.result);
+      if(!loaded.cls&&!loaded.name) throw new Error('File non valido');
+      Object.assign(C, loaded);
+      closeExport();
+      re();
+      var msg=document.getElementById('exp-load-msg');
+      if(msg){msg.textContent='✓ Personaggio caricato: '+(C.name||'—'); setTimeout(function(){msg.textContent='';},3000);}
+    }catch(err){
+      var msg=document.getElementById('exp-load-msg');
+      if(msg){msg.style.color='#df6a6a'; msg.textContent='⚠ File non valido o corrotto'; setTimeout(function(){msg.textContent='';msg.style.color='#7abf9a';},3000);}
+    }
+    evt.target.value='';
+  };
+  reader.readAsText(file);
 }
 function doPrint(){ window.print(); }
 
