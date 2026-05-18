@@ -1910,10 +1910,11 @@ const SUBCLASS_FEATURES = {
   { lv:14, it:"Presenza Intimidatoria", desc:"Azione bonus: tutte le creature a scelta entro 9 m devono superare un TS su SAG (CD 8+FOR+comp) o sono spaventate per 1 minuto. 1/riposo lungo, ma puoi ignorare il limite spendendo un utilizzo di ira." },
 ],
 "cuore-selvaggio": [
-  { lv:3,  it:"Portavoce degli Animali", desc:"Puoi lanciare parlare con gli animali e percezione delle bestie come rituali (car. SAG). Scegli un'opzione di Ira animale: Aquila (Disimpegno+Scatto come parte dell'azione bonus per entrare in Ira, azione bonus extra in Ira), Lupo (alleati vantaggio a tiro per colpire contro nemici entro 1,5 m), Orso (resistenza a tutti i tipi di danno tranne FOR/NEC/PSI/RAD in Ira)." },
-  { lv:6,  it:"Aspetto della Natura Selvaggia", desc:"Ottieni una delle seguenti opzioni (puoi cambiare a ogni riposo lungo): Gufo (scurovisione 18 m, o +18 m se già posseduta), Pantera (velocità di scalata = velocità), Salmone (velocità di nuoto = velocità)." },
-  { lv:10, it:"Portavoce della Natura", desc:"Puoi lanciare comunione con la natura come rituale (car. SAG)." },
-  { lv:14, it:"Potere della Natura Selvaggia", desc:"Ottieni una delle seguenti opzioni (puoi cambiare a ogni riposo lungo) in Ira: Falco (velocità di volo = velocità, senza armatura), Leone (nemici entro 1,5 m hanno svantaggio su attacchi contro altri bersagli), Sfondamento (creatura Grande o inferiore cade prona se colpita in mischia)." },
+  { lv:3,  it:"Portavoce degli Animali", desc:"Puoi lanciare Parlare con gli Animali e Percezione delle Bestie come rituali (caratteristica SAG)." },
+  { lv:3,  it:"Aspetto Bestiale", desc:"Scegli uno dei seguenti aspetti (puoi cambiarlo ad ogni riposo lungo): 🦅 Aquila — in ira: Disimpegno + Scatto come parte dell'azione bonus per entrare in Ira, più un'ulteriore azione bonus in ira. 🐺 Lupo — in ira: gli alleati hanno vantaggio ai tiri per colpire contro nemici entro 1,5 m da te. 🐻 Orso — in ira: resistenza a tutti i tipi di danno tranne FOR, necrotici, psichici e radiosi." },
+  { lv:6,  it:"Aspetto della Natura Selvaggia", desc:"Scegli una delle seguenti opzioni (puoi cambiarla ad ogni riposo lungo): 🦉 Gufo — scurovisione 18 m (o +18 m se già posseduta). 🐆 Pantera — velocità di scalata pari alla tua velocità. 🐟 Salmone — velocità di nuoto pari alla tua velocità." },
+  { lv:10, it:"Portavoce della Natura", desc:"Puoi lanciare Comunione con la Natura come rituale (caratteristica SAG)." },
+  { lv:14, it:"Potere della Natura Selvaggia", desc:"Scegli una delle seguenti opzioni ogni volta che entri in Ira: 🦅 Falco — velocità di volo pari alla tua velocità (senza armatura). 🦁 Leone — i nemici entro 1,5 m da te subiscono svantaggio agli attacchi contro bersagli diversi da te. 🐗 Sfondamento — se colpisci in mischia una creatura Grande o inferiore, cade prona." },
 ],
 "zelota": [
   { lv:3,  it:"Furia Divina", desc:"In Ira, la prima creatura colpita per turno con arma o colpo senz'armi subisce 1d6 extra (necrotici o radiosi, a scelta ogni volta). Aumenta a 2d6 al Lv.11, 3d6 al Lv.16." },
@@ -3823,73 +3824,7 @@ function fRClassBlock(){
         }
       }
 
-      // ── CUORE SELVAGGIO ─────────────────────────────────────────────────────
-      if(sc==='cuore-selvaggio'){
-        // Lv.3: Aspetto Bestiale (permanente, scelta alla selezione della sottoclasse)
-        var beastAspects=[
-          {id:'aquila',  it:'🦅 Aquila', desc:'In ira: az. bonus = Disimpegno + Scatto + azione bonus ulteriore'},
-          {id:'lupo',    it:'🐺 Lupo',   desc:'In ira: alleati hanno vantaggio vs nemici entro 1,5m da te'},
-          {id:'orso',    it:'🐻 Orso',   desc:'In ira: resistenza a tutti i danni tranne FOR, necrotici, psichici, radiosi'}
-        ];
-        html+='<div style="'+boxS+'">';
-        html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🐾 Aspetto Bestiale (Lv.3) — permanente</div>';
-        html+='<div style="display:flex;flex-direction:column;gap:4px">';
-        beastAspects.forEach(function(a){
-          var sel=(C.wildHeartAspect===a.id);
-          html+='<div onclick="C.wildHeartAspect=(C.wildHeartAspect===\''+a.id+'\'?null:\''+a.id+'\');re()" style="cursor:pointer;padding:5px 8px;border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.2)')+';background:'+(sel?'rgba(200,164,90,.1)':'rgba(0,0,0,.15)')+';border-radius:3px;display:flex;align-items:flex-start;gap:7px">';
-          html+='<span style="color:'+(sel?'var(--gold)':'var(--vdim)')+';font-size:13px">'+(sel?'◉':'◯')+'</span>';
-          html+='<div><div style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+a.it+'</div>';
-          html+='<div style="font-size:9px;color:var(--vdim)">'+a.desc+'</div></div></div>';
-        });
-        html+='</div>';
-        if(lv>=3) html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Portavoce degli Animali (Lv.3): parlare con gli animali + percezione bestie (rituali)</div>';
-        html+='</div>';
-
-        // Lv.6: Aspetto Natura Selvaggia (cambia ogni riposo lungo)
-        if(lv>=6){
-          var natureAspects=[
-            {id:'gufo',    it:'🦉 Gufo',    desc:'Scurovisione 18m (o +18m)'},
-            {id:'pantera', it:'🐆 Pantera', desc:'Velocità di scalata = tua velocità'},
-            {id:'salmone', it:'🐟 Salmone', desc:'Velocità di nuoto = tua velocità'}
-          ];
-          html+='<div style="'+boxS+'">';
-          html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🌿 Aspetto Natura Selvaggia (Lv.6) — cambia ogni riposo lungo</div>';
-          html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
-          natureAspects.forEach(function(a){
-            var sel=(C.wildHeartNature===a.id);
-            html+='<button onclick="C.wildHeartNature=(C.wildHeartNature===\''+a.id+'\'?null:\''+a.id+'\');re()" title="'+a.desc+'" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.25)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:6px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:11px;padding:4px 10px;cursor:pointer">'+a.it+'</button>';
-          });
-          html+='</div>';
-          if(C.wildHeartNature){
-            var cur2=natureAspects.find(function(a){return a.id===C.wildHeartNature;});
-            if(cur2) html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+cur2.desc+'</div>';
-          }
-          if(lv>=10) html+='<div style="font-size:10px;color:var(--vdim);margin-top:3px">Portavoce della Natura (Lv.10): comunione con la natura (rituale)</div>';
-          html+='</div>';
-        }
-
-        // Lv.14: Potere della Natura Selvaggia (si sceglie ogni volta che si entra in ira)
-        if(lv>=14){
-          var powerAspects=[
-            {id:'falco',      it:'🦅 Falco',      desc:'In ira: velocità di volo = tua velocità (senza armatura)'},
-            {id:'leone',      it:'🦁 Leone',       desc:'In ira: nemici entro 1,5m → svantaggio vs bersagli diversi da te (se non stai attaccando quell\'altro)'},
-            {id:'sfondamento',it:'🐗 Sfondamento', desc:'In ira: colpisci creatura Grande o inferiore → condizione prona'}
-          ];
-          html+='<div style="'+boxS+'">';
-          html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">💥 Potere della Natura Selvaggia (Lv.14) — scegli ogni ira</div>';
-          html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
-          powerAspects.forEach(function(a){
-            var sel=(C.wildHeartPower===a.id);
-            html+='<button onclick="C.wildHeartPower=(C.wildHeartPower===\''+a.id+'\'?null:\''+a.id+'\');re()" title="'+a.desc+'" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.25)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:6px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:11px;padding:4px 10px;cursor:pointer">'+a.it+'</button>';
-          });
-          html+='</div>';
-          if(C.wildHeartPower){
-            var cur3=powerAspects.find(function(a){return a.id===C.wildHeartPower;});
-            if(cur3) html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+cur3.desc+'</div>';
-          }
-          html+='</div>';
-        }
-      }
+      // ── CUORE SELVAGGIO — nessun riquadro interattivo; le facoltà sono nella progressione livelli ──
 
       // ── ZELOTA ──────────────────────────────────────────────────────────────
       if(sc==='zelota'){
@@ -5205,11 +5140,7 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
   // ── BARBARO: aspetti e scelte ─────────────────────────────────────────
   if(cls==='barbarian'){
     if(sc==='cuore-selvaggio'){
-      var beastAspects=[{id:'aquila',it:'🦅 Aquila',d:'Az. bonus: Disimpegno+Scatto; az. bonus extra'},{id:'lupo',it:'🐺 Lupo',d:'In ira: alleati vantaggio vs nemici entro 1,5m'},{id:'orso',it:'🐻 Orso',d:'In ira: resistenza tutti i danni (exc. FOR/necrotic/psychic/radiant)'}];
-      html += '<div style="'+boxS+'">';
-      html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🐾 Aspetto Bestiale (permanente)</div>';
-      beastAspects.forEach(function(a){html+=radioRow(a.id,a.it,a.d,C.wildHeartAspect,'C.wildHeartAspect=(C.wildHeartAspect===\''+a.id+'\'?null:\''+a.id+'\');re()');});
-      html += '</div>';
+      // nessuna scelta in fase di creazione: le facoltà sono nella progressione livelli
     }
     if(sc==='zelota'){
       // Furia Divina già descritta nella sezione avanzamento livelli
@@ -8270,8 +8201,9 @@ function fRFeatChoices(feat){
           +'display:inline-flex;align-items:center;gap:4px;user-select:none">'
           +'<strong>'+statLabels[s]+'</strong>'
           +'<span style="font-size:9px;opacity:.75">'+displayCurrent
-            +(sel ? '<span style="color:var(--gold)"> +'+val+' = '+displayIfSel+'</span>' : '')
-            +(isDisabled && !sel ? ' [max]' : '')
+            +(sel ? '<span style="color:var(--gold)"> +'+val+' = '+displayIfSel+'</span>'
+                  : (!isDisabled ? '<span style="color:var(--muted)"> →'+displayIfSel+'</span>'
+                                 : ' <span style="opacity:.7">[max]</span>'))
           +'</span>'
           +'</span>';
       }).join('');
