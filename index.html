@@ -1089,6 +1089,11 @@ function pwCheck(){
       <div style="color:#c8a45a;font-size:13px;font-weight:600;margin-bottom:5px">📲 <span id="exp-how"></span></div>
       <div style="color:#9a8060;font-size:12px;line-height:1.6" id="exp-instructions"></div>
       <button onclick="doPrint()" style="width:100%;display:block;background:linear-gradient(135deg,#8B5A2B,#5a3a1a);border:1px solid #c8a45a;color:#e8d5b0;padding:14px 20px;font-family:'Comfortaa', system-ui, sans-serif;font-size:16px;border-radius:3px;cursor:pointer;margin-top:10px">🖨️ <span id="exp-print-btn"></span></button>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button onclick="fSaveJSON()" style="flex:1;background:rgba(90,120,180,.15);border:1px solid #5a78b0;color:#8aabdf;padding:13px 10px;font-family:'Comfortaa', system-ui, sans-serif;font-size:14px;border-radius:3px;cursor:pointer">💾 Salva JSON</button>
+        <label style="flex:1;background:rgba(90,160,120,.15);border:1px solid #5a9a78;color:#7abf9a;padding:13px 10px;font-family:'Comfortaa', system-ui, sans-serif;font-size:14px;border-radius:3px;cursor:pointer;text-align:center">📂 Carica JSON<input type="file" accept=".json" onchange="fLoadJSON(event)" style="display:none"></label>
+      </div>
+      <div id="exp-load-msg" style="font-size:11px;color:#7abf9a;text-align:center;min-height:16px;margin-top:4px"></div>
       <button onclick="closeExport();nuovoPersonaggio()" style="width:100%;display:block;background:rgba(90,138,90,.15);border:1px solid #5a8a5a;color:#7aba7a;padding:14px 20px;font-family:'Comfortaa', system-ui, sans-serif;font-size:16px;border-radius:3px;cursor:pointer;margin-top:8px">⚔️ <span id="exp-new-btn"></span></button>
     </div>
   </div>
@@ -2385,10 +2390,6 @@ const FFEATS_DATA_V2 = [
         prereq: {},
         descIt:'I PF massimi aumentano di 2 per ogni livello (incluso quello attuale). Ogni livello successivo i PF massimi aumentano di altri 2 in aggiunta al normale aumento.',
         descEn:'Max HP increases by 2 per character level (including current). Each future level max HP increases by an additional 2.' },
-      { id:'linguista', it:'Linguista', en:'Linguist',
-        prereq: {},
-        descIt:'Impari 3 lingue aggiuntive a tua scelta.',
-        descEn:'You learn 3 additional languages of your choice.' },
     ]
   },
 
@@ -2401,7 +2402,7 @@ const FFEATS_DATA_V2 = [
     hint_en: 'Available at ASI slots (Lv.4, 8, 12, 16, 19 — Fighter and Rogue have extra slots).',
     feats: [
       // ── Combattimento & armi ───────────────────────
-      { id:'aumento-caratteristica', repeatable:true, it:'Aumento dei Punteggi', en:'Ability Score Improvement',
+      { id:'aumento-caratteristica', repeatable:true, it:'Aumento dei Punteggi di Caratteristica', en:'Ability Score Improvement',
         prereq: { level:4 },
         descIt:'+2 a una caratteristica oppure +1 a due caratteristiche diverse (nessuna oltre 20). Sempre ripetibile.',
         descEn:'+2 to one ability score or +1 to two different ability scores (max 20 each). Always repeatable.' },
@@ -2409,6 +2410,11 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4, stats:{STR:13} },
         descIt:'+1 FOR o DES (max 20). Scalata = velocità normale. Rialzarsi costa solo 1,5 m di movimento. Salto in lungo/alto con solo 1,5 m di rincorsa.',
         descEn:'+1 STR or DEX (max 20). Climbing costs no extra movement. Standing up costs only 5 ft. Running jump needs only 5 ft. of running start.' },
+      { id:'attore', it:'Attore', en:'Actor',
+        prereq: { level:4, stats:{CHA:13} },
+        statBonus:{ stat:'CHA', val:1 }, max:20,
+        descIt:'+1 CAR (max 20). Impersonificazione: vantaggio alle prove di CAR (Inganno/Intrattenere) per convincere gli altri della tua falsa identità. Imitare: puoi imitare suoni e parlata di creature che hai udito.',
+        descEn:'+1 CHA (max 20). Impersonation: advantage on CHA (Deception/Performance) checks to convince others you are someone else. Mimicry: you can mimic the speech and sounds of creatures you have heard.' },
       { id:'bisturi-battaglia', it:'Bisturi da Battaglia', en:'Slasher',
         prereq: { level:4 },
         descIt:'+1 FOR o DES (max 20). 1/turno con danno tagliente: −3 m di velocità al bersaglio. Con critico tagliente: svantaggio ai tiri per colpire del bersaglio fino al tuo prossimo turno.',
@@ -2433,7 +2439,7 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4, stats:{STR:13} },
         descIt:'+1 FOR o DES (max 20). Colpisci e afferra (1/turno con colpo senz\'armi): infliggi danni OPPURE afferra. Vantaggio agli attacchi contro creature che hai afferrato. Muovi una creatura afferrata senza penalità di velocità.',
         descEn:'+1 STR or DEX (max 20). Strike and Grapple (1/turn): deal damage OR grapple. Advantage on attacks against grappled creatures. Drag grappled creature without speed penalty.' },
-      { id:'maestro-armi-possenti', it:'Maestro Armi Possenti', en:'Great Weapon Master',
+      { id:'maestro-armi-possenti', it:'Maestro d\'Armi Possenti', en:'Great Weapon Master',
         prereq: { level:4, stats:{STR:13} },
         descIt:'+1 FOR (max 20). Con arma pesante nell\'azione Attacco: +bonus di competenza ai danni. Dopo critico o aver ridotto una creatura a 0 PF: attacco extra come azione bonus.',
         descEn:'+1 STR (max 20). Heavy weapon on Attack action: +proficiency bonus to damage. After a critical hit or reducing a creature to 0 HP: bonus action attack.' },
@@ -2445,7 +2451,7 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4, shield:true },
         descIt:'+1 FOR (max 20). Scudo da sfondamento (1/turno dopo Attacco): TS FOR o il bersaglio cade prona/è spinto 1,5 m. Interposizione: reazione per non subire danni da TS DES riuscito.',
         descEn:'+1 STR (max 20). Shield Bash (1/turn after Attack): STR save or target falls prone/pushed 5 ft. Interpose: reaction to take no damage when you pass a DEX save.' },
-      { id:'maestro-armi-asta', it:'Maestro Armi su Asta', en:'Polearm Master',
+      { id:'maestro-armi-asta', it:'Maestro delle Armi su Asta', en:'Polearm Master',
         prereq: { level:4, stats:{STR:13} },
         descIt:'+1 FOR o DES (max 20). Attacco bonus azione bonus con l\'estremità opposta dell\'asta (1d4 contundenti). Reazione: attacca in mischia quando una creatura entra nella portata della tua arma.',
         descEn:'+1 STR or DEX (max 20). Bonus action attack with butt end of polearm (1d4 bludgeoning). Reaction: opportunity attack when a creature enters your weapon\'s reach.' },
@@ -2477,6 +2483,11 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4 },
         descIt:'+1 FOR/DES/SAG (max 20). Vantaggio contro creature di taglia inferiore alla tua cavalcatura. Balzo laterale: cavalcatura supera TS DEX senza danni (metà se fallisce). Deviazione: dirigi l\'attacco verso la cavalcatura.',
         descEn:'+1 STR/DEX/WIS (max 20). Advantage vs creatures smaller than your mount. Evasive Maneuvers: mount passes DEX save with no damage (half on fail). Redirect: direct attack toward your mount.' },
+      { id:'competenza-armi-guerra', it:'Competenza nelle Armi da Guerra', en:'War Caster',
+        prereq: { level:4 },
+        statBonus:{ any:'STR_DEX', val:1 }, max:20,
+        descIt:'+1 FOR o DES (max 20). Ottieni competenza nelle armi da guerra.',
+        descEn:'+1 STR or DEX (max 20). You gain proficiency with martial weapons.' },
       // ── Magia ─────────────────────────────────────────
       { id:'adepto-elementale', repeatable:true, it:'Adepto Elementale', en:'Elemental Adept',
         prereq: { level:4, spellcasting:true },
@@ -2527,11 +2538,11 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4, armorHeavy:true },
         descIt:'+1 COS o FOR (max 20). Competenza nelle armature pesanti.',
         descEn:'+1 CON or STR (max 20). Proficiency with heavy armor.' },
-      { id:'maestro-armature-medie', it:'Maestro Armature Medie', en:'Medium Armor Master',
+      { id:'maestro-armature-medie', it:'Maestro delle Armature Medie', en:'Medium Armor Master',
         prereq: { level:4, armorMedium:true },
         descIt:'+1 FOR o DES (max 20). Aggiunge fino a +3 alla CA con armatura media (anziché +2) se DES ≥ 16.',
         descEn:'+1 STR or DEX (max 20). Adds up to +3 to AC with medium armor (instead of +2) if DEX ≥ 16.' },
-      { id:'maestro-armature-pesanti', it:'Maestro Armature Pesanti', en:'Heavy Armor Master',
+      { id:'maestro-armature-pesanti', it:'Maestro delle Armature Pesanti', en:'Heavy Armor Master',
         prereq: { level:4, armorHeavy:true },
         descIt:'+1 COS o FOR (max 20). Con armatura pesante: danni da arma contundenti/perforanti/taglienti ridotti del bonus di competenza.',
         descEn:'+1 CON or STR (max 20). In heavy armor: bludgeoning/piercing/slashing weapon damage reduced by proficiency bonus.' },
@@ -2592,7 +2603,7 @@ const FFEATS_DATA_V2 = [
         prereq: { fightingStyle:true },
         descIt:'+2 ai tiri per i danni con un\'arma da mischia a una mano (nessun\'altra arma impugnata).',
         descEn:'+2 to damage rolls with a one-handed melee weapon (no other weapon held).' },
-      { id:'st-possenti', it:'Armi a Due Mani', en:'Great Weapon Fighting',
+      { id:'st-possenti', it:'Combattere con Armi Possenti', en:'Great Weapon Fighting',
         prereq: { fightingStyle:true },
         descIt:'Con arma a due mani o versatile (entrambe le mani): tiro danno di 1 o 2 → conta come 3.',
         descEn:'Two-handed or versatile weapon: on a damage die roll of 1 or 2, treat the result as 3.' },
@@ -2616,7 +2627,7 @@ const FFEATS_DATA_V2 = [
         prereq: { fightingStyle:true },
         descIt:'Colpo senz\'armi: 1d6 contundenti (1d8 se entrambe le mani libere). Inizio turno: 1d4 danni a una creatura che hai afferrato.',
         descEn:'Unarmed strike: 1d6 bludgeoning (1d8 with both hands free). Start of turn: 1d4 damage to a grappled creature.' },
-      { id:'st-lancio', it:'Armi da Lancio', en:'Thrown Weapon Fighting',
+      { id:'st-lancio', it:'Combattere con Armi da Lancio', en:'Thrown Weapon Fighting',
         prereq: { fightingStyle:true },
         descIt:'+2 ai tiri per i danni con le armi da lancio. Puoi estrarre un\'arma con la proprietà da lancio come parte dell\'attacco.',
         descEn:'+2 to damage rolls with thrown weapons. Can draw a thrown weapon as part of the attack.' },
@@ -2639,7 +2650,7 @@ const FFEATS_DATA_V2 = [
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). Alterare il Fato (1/iniziativa, 1/riposo breve): tira 2d4; aggiunge o sottrae il risultato a qualunque prova d20 entro 18 m.',
         descEn:'+1 to one ability (max 30). Alter Fate (1/initiative, 1/short rest): roll 2d4; add or subtract result from any d20 roll within 60 ft.' },
-      { id:'dono-offensiva', it:'Dono dell\'Offensiva', en:'Epic Boon of Irresistible Offense',
+      { id:'dono-offensiva', it:'Dono dell\'Offensiva Irresistibile', en:'Epic Boon of Irresistible Offense',
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 FOR o DES (max 30). I tuoi danni contundenti/perforanti/taglienti ignorano la resistenza. Con un 20 naturale: infliggi danni extra = mod. della caratteristica aumentata.',
         descEn:'+1 STR or DEX (max 30). Your B/P/S damage ignores resistance. On a natural 20: deal extra damage = raised ability modifier.' },
@@ -2647,11 +2658,11 @@ const FFEATS_DATA_V2 = [
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). Incrollabile (1/riposo lungo): quando scendi a 0 PF resti a 1 PF e recuperi metà dei PF massimi. Riserva 10d10: azione bonus per spendere dadi e recuperare PF.',
         descEn:'+1 to one ability (max 30). Fortitude (1/long rest): when dropped to 0 HP, stay at 1 HP and regain half max HP. Pool 10d10: bonus action to spend dice and regain HP.' },
-      { id:'dono-resistenza', it:'Dono Resistenza Energia', en:'Epic Boon of Energy Resistance',
+      { id:'dono-resistenza', it:'Dono della Resistenza all\'Energia', en:'Epic Boon of Energy Resistance',
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). Resistenza a 2 tipi di danno a scelta (cambiabili dopo ogni riposo lungo). Deviazione dell\'energia (reazione): dirigi i danni di quel tipo verso un\'altra creatura entro 18 m.',
         descEn:'+1 to one ability (max 30). Resistance to 2 damage types of choice (changeable after each long rest). Energy Redirect (reaction): direct incoming damage of that type to a creature within 60 ft.' },
-      { id:'dono-richiamo', it:'Dono Richiamo Incantesimi', en:'Epic Boon of Spell Recall',
+      { id:'dono-richiamo', it:'Dono del Richiamo degli Incantesimi', en:'Epic Boon of Spell Recall',
         prereq: { level:19, spellcasting:true, _epicBoon:true },
         descIt:'+1 INT/SAG/CAR (max 30). Lancio libero: quando lanci uno slot di Lv.1–4, tira 1d4; se il risultato = livello slot, lo slot non è consumato.',
         descEn:'+1 INT/WIS/CHA (max 30). Free Casting: when you cast a slot of Lv.1–4, roll 1d4; if result equals slot level, the slot isn\'t expended.' },
@@ -2667,10 +2678,14 @@ const FFEATS_DATA_V2 = [
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). +9 m di velocità. Artista della fuga (azione bonus): Disimpegno e termina la condizione afferrato.',
         descEn:'+1 to one ability (max 30). +30 ft speed. Escape Artist (bonus action): Disengage and end the grappled condition.' },
-      { id:'dono-teletrasporto', it:'Dono Viaggio Dimensionale', en:'Epic Boon of Dimensional Travel',
+      { id:'dono-teletrasporto', it:'Dono del Viaggio Dimensionale', en:'Epic Boon of Dimensional Travel',
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). Passi fulminei: subito dopo un\'azione Attacco o Magia, teletrasportati di massimo 9 m in uno spazio libero visibile.',
         descEn:'+1 to one ability (max 30). Blink Steps: immediately after an Attack or Magic action, teleport up to 30 ft to an unoccupied visible space.' },
+      { id:'dono-abilita-combattimento', it:'Dono delle Abilità di Combattimento', en:'Epic Boon of Combat Prowess',
+        prereq: { level:19, _epicBoon:true },
+        descIt:'+1 a una caratteristica (max 30). Colpo infallibile: quando manchi con un attacco con arma, infliggi comunque danni al bersaglio pari al modificatore della caratteristica aumentata con questo talento.',
+        descEn:'+1 to one ability (max 30). Unerring Strike: when you miss with a weapon attack, you still deal damage equal to the ability modifier raised by this feat.' },
       { id:'dono-vista-pura', it:'Dono della Vista Pura', en:'Epic Boon of Truesight',
         prereq: { level:19, _epicBoon:true },
         descIt:'+1 a una caratteristica (max 30). Vista pura entro 18 m: vedi nel buio magico, attraverso le illusioni, i trasformati, i piani sovrapposti e le creature invisibili.',
@@ -3505,21 +3520,26 @@ function fToggleMetamagic(m){
 function fResetPresage(){C.divinatorPresage=[null,null];re();}
 
 // ─── Helper F3.5-F3.7 ─────────────────────────────────────────────────────
+function fShowSorcMsg(msg,isErr){
+  if(!C._sorcMsg)C._sorcMsg={};
+  C._sorcMsg={text:msg,err:!!isErr,ts:Date.now()};
+  re();
+  setTimeout(function(){if(C._sorcMsg&&C._sorcMsg.ts&&Date.now()-C._sorcMsg.ts>=2800){C._sorcMsg=null;re();}},3000);
+}
 function fConvertSlotToSP(slotLv){
   if(!C.sorcPoints)C.sorcPoints={used:0};
   var spMax=fMaxSorcPoints(C.level||1);
   var avail=spMax-(C.sorcPoints.used||0);
-  if(avail+slotLv>spMax){alert('Hai già il massimo di punti stregoneria!');return;}
+  if(avail+slotLv>spMax){fShowSorcMsg('Hai già il massimo di punti stregoneria!',true);return;}
   C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-slotLv);
-  re();
+  fShowSorcMsg('+'+slotLv+' PS recuperati da slot '+slotLv+'°',false);
 }
 function fConvertSPtoSlot(slotLv,cost){
   if(!C.sorcPoints)C.sorcPoints={used:0};
   var avail=fMaxSorcPoints(C.level||1)-(C.sorcPoints.used||0);
-  if(avail<cost){alert('Punti insufficienti! Servono '+cost+' PS.');return;}
+  if(avail<cost){fShowSorcMsg('Punti insufficienti — servono '+cost+' PS',true);return;}
   C.sorcPoints.used=(C.sorcPoints.used||0)+cost;
-  re();
-  alert(cost+' PS spesi. Aggiungi 1 slot '+slotLv+'° agli slot disponibili!');
+  fShowSorcMsg(cost+' PS spesi → aggiungi 1 slot '+slotLv+'° ai tuoi slot disponibili',false);
 }
 function fUseClockworkEquil(){if(!C.clockworkEquil)C.clockworkEquil={used:0};var m=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.clockworkEquil.used<m)C.clockworkEquil.used++;re();}
 function fRestoreClockworkEquil(){if(C.clockworkEquil&&C.clockworkEquil.used>0)C.clockworkEquil.used--;re();}
@@ -4090,7 +4110,11 @@ function fRClassBlock(){
       var cost=spCost[lvl];
       html+='<button onclick="fConvertSPtoSlot('+lvl+','+cost+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+cost+'PS→'+lvl+'°</button>';
     });
-    html+='</div></div>';
+    html+='</div>';
+    if(C._sorcMsg&&C._sorcMsg.text){
+      html+='<div style="margin-top:6px;padding:5px 8px;border-radius:3px;font-size:11px;text-align:center;'+(C._sorcMsg.err?'background:rgba(180,60,60,.15);border:1px solid rgba(180,60,60,.35);color:#e07070':'background:rgba(60,160,100,.12);border:1px solid rgba(60,180,100,.3);color:#7add9a')+'">'+(C._sorcMsg.err?'⚠ ':'✓ ')+C._sorcMsg.text+'</div>';
+    }
+    html+='</div>';
     // Metamagia
     if(lv>=2){
       var metaOpts=['Celato','Distante','Esteso','Intensificato','Mirato','Potenziato','Preciso','Raddoppiato','Rapido','Trasmutato'];
@@ -5531,6 +5555,35 @@ function closeExport(){
   document.getElementById('export-modal').style.display='none';
   document.body.style.overflow='';
 }
+function fSaveJSON(){
+  var name=(C.name||'personaggio').replace(/\s+/g,'_').toLowerCase();
+  var data=JSON.stringify(C,null,2);
+  var blob=new Blob([data],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download=name+'_arcana.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function fLoadJSON(evt){
+  var file=evt.target.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var loaded=JSON.parse(e.target.result);
+      if(!loaded.cls&&!loaded.name) throw new Error('File non valido');
+      Object.assign(C, loaded);
+      closeExport();
+      re();
+      var msg=document.getElementById('exp-load-msg');
+      if(msg){msg.textContent='✓ Personaggio caricato: '+(C.name||'—'); setTimeout(function(){msg.textContent='';},3000);}
+    }catch(err){
+      var msg=document.getElementById('exp-load-msg');
+      if(msg){msg.style.color='#df6a6a'; msg.textContent='⚠ File non valido o corrotto'; setTimeout(function(){msg.textContent='';msg.style.color='#7abf9a';},3000);}
+    }
+    evt.target.value='';
+  };
+  reader.readAsText(file);
+}
 function doPrint(){ window.print(); }
 
 // ─── F5: Risorse di Classe nella scheda di stampa ─────────────────────────
@@ -6353,7 +6406,12 @@ function fGetAllStatBonuses(){
       addBonus(sb.stat, sb.val, featName);
     } else if(choice.stats && Array.isArray(choice.stats)){
       // Player ha scelto una o più stat
-      choice.stats.forEach(s => addBonus(s, sb.val, featName));
+      // Per aumento-caratteristica: rispetta la modalità (+2 o +1+1)
+      let perStatVal = sb.val;
+      if(fid === 'aumento-caratteristica'){
+        perStatVal = (choice.asiMode === 'plus1x2') ? 1 : 2;
+      }
+      choice.stats.forEach(s => addBonus(s, perStatVal, featName));
     }
   });
   
@@ -8086,6 +8144,13 @@ function fFeatRemoveLast(id){
 }
 
 // ─── Feat choice helpers ────────────────────────────────────────────────────
+function fSetAsiMode(uid, mode){
+  if(!C.featChoices) C.featChoices = {};
+  if(!C.featChoices[uid]) C.featChoices[uid] = {};
+  C.featChoices[uid].asiMode = mode;
+  C.featChoices[uid].stats = [];
+  re();
+}
 function fSetFeatStatChoice(uid, statKey){
   if(!C.featChoices) C.featChoices = {};
   if(!C.featChoices[uid]) C.featChoices[uid] = {};
@@ -8093,25 +8158,29 @@ function fSetFeatStatChoice(uid, statKey){
   // Capisce quante stat può scegliere questo talento
   const feat = (C.feats||[]).find(function(f){ return f.uid===uid; });
   const meta = feat ? FEAT_METADATA[feat.id] : null;
-  const maxStats = meta && meta.statBonus && meta.statBonus.any && meta.statBonus.any > 1
-    ? meta.statBonus.any   // es. alt +1/+1 può scegliere 2 stat
-    : 1;                   // la maggioranza: sceglie 1 sola stat
+
+  // Modalità speciale per Aumento dei Punteggi di Caratteristica
+  let maxStats = 1;
+  let val = meta && meta.statBonus ? meta.statBonus.val : 1;
+  if(feat && feat.id === 'aumento-caratteristica'){
+    const asiMode = (C.featChoices[uid].asiMode) || 'plus2';
+    if(asiMode === 'plus1x2'){ maxStats = 2; val = 1; }
+    else { maxStats = 1; val = 2; }
+  } else if(meta && meta.statBonus && meta.statBonus.any && meta.statBonus.any > 1){
+    maxStats = meta.statBonus.any;
+  }
 
   const current = C.featChoices[uid].stats || [];
 
   if(current.includes(statKey)){
-    // Toggle off: deseleziona
     C.featChoices[uid].stats = current.filter(function(s){ return s !== statKey; });
   } else {
     if(maxStats === 1){
-      // Single-choice: rimpiazza
       C.featChoices[uid].stats = [statKey];
     } else {
-      // Multi-choice: aggiungi fino a maxStats
       if(current.length < maxStats){
         C.featChoices[uid].stats = current.concat([statKey]);
       }
-      // Se già al massimo, non fare nulla (l'utente deve prima deselezionare)
     }
   }
   re();
@@ -8145,12 +8214,30 @@ function fRFeatChoices(feat){
   const isIt = lang === 'it';
   let html = '';
   
+  // ── Toggle speciale per Aumento dei Punteggi di Caratteristica ──────────
+  if(feat.id === 'aumento-caratteristica'){
+    const asiMode = (C.featChoices?.[feat.uid]?.asiMode) || 'plus2';
+    const btnBase = 'font-size:11px;padding:4px 12px;border-radius:3px;cursor:pointer;border:1px solid;';
+    const on  = btnBase+'background:rgba(200,164,90,.2);border-color:var(--gold);color:var(--gold);font-weight:600';
+    const off = btnBase+'background:transparent;border-color:var(--border2);color:var(--muted)';
+    html += '<div style="margin-top:6px;padding:7px 9px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">'
+      +'<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">'+(isIt?'Modalità':'Mode')+'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button onclick="fSetAsiMode(\''+feat.uid+'\',\'plus2\')" style="'+(asiMode==='plus2'?on:off)+'">+2 '+(isIt?'a una':'to one')+'</button>'
+      +'<button onclick="fSetAsiMode(\''+feat.uid+'\',\'plus1x2\')" style="'+(asiMode==='plus1x2'?on:off)+'">+1+1 '+(isIt?'a due':'to two')+'</button>'
+      +'</div></div>';
+    // Override val e maxStats in base alla modalità
+    meta._asiVal  = asiMode === 'plus1x2' ? 1 : 2;
+    meta._asiMax  = asiMode === 'plus1x2' ? 2 : 1;
+  }
+  
   // ── Scelta caratteristica ────────────────────────────────────────────────
   if(meta.statBonus){
     const choices = fGetFeatStatChoices(feat.id);
     const selectedStats = (C.featChoices?.[feat.uid]?.stats) || [];
-    const val    = meta.statBonus.val;          // quanti punti dà questo talento
-    const capMax = meta.max || 20;              // limite massimo (20 normale, 30 Doni Epici)
+    const val    = meta._asiVal !== undefined ? meta._asiVal : meta.statBonus.val;
+    const maxSel = meta._asiMax !== undefined ? meta._asiMax : 1;
+    const capMax = meta.max || 20;
 
     if(choices.length > 0){
       const statLabels = isIt ? {STR:'FOR',DEX:'DES',CON:'COS',INT:'INT',WIS:'SAG',CHA:'CAR'}
@@ -8167,7 +8254,9 @@ function fRFeatChoices(feat){
         const atCap            = totalWithoutThis >= capMax;
         // Aggiungere questo talento supererebbe il cap?
         const wouldExceed      = !sel && totalIfAdded > capMax;
-        const isDisabled       = !sel && (atCap || wouldExceed);
+        // Raggiunto il numero massimo di selezioni per questo talento?
+        const maxReached       = !sel && selectedStats.length >= maxSel;
+        const isDisabled       = !sel && (atCap || wouldExceed || maxReached);
 
         // Valore visualizzato
         const displayCurrent   = Math.min(capMax, totalWithoutThis + (sel ? val : 0));
@@ -8210,7 +8299,8 @@ function fRFeatChoices(feat){
 
       html += '<div style="margin-top:6px;padding:7px 9px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">'
         +'<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">'
-        +(isIt?'Caratteristica':'Ability')+' (+'+val+')'
+        +(isIt?'Caratteristica':'Ability')
+        +(maxSel > 1 ? ' (+'+val+' ciascuna, scegli '+maxSel+')' : ' (+'+val+')')
         +(capMax>20?' <span style="font-size:9px;color:#9b59b6">(max '+capMax+')</span>':'')
         +'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:5px">'+pills+'</div>';
