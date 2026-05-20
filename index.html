@@ -3326,7 +3326,77 @@ function fResetSlots(){
 // WARLOCK — SUPPLICHE, ARCANUM, PATTO
 // ════════════════════════════════════════════════════════════════════════
 
-// Numero di Suppliche Occulte in base al livello (PHB 2024)
+// Lista completa Suppliche Occulte PHB 2024
+// prereqLv = livello minimo warlock; prereqInv = id supplica prerequisito
+const WARLOCK_INVOCATIONS = [
+  // ── NESSUN PREREQ ─────────────────────────────────────────────────────
+  { id:'armatura-ombre',    it:'Armatura delle Ombre',    en:'Armor of Shadows',
+    prereqLv:1, desc:'Lancia armatura magica su te stesso senza slot.' },
+  { id:'mente-occulta',     it:'Mente Occulta',           en:'Eldritch Mind',
+    prereqLv:1, desc:'Vantaggio ai TS Costituzione per mantenere la concentrazione.' },
+  { id:'patto-tomo',        it:'Patto del Tomo',          en:'Pact of the Tome',   isPact:true,
+    prereqLv:1, desc:'Libro delle Ombre: 3 trucchetti extra da qualsiasi lista + rituali dalla lista warlock.' },
+  { id:'visioni-velate',    it:'Visioni Velate',          en:'Veiled Vision',
+    prereqLv:1, desc:'Lancia immagine silenziosa senza slot.' },
+  { id:'vista-diavolo',     it:'Vista del Diavolo',       en:'Devil\'s Sight',
+    prereqLv:1, desc:'Vedi normalmente nella luce fioca e nell\'oscurità (magica e non) entro 36 m.' },
+  // ── PREREQ Lv.2 ───────────────────────────────────────────────────────
+  { id:'balzo-ultraterreno',it:'Balzo Ultraterreno',      en:'Otherworldly Leap',
+    prereqLv:2, desc:'Lancia salto su te stesso senza slot.' },
+  { id:'conoscenze-antichi',it:'Conoscenze degli Antichi',en:'Ancient Knowledge',   repeatable:true,
+    prereqLv:2, desc:'Ottieni un talento di Origini a scelta. Ripetibile (talento diverso ogni volta).' },
+  { id:'deflagr-agonizz',   it:'Deflagrazione Agonizzante',en:'Agonizing Blast',   repeatable:true,
+    prereqLv:2, desc:'Scegli un trucchetto che infligge danni: aggiungi mod. CAR ai danni. Ripetibile per trucchetti diversi.' },
+  { id:'deflagr-respingente',it:'Deflagrazione Respingente',en:'Repelling Blast',  repeatable:true,
+    prereqLv:2, desc:'Scegli un trucchetto che infligge danni con tiro per colpire: creatura Grande o inferiore colpita può essere spinta di 3 m. Ripetibile.' },
+  { id:'lancia-occulta',    it:'Lancia Occulta',          en:'Eldritch Spear',     repeatable:true,
+    prereqLv:2, desc:'Scegli un trucchetto con gittata ≥3 m: gittata +9 m per livello warlock. Ripetibile per trucchetti diversi.' },
+  { id:'maschera-molti-volti',it:'Maschera dei Molti Volti',en:'Mask of Many Faces',
+    prereqLv:2, desc:'Lancia camuffare se stesso senza slot.' },
+  { id:'vigore-immondo',    it:'Vigore Immondo',          en:'Fiendish Vigor',
+    prereqLv:2, desc:'Lancia vita falsata su te stesso senza slot (ottieni automaticamente il max di PF temporanei).' },
+  // ── PREREQ Lv.5 ───────────────────────────────────────────────────────
+  { id:'dono-abissi',       it:'Dono degli Abissi',       en:'Gift of the Depths',
+    prereqLv:5, desc:'Respira sott\'acqua, velocità nuoto = velocità terreno. Lancia respirare sott\'acqua senza slot (1/riposo lungo).' },
+  { id:'investitura-catene',it:'Investitura del Signore delle Catene', en:'Investment of the Chain Master',
+    prereqLv:5, prereqInv:'patto-catena', desc:'Famiglio: azione bonus per far attaccare; può volare/nuotare 12 m; TS Destrezza anche su successo; danni diventano necrotici o radiosi; tu puoi dare resistenza quando subisce danni. Req: Patto della Catena.' },
+  { id:'lama-assetata',     it:'Lama Assetata',           en:'Thirsting Blade',
+    prereqLv:5, prereqInv:'patto-lama', desc:'Attacco Extra solo per l\'arma del patto. Req: Patto della Lama.' },
+  { id:'maestro-mille-forme',it:'Maestro di Mille Forme', en:'Master of Myriad Forms',
+    prereqLv:5, desc:'Lancia alterare se stesso senza slot.' },
+  { id:'passo-ascendente',  it:'Passo Ascendente',        en:'Ascendant Step',
+    prereqLv:5, desc:'Lancia levitazione su te stesso senza slot.' },
+  { id:'patto-catena',      it:'Patto della Catena',      en:'Pact of the Chain',  isPact:true,
+    prereqLv:5, desc:'Conosci trova famiglio, lo lanci come rituale. Famiglio può attaccare con sua reazione al posto tuo. Forme speciali disponibili (imp, pseudodrago, quasit, scheletro, slaad girino, sfinge, spiritello, serpente velenoso).' },
+  { id:'patto-lama',        it:'Patto della Lama',        en:'Pact of the Blade',  isPact:true,
+    prereqLv:5, desc:'Evoca un\'arma del patto come azione bonus. Hai competenza, puoi usarla come focus. CAR per colpire e danni. Tipi danni: necrotici, psichici, radiosi o normali.' },
+  { id:'punizione-occulta', it:'Punizione Occulta',       en:'Eldritch Smite',
+    prereqLv:5, prereqInv:'patto-lama', desc:'Quando colpisci con l\'arma del patto: spendi 1 slot per infliggere 1d8 danni forza extra (+ 1d8/livello slot) e la creatura cade prona se Grande o inferiore. Req: Patto della Lama.' },
+  { id:'sguardo-due-menti', it:'Sguardo delle Due Menti', en:'Gaze of Two Minds',
+    prereqLv:5, desc:'Azione bonus: tocca una creatura consenziente e percepisce il mondo attraverso i suoi sensi fino alla fine del tuo turno successivo.' },
+  { id:'tutt-uno-ombre',    it:'Tutt\'uno con le Ombre',  en:'One with Shadows',
+    prereqLv:5, desc:'Diventi invisibile in un\'area di oscurità o luce fioca come azione bonus. Termina se ti muovi, agisci o usi azione bonus.' },
+  // ── PREREQ Lv.7 ───────────────────────────────────────────────────────
+  { id:'sussurri-tomba',    it:'Sussurri dalla Tomba',    en:'Whispers of the Grave',
+    prereqLv:7, desc:'Lancia parlare con i morti senza slot.' },
+  // ── PREREQ Lv.9 ───────────────────────────────────────────────────────
+  { id:'dono-protettore',   it:'Dono del Protettore',     en:'Gift of the Protectors', prereqInv:'patto-tomo',
+    prereqLv:9, desc:'Una volta per riposo lungo, una creatura il cui nome è nel Libro delle Ombre che scende a 0 PF scende invece a 1 PF. Req: Patto del Tomo.' },
+  { id:'succhiavita',       it:'Succhiavita',             en:'Lifedrinker', prereqInv:'patto-lama',
+    prereqLv:9, desc:'Quando colpisci con l\'arma del patto: infliggi 1d6 danni necrotici/psichici/radiosi extra; consuma un Dado Vita per recuperare PF = risultato + mod. CON. Req: Patto della Lama.' },
+  // ── PREREQ Lv.12 ──────────────────────────────────────────────────────
+  { id:'lama-divoratrice',  it:'Lama Divoratrice',        en:'Devouring Blade', prereqInv:'lama-assetata',
+    prereqLv:12, desc:'L\'attacco extra di Lama Assetata diventa due attacchi aggiuntivi (3 totali). Req: Lama Assetata.' },
+  // ── PREREQ Lv.15 ──────────────────────────────────────────────────────
+  { id:'vista-stregata',    it:'Vista Stregata',          en:'Witch Sight',
+    prereqLv:15, desc:'Vista pura con raggio 9 m (vedi creature invisibili, nel Mondo Etereo e nella vera forma di chi usa magia di alterazione).' },
+  { id:'visione-reami-lontani',it:'Visione dei Reami Lontani',en:'Visions of Distant Realms',
+    prereqLv:15, desc:'Lancia occhio arcano senza slot.' },
+  { id:'lama-assetata-sup', it:'Lama Assetata Superiore', en:'Superior Thirsting Blade', prereqInv:'lama-assetata',
+    prereqLv:5, desc:'Versione potenziata di Lama Assetata: vedi descrizione completa nel manuale. Req: Lama Assetata.' },
+];
+
+// Numero suppliche per livello PHB 2024
 function fGetWarlockInvocationCount(lv){
   if(lv>=18) return 10;
   if(lv>=15) return 9;
@@ -3339,8 +3409,7 @@ function fGetWarlockInvocationCount(lv){
   return 2;
 }
 
-// Livelli degli Arcana Mistici disponibili in base al livello (PHB 2024)
-// Lv.11 → 6°, Lv.13 → 7°, Lv.15 → 8°, Lv.17 → 9°
+// Livelli Arcanum Mistico disponibili per livello
 function fGetWarlockArcanaLevels(lv){
   const levels = [];
   if(lv >= 11) levels.push(6);
@@ -3350,47 +3419,32 @@ function fGetWarlockArcanaLevels(lv){
   return levels;
 }
 
-// Imposta l'incantesimo scelto per un Arcanum di un dato livello
 function fSetArcanaSpell(spellLv, value){
   if(!C.arcanaSpells) C.arcanaSpells = {};
   C.arcanaSpells[spellLv] = value;
   re();
 }
 
-// Attiva/disattiva l'uso di un Arcanum (1 uso/riposo lungo)
 function fToggleArcanum(spellLv){
   if(!C.arcanaUsed) C.arcanaUsed = {};
   C.arcanaUsed[spellLv] = !C.arcanaUsed[spellLv];
   re();
 }
 
-// Ripristina tutti gli Arcana (riposo lungo)
 function fResetArcana(){
   C.arcanaUsed = {};
   re();
   showToast(lang==='it'?'Arcana ripristinati (riposo lungo)':'Arcana restored (long rest)');
 }
 
-// Imposta il Patto scelto al Lv.3
-function fSetPactBoon(boon){
-  C.pactBoon = boon;
-  re();
-}
+function fSetPactBoon(boon){ C.pactBoon = boon; re(); }
 
-// Aggiunge una supplica personalizzata
-function fAddWarlockInvocation(){
-  const inp = document.getElementById('wl-inv-input');
-  if(!inp || !inp.value.trim()) return;
+// Toggle supplica dalla lista strutturata
+function fToggleWarlockInvocation(id){
   if(!C.warlockInvocations) C.warlockInvocations = [];
-  C.warlockInvocations.push({ text: inp.value.trim() });
-  inp.value = '';
-  re();
-}
-
-// Rimuove una supplica per indice
-function fRemoveWarlockInvocation(idx){
-  if(!C.warlockInvocations) return;
-  C.warlockInvocations.splice(idx, 1);
+  const idx = C.warlockInvocations.indexOf(id);
+  if(idx >= 0){ C.warlockInvocations.splice(idx,1); }
+  else { C.warlockInvocations.push(id); }
   re();
 }
 
@@ -4411,103 +4465,138 @@ function fRWarlockBlock(){
   if(C.cls !== 'warlock') return '';
   const isIt = lang === 'it';
   const lv   = C.level || 1;
-  const arcanaLevels     = fGetWarlockArcanaLevels(lv);
-  const invocationCount  = fGetWarlockInvocationCount(lv);
-  const invocations      = C.warlockInvocations || [];
-  const arcanaSpells     = C.arcanaSpells || {};
-  const arcanaUsed       = C.arcanaUsed   || {};
+  const arcanaLevels    = fGetWarlockArcanaLevels(lv);
+  const invocationCount = fGetWarlockInvocationCount(lv);
+  const chosen          = C.warlockInvocations || [];
+  const arcanaSpells    = C.arcanaSpells || {};
+  const arcanaUsed      = C.arcanaUsed   || {};
   let html = '';
 
-  // ── PATTO DEL WARLOCK (Lv.3+) ─────────────────────────────────────────
-  if(lv >= 3){
-    const PATTI = [
-      { id:'catena', it:'Patto della Catena', en:'Pact of the Chain',
-        descIt:'Conosci trova famiglio e lo lanci come rituale. Il famiglio può usare la sua reazione per attaccare al posto tuo.',
-        descEn:'You know find familiar and cast it as a ritual. Your familiar can use its reaction to attack in your stead.' },
-      { id:'lama',   it:'Patto della Lama',   en:'Pact of the Blade',
-        descIt:'Puoi evocare un\'arma del patto come azione (scompare se a >1,5 m per 1 minuto). Puoi usarla come focus da incantatore.',
-        descEn:'You can evoke a pact weapon as an action (disappears if >5 ft away for 1 min). You can use it as a spellcasting focus.' },
-      { id:'tomo',   it:'Patto del Tomo',     en:'Pact of the Tome',
-        descIt:'Ottieni il Libro delle Ombre con 3 trucchetti extra da qualsiasi lista. Puoi anche lanciare qualsiasi rituale dalla lista warlock.',
-        descEn:'You gain the Book of Shadows with 3 extra cantrips from any list. You can also cast any ritual on the warlock list.' },
-    ];
-    const sel = C.pactBoon;
-    html += `<div class="box">
-      <div class="box-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>🔮 ${isIt ? "Patto del Warlock" : "Pact Boon"}</span>
-        ${sel ? '' : `<span style="font-size:9px;color:var(--gold2);background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.3);border-radius:8px;padding:1px 7px">${isIt ? 'da scegliere' : 'choose one'}</span>`}
-      </div>
-      <div class="ga" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-top:4px">
-        ${PATTI.map(p => {
-          const isSel = sel === p.id;
-          return `<div onclick="fSetPactBoon('${p.id}')"
-            style="border:1px solid ${isSel?'var(--gold)':'var(--border2)'};border-radius:3px;padding:8px 9px;cursor:pointer;background:${isSel?'rgba(200,164,90,.12)':'transparent'};transition:all .2s">
-            <div style="font-size:11px;font-weight:700;color:${isSel?'var(--gold)':'var(--text)'};margin-bottom:4px">${isIt?p.it:p.en}</div>
-            <div style="font-size:9px;color:var(--muted);line-height:1.4">${isIt?p.descIt:p.descEn}</div>
-          </div>`;
-        }).join('')}
-      </div>
+  // ── SUPPLICHE OCCULTE ─────────────────────────────────────────────────
+  const available = WARLOCK_INVOCATIONS.filter(inv => {
+    if(inv.prereqLv && lv < inv.prereqLv) return false;
+    if(inv.prereqInv && !chosen.includes(inv.prereqInv)) return false;
+    return true;
+  });
+  const unavailable = WARLOCK_INVOCATIONS.filter(inv => {
+    if(inv.prereqLv && lv < inv.prereqLv) return true;
+    if(inv.prereqInv && !chosen.includes(inv.prereqInv)) return true;
+    return false;
+  });
+
+  const chosenCount = chosen.length;
+  const atMax = chosenCount >= invocationCount;
+
+  html += `<div class="${'box'}">
+    <div class="box-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span>📖 ${isIt?'Suppliche Occulte':'Eldritch Invocations'}</span>
+      <span style="font-size:10px;color:${chosenCount>=invocationCount?'var(--green)':'var(--gold2)'}">
+        ${chosenCount}/${invocationCount}
+      </span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">
+      ${isIt?`Lv.${lv}: scegli <strong style="color:var(--gold)">${invocationCount}</strong> suppliche. I Patti (🔗) fanno parte delle suppliche.`
+            :`Lv.${lv}: choose <strong style="color:var(--gold)">${invocationCount}</strong> invocations. Pacts (🔗) are invocations.`}
     </div>`;
+
+  // Sezione disponibili
+  html += `<div style="margin-bottom:8px">
+    <div style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">
+      ${isIt?'Disponibili a Lv.'+lv:'Available at Lv.'+lv}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">`;
+
+  available.forEach(inv => {
+    const sel = chosen.includes(inv.id);
+    const disabled = !sel && atMax;
+    const isPact = !!inv.isPact;
+    html += `<div onclick="${disabled?'':`fToggleWarlockInvocation('${inv.id}')`}"
+      style="border:1px solid ${sel?'var(--gold)':'rgba(200,164,90,.2)'};border-radius:3px;padding:7px 9px;cursor:${disabled?'default':'pointer'};
+      background:${sel?'rgba(200,164,90,.1)':'transparent'};opacity:${disabled?.45:1};transition:all .15s">
+      <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+        <span style="font-size:10px">${isPact?'🔗':'◆'}</span>
+        <span style="font-size:11px;font-weight:${sel?700:400};color:${sel?'var(--gold)':'var(--text)'}">${isIt?inv.it:inv.en}</span>
+        ${inv.prereqLv>1?`<span style="font-size:9px;color:var(--vdim);margin-left:auto">Lv.${inv.prereqLv}+</span>`:''}
+        ${inv.repeatable?`<span style="font-size:8px;color:var(--gold2);border:1px solid rgba(200,164,90,.3);border-radius:8px;padding:0 4px">×N</span>`:''}
+      </div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.4;padding-left:15px">${inv.desc}</div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  // Sezione non disponibili (bloccate da livello o prereq)
+  if(unavailable.length){
+    html += `<details style="margin-top:6px">
+      <summary style="font-size:10px;color:var(--vdim);cursor:pointer;user-select:none">
+        ${isIt?`${unavailable.length} suppliche non ancora disponibili`:`${unavailable.length} invocations not yet available`}
+      </summary>
+      <div style="display:flex;flex-direction:column;gap:3px;margin-top:5px">`;
+    unavailable.forEach(inv => {
+      const reason = inv.prereqLv && lv < inv.prereqLv
+        ? (isIt?`Richiede Lv.${inv.prereqLv}`:`Requires Lv.${inv.prereqLv}`)
+        : (isIt?`Richiede: ${WARLOCK_INVOCATIONS.find(x=>x.id===inv.prereqInv)?.[isIt?'it':'en']||inv.prereqInv}`
+               :`Requires: ${WARLOCK_INVOCATIONS.find(x=>x.id===inv.prereqInv)?.[isIt?'it':'en']||inv.prereqInv}`);
+      html += `<div style="padding:5px 9px;border:1px solid rgba(200,164,90,.08);border-radius:3px;opacity:.5">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px">${inv.isPact?'🔗':'◇'}</span>
+          <span style="font-size:10px;color:var(--muted)">${isIt?inv.it:inv.en}</span>
+          <span style="font-size:9px;color:var(--vdim);margin-left:auto">${reason}</span>
+        </div>
+      </div>`;
+    });
+    html += `</div></details>`;
   }
 
-  // ── ARCANUM MISTICO ────────────────────────────────────────────────────
+  html += `</div>`;
+
+  // ── ARCANUM MISTICO con picker spell Lv.6-9 ───────────────────────────
   if(arcanaLevels.length > 0){
-    const allUsed = arcanaLevels.every(lv => arcanaUsed[lv]);
+    // Lista incantesimi warlock per livello
+    const wlSpellsByLevel = {};
+    SPELLS.filter(s => (s.classes||[]).includes('warlock') || (s.classes||[]).includes('Warlock')).forEach(s => {
+      if(!wlSpellsByLevel[s.lv]) wlSpellsByLevel[s.lv] = [];
+      wlSpellsByLevel[s.lv].push(s);
+    });
+
     html += `<div class="box">
       <div class="box-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
-        <span>🌟 ${isIt ? "Arcanum Mistico" : "Mystic Arcanum"}</span>
+        <span>🌟 ${isIt?'Arcanum Mistico':'Mystic Arcanum'}</span>
         <button onclick="fResetArcana()" style="font-size:9px;background:none;border:1px solid var(--border2);color:var(--dim);padding:2px 8px;border-radius:3px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.06em">${isIt?'RIPRISTINA':'RESET'}</button>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${isIt ? '1 uso per livello · recupero con riposo lungo' : '1 use per level · restored on long rest'}</div>
-      ${arcanaLevels.map(spLv => {
-        const used   = !!arcanaUsed[spLv];
-        const spName = arcanaSpells[spLv] || '';
-        return `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;padding:8px;background:rgba(200,164,90,.04);border:1px solid ${used?'rgba(200,164,90,.1)':'rgba(200,164,90,.22)'};border-radius:3px;opacity:${used?'.55':'1'}">
-          <span onclick="fToggleArcanum(${spLv})" title="${isIt?'Clicca per usare/recuperare':'Click to use/restore'}"
-            style="font-size:22px;cursor:pointer;user-select:none;flex-shrink:0;line-height:1;padding-top:2px">${used?'◇':'◆'}</span>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-              <span style="font-size:12px;font-weight:700;color:${used?'var(--vdim)':'var(--gold)'}">${spLv}° ${isIt?'livello':'level'}</span>
-              ${used ? `<span style="font-size:9px;color:var(--vdim);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:1px 6px">${isIt?'usato':'used'}</span>` : ''}
-            </div>
-            <input type="text"
-              value="${spName}"
-              placeholder="${isIt?'Incantesimo scelto…':'Chosen spell…'}"
-              oninput="fSetArcanaSpell(${spLv},this.value)"
-              style="width:100%;padding:4px 7px;background:rgba(13,10,6,.8);border:1px solid ${spName?'var(--gold2)':'var(--border)'};border-radius:3px;color:var(--text);font-family:'Comfortaa',system-ui,sans-serif;font-size:11px;outline:none;box-sizing:border-box">
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${isIt?'1 uso per livello · recupero con riposo lungo':'1 use per level · restored on long rest'}</div>`;
 
-  // ── SUPPLICHE OCCULTE ─────────────────────────────────────────────────
-  html += `<div class="box">
-    <div class="box-title" style="display:flex;justify-content:space-between;align-items:center">
-      <span>📖 ${isIt ? "Suppliche Occulte" : "Eldritch Invocations"}</span>
-      <span style="font-size:10px;color:var(--gold2)">${invocations.length} / ${invocationCount}</span>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">
-      ${isIt ? `Lv.${lv}: <strong style="color:var(--gold)">${invocationCount}</strong> suppliche. Puoi cambiarne una a ogni aumento di livello.`
-              : `Lv.${lv}: <strong style="color:var(--gold)">${invocationCount}</strong> invocations. You can replace one at each level.`}
-    </div>
-    ${invocations.map((inv, i) => `
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;padding:5px 8px;background:rgba(200,164,90,.05);border:1px solid var(--border2);border-radius:3px">
-        <span style="font-size:12px;color:var(--gold);flex:1">${inv.text}</span>
-        <span onclick="fRemoveWarlockInvocation(${i})" style="cursor:pointer;color:var(--vdim);font-size:14px;padding:0 2px;user-select:none">✕</span>
-      </div>`).join('')}
-    ${invocations.length < invocationCount ? `
-      <div style="display:flex;gap:6px;margin-top:6px">
-        <input id="wl-inv-input" type="text" placeholder="${isIt?'Aggiungi supplica…':'Add invocation…'}"
-          onkeydown="if(event.key==='Enter')fAddWarlockInvocation()"
-          style="flex:1;padding:5px 8px;background:rgba(13,10,6,.8);border:1px solid var(--border2);border-radius:3px;color:var(--text);font-family:'Comfortaa',system-ui,sans-serif;font-size:11px;outline:none">
-        <button onclick="fAddWarlockInvocation()" class="btn sm" style="padding:5px 10px">+</button>
-      </div>` : `<div style="font-size:10px;color:var(--vdim);margin-top:6px;font-style:italic">${isIt?'Limite raggiunto. Rimuovi una supplica per aggiungerne un\'altra.':'Limit reached. Remove one to add another.'}</div>`}
-  </div>`;
+    arcanaLevels.forEach(spLv => {
+      const used   = !!arcanaUsed[spLv];
+      const spName = arcanaSpells[spLv] || '';
+      const lvSpells = (wlSpellsByLevel[spLv] || []).sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+      html += `<div style="margin-bottom:8px;padding:8px;background:rgba(200,164,90,.04);border:1px solid ${used?'rgba(200,164,90,.1)':'rgba(200,164,90,.22)'};border-radius:3px;opacity:${used?.55:1}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span onclick="fToggleArcanum(${spLv})" title="${isIt?'Clicca per usare/recuperare':'Click to use/restore'}"
+            style="font-size:22px;cursor:pointer;user-select:none;flex-shrink:0;line-height:1">${used?'◇':'◆'}</span>
+          <span style="font-size:12px;font-weight:700;color:${used?'var(--vdim)':'var(--gold)'}">${spLv}° ${isIt?'livello':'level'}</span>
+          ${used?`<span style="font-size:9px;color:var(--vdim);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:1px 6px">${isIt?'usato':'used'}</span>`:''}
+        </div>`;
+
+      if(lvSpells.length > 0){
+        html += `<select onchange="fSetArcanaSpell(${spLv},this.value)"
+          style="width:100%;padding:4px 7px;background:rgba(13,10,6,.9);border:1px solid ${spName?'var(--gold2)':'var(--border)'};border-radius:3px;color:var(--text);font-family:'Comfortaa',system-ui,sans-serif;font-size:11px;outline:none">
+          <option value="">${isIt?'— scegli incantesimo —':'— choose spell —'}</option>
+          ${lvSpells.map(s=>`<option value="${s.nome}" ${arcanaSpells[spLv]===s.nome?'selected':''}>${s.nome}</option>`).join('')}
+        </select>`;
+      } else {
+        html += `<input type="text" value="${spName}" placeholder="${isIt?'Incantesimo '+spLv+'° livello…':'Spell level '+spLv+'…'}"
+          oninput="fSetArcanaSpell(${spLv},this.value)"
+          style="width:100%;padding:4px 7px;background:rgba(13,10,6,.8);border:1px solid ${spName?'var(--gold2)':'var(--border)'};border-radius:3px;color:var(--text);font-family:'Comfortaa',system-ui,sans-serif;font-size:11px;outline:none;box-sizing:border-box">`;
+      }
+      html += `</div>`;
+    });
+
+    html += `</div>`;
+  }
 
   return html;
 }
-
 // Nomi casuali per specie
 const FNAMES={
   umano:{m:["Aldric","Bram","Cedric","Dorian","Marco","Luca","Giorgio","Stefan","Tomas","Nolan"],f:["Alara","Brienna","Sofia","Elena","Giulia","Laura","Gwen","Mira","Wren","Delia"],n:["da Ironhaven","di Cresta Pietra","dei Colli","della Valle"]},
@@ -4540,10 +4629,6 @@ let C={
   languages:[], // lingue conosciute (oltre a Comune)
   weaponMasteries:[], // armi scelte per padronanza d'armi
   expertiseSkills:[], // abilità con doppia competenza (maestria) - Lv.1/2 scelta classe
-  expertiseSkills2:[], // maestria extra a livelli superiori (Bardo Lv.9, Ladro Lv.6)
-  subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
-  wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
-  monkMercyTool:false, // Monaco Misericordia: borsa da erborista (automatica)
   expertiseSkills2:[], // maestria extra a livelli superiori (Bardo Lv.9, Ladro Lv.6)
   subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
   wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
@@ -4662,6 +4747,10 @@ function fCanNext(){
     if(!C.cls) return false;
     const clData = CLASS_SKILLS[C.cls];
     if(clData && (C.classSkills||[]).length < clData.count) return false;
+    // Fighting style obbligatorio se disponibile al livello corrente
+    const lv2=C.level||1;
+    const needsFS=(C.cls==='fighter')||(C.cls==='paladin'&&lv2>=2)||(C.cls==='ranger'&&lv2>=2);
+    if(needsFS && !C.fightingStyle) return false;
     return true;
   }
   // Step 3: Sottoclasse (obbligatoria)
