@@ -4641,9 +4641,10 @@ const fgSr=()=>{const sp=fgSp();return sp?.subraces?.find(r=>r.id===C.subrace)};
 const fgAl=()=>ALIGNMENTS.find(a=>a.id===C.alignment);
 const fgSc=()=>{const cl=fgCl();return cl?.subclasses?.find(s=>s.id===C.subclass)};
 function fFeatSlots(cls,lv){
+  // PHB 2024: nessun ASI al Lv.1, slot solo ai livelli indicati
   const f=[4,6,8,12,14,16,19],r=[4,8,10,12,16,19],b=[4,8,12,16,19];
   const arr=cls==="fighter"?f:cls==="rogue"?r:b;
-  let n=1;arr.forEach(l=>{if(l<=lv)n++});
+  let n=0; arr.forEach(l=>{if(l<=lv)n++;});
   // Umano (Versatile) ottiene +1 talento di Origini gratuito al Lv.1
   const sp=fgSp();
   if(sp && sp.versatileFeat) n++;
@@ -5382,33 +5383,48 @@ function fTogClassSkill(skillEn){
 function fRS1(){
   const cl=fgCl();
   const pbLv=fpb(C.level);
+  const cls=C.cls||'fighter';
+  const tiers=[
+    {lv:1,  end:4,  it:'Tier 1: Avventuriero locale (Lv.1-4)',  en:'Tier 1: Local Hero (Lv.1-4)'},
+    {lv:5,  end:10, it:'Tier 2: Eroe del regno (Lv.5-10)',      en:'Tier 2: Hero of the Realm (Lv.5-10)'},
+    {lv:11, end:16, it:'Tier 3: Maestro del mondo (Lv.11-16)',  en:'Tier 3: Master of the World (Lv.11-16)'},
+    {lv:17, end:20, it:'Tier 4: Leggenda cosmica (Lv.17-20)',   en:'Tier 4: Cosmic Legend (Lv.17-20)'},
+  ];
+  const curTier=tiers.find(t=>C.level>=t.lv&&C.level<=t.end);
+  const asiLevels=cls==='fighter'?[4,6,8,12,14,16,19]:cls==='rogue'?[4,8,10,12,16,19]:[4,8,12,16,19];
+  const asiSlots=fFeatSlots(cls,C.level);
   return`
   <div>
-    <div class="sec-title">⭐ ${ft("2 · Livello","2 · Starting Level")}</div>
-    <!-- LIVELLO DI PARTENZA (in cima così orienta tutte le scelte successive) -->
+    <div class="sec-title">\u2B50 ${ft("2 \u00B7 Livello","2 \u00B7 Starting Level")}</div>
     <div style="margin-bottom:20px;background:rgba(200,164,90,.07);border:1px solid rgba(200,164,90,.25);border-radius:4px;padding:14px">
-      <div style="font-family:'Comfortaa', sans-serif;color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:10px">⭐ ${ft("Livello di Partenza","Starting Level")}</div>
+      <div style="font-family:'Comfortaa', sans-serif;color:var(--gold);font-size:11px;letter-spacing:2px;margin-bottom:10px">\u2B50 ${ft("Livello di Partenza","Starting Level")}</div>
       <div class="lv-grid" style="max-width:100%">
         ${Array.from({length:20},(_,i)=>i+1).map(lv=>{
-          const isTier=[5,11,17].includes(lv);
-          const hasASI=fFeatSlots(C.cls||'fighter',lv)>fFeatSlots(C.cls||'fighter',lv-1);
+          const isASI=asiLevels.includes(lv);
+          const isTierStart=[5,11,17].includes(lv);
           return`<div class="lv-cell ${C.level===lv?"sel":""}" onclick="fSetLv(${lv})" style="position:relative">
             <div style="font-size:13px;font-weight:700;color:${C.level===lv?"var(--gold)":"var(--text)"}">${lv}</div>
-            ${isTier?`<div style="font-size:6px;color:var(--green);line-height:1">▲</div>`:""}
+            ${isASI?`<div style="font-size:5px;color:var(--gold2);line-height:1">ASI</div>`:""}
+            ${isTierStart?`<div style="font-size:5px;color:var(--green);line-height:1">T${[5,11,17].indexOf(lv)+2}</div>`:""}
           </div>`;
         }).join("")}
       </div>
-      <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--dim);flex-wrap:wrap">
+      <div style="display:flex;gap:16px;margin-top:8px;font-size:11px;color:var(--dim);flex-wrap:wrap;align-items:center">
         <span>Lv.<span style="color:var(--gold);font-weight:700">${C.level}</span></span>
         <span>${ft("Comp.","Prof.")} <span style="color:var(--gold);font-weight:700">+${pbLv}</span></span>
-        <span>${ft("Slot ASI classe:","Class ASI slots:")} <span style="color:var(--gold);font-weight:700">${fFeatSlots(C.cls||'fighter',C.level)}</span></span>
-        <span style="color:var(--vdim)">▲ = ${ft("nuove capacità","new abilities")}</span>
+        <span>${ft("Slot ASI:","ASI slots:")} <span style="color:var(--gold);font-weight:700">${asiSlots}</span>
+          <span style="color:var(--vdim);font-size:10px"> (${ft("ai Lv.","at Lv.")} ${asiLevels.join(", ")})</span>
+        </span>
+        ${curTier?`<span style="color:var(--green);font-size:10px">&#9679; ${ft(curTier.it,curTier.en)}</span>`:''}
+      </div>
+      <div style="display:flex;gap:8px;margin-top:5px;font-size:9px;color:var(--vdim)">
+        <span style="color:var(--gold2)">ASI</span><span>${ft("= Aumento Punteggi / Talento","= Ability Score Improvement / Feat")}</span>
+        <span style="color:var(--green);margin-left:8px">T2/T3/T4</span><span>${ft("= inizio nuovo tier di gioco","= new play tier starts")}</span>
       </div>
     </div>
-
-  
   </div>`;
 }
+
 // ─── Maestrie d'armi: conta dinamica per livello (PHB 2024) ────────────────
 function fMasteryCount(cls, lv){
   if(cls==='barbarian') return lv>=10?4:lv>=4?3:2;
@@ -6008,7 +6024,7 @@ function fBuildPrintSheet(){
 
   return`<style>
 .ps{font-family:"Arial Narrow",Arial,sans-serif;font-size:7.5pt;color:#000;background:#fff;width:190mm;margin:0 auto}
-.psp{width:190mm;min-height:274mm;page-break-after:always;box-sizing:border-box;padding:3mm 3mm 2mm}
+.psp{width:190mm;min-height:274mm;max-height:277mm;page-break-after:always;box-sizing:border-box;padding:3mm 3mm 2mm;overflow:hidden}
 .psp:last-child{page-break-after:avoid}
 /* header */
 .phdr{border:1.5px solid #333;border-radius:3px;margin-bottom:2mm;overflow:hidden}
@@ -6141,16 +6157,16 @@ function fBuildPrintSheet(){
         <tbody>${Array(6).fill('<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>').join('')}</tbody>
       </table>
       <div class="pst">Privilegi di Classe</div>
-      <div class="ptx" style="min-height:48mm">${classFeat}</div>
-      ${(()=>{ const cr=fBuildClassResourcesPrint(); return cr ? '<div class="pst">Risorse di Classe</div><div class="ptx" style="min-height:12mm;font-size:6pt">' + cr.replace(/\n/g,'<br>') + '</div>' : ''; })()}
+      <div class="ptx" style="min-height:36mm;max-height:52mm;overflow:hidden">${classFeat}</div>
+      ${(()=>{ const cr=fBuildClassResourcesPrint(); return cr ? '<div class="pst">Risorse di Classe</div><div class="ptx" style="min-height:8mm;max-height:20mm;overflow:hidden;font-size:5.5pt">' + cr.replace(/\n/g,'<br>') + '</div>' : ''; })()}
       <div class="pst">Tratti della Specie</div>
-      <div class="ptx" style="min-height:14mm">${spTraits}</div>
+      <div class="ptx" style="min-height:10mm;max-height:18mm;overflow:hidden">${spTraits}</div>
     </div>
 
     <!-- COLONNA DESTRA -->
     <div>
       <div class="pst">Talenti</div>
-      <div class="ptx" style="min-height:22mm">${featsList}</div>
+      <div class="ptx" style="min-height:16mm;max-height:22mm;overflow:hidden">${featsList}</div>
       <div class="pst">Personalità</div>
       <div style="font-size:5.5pt;color:#555;margin-bottom:0.3mm">Tratto</div>
       <div class="ptx" style="min-height:9mm">${C.trait||''}</div>
@@ -6161,7 +6177,7 @@ function fBuildPrintSheet(){
       <div style="font-size:5.5pt;color:#555;margin-bottom:0.3mm">Difetto</div>
       <div class="ptx" style="min-height:8mm">${C.flaw||''}</div>
       <div class="pst">Lingue</div>
-      <div class="ptx" style="min-height:10mm">${langTxt}</div>
+      <div class="ptx" style="min-height:7mm;max-height:12mm;overflow:hidden">${langTxt}</div>
       ${(()=>{
         const wm=C.weaponMasteries||[];
         if(!wm.length) return '';
@@ -6179,41 +6195,61 @@ function fBuildPrintSheet(){
 
 ${(function(){
   if(!fHasSpellcasting()) {
-    // PAGINA 2 NON-MAGICA: Note di campagna + Equipaggiamento esteso
+    // PAGINA 2 NON-MAGICA: 3 colonne compatte, tutto su una pagina
     var cName=C.name||'—';
     var equipTxt2=C.equipNotes||(fgCl()?fgCl().equipIt||'':'');
-    var crBlock=fBuildClassResourcesPrint();
-    return `<div class="psp" style="page-break-before:always">
-  <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">${cName} · Note &amp; Equipaggiamento</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:3mm">
-    <div>
-      <div class="pst">Risorse di Classe</div>
-      <div class="ptx" style="min-height:30mm;font-size:6pt">${crBlock.replace(/\n/g,'<br>')}</div>
+    var backstoryTxt=C.backstory||'';
+    return `<div class="psp" style="page-break-before:always;overflow:hidden">
+  <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1.5mm">${cName} · Note &amp; Equipaggiamento</div>
+  <div style="display:grid;grid-template-columns:1fr 1.4fr 0.75fr;gap:3mm;height:268mm;overflow:hidden">
+
+    <!-- COLONNA SINISTRA: Equipaggiamento + Sintonia + Storia -->
+    <div style="overflow:hidden">
       <div class="pst">Equipaggiamento</div>
-      <div class="ptx" style="min-height:40mm">${equipTxt2}</div>
+      <div class="ptx" style="min-height:55mm;max-height:80mm;overflow:hidden">${equipTxt2}</div>
       <div class="pst">Sintonia con Oggetto Magico</div>
       <div class="ptx" style="min-height:20mm">
         <div style="border-bottom:0.4px solid #aaa;height:5mm;margin-bottom:2mm">◇ ________________</div>
         <div style="border-bottom:0.4px solid #aaa;height:5mm;margin-bottom:2mm">◇ ________________</div>
         <div style="border-bottom:0.4px solid #aaa;height:5mm">◇ ________________</div>
       </div>
+      <div class="pst">Storia del Personaggio</div>
+      <div class="ptx" style="min-height:40mm;max-height:60mm;overflow:hidden;font-size:6pt">${backstoryTxt}</div>
     </div>
-    <div>
+
+    <!-- COLONNA CENTRALE: Note di Campagna (ampia) -->
+    <div style="overflow:hidden">
       <div class="pst">Note di Campagna</div>
-      <div class="ptx" style="min-height:80mm"></div>
+      <div class="ptx" style="min-height:160mm;max-height:200mm"></div>
+      <div class="pst">Obiettivi &amp; Alleanze</div>
+      <div class="ptx" style="min-height:40mm"></div>
+    </div>
+
+    <!-- COLONNA DESTRA: Denari + PNG + Condizioni -->
+    <div style="overflow:hidden">
       <div class="pst">Denari</div>
-      <div class="pmn">
+      <div class="pmn" style="flex-direction:column;gap:1mm">
         <div class="pmncl"><div class="pl">MR</div></div>
         <div class="pmncl"><div class="pl">MA</div></div>
         <div class="pmncl"><div class="pl">ME</div></div>
         <div class="pmncl"><div class="pl">MO</div></div>
         <div class="pmncl"><div class="pl">MP</div></div>
       </div>
+      <div class="pst" style="margin-top:2mm">Condizioni Attive</div>
+      <div class="ptx" style="min-height:20mm">
+        ${['Accecato','Affascinato','Assordato','Avvelenato','Impaurito','Incapacitato','Paralizzato','Prono','Rallentato','Stordito'].map(c=>`<div style='font-size:5pt;border-bottom:0.3px solid #ddd;padding:0.8mm 0'>◇ ${c}</div>`).join('')}
+      </div>
+      <div class="pst" style="margin-top:2mm">PNG Importanti</div>
+      <div class="ptx" style="min-height:30mm">
+        ${Array(5).fill('<div style="border-bottom:0.3px solid #ccc;height:7mm"></div>').join('')}
+      </div>
     </div>
+
   </div>
 </div>`;
   }
-  // PAGINA 2 MAGICA: standard con incantesimi
+
+    // PAGINA 2 MAGICA: standard con incantesimi
   return `
 <div class="psp" style="page-break-before:always">
   <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">${C.name||'—'} · Incantesimi &amp; Note</div>
