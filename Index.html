@@ -3096,6 +3096,7 @@ function fSuggestTrait(){
 
 
 const FSN=["STR","DEX","CON","INT","WIS","CHA"];
+const FSA_VALS=[15,14,13,12,10,8];
 const FSI={STR:"Forza",DEX:"Destrezza",CON:"Costituzione",INT:"Intelligenza",WIS:"Saggezza",CHA:"Carisma"};
 const FSE={STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
 const FSKL=[
@@ -6406,7 +6407,12 @@ function fGetAllStatBonuses(){
       addBonus(sb.stat, sb.val, featName);
     } else if(choice.stats && Array.isArray(choice.stats)){
       // Player ha scelto una o più stat
-      choice.stats.forEach(s => addBonus(s, sb.val, featName));
+      // Per aumento-caratteristica: rispetta la modalità (+2 o +1+1)
+      let perStatVal = sb.val;
+      if(fid === 'aumento-caratteristica'){
+        perStatVal = (choice.asiMode === 'plus1x2') ? 1 : 2;
+      }
+      choice.stats.forEach(s => addBonus(s, perStatVal, featName));
     }
   });
   
@@ -8139,6 +8145,13 @@ function fFeatRemoveLast(id){
 }
 
 // ─── Feat choice helpers ────────────────────────────────────────────────────
+function fSetAsiMode(uid, mode){
+  if(!C.featChoices) C.featChoices = {};
+  if(!C.featChoices[uid]) C.featChoices[uid] = {};
+  C.featChoices[uid].asiMode = mode;
+  C.featChoices[uid].stats = [];
+  re();
+}
 function fSetFeatStatChoice(uid, statKey){
   if(!C.featChoices) C.featChoices = {};
   if(!C.featChoices[uid]) C.featChoices[uid] = {};
@@ -8146,25 +8159,29 @@ function fSetFeatStatChoice(uid, statKey){
   // Capisce quante stat può scegliere questo talento
   const feat = (C.feats||[]).find(function(f){ return f.uid===uid; });
   const meta = feat ? FEAT_METADATA[feat.id] : null;
-  const maxStats = meta && meta.statBonus && meta.statBonus.any && meta.statBonus.any > 1
-    ? meta.statBonus.any   // es. alt +1/+1 può scegliere 2 stat
-    : 1;                   // la maggioranza: sceglie 1 sola stat
+
+  // Modalità speciale per Aumento dei Punteggi di Caratteristica
+  let maxStats = 1;
+  let val = meta && meta.statBonus ? meta.statBonus.val : 1;
+  if(feat && feat.id === 'aumento-caratteristica'){
+    const asiMode = (C.featChoices[uid].asiMode) || 'plus2';
+    if(asiMode === 'plus1x2'){ maxStats = 2; val = 1; }
+    else { maxStats = 1; val = 2; }
+  } else if(meta && meta.statBonus && meta.statBonus.any && meta.statBonus.any > 1){
+    maxStats = meta.statBonus.any;
+  }
 
   const current = C.featChoices[uid].stats || [];
 
   if(current.includes(statKey)){
-    // Toggle off: deseleziona
     C.featChoices[uid].stats = current.filter(function(s){ return s !== statKey; });
   } else {
     if(maxStats === 1){
-      // Single-choice: rimpiazza
       C.featChoices[uid].stats = [statKey];
     } else {
-      // Multi-choice: aggiungi fino a maxStats
       if(current.length < maxStats){
         C.featChoices[uid].stats = current.concat([statKey]);
       }
-      // Se già al massimo, non fare nulla (l'utente deve prima deselezionare)
     }
   }
   re();
@@ -8198,12 +8215,30 @@ function fRFeatChoices(feat){
   const isIt = lang === 'it';
   let html = '';
   
+  // ── Toggle speciale per Aumento dei Punteggi di Caratteristica ──────────
+  if(feat.id === 'aumento-caratteristica'){
+    const asiMode = (C.featChoices?.[feat.uid]?.asiMode) || 'plus2';
+    const btnBase = 'font-size:11px;padding:4px 12px;border-radius:3px;cursor:pointer;border:1px solid;';
+    const on  = btnBase+'background:rgba(200,164,90,.2);border-color:var(--gold);color:var(--gold);font-weight:600';
+    const off = btnBase+'background:transparent;border-color:var(--border2);color:var(--muted)';
+    html += '<div style="margin-top:6px;padding:7px 9px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">'
+      +'<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">'+(isIt?'Modalità':'Mode')+'</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<button onclick="fSetAsiMode(\''+feat.uid+'\',\'plus2\')" style="'+(asiMode==='plus2'?on:off)+'">+2 '+(isIt?'a una':'to one')+'</button>'
+      +'<button onclick="fSetAsiMode(\''+feat.uid+'\',\'plus1x2\')" style="'+(asiMode==='plus1x2'?on:off)+'">+1+1 '+(isIt?'a due':'to two')+'</button>'
+      +'</div></div>';
+    // Override val e maxStats in base alla modalità
+    meta._asiVal  = asiMode === 'plus1x2' ? 1 : 2;
+    meta._asiMax  = asiMode === 'plus1x2' ? 2 : 1;
+  }
+  
   // ── Scelta caratteristica ────────────────────────────────────────────────
   if(meta.statBonus){
     const choices = fGetFeatStatChoices(feat.id);
     const selectedStats = (C.featChoices?.[feat.uid]?.stats) || [];
-    const val    = meta.statBonus.val;          // quanti punti dà questo talento
-    const capMax = meta.max || 20;              // limite massimo (20 normale, 30 Doni Epici)
+    const val    = meta._asiVal !== undefined ? meta._asiVal : meta.statBonus.val;
+    const maxSel = meta._asiMax !== undefined ? meta._asiMax : 1;
+    const capMax = meta.max || 20;
 
     if(choices.length > 0){
       const statLabels = isIt ? {STR:'FOR',DEX:'DES',CON:'COS',INT:'INT',WIS:'SAG',CHA:'CAR'}
@@ -8220,7 +8255,9 @@ function fRFeatChoices(feat){
         const atCap            = totalWithoutThis >= capMax;
         // Aggiungere questo talento supererebbe il cap?
         const wouldExceed      = !sel && totalIfAdded > capMax;
-        const isDisabled       = !sel && (atCap || wouldExceed);
+        // Raggiunto il numero massimo di selezioni per questo talento?
+        const maxReached       = !sel && selectedStats.length >= maxSel;
+        const isDisabled       = !sel && (atCap || wouldExceed || maxReached);
 
         // Valore visualizzato
         const displayCurrent   = Math.min(capMax, totalWithoutThis + (sel ? val : 0));
@@ -8263,7 +8300,8 @@ function fRFeatChoices(feat){
 
       html += '<div style="margin-top:6px;padding:7px 9px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">'
         +'<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">'
-        +(isIt?'Caratteristica':'Ability')+' (+'+val+')'
+        +(isIt?'Caratteristica':'Ability')
+        +(maxSel > 1 ? ' (+'+val+' ciascuna, scegli '+maxSel+')' : ' (+'+val+')')
         +(capMax>20?' <span style="font-size:9px;color:#9b59b6">(max '+capMax+')</span>':'')
         +'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:5px">'+pills+'</div>';
@@ -8600,7 +8638,7 @@ function fDoAI(){
   const subclassLines = Object.entries(subclassMap)
     .map(([cid, scs]) => `  ${cid}: [${scs}]`).join('\n');
 
-  const systemPrompt = `Sei un assistente per la creazione di personaggi D&D 5e 2024.
+  const systemPrompt = `Sei un assistente per la creazione di personaggi D&D 5e 2024 (PHB 2024).
 Devi rispondere SOLO con un oggetto JSON valido, senza testo prima o dopo, senza backtick markdown.
 
 Valori accettati:
@@ -8611,7 +8649,37 @@ ${subclassLines}
 - bg (background): ${bgIds}
 - alignment: ${alignIds}
 - level: intero 1-20
-- stats: { STR, DEX, CON, INT, WIS, CHA } coerenti con la classe (valori 8-17, somma ~78)
+
+REGOLE STATISTICHE — Array Standard PHB 2024 (obbligatorio):
+Assegna esattamente i 6 valori [15,14,13,12,10,8] alle 6 caratteristiche STR/DEX/CON/INT/WIS/CHA.
+Non aggiungere bonus razziali (li applica il codice). Non usare altri valori.
+Ottimizza l'assegnazione per la classe:
+- Barbaro: STR 15, CON 14, DEX 13, WIS 12, INT 10, CHA 8
+- Bardo/Stregone/Warlock: CHA 15, DEX 14, CON 13
+- Chierico/Druido: WIS 15, CON 14, STR 13
+- Guerriero (melee): STR 15, CON 14, DEX 13
+- Guerriero (arciere): DEX 15, CON 14, INT 13
+- Mago: INT 15, WIS 14, CON 13
+- Monaco: DEX 15, WIS 14, CON 13
+- Paladino: STR 15, CHA 14, CON 13
+- Ranger: DEX 15, WIS 14, CON 13
+- Ladro: DEX 15, INT 14, CON 13
+
+ABILITÀ DI CLASSE — scegli SOLO dalla lista della classe, senza ripetere quelle del background.
+Numero di abilità: barbarian=2, bard=3, cleric=2, druid=2, fighter=2, monk=2, paladin=2, ranger=3, rogue=4, sorcerer=2, warlock=2, wizard=2.
+Liste (EN):
+- barbarian: [Animal Handling,Athletics,Intimidation,Nature,Perception,Survival]
+- bard: [Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival]
+- cleric: [History,Insight,Medicine,Persuasion,Religion]
+- druid: [Arcana,Animal Handling,Insight,Medicine,Nature,Perception,Religion,Survival]
+- fighter: [Acrobatics,Animal Handling,Athletics,History,Insight,Intimidation,Perception,Survival]
+- monk: [Acrobatics,Athletics,History,Insight,Religion,Stealth]
+- paladin: [Athletics,Insight,Intimidation,Medicine,Persuasion,Religion]
+- ranger: [Animal Handling,Athletics,Insight,Investigation,Nature,Perception,Stealth,Survival]
+- rogue: [Acrobatics,Athletics,Deception,Insight,Intimidation,Investigation,Perception,Performance,Persuasion,Sleight of Hand,Stealth]
+- sorcerer: [Arcana,Deception,Insight,Intimidation,Persuasion,Religion]
+- warlock: [Arcana,Deception,History,Intimidation,Investigation,Nature,Religion]
+- wizard: [Arcana,History,Insight,Investigation,Medicine,Religion]
 
 Formato JSON richiesto:
 {
@@ -8623,7 +8691,8 @@ Formato JSON richiesto:
   "bg": "id_background",
   "alignment": "codice_allineamento",
   "level": 1,
-  "stats": { "STR":10, "DEX":10, "CON":10, "INT":10, "WIS":10, "CHA":10 },
+  "stats": { "STR":15, "DEX":13, "CON":14, "INT":10, "WIS":12, "CHA":8 },
+  "classSkills": ["Skill1EN","Skill2EN"],
   "trait": "Tratto di personalità in italiano (1-2 frasi)",
   "ideal": "Ideale in italiano (1 frase)",
   "bond": "Legame in italiano (1 frase)",
@@ -8633,11 +8702,12 @@ Formato JSON richiesto:
 
 Regole:
 - Scegli solo ID esattamente come scritti sopra
-- subrace: usa un id valido della specie scelta, o null se la specie non ha sottospecie
-- Statistiche ottimizzate per la classe (mago→INT alta, barbaro→STR/COS, ladro→DES, ecc.)
+- subrace: id valido della specie scelta, o null
+- stats: usa ESATTAMENTE i 6 valori [15,14,13,12,10,8] distribuiti tra le caratteristiche
+- classSkills: array EN con il numero esatto di abilità per la classe
 - Se l'utente scrive in italiano, rispondi in italiano; se in inglese, in inglese
-- trait, ideal, bond, flaw: specifici e coerenti con specie/classe/background scelti
-- La backstory deve essere narrativa e vivida (3-5 frasi), non generica
+- trait, ideal, bond, flaw: specifici e coerenti con specie/classe/background
+- backstory: narrativa e vivida, 3-5 frasi
 - Varia le scelte: non usare sempre umano/fighter, sii creativo`;
 
   const validIds = `Species: ${speciesIds}. Classes: ${classIds}. Backgrounds: ${bgIds}. Alignments: ${alignIds}.`;
@@ -8701,22 +8771,29 @@ Regole:
     // Valida livello
     char.level = Math.max(1, Math.min(20, parseInt(char.level) || 1));
 
-    // Valida statistiche
+    // Valida statistiche: deve usare esattamente i valori dell'array standard
     const statKeys = ['STR','DEX','CON','INT','WIS','CHA'];
-    statKeys.forEach(s => {
-      char.stats[s] = Math.max(8, Math.min(18, parseInt(char.stats?.[s]) || 10));
-    });
+    const stdVals  = [15,14,13,12,10,8];
+    const usedVals = statKeys.map(s => parseInt(char.stats?.[s]) || 10);
+    // Se i valori non corrispondono all'array standard, ri-assegna con priorità classe
+    const isStdArray = stdVals.every(v => usedVals.includes(v)) && usedVals.every(v => stdVals.includes(v));
+    if(!isStdArray){
+      // Riassegna array standard ottimizzato per la classe
+      const pri = CLASS_PRIMARY_STATS[char.cls] || ['STR','DEX','CON'];
+      const others = statKeys.filter(s => !pri.includes(s));
+      const sorted = [...pri, ...others];
+      stdVals.forEach((v,i) => { char.stats[sorted[i]] = v; });
+    }
+    statKeys.forEach(s => { char.stats[s] = parseInt(char.stats[s]) || 10; });
 
     // Applica al personaggio
     setStatus(ft('Applicazione…', 'Applying…'), 90);
 
-    // Auto-popola abilità di classe e specie
+    // Abilità di classe: usa quelle fornite dall'AI se valide, altrimenti auto-popola
     const { classSkills: autoClsSk, speciesSkills: autoSpSk } =
       fAutoPopulateSkills(char.cls, char.species);
-
-    // Talento background
-    const bgDataObj  = BACKGROUNDS.find(b => b.id === char.bg);
-    const bgFeatName = bgDataObj ? (lang==='it' ? bgDataObj.featIt : bgDataObj.featEn) : null;
+    const aiClsSkills = Array.isArray(char.classSkills) && char.classSkills.length
+      ? char.classSkills : autoClsSk;
 
     Object.assign(C, {
       name:           char.name || 'Avventuriero',
@@ -8728,15 +8805,15 @@ Regole:
       alignment:      char.alignment,
       level:          char.level,
       stats:          char.stats,
-      statMethod:     'custom',
+      statMethod:     'standardarray',
       trait:          char.trait     || '',
       ideal:          char.ideal     || '',
       bond:           char.bond      || '',
       flaw:           char.flaw      || '',
       backstory:      char.backstory || '',
-      classSkills:    autoClsSk,
+      classSkills:    aiClsSkills,
       speciesSkills:  autoSpSk,
-      feats:          bgFeatName ? [] : [],  // BG feat è automatico dalla logica scheda
+      feats:          [],
       spells:         [],
       cantrips:          [],
       spellsPrepared:    [],
@@ -8808,16 +8885,17 @@ Regole:
       sKeys.forEach(s => { char.stats[s] = Math.max(8,Math.min(18,parseInt(char.stats?.[s])||10)); });
       const { classSkills: autoClsSk, speciesSkills: autoSpSk } =
         fAutoPopulateSkills(char.cls, char.species);
-      const bgDataObj  = BACKGROUNDS.find(b => b.id === char.bg);
-      const bgFeatName = bgDataObj ? (lang==='it' ? bgDataObj.featIt : bgDataObj.featEn) : null;
+      const aiClsSkills2 = Array.isArray(char.classSkills) && char.classSkills.length
+        ? char.classSkills : autoClsSk;
       Object.assign(C, {
         name: char.name || 'Avventuriero', species: char.species,
         subrace: char.subrace || null, cls: char.cls, subclass: char.subclass,
         bg: char.bg, alignment: char.alignment, level: char.level,
-        stats: char.stats, trait: char.trait || '', ideal: char.ideal || '',
+        stats: char.stats, statMethod: 'standardarray',
+        trait: char.trait || '', ideal: char.ideal || '',
         bond: char.bond || '', flaw: char.flaw || '',
         backstory: char.backstory || '',
-        classSkills: autoClsSk, speciesSkills: autoSpSk,
+        classSkills: aiClsSkills2, speciesSkills: autoSpSk,
         feats: [], spells: [], cantrips: [], spellsPrepared: [], preparedSpells: [],
         _spellPickerTarget: 'spell',
       });
