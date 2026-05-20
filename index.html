@@ -3096,6 +3096,7 @@ function fSuggestTrait(){
 
 
 const FSN=["STR","DEX","CON","INT","WIS","CHA"];
+const FSA_VALS=[15,14,13,12,10,8];
 const FSI={STR:"Forza",DEX:"Destrezza",CON:"Costituzione",INT:"Intelligenza",WIS:"Saggezza",CHA:"Carisma"};
 const FSE={STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
 const FSKL=[
@@ -4538,7 +4539,15 @@ let C={
   preparedSpells:[], // tutti gli incantesimi preparati (trucchetti + livellati)
   languages:[], // lingue conosciute (oltre a Comune)
   weaponMasteries:[], // armi scelte per padronanza d'armi
-  expertiseSkills:[], // abilità con doppia competenza (maestria)
+  expertiseSkills:[], // abilità con doppia competenza (maestria) - Lv.1/2 scelta classe
+  expertiseSkills2:[], // maestria extra a livelli superiori (Bardo Lv.9, Ladro Lv.6)
+  subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
+  wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
+  monkMercyTool:false, // Monaco Misericordia: borsa da erborista (automatica)
+  expertiseSkills2:[], // maestria extra a livelli superiori (Bardo Lv.9, Ladro Lv.6)
+  subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
+  wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
+  monkMercyTool:false, // Monaco Misericordia: borsa da erborista (automatica)
   featChoices:{}, // scelte specifiche dei talenti (es: {"resiliente_uid":{stats:['CHA']}})
   featSkills:[], // competenze abilità ottenute da talenti (es. Abile)
   featTools:[], // competenze strumenti da talenti
@@ -4661,11 +4670,19 @@ function fCanNext(){
   }
   // Step 4: Padronanza Armi (auto-skip se non applicabile)
   if(step===4){
-    const cl=fgCl();
-    const mc=cl?cl.masteryCount||0:0;
+    const cl=fgCl(); const lv=C.level||1;
+    const mc=fMasteryCount(C.cls,lv);
     const ec=cl?cl.expertiseCount||0:0;
+    const ec2=fExtraExpertiseCount(C.cls,lv);
+    const scSkCount=(C.cls==='bard'&&C.subclass==='sapienza'&&lv>=3)?3:0;
+    const wizSch=(C.cls==='wizard'&&lv>=2);
+    // Grant automatici sottoclasse (no scelta)
+    const autoSk=fSubclassAutoSkills(C.cls,C.subclass,lv);
     if(mc>0&&(C.weaponMasteries||[]).length<mc) return false;
     if(ec>0&&(C.expertiseSkills||[]).length<ec) return false;
+    if(ec2>0&&(C.expertiseSkills2||[]).length<ec2) return false;
+    if(scSkCount>0&&(C.subclassSkills||[]).length<scSkCount) return false;
+    if(wizSch&&!C.wizardScholarSkill) return false;
     return true;
   }
   // Step 5: Background
@@ -4726,7 +4743,7 @@ function nuovoPersonaggio(){
     statMethod:"pointbuy",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -5392,23 +5409,69 @@ function fRS1(){
   
   </div>`;
 }
+// ─── Maestrie d'armi: conta dinamica per livello (PHB 2024) ────────────────
+function fMasteryCount(cls, lv){
+  if(cls==='barbarian') return lv>=10?4:lv>=4?3:2;
+  if(cls==='fighter')   return lv>=16?5:lv>=10?4:3;
+  if(cls==='ranger')    return lv>=10?3:2;
+  if(cls==='rogue')     return lv>=10?3:2;
+  if(cls==='paladin')   return lv>=10?3:2;
+  const cl=CLASSES.find(c=>c.id===cls);
+  return cl?cl.masteryCount||0:0;
+}
+
+// ─── Grant automatici dalla sottoclasse (no scelta) ────────────────────────
+function fSubclassGrantsProfs(cls, sc){
+  // Restituisce {armorExtra:[], weaponExtra:'', toolExtra:''} aggiunte automaticamente
+  const r={armorExtra:[],weaponExtra:'',toolExtra:''};
+  if(cls==='bard'    && sc==='valore')  { r.armorExtra=['Armature medie','Scudi']; r.weaponExtra='Armi da guerra'; }
+  if(cls==='monk'    && sc==='mercy')   { r.toolExtra='Borsa da erborista'; }
+  return r;
+}
+
+// ─── Abilità fisse garantite dalla sottoclasse (no scelta) ─────────────────
+function fSubclassAutoSkills(cls, sc, lv){
+  // Restituisce array di EN skill names aggiunti automaticamente
+  if(cls==='monk' && sc==='mercy' && lv>=3) return ['Insight','Medicine'];
+  return [];
+}
+
+// ─── Numero expertise aggiuntive per livello (oltre expertiseCount base) ───
+function fExtraExpertiseCount(cls, lv){
+  if(cls==='bard'   && lv>=9) return 2; // Maestria Lv.9
+  if(cls==='rogue'  && lv>=6) return 2; // Maestria Lv.6
+  return 0;
+}
+
+// ─── Wizard Scholar: lista abilità per Mago Studioso ───────────────────────
+const WIZARD_SCHOLAR_SKILLS_EN=['Arcana','History','Insight','Investigation','Medicine','Nature','Religion'];
+
 function fRS2(){
   const cl=fgCl(); if(!cl) return '';
   const isIt=lang==='it';
-  // Mostra sempre il riepilogo competenze armature+armi della classe
-  // armorWeaponSummary verrà aggiunto a html dopo la sua dichiarazione
+  const lv=C.level||1;
+  const sc=C.subclass||'';
 
-  const mc=cl.masteryCount||0;
-  const ec=cl.expertiseCount||0;
-  if(mc===0 && ec===0){
+  const mc  = fMasteryCount(C.cls, lv);
+  const ec  = cl.expertiseCount||0;
+  const ec2 = fExtraExpertiseCount(C.cls, lv);
+  const scSkCount = (C.cls==='bard' && sc==='sapienza' && lv>=3) ? 3 : 0;
+  const wizSch = (C.cls==='wizard' && lv>=2);
+  const autoSk   = fSubclassAutoSkills(C.cls, sc, lv);
+  const autoProf = fSubclassGrantsProfs(C.cls, sc);
+  const hasAnything = mc>0 || ec>0 || ec2>0 || scSkCount>0 || wizSch || autoSk.length>0 || autoProf.weaponExtra;
+
+  if(!hasAnything){
     // Skip step automatically — passa direttamente al Background (step 5)
     if(step===4){ step=5; re(); return ''; }
     return '';
   }
 
-  const chosen=C.weaponMasteries||[];
-  const expChosen=C.expertiseSkills||[];
-  const weapons=fGetMasteryWeapons(C.cls);
+  const chosen    = C.weaponMasteries||[];
+  const expChosen = C.expertiseSkills||[];
+  const exp2Chosen= C.expertiseSkills2||[];
+  const scSkChosen= C.subclassSkills||[];
+  const weapons   = fGetMasteryWeapons(C.cls);
 
   const bgSk=fgBg()?fgBg().skillsEn.split(' and ').map(s=>s.trim()):[];
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
@@ -5508,9 +5571,150 @@ function fRS2(){
     html+='</div></div>';
   }
 
+  // ── EXPERTISE section (base: Bardo Lv.2, Ladro Lv.1, Ranger Lv.1)
+  if(ec>0 && allProfs.length>0){
+    html+=`<div class="panel">
+      <div class="sec-title">⭐ ${isIt?'Maestria nelle Abilità (Lv.1/2)':'Skill Expertise (Lv.1/2)'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        ${isIt?`Scegli <strong style="color:var(--gold)">${ec}</strong> abilità in cui possiedi competenza: il bonus di competenza viene <strong style="color:var(--gold)">raddoppiato</strong>.`:
+        `Choose <strong style="color:var(--gold)">${ec}</strong> skills you're proficient in: your proficiency bonus is <strong style="color:var(--gold)">doubled</strong>.`}
+      </div>
+      <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${expChosen.length}/${ec}</div>
+      <div class="ga">`;
+    FSKL.filter(sk=>allProfs.includes(sk.en)).forEach(sk=>{
+      const sel=expChosen.includes(sk.en);
+      const mod=fSkillMod(sk.en,sk.s);
+      const modStr=(mod>=0?'+':'')+mod;
+      const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
+      const expModStr=(expMod>=0?'+':'')+expMod;
+      html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise('${sk.en}',${ec})" style="padding:6px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
+          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+        </div>
+        <div style="font-size:9px;color:var(--gold2);margin-top:2px">
+          ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`● ${modStr} → ●● <span style="color:var(--green)">${expModStr}</span>`}
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+  }
+
+  // ── EXPERTISE EXTRA (Bardo Lv.9, Ladro Lv.6)
+  if(ec2>0 && allProfs.length>0){
+    const lbl=C.cls==='bard'?isIt?'Maestria nelle Abilità (Lv.9)':'Skill Expertise (Lv.9)':
+                             isIt?'Maestria nelle Abilità (Lv.6)':'Skill Expertise (Lv.6)';
+    html+=`<div class="panel">
+      <div class="sec-title">⭐⭐ ${lbl}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        ${isIt?`Scegli altre <strong style="color:var(--gold)">${ec2}</strong> abilità su cui ottenere la maestria.`:
+        `Choose ${ec2} more skills for expertise.`}
+      </div>
+      <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${exp2Chosen.length}/${ec2}</div>
+      <div class="ga">`;
+    FSKL.filter(sk=>allProfs.includes(sk.en)&&!expChosen.includes(sk.en)).forEach(sk=>{
+      const sel=exp2Chosen.includes(sk.en);
+      const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
+      const expModStr=(expMod>=0?'+':'')+expMod;
+      html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise2('${sk.en}',${ec2})" style="padding:6px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
+          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+        </div>
+        <div style="font-size:9px;color:var(--gold2);margin-top:2px">
+          ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`●● <span style="color:var(--green)">${expModStr}</span>`}
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+  }
+
+  // ── MAGO STUDIOSO (Lv.2): maestria in 1 abilità specifica
+  if(wizSch){
+    html+=`<div class="panel">
+      <div class="sec-title">📖 ${isIt?'Studioso (Lv.2)':'Scholar (Lv.2)'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        ${isIt?'Scegli <strong style="color:var(--gold)">1</strong> abilità da {Arcano, Indagare, Intuizione, Medicina, Natura, Religione, Storia} per ottenere la maestria.':
+        'Choose <strong style="color:var(--gold)">1</strong> skill from {Arcana, Investigation, Insight, Medicine, Nature, Religion, History} to gain expertise.'}
+      </div>
+      <div class="ga">`;
+    WIZARD_SCHOLAR_SKILLS_EN.forEach(skEn=>{
+      const sk=FSKL.find(s=>s.en===skEn);
+      if(!sk) return;
+      const sel=C.wizardScholarSkill===skEn;
+      const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
+      const expModStr=(expMod>=0?'+':'')+expMod;
+      html+=`<div class="card ${sel?'sel':''}" onclick="C.wizardScholarSkill=(C.wizardScholarSkill==='${skEn}'?null:'${skEn}');re()" style="padding:6px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
+          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+        </div>
+        <div style="font-size:9px;color:var(--gold2);margin-top:2px">
+          ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`●● <span style="color:var(--green)">${expModStr}</span>`}
+        </div>
+      </div>`;
+    });
+    html+='</div></div>';
+  }
+
+  // ── BARDO SAPIENZA: +3 competenze abilità a scelta
+  if(scSkCount>0){
+    const allSkEn=FSKL.map(s=>s.en);
+    const taken=[...allProfs,...scSkChosen];
+    html+=`<div class="panel">
+      <div class="sec-title">📚 ${isIt?'Competenze Bonus — Sapienza (Lv.3)':'Bonus Proficiencies — Lore (Lv.3)'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
+        ${isIt?`Scegli <strong style="color:var(--gold)">3</strong> abilità qualsiasi da aggiungere alle tue competenze.`:
+        `Choose <strong style="color:var(--gold)">3</strong> skills of any kind.`}
+      </div>
+      <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${scSkChosen.length}/${scSkCount}</div>
+      <div class="ga">`;
+    FSKL.filter(sk=>!allProfs.includes(sk.en)).forEach(sk=>{
+      const sel=scSkChosen.includes(sk.en);
+      const mod=fSkillMod(sk.en,sk.s);
+      const modStr=(mod>=0?'+':'')+mod;
+      html+=`<div class="card ${sel?'sel':''}" onclick="fToggleSubclassSkill('${sk.en}',${scSkCount})" style="padding:6px 8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
+          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+        </div>
+        <div style="font-size:9px;color:var(--gold2);margin-top:2px">${modStr}</div>
+      </div>`;
+    });
+    html+='</div></div>';
+  }
+
+  // ── GRANT AUTOMATICI SOTTOCLASSE (info senza scelta)
+  if(autoProf.weaponExtra || autoProf.armorExtra.length || autoProf.toolExtra || autoSk.length){
+    html+=`<div class="panel" style="border-left:2px solid var(--gold2)">
+      <div class="sec-title">🎁 ${isIt?'Competenze da Sottoclasse (automatiche)':'Subclass Proficiencies (automatic)'}</div>`;
+    if(autoProf.weaponExtra)
+      html+=`<div style="font-size:12px;color:var(--text);padding:4px 0">⚔️ ${isIt?'Armi':'Weapons'}: <strong style="color:var(--gold)">${autoProf.weaponExtra}</strong></div>`;
+    if(autoProf.armorExtra.length)
+      html+=`<div style="font-size:12px;color:var(--text);padding:4px 0">🛡️ ${isIt?'Armature':'Armor'}: <strong style="color:var(--gold)">${autoProf.armorExtra.join(', ')}</strong></div>`;
+    if(autoProf.toolExtra)
+      html+=`<div style="font-size:12px;color:var(--text);padding:4px 0">🧰 ${isIt?'Strumenti':'Tools'}: <strong style="color:var(--gold)">${autoProf.toolExtra}</strong></div>`;
+    if(autoSk.length){
+      const autoSkIt=autoSk.map(en=>{const s=FSKL.find(x=>x.en===en);return s?s.it:en;});
+      html+=`<div style="font-size:12px;color:var(--text);padding:4px 0">🎓 ${isIt?'Abilità':'Skills'}: <strong style="color:var(--gold)">${isIt?autoSkIt.join(', '):autoSk.join(', ')}</strong></div>`;
+    }
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:6px">✓ Queste competenze vengono aggiunte automaticamente al tuo personaggio.</div></div>';
+  }
+
+  // ── MAESTRIE ARMI scaling info
+  if(mc>0 && lv>=4 && (C.cls==='barbarian'||C.cls==='fighter'||C.cls==='ranger'||C.cls==='rogue'||C.cls==='paladin')){
+    const baseCount=CLASSES.find(c=>c.id===C.cls)?.masteryCount||mc;
+    if(mc>baseCount){
+      html+=`<div style="font-size:11px;color:var(--gold2);padding:6px 8px;background:rgba(200,164,90,.07);border-radius:4px;margin-bottom:8px">
+        🆙 ${isIt?`Lv.${lv}: hai ora <strong>${mc}</strong> maestrie d'armi (aumentate rispetto al livello iniziale).`:
+        `Lv.${lv}: you now have <strong>${mc}</strong> weapon masteries (increased from base).`}
+      </div>`;
+    }
+  }
+
   html+=`<div class="nav">
     <button class="btn" onclick="fGoBack()">← ${isIt?'Indietro':'Back'}</button>
-    <button class="btn primary" onclick="fGoNext()" ${chosen.length>=mc&&(ec===0||expChosen.length>=ec)?'':'disabled'}>
+    <button class="btn primary" onclick="fGoNext()" ${fCanNext()?'':'disabled'}>
       ${isIt?'Avanti':'Next'} →
     </button>
   </div>
@@ -5529,6 +5733,20 @@ function fToggleExpertise(skillEn, max){
   const idx=C.expertiseSkills.indexOf(skillEn);
   if(idx>=0){ C.expertiseSkills.splice(idx,1); }
   else if(C.expertiseSkills.length<max){ C.expertiseSkills.push(skillEn); }
+  re();
+}
+function fToggleExpertise2(skillEn, max){
+  if(!C.expertiseSkills2) C.expertiseSkills2=[];
+  const idx=C.expertiseSkills2.indexOf(skillEn);
+  if(idx>=0){ C.expertiseSkills2.splice(idx,1); }
+  else if(C.expertiseSkills2.length<max){ C.expertiseSkills2.push(skillEn); }
+  re();
+}
+function fToggleSubclassSkill(skillEn, max){
+  if(!C.subclassSkills) C.subclassSkills=[];
+  const idx=C.subclassSkills.indexOf(skillEn);
+  if(idx>=0){ C.subclassSkills.splice(idx,1); }
+  else if(C.subclassSkills.length<max){ C.subclassSkills.push(skillEn); }
   re();
 }
 
@@ -5721,7 +5939,7 @@ function fBuildPrintSheet(){
     const svS=(svMod>=0?'+':'')+svMod;
     const skRows=(STAT_SKL[stat]||[]).map(sk=>{
       const isP=skillProfs.includes(sk.en);
-      const isExp=(C.expertiseSkills||[]).includes(sk.en);
+      const isExp=fHasExpertise(sk.en);
       const skMod=isExp?mod+pb*2:isP?mod+pb:mod;
       return`<div class="psk"><span class="psd" style="color:${isExp?'#b8860b':isP?'#222':'#999'}">${isExp?'●●':isP?'●':'○'}</span><span class="psn" style="font-weight:${isP||isExp?'600':'400'}">${sk.it}</span><span class="psm">${(skMod>=0?'+':'')+skMod}</span></div>`;
     }).join('');
@@ -6608,14 +6826,17 @@ function fRSkillOverlapPicker(type, original, sources){
 
 
 function fGetAllSkillProfs(){
-  const bg   = fGetBgSkillProfs();                          // da Background (con sostituzioni)
-  const cls  = (C.classSkills   || []);                     // da Classe
-  const sp   = fGetSpSkillProfs();                          // da Specie (con sostituzioni)
-  const feat = (C.featSkills || []).map(f=>f.skill||f);     // da Talenti
-  // Conoscenza Primordiale: competenza extra barbaro Lv.3
+  const bg   = fGetBgSkillProfs();
+  const cls  = (C.classSkills   || []);
+  const sp   = fGetSpSkillProfs();
+  const feat = (C.featSkills || []).map(f=>f.skill||f);
   const prim = (C.cls==='barbarian'&&(C.level||1)>=3&&C.primordialKnowledgeSkill)
     ? [C.primordialKnowledgeSkill] : [];
-  return [...new Set([...bg, ...cls, ...sp, ...feat, ...prim])];
+  // Abilità da sottoclasse (scelte wizard: Bardo Sapienza)
+  const scSk = (C.subclassSkills || []);
+  // Abilità automatiche da sottoclasse (Monaco Misericordia)
+  const autoSk = fSubclassAutoSkills(C.cls, C.subclass||'', C.level||1);
+  return [...new Set([...bg, ...cls, ...sp, ...feat, ...prim, ...scSk, ...autoSk])];
 }
 
 // [fGetAllSkillProfs removed duplicate - fixed]
@@ -7027,12 +7248,17 @@ function fRSheet(){
         const hasE=(C.expertiseSkills||[]).length>0;
         const isIt=lang==='it';
         let html='';
-        // Competenze armi + strumenti
+        // Competenze armi + strumenti (base + grant da sottoclasse)
+        const scProf2=fSubclassGrantsProfs(C.cls,C.subclass||'');
+        const armorDisp2=(isIt?cl.armorIt:cl.armorEn)+(scProf2.armorExtra.length?', '+scProf2.armorExtra.join(', '):'');
+        const weaponDisp2=(isIt?cl.weaponsIt:cl.weaponsEn)+(scProf2.weaponExtra?', '+scProf2.weaponExtra:'');
+        const toolBase2=(isIt?cl.toolsIt:cl.toolsEn);
+        const moTool2=(C.cls==='monk'&&(C.subclass||'')==='mercy'&&(C.level||1)>=3);
+        const toolFinal2=toolBase2+(moTool2&&!toolBase2.includes('erborista')?(toolBase2==='—'?'Borsa da erborista':', Borsa da erborista'):'');
         html+=`<div class="box"><div class="box-title">⚔️ ${isIt?'Competenze Equipaggiamento':'Equipment Proficiencies'}</div>
-          <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armature':'Armor'}</span><span style="color:var(--gold);font-size:12px">${isIt?cl.armorIt:cl.armorEn}</span></div>
-          <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armi':'Weapons'}</span><span style="color:var(--gold);font-size:12px">${isIt?cl.weaponsIt:cl.weaponsEn}</span></div>
-          ${(isIt?cl.toolsIt:cl.toolsEn)!=='—'?`<div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Strumenti':'Tools'}</span><span style="color:var(--gold);font-size:12px">${isIt?cl.toolsIt:cl.toolsEn}</span></div>`:''}
-        </div>`;
+          <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armature':'Armor'}</span><span style="color:var(--gold);font-size:12px">${armorDisp2}</span></div>
+          <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armi':'Weapons'}</span><span style="color:var(--gold);font-size:12px">${weaponDisp2}</span></div>
+          ${toolFinal2!=='—'?`<div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Strumenti':'Tools'}</span><span style="color:var(--gold);font-size:12px">${toolFinal2}</span></div>`:''}</div>`;
         // Padronanza armi — scheda finale
         if(hasW){
           const propColors = {
@@ -8353,12 +8579,17 @@ function fGoBack(){
   if(step===0){screen='home';}
   else{
     step--;
-    // Skip step 4 (Padronanza) backward se classe senza padronanze/maestria
+    // Skip step 4 (Padronanza) backward se non c'è nulla da scegliere
     if(step===4){
-      const cl=fgCl();
-      const mc=cl?cl.masteryCount||0:0;
+      const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
+      const mc=fMasteryCount(C.cls,lv);
       const ec=cl?cl.expertiseCount||0:0;
-      if(mc===0&&ec===0) step=3;
+      const ec2=fExtraExpertiseCount(C.cls,lv);
+      const scSk=(C.cls==='bard'&&sc==='sapienza'&&lv>=3)?3:0;
+      const wizSch=(C.cls==='wizard'&&lv>=2);
+      const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
+      const autoP=fSubclassGrantsProfs(C.cls,sc);
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=3;
     }
   }
   re();
@@ -8366,12 +8597,17 @@ function fGoBack(){
 function fGoNext(){
   if(step<FNSTEPS-1){
     step++;
-    // Skip step 4 (Padronanza) se classe senza padronanze/maestria
+    // Skip step 4 (Padronanza) se non c'è nulla da scegliere
     if(step===4){
-      const cl=fgCl();
-      const mc=cl?cl.masteryCount||0:0;
+      const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
+      const mc=fMasteryCount(C.cls,lv);
       const ec=cl?cl.expertiseCount||0:0;
-      if(mc===0&&ec===0) step=5;
+      const ec2=fExtraExpertiseCount(C.cls,lv);
+      const scSk=(C.cls==='bard'&&sc==='sapienza'&&lv>=3)?3:0;
+      const wizSch=(C.cls==='wizard'&&lv>=2);
+      const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
+      const autoP=fSubclassGrantsProfs(C.cls,sc);
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=5;
     }
     if(step>=FNSTEPS-1){screen='sheet';}
   } else {
@@ -8637,7 +8873,7 @@ function fDoAI(){
   const subclassLines = Object.entries(subclassMap)
     .map(([cid, scs]) => `  ${cid}: [${scs}]`).join('\n');
 
-  const systemPrompt = `Sei un assistente per la creazione di personaggi D&D 5e 2024.
+  const systemPrompt = `Sei un assistente per la creazione di personaggi D&D 5e 2024 (PHB 2024).
 Devi rispondere SOLO con un oggetto JSON valido, senza testo prima o dopo, senza backtick markdown.
 
 Valori accettati:
@@ -8648,7 +8884,37 @@ ${subclassLines}
 - bg (background): ${bgIds}
 - alignment: ${alignIds}
 - level: intero 1-20
-- stats: { STR, DEX, CON, INT, WIS, CHA } coerenti con la classe (valori 8-17, somma ~78)
+
+REGOLE STATISTICHE — Array Standard PHB 2024 (obbligatorio):
+Assegna esattamente i 6 valori [15,14,13,12,10,8] alle 6 caratteristiche STR/DEX/CON/INT/WIS/CHA.
+Non aggiungere bonus razziali (li applica il codice). Non usare altri valori.
+Ottimizza l'assegnazione per la classe:
+- Barbaro: STR 15, CON 14, DEX 13, WIS 12, INT 10, CHA 8
+- Bardo/Stregone/Warlock: CHA 15, DEX 14, CON 13
+- Chierico/Druido: WIS 15, CON 14, STR 13
+- Guerriero (melee): STR 15, CON 14, DEX 13
+- Guerriero (arciere): DEX 15, CON 14, INT 13
+- Mago: INT 15, WIS 14, CON 13
+- Monaco: DEX 15, WIS 14, CON 13
+- Paladino: STR 15, CHA 14, CON 13
+- Ranger: DEX 15, WIS 14, CON 13
+- Ladro: DEX 15, INT 14, CON 13
+
+ABILITÀ DI CLASSE — scegli SOLO dalla lista della classe, senza ripetere quelle del background.
+Numero di abilità: barbarian=2, bard=3, cleric=2, druid=2, fighter=2, monk=2, paladin=2, ranger=3, rogue=4, sorcerer=2, warlock=2, wizard=2.
+Liste (EN):
+- barbarian: [Animal Handling,Athletics,Intimidation,Nature,Perception,Survival]
+- bard: [Acrobatics,Animal Handling,Arcana,Athletics,Deception,History,Insight,Intimidation,Investigation,Medicine,Nature,Perception,Performance,Persuasion,Religion,Sleight of Hand,Stealth,Survival]
+- cleric: [History,Insight,Medicine,Persuasion,Religion]
+- druid: [Arcana,Animal Handling,Insight,Medicine,Nature,Perception,Religion,Survival]
+- fighter: [Acrobatics,Animal Handling,Athletics,History,Insight,Intimidation,Perception,Survival]
+- monk: [Acrobatics,Athletics,History,Insight,Religion,Stealth]
+- paladin: [Athletics,Insight,Intimidation,Medicine,Persuasion,Religion]
+- ranger: [Animal Handling,Athletics,Insight,Investigation,Nature,Perception,Stealth,Survival]
+- rogue: [Acrobatics,Athletics,Deception,Insight,Intimidation,Investigation,Perception,Performance,Persuasion,Sleight of Hand,Stealth]
+- sorcerer: [Arcana,Deception,Insight,Intimidation,Persuasion,Religion]
+- warlock: [Arcana,Deception,History,Intimidation,Investigation,Nature,Religion]
+- wizard: [Arcana,History,Insight,Investigation,Medicine,Religion]
 
 Formato JSON richiesto:
 {
@@ -8660,7 +8926,8 @@ Formato JSON richiesto:
   "bg": "id_background",
   "alignment": "codice_allineamento",
   "level": 1,
-  "stats": { "STR":10, "DEX":10, "CON":10, "INT":10, "WIS":10, "CHA":10 },
+  "stats": { "STR":15, "DEX":13, "CON":14, "INT":10, "WIS":12, "CHA":8 },
+  "classSkills": ["Skill1EN","Skill2EN"],
   "trait": "Tratto di personalità in italiano (1-2 frasi)",
   "ideal": "Ideale in italiano (1 frase)",
   "bond": "Legame in italiano (1 frase)",
@@ -8670,11 +8937,12 @@ Formato JSON richiesto:
 
 Regole:
 - Scegli solo ID esattamente come scritti sopra
-- subrace: usa un id valido della specie scelta, o null se la specie non ha sottospecie
-- Statistiche ottimizzate per la classe (mago→INT alta, barbaro→STR/COS, ladro→DES, ecc.)
+- subrace: id valido della specie scelta, o null
+- stats: usa ESATTAMENTE i 6 valori [15,14,13,12,10,8] distribuiti tra le caratteristiche
+- classSkills: array EN con il numero esatto di abilità per la classe
 - Se l'utente scrive in italiano, rispondi in italiano; se in inglese, in inglese
-- trait, ideal, bond, flaw: specifici e coerenti con specie/classe/background scelti
-- La backstory deve essere narrativa e vivida (3-5 frasi), non generica
+- trait, ideal, bond, flaw: specifici e coerenti con specie/classe/background
+- backstory: narrativa e vivida, 3-5 frasi
 - Varia le scelte: non usare sempre umano/fighter, sii creativo`;
 
   const validIds = `Species: ${speciesIds}. Classes: ${classIds}. Backgrounds: ${bgIds}. Alignments: ${alignIds}.`;
@@ -8738,22 +9006,29 @@ Regole:
     // Valida livello
     char.level = Math.max(1, Math.min(20, parseInt(char.level) || 1));
 
-    // Valida statistiche
+    // Valida statistiche: deve usare esattamente i valori dell'array standard
     const statKeys = ['STR','DEX','CON','INT','WIS','CHA'];
-    statKeys.forEach(s => {
-      char.stats[s] = Math.max(8, Math.min(18, parseInt(char.stats?.[s]) || 10));
-    });
+    const stdVals  = [15,14,13,12,10,8];
+    const usedVals = statKeys.map(s => parseInt(char.stats?.[s]) || 10);
+    // Se i valori non corrispondono all'array standard, ri-assegna con priorità classe
+    const isStdArray = stdVals.every(v => usedVals.includes(v)) && usedVals.every(v => stdVals.includes(v));
+    if(!isStdArray){
+      // Riassegna array standard ottimizzato per la classe
+      const pri = CLASS_PRIMARY_STATS[char.cls] || ['STR','DEX','CON'];
+      const others = statKeys.filter(s => !pri.includes(s));
+      const sorted = [...pri, ...others];
+      stdVals.forEach((v,i) => { char.stats[sorted[i]] = v; });
+    }
+    statKeys.forEach(s => { char.stats[s] = parseInt(char.stats[s]) || 10; });
 
     // Applica al personaggio
     setStatus(ft('Applicazione…', 'Applying…'), 90);
 
-    // Auto-popola abilità di classe e specie
+    // Abilità di classe: usa quelle fornite dall'AI se valide, altrimenti auto-popola
     const { classSkills: autoClsSk, speciesSkills: autoSpSk } =
       fAutoPopulateSkills(char.cls, char.species);
-
-    // Talento background
-    const bgDataObj  = BACKGROUNDS.find(b => b.id === char.bg);
-    const bgFeatName = bgDataObj ? (lang==='it' ? bgDataObj.featIt : bgDataObj.featEn) : null;
+    const aiClsSkills = Array.isArray(char.classSkills) && char.classSkills.length
+      ? char.classSkills : autoClsSk;
 
     Object.assign(C, {
       name:           char.name || 'Avventuriero',
@@ -8765,15 +9040,15 @@ Regole:
       alignment:      char.alignment,
       level:          char.level,
       stats:          char.stats,
-      statMethod:     'custom',
+      statMethod:     'standardarray',
       trait:          char.trait     || '',
       ideal:          char.ideal     || '',
       bond:           char.bond      || '',
       flaw:           char.flaw      || '',
       backstory:      char.backstory || '',
-      classSkills:    autoClsSk,
+      classSkills:    aiClsSkills,
       speciesSkills:  autoSpSk,
-      feats:          bgFeatName ? [] : [],  // BG feat è automatico dalla logica scheda
+      feats:          [],
       spells:         [],
       cantrips:          [],
       spellsPrepared:    [],
@@ -8845,16 +9120,17 @@ Regole:
       sKeys.forEach(s => { char.stats[s] = Math.max(8,Math.min(18,parseInt(char.stats?.[s])||10)); });
       const { classSkills: autoClsSk, speciesSkills: autoSpSk } =
         fAutoPopulateSkills(char.cls, char.species);
-      const bgDataObj  = BACKGROUNDS.find(b => b.id === char.bg);
-      const bgFeatName = bgDataObj ? (lang==='it' ? bgDataObj.featIt : bgDataObj.featEn) : null;
+      const aiClsSkills2 = Array.isArray(char.classSkills) && char.classSkills.length
+        ? char.classSkills : autoClsSk;
       Object.assign(C, {
         name: char.name || 'Avventuriero', species: char.species,
         subrace: char.subrace || null, cls: char.cls, subclass: char.subclass,
         bg: char.bg, alignment: char.alignment, level: char.level,
-        stats: char.stats, trait: char.trait || '', ideal: char.ideal || '',
+        stats: char.stats, statMethod: 'standardarray',
+        trait: char.trait || '', ideal: char.ideal || '',
         bond: char.bond || '', flaw: char.flaw || '',
         backstory: char.backstory || '',
-        classSkills: autoClsSk, speciesSkills: autoSpSk,
+        classSkills: aiClsSkills2, speciesSkills: autoSpSk,
         feats: [], spells: [], cantrips: [], spellsPrepared: [], preparedSpells: [],
         _spellPickerTarget: 'spell',
       });
@@ -9083,9 +9359,12 @@ function fGetMasteryWeapons(clsId){
   return WEAPONS_MASTERY;
 }
 
-// Helper: check if a skill has expertise
+// Helper: check if a skill has expertise (da tutte le sorgenti)
 function fHasExpertise(skillEn){
-  return (C.expertiseSkills||[]).includes(skillEn);
+  if((C.expertiseSkills||[]).includes(skillEn)) return true;
+  if((C.expertiseSkills2||[]).includes(skillEn)) return true;
+  if(C.wizardScholarSkill===skillEn) return true;
+  return false;
 }
 
 // Helper: get skill modifier with expertise
