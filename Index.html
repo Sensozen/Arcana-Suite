@@ -2069,29 +2069,32 @@ const SUBCLASS_FEATURES = {
 
 // ══ DRUIDO ═══════════════════════════════════════════════════════
 "luna": [
-  { lv:3,  it:"Forme del Circolo", desc:"In Forma Selvatica: Grado di sfida massimo = livello/3 (arrot. per difetto), CA = 13+mod. SAG (se più alta dell'animale), PF temporanei = 3×livello. Può lanciare gli incantesimi del Circolo anche in Forma Selvatica." },
-  { lv:6,  it:"Forme del Circolo Migliorate", desc:"In Forma Selvatica: Radianza lunare (ogni attacco può infliggere i danni normali o radiosi a scelta) e Robustezza aumentata (aggiunge mod. SAG ai TS su COS)." },
-  { lv:10, it:"Passo Chiardiluna", desc:"Azione bonus: si teletrasporta fino a 9 m in uno spazio libero visibile; vantaggio sui prossimi tiri per colpire fino alla fine del turno. Usi = mod. SAG (min 1); recupero: riposo lungo. Può anche recuperare un uso spendendo uno slot di 2°+." },
-  { lv:14, it:"Forma Lunare", desc:"Quando usa Passo Chiardiluna può teletrasportare anche una creatura consenziente entro 3 m. Radianza lunare migliorata: una volta per turno inflisce 2d10 danni radiosi extra colpendo in Forma Selvatica." },
+  { lv:3,  it:"Forme del Circolo", desc:"In Forma Selvatica: GS max = livello/3 (arrot.), CA = 13+mod.SAG (se più alta), PF temp = 3×livello. Può lanciare incantesimi del Circolo anche in Forma Selvatica." },
+  { lv:3,  it:"Incantesimi del Circolo della Luna", desc:"Sempre preparati: Lv.3 bagliore lunare, cura ferite, luce splendente · Lv.5 evoca animali · Lv.7 fonte di luce lunare · Lv.9 cura ferite di massa." },
+  { lv:6,  it:"Forme del Circolo Migliorate", desc:"In Forma Selvatica: Radianza lunare (ogni attacco può essere radiosi) e Robustezza aumentata (mod.SAG ai TS su COS)." },
+  { lv:10, it:"Passo Chiardiluna", desc:"Az. bonus: teletrasporto 9 m + vantaggio tiri colpire fino fine turno. Usi = mod.SAG (min 1); recupero: riposo lungo. Oppure spendi 1 slot 2°+ per recuperare un uso." },
+  { lv:14, it:"Forma Lunare", desc:"Passo Chiardiluna può trasportare anche una creatura entro 3 m. Radianza lunare migliorata: 1×/turno +2d10 radiosi in Forma Selvatica." },
 ],
 "terra": [
-  { lv:3,  it:"Ausilio dalla Terra", desc:"Azione di Magia: spende un utilizzo di Forma Selvatica per evocare un'emanazione di vita e spine di 3 m raggio per 1 minuto centrata su un punto entro 18 m. Le creature nell'area devono superare un TS su COS (CD incantesimi): subiscono 2d6 danni necrotici in fallimento (metà in successo); una creatura a scelta nella zona recupera 2d6 PF." },
-  { lv:6,  it:"Recupero Naturale", desc:"Quando completa un riposo breve, recupera slot incantesimo per un totale di livelli ≤ metà del livello da druido (arrot. per eccesso); nessuno slot di 6°+ livello. 1/riposo lungo." },
-  { lv:10, it:"Interdizione della Natura", desc:"Immune alla condizione avvelenato; resistenza al tipo di danno del suo Circolo della Terra (tabella). Gli alleati entro 18 m ottengono la stessa resistenza mentre si trovano nell'aura." },
-  { lv:14, it:"Rifugio della Natura", desc:"Azione di Magia: spende un utilizzo di Forma Selvatica per far apparire alberi e viticci in un cubo di 4,5 m entro 36 m da sé per 1 minuto. Lui e i suoi alleati nell'area hanno metà copertura e resistenza del tipo della Interdizione della Natura." },
+  { lv:3,  it:"Ausilio dalla Terra", desc:"Az. di Magia + 1 uso Forma Selvatica: emanazione vita e spine (r.3 m, 1 min) in punto entro 18 m. Creature nell'area → TS COS: 2d6 necrotici in fallimento. Una creatura a scelta recupera 2d6 PF. Danni/guarigione: +1d6 a Lv.10 (3d6), +1d6 a Lv.14 (4d6)." },
+  { lv:3,  it:"Incantesimi del Circolo della Terra", desc:"A fine riposo lungo scegli tipo: Arida, Polare, Temperata o Tropicale. Preparati per tipo — Arida Lv.3: dardo fuoco, mani brucianti, sfocatura · Lv.5: palla di fuoco · Lv.7: inaridire · Lv.9: muro di pietra. Polare Lv.3: blocca persone, nube di nebbia, raggio di gelo · Lv.5: tempesta di nevischio · Lv.7: tempesta di ghiaccio · Lv.9: cono di freddo. Temperata Lv.3: passo velato, sonno, stretta folgorante · Lv.5: fulmine · Lv.7: libertà di movimento · Lv.9: traslazione arborea. Tropicale Lv.3: fiotto acido, raggio di infermità, ragnatela · Lv.5: nube maleodorante · Lv.7: metamorfosi · Lv.9: piaga degli insetti." },
+  { lv:6,  it:"Recupero Naturale", desc:"Riposo breve: recupera slot per totale livelli ≤ metà livello druido (max 6°). 1/riposo lungo. Inoltre può lanciare 1 incantesimo del Circolo senza slot (1/riposo lungo)." },
+  { lv:10, it:"Interdizione della Natura", desc:"Immune condizione avvelenato; resistenza al tipo del suo terreno. Alleati entro 18 m ottengono la stessa resistenza nell'aura." },
+  { lv:14, it:"Rifugio della Natura", desc:"Az. di Magia + 1 uso Forma Selvatica: alberi e viticci in cubo 4,5 m entro 36 m per 1 min. Lui e alleati nell'area: mezza copertura + resistenza del terreno. Az. bonus: muove il cubo fino a 18 m." },
 ],
 "mare": [
-  { lv:3,  it:"Furia dei Mari", desc:"Azione bonus: spende un utilizzo di Forma Selvatica per generare un'emanazione di 1,5 m di brezza oceanica per 10 minuti. Come azione bonus nelle sue successive azioni può scegliere una creatura nell'emanazione: TS su COS (CD incantesimi) o subisce danni da freddo (d6 × mod. SAG) ed è spinta 4,5 m." },
-  { lv:6,  it:"Affinità Acquatica", desc:"Il raggio dell'emanazione di Furia dei Mari aumenta di 3 m. Ottiene velocità di nuoto = velocità." },
-  { lv:10, it:"Nato dalla Tempesta", desc:"Mentre Furia dei Mari è attiva ottiene: resistenza ai danni da freddo, fulmine e tuono; velocità di volo = velocità." },
-  { lv:14, it:"Dono Oceanico", desc:"Invece di generare l'emanazione attorno a sé, può generarla attorno a una creatura consenziente entro 18 m. Può usare entrambe le varianti spendendo 2 utilizzi di Forma Selvatica." },
+  { lv:3,  it:"Furia dei Mari", desc:"Az. bonus + 1 uso Forma Selvatica: emanazione brezza oceanica (r.1,5 m, 10 min). Az. bonus successive: creatura nell'emanazione → TS COS o subisce danni freddo pari a d6×mod.SAG ed è spinta 4,5 m." },
+  { lv:3,  it:"Incantesimi del Circolo del Mare", desc:"Sempre preparati: Lv.3 nebbia, onda tonante · Lv.5 cammina sull'acqua, velocità · Lv.7 controllo dell'acqua, zona di verità · Lv.9 comunione con la natura, cono di freddo." },
+  { lv:6,  it:"Affinità Acquatica", desc:"Il raggio dell'emanazione di Furia dei Mari aumenta di 3 m. Velocità di nuoto = velocità terrestre." },
+  { lv:10, it:"Nato dalla Tempesta", desc:"Mentre Furia dei Mari è attiva: resistenza a danni freddo, fulmine e tuono; velocità di volo = velocità." },
+  { lv:14, it:"Dono Oceanico", desc:"Può generare l'emanazione attorno a una creatura consenziente entro 18 m. Entrambe le varianti (sé + creatura) costano 2 usi di Forma Selvatica." },
 ],
 "stelle": [
-  { lv:3,  it:"Carta Celeste", desc:"Crea una carta celeste (focus arcano). Mentre la impugna, dardo tracciante e guida sono preparati (lancia dardo tracciante senza slot: usi = mod. SAG, recupero: riposo lungo). La forma del corpo del druido dipende dalla costellazione estratta dalla carta." },
-  { lv:3,  it:"Forma Siderale", desc:"Azione bonus: spende un utilizzo di Forma Selvatica per assumere una forma stellare (10 minuti) a scelta. Arciere (azione bonus: freccia luminosa 1d8 radiosi contro una creatura entro 18 m), Calice (quando lancia un incantesimo con slot per ripristinare PF, un'altra creatura entro 9 m recupera 1d8+mod. SAG), Drago (un risultato 9- sul d20 conta come 10)." },
-  { lv:6,  it:"Profezia Cosmica", desc:"A ogni riposo lungo consulta la Carta Celeste per tirare un dado di presagio. Può usarlo come reazione per aggiungere o sottrarre il risultato a qualsiasi tiro d20 entro 9 m. Usi = mod. SAG (min 1); recupero: riposo lungo." },
-  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: il dado di Arciere e Calice passa da d8 a d10; la velocità di volo ottenuta con Drago aumenta a 6 m con fluttuazione. All'inizio di ogni turno può cambiare costellazione." },
-  { lv:14, it:"Manto di Stelle", desc:"Quando attiva Forma Siderale diventa parzialmente incorporeo: ottiene resistenza ai danni contundenti, perforanti e taglienti." },
+  { lv:3,  it:"Carta Celeste", desc:"Focus arcano. Impugnandola: dardo tracciante e guida sempre preparati; dardo tracciante senza slot (usi = mod.SAG, recupero: riposo lungo). Può tirare sull'aspetto (Arciere/Calice/Drago) o scegliere." },
+  { lv:3,  it:"Forma Siderale", desc:"Az. bonus + 1 uso Forma Selvatica: forma stellare per 10 min. Arciere (az. bonus: freccia luminosa 1d8 radiosi entro 18 m), Calice (incantesimo con slot che ripristina PF → altra creatura entro 9 m recupera 1d8+SAG), Drago (risultato ≤9 sul d20 conta come 10)." },
+  { lv:6,  it:"Profezia Cosmica", desc:"Fine riposo lungo: tira 1d dado dalla Carta Celeste. Reazione: aggiunge (+) o sottrae (−) il risultato a qualsiasi tiro d20 entro 9 m. Usi = mod.SAG (min 1); recupero: riposo lungo." },
+  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: dado Arciere e Calice passa a d10; Drago volo 6 m con fluttuazione. Inizio turno: può cambiare costellazione." },
+  { lv:14, it:"Manto di Stelle", desc:"Attivando Forma Siderale: resistenza a danni contundenti, perforanti e taglienti per tutta la durata." },
 ],
 
 // ══ GUERRIERO ════════════════════════════════════════════════════
@@ -3582,7 +3585,8 @@ function fManeuverMax(lv){if(lv>=15)return 9;if(lv>=10)return 7;if(lv>=7)return 
 function fMaxKi(lv){return lv;}
 function fMaxChannelDiv(lv){if(lv>=6&&(C.cls==='cleric'))return 3;if(lv>=11)return 3;return 2;}
 function fMaxSorcPoints(lv){return lv;}
-function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=10)return 3;if(lv>=6)return 3;return 2;}
+// PHB 2024: Forma Selvatica — 2 usi base, scala con il livello
+function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=6)return 3;return 2;}
 
 function fUseZealotDei(){if(!C.zealotDivinePool)C.zealotDivinePool={used:0};var lv=C.level||1;var max=lv>=17?7:lv>=12?6:lv>=6?5:4;if(C.zealotDivinePool.used<max)C.zealotDivinePool.used++;re();}
 function fRestoreZealotDei(){if(C.zealotDivinePool&&C.zealotDivinePool.used>0)C.zealotDivinePool.used--;re();}
@@ -3603,7 +3607,7 @@ function fLongRest(){
   C.rage={used:0};C.secondWind={used:0};C.actionSurge={used:0};
   C.superiorityDice={used:0};C.psiDice={used:0};C.ki={used:0};
   C.bardicInsp={used:0};C.channelDiv={used:0};
-  C.wildShapeUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
+  C.wildShapeUsed=0;C.starDartUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
   C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
   C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
@@ -4352,13 +4356,35 @@ function fRClassBlock(){
         html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Furia: <strong style="color:var(--gold)">'+(C.elementalFury==='colpo'?'\u26a1 Colpo Primordiale':'✨ Inc. Potenti')+'</strong> <span onclick="fSetElementalFury(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
       }
     }
-    // Circolo della Terra: tipo
+    // Furia Elementale Migliorata (Lv.15)
+    if(lv>=15 && C.elementalFury){
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">⚡ Furia Migliorata (Lv.15): ';
+      if(C.elementalFury==='colpo') html+='Colpo primordiale → 2d8 danni extra</div>';
+      else html+='Inc. Potenti → trucchetti a 90 m di gittata in più</div>';
+    }
+    // Incantesimi Bestiali (Lv.18)
+    if(lv>=18) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🐾 Incantesimi Bestiali (Lv.18): puoi lanciare incantesimi in Forma Selvatica</div>';
+    // Arcidruido (Lv.20)
+    if(lv>=20) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🌿 Arcidruido (Lv.20): Forma Selvatica sempreverde · Mago della natura · Corpo senza tempo</div>';
+
+    // Circolo della Terra: tipo terreno
     if(sc==='terra'){
       var tTypes=[{id:'arida',it:'Arida',r:'Fuoco'},{id:'polare',it:'Polare',r:'Freddo'},{id:'temperata',it:'Temperata',r:'Fulmine'},{id:'tropicale',it:'Tropicale',r:'Veleno'}];
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">\uD83C\uDF0D Tipo di Terra</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
       tTypes.forEach(function(t){var sel=(C.circleTerrainType===t.id);html+='<button onclick="C.circleTerrainType=\''+t.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+t.it+'</button>';});
       html+='</div>';
       if(C.circleTerrainType){var cur=tTypes.find(function(t){return t.id===C.circleTerrainType;});if(cur)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resist. '+cur.r+' (Lv.10: Interdizione della Natura)</div>';}
+      html+='</div>';
+    }
+    // Circolo delle Stelle: tracker dardo tracciante (Carta Celeste)
+    if(sc==='stelle'){
+      var starMax=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(!C.starDartUsed)C.starDartUsed=0;
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⭐ Carta Celeste — Dardo Tracciante</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Senza slot</span>'+fDots(C.starDartUsed,starMax,'C.starDartUsed=Math.min('+starMax+',C.starDartUsed+1);re()','if(C.starDartUsed>0)C.starDartUsed--;re()','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(starMax-C.starDartUsed)+'/'+starMax+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Usi = mod. SAG (min 1) · recupero: riposo lungo</div>';
+      if(lv>=6) html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6 Profezia Cosmica: dado presagio (+/-) 1×/riposo lungo per creatura entro 9 m</div>';
       html+='</div>';
     }
     html+='</div>';
@@ -4986,6 +5012,10 @@ function fCanNext(){
   // Step 3: Sottoclasse (obbligatoria)
   if(step===3){
     if(!C.subclass) return false;
+    if(C.cls==='cleric' && !C.divOrder) return false;
+    if(C.cls==='cleric' && (C.level||1)>=7 && !C.blessedStrikes) return false;
+    if(C.cls==='druid'  && !C.primordialOrder) return false;
+    if(C.cls==='druid'  && (C.level||1)>=7 && !C.elementalFury) return false;
     return true;
   }
   // Step 4: Padronanza Armi (auto-skip se non applicabile)
@@ -5075,7 +5105,7 @@ function nuovoPersonaggio(){
     secondWind:{used:0},actionSurge:{used:0},maneuvers:[],superiorityDice:{used:0},psiDice:{used:0},
     ki:{used:0},bardicInsp:{used:0},channelDiv:{used:0},
     divOrder:null,blessedStrikes:null,
-    wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,
+    wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,starDartUsed:0,
     nemesisMark:{used:0},
     sorcPoints:{used:0},metamagicChoices:[],draconicAncestor:null,innateUsed:0,
     divinatorPresage:[null,null],spellbookSpells:[],beastCompanion:null,
@@ -5477,7 +5507,7 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
   if(cls==='druid'){
     html += '<div style="'+boxS+'">';
     html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🌿 '+(isIt?'Ordine Primordiale (Lv.1)':'Primal Order (Lv.1)')+'</div>';
-    html += radioRow('custode','🛡️ Custode','Competenza nelle armature medie e scudi',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'custode\'?null:\'custode\');re()');
+    html += radioRow('custode','🛡️ Custode','Competenza nelle armature pesanti e nelle armi da guerra',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'custode\'?null:\'custode\');re()');
     html += radioRow('mago','📚 Mago','Maestria in Arcano o Natura; +1 trucchetto da druido',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'mago\'?null:\'mago\');re()');
     html += '</div>';
     if(lv>=7){
@@ -5763,7 +5793,8 @@ function fSubclassGrantsProfs(cls, sc){
   if(cls==='monk'    && sc==='mercy')   { r.toolExtra='Borsa da erborista'; }
   // Chierico Ordine Protettore (Lv.1): armature pesanti + armi da guerra
   if(cls==='cleric'  && C.divOrder==='protettore') { r.armorExtra=['Armature pesanti']; r.weaponExtra='Armi da guerra'; }
-  // Nota: Dominio della Guerra NON dà armi/armature aggiuntive — lo fa l'Ordine Protettore
+  // Druido Ordine Primordiale Custode (Lv.1): armature pesanti + armi da guerra
+  if(cls==='druid' && C.primordialOrder==='custode') { r.armorExtra=['Armature pesanti']; r.weaponExtra='Armi da guerra'; }
   return r;
 }
 
