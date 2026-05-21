@@ -1623,25 +1623,32 @@ bard: [
 // ──────────────────────────────────────────────────────────────────
 cleric: [
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Saggezza. Conosce 3 trucchetti (ne impara 1 in più ai Lv.4 e 10). Prepara un numero di incantesimi pari al livello + mod. SAG (min 1). Può cambiare la lista di preparati dopo ogni riposo lungo." },
-  { lv:1,  it:"Ispirazione Divina",
-    desc:"Sceglie il Dominio Divino (Vita, Luce, Inganno, Guerra). Ottiene gli incantesimi del dominio (sempre preparati) e la prima facoltà del dominio." },
+    desc:"Caratteristica da incantatore: Saggezza. Trucchetti: 3 (Lv.1-3), 4 (Lv.4-9), 5 (Lv.10+). Incantesimi preparati: dalla tabella PHB 2024 (es. Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→22). Include sempre gli incantesimi del dominio della sottoclasse." },
+  { lv:1,  it:"Ordine Divino",
+    desc:"Sceglie il ruolo sacro: Protettore (competenza armi da guerra e armature pesanti) oppure Taumaturgo (+1 trucchetto da chierico; bonus prove INT Arcano/Religione = mod.SAG, min +1)." },
   { lv:2,  it:"Incanalare Divinità",
-    desc:"Canalizza energia divina per potenziare effetti magici. Ottiene Scacciare i Non Morti e un secondo effetto dal suo Dominio. Usi: 2 (Lv.2–5), 3 (Lv.6–8), illimitati (Lv.9+). Recupero: riposo breve o lungo." },
-  { lv:2,  it:"Canale: Scacciare i Non Morti",
-    desc:"Come azione, mostra il simbolo sacro. Ogni non morto entro 9 m che può vederlo o sentirlo deve superare un TS su SAG (CD incantesimi) o è scacciato per 1 minuto o finché non subisce danni." },
+    desc:"Canalizza energia divina. 2 usi (Lv.2-5), 3 usi (Lv.6-17), 4 usi (Lv.18+). Recupero: riposo breve o lungo. Effetti disponibili: Scacciare Non Morti, Scintilla Divina, effetto del Dominio." },
+  { lv:2,  it:"Scacciare i Non Morti",
+    desc:"Az. di Magia: mostra il simbolo sacro. Ogni non morto entro 9 m deve superare TS SAG (CD inc.) o è spaventato e incapacitato per 1 min." },
+  { lv:2,  it:"Scintilla Divina",
+    desc:"Az. di Magia: 1 uso Incanalare Divinità, creatura entro 9 m. Cura o infligge danni radiosi/necrotici (a scelta) pari a 1d8 + mod.SAG. Scala: Lv.7 → 2d8, Lv.13 → 3d8, Lv.18 → 4d8." },
+  { lv:3,  it:"Sottoclasse del Chierico",
+    desc:"Sceglie il Dominio (Vita, Luce, Inganno, Guerra). Ottiene gli incantesimi del dominio (sempre preparati) e le facoltà del dominio." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
-  { lv:5,  it:"Distruggi Non Morti",
-    desc:"I non morti che falliscono il TS contro Scacciare i Non Morti vengono invece distrutti se il loro CR è inferiore o pari alla soglia: CR 1/2 (Lv.5), CR 1 (Lv.8), CR 2 (Lv.11), CR 3 (Lv.14), CR 4 (Lv.17)." },
-  { lv:5,  it:"Intervento Divino",
-    desc:"Come azione, implora la divinità. Tira percentuale: se il risultato è pari o inferiore al livello da chierico, il dio interviene. Se riesce, non può usarlo di nuovo per 7 giorni; altrimenti si ricarica con il riposo lungo. Dal Lv.10 il successo è automatico." },
-  { lv:10, it:"Intervento Divino Automatico",
-    desc:"L'Intervento Divino riesce automaticamente senza necessità di tirare i dadi." },
+  { lv:5,  it:"Bruciare i Non Morti",
+    desc:"Scacciare non morti: i non morti che falliscono il TS subiscono anche danni radiosi = 1d8×mod.SAG (min 1d8). Scala: Lv.7 → 2d8, Lv.13 → 3d8, Lv.18 → 4d8." },
+  { lv:7,  it:"Colpi Benedetti",
+    desc:"Sceglie una delle due opzioni (permanente). Colpo Divino: 1×/turno, +1d8 necrotici/radiosi quando colpisci con arma (Lv.14: +2d8). Incantesimi Potenti: aggiungi mod.SAG ai danni dei trucchetti (Lv.14: lancia trucchetto → 1 creatura entro 18 m recupera PF = 2×mod.SAG)." },
+  { lv:9,  it:"—", desc:"" },
+  { lv:10, it:"Intervento Divino",
+    desc:"Az. di Magia: chiede aiuto alla divinità. Sceglie un incantesimo di 5° livello o inferiore da chierico e lo lancia senza slot né componenti. 1/riposo lungo." },
+  { lv:14, it:"Colpi Benedetti Migliorati",
+    desc:"L'opzione scelta per i Colpi Benedetti diventa più potente (vedi Colpi Benedetti)." },
   { lv:19, it:"Dono Epico",
-    desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
-  { lv:20, it:"Avatar Divino",
-    desc:"Può lanciare Desiderio senza spendere uno slot. Non può usarlo di nuovo finché non completa un riposo lungo. Non può più essere invecchiato magicamente." },
+    desc:"Ottiene un Dono Epico (vedi Capitolo 5) o un altro talento. Consigliato: Dono del Fato." },
+  { lv:20, it:"Intervento Divino Superiore",
+    desc:"Quando usa Intervento Divino, può scegliere l'incantesimo desiderato da qualsiasi lista. Dopo l'uso non può usare Intervento Divino per 2d4 riposi lunghi." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -1651,7 +1658,7 @@ druid: [
   { lv:1,  it:"Druidico e Ordine Primordiale",
     desc:"Conosce il Druidico (lingua segreta dei druidi). Sceglie l'Ordine Primordiale: Custode (comp. armi da guerra e armature pesanti) o Mago (trucchetto extra dalla lista druidica + bonus INT alle prove di Arcano e Natura)." },
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Saggezza. Conosce 2 trucchetti (ne ottiene altri ai Lv.4 e 10). Prepara incantesimi pari al livello + mod. SAG (min 1). L'incantesimo parlare con gli animali è sempre preparato. Può cambiare la lista dopo ogni riposo lungo." },
+    desc:"Caratteristica da incantatore: Saggezza. Trucchetti: 2 (Lv.1-3), 3 (Lv.4-9), 4 (Lv.10+). Incantesimi preparati: dalla tabella PHB 2024 (es. Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→22). L'incantesimo parlare con gli animali è sempre preparato." },
   { lv:2,  it:"Compagno Selvatico",
     desc:"Come azione di Magia, spende uno slot incantesimo o un uso di Forma Selvatica per lanciare trova famiglio senza componenti materiali. Il famiglio evocato è un folletto." },
   { lv:2,  it:"Forma Selvatica",
@@ -3583,7 +3590,18 @@ function fSuperiorityDiceType(lv){if(lv>=18)return'd12';if(lv>=10)return'd10';re
 // PHB 2024: manovre note — 3 a Lv.3, +2 a Lv.7, +2 a Lv.10, +2 a Lv.15 = max 9
 function fManeuverMax(lv){if(lv>=15)return 9;if(lv>=10)return 7;if(lv>=7)return 5;return 3;}
 function fMaxKi(lv){return lv;}
-function fMaxChannelDiv(lv){if(lv>=6&&(C.cls==='cleric'))return 3;if(lv>=11)return 3;return 2;}
+// PHB 2024: Incanalare Divinità — Lv.2→2, Lv.6→3, Lv.18→4 (chierico)
+// Paladino: Lv.3→2, Lv.11→3
+function fMaxChannelDiv(lv){
+  if(C.cls==='cleric'){
+    if(lv>=18) return 4;
+    if(lv>=6)  return 3;
+    return 2;
+  }
+  // Paladino e altri
+  if(lv>=11) return 3;
+  return 2;
+}
 function fMaxSorcPoints(lv){return lv;}
 // PHB 2024: Forma Selvatica — 2 usi base, scala con il livello
 function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=6)return 3;return 2;}
@@ -4231,12 +4249,23 @@ function fRClassBlock(){
   // ── CHIERICO
   if(cl==='cleric'){
     var cdMax=fMaxChannelDiv(lv),cdUsed=(C.channelDiv&&C.channelDiv.used)||0;
+    var cantripCount=lv>=10?5:lv>=4?4:3;
+    var sparkDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
     html+='<div style="'+boxS+'">';
-    html+='<div style="'+rowS+'"><span style="'+lblS+'">\u271d\ufe0f '+(isIt?'Incan. Divinit\u00e0':'Channel Div.')+'</span>'+fDots(cdUsed,cdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'</div>';
-    if(!C.divOrder){
+    html+='<div style="'+rowS+'"><span style="'+lblS+'">✝️ '+(isIt?'Incan. Divinità':'Channel Div.')+'</span>'+fDots(cdUsed,cdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(cdMax-cdUsed)+'/'+cdMax+'</span></div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Effetti: Scacciare non morti · Scintilla Divina · effetto sottoclasse</div>';
+    html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">✨ Scintilla Divina: <strong style="color:var(--gold)">'+sparkDice+'</strong> <span style="font-size:9px;color:var(--muted)">cura o danni radiosi/necrotici a 1 creatura entro 9 m (scelta al lancio)</span></div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Trucchetti: <strong style="color:var(--gold)">'+cantripCount+'</strong> (Lv.1-3→3, Lv.4-9→4, Lv.10+→5)</div>';
+    html+='</div>';
+        if(!C.divOrder){
       html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u2699\ufe0f Ordine Divino (Lv.1)</div><div style="display:flex;gap:6px"><button onclick="fSetDivOrder(\'protettore\')" style="'+selS+'">🛡️ Protettore</button><button onclick="fSetDivOrder(\'taumaturgo\')" style="'+selS+'">📜 Taumaturgo</button></div></div>';
     } else {
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.divOrder==='protettore'?'🛡️ Protettore':'📜 Taumaturgo')+'</strong> <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.divOrder==='protettore'?'🛡️ Protettore':'📜 Taumaturgo')+'</strong>';
+      if(C.divOrder==='taumaturgo'){
+        var sagBonus=Math.max(1,fcmod(fTotalStat('WIS')));
+        html+=' <span style="font-size:9px;color:var(--muted)">— bonus INT(Arcano/Religione): <strong style="color:var(--gold)">+'+(sagBonus)+'</strong></span>';
+      }
+      html+=' <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
     }
     if(lv>=7){
       if(!C.blessedStrikes){
@@ -5492,7 +5521,7 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
     html += '<div style="'+boxS+'">';
     html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">⚙️ '+(isIt?'Ordine Divino (Lv.1)':'Divine Order (Lv.1)')+'</div>';
     html += radioRow('protettore','🛡️ Protettore','Competenza in tutte le armature, Armi da Guerra',C.divOrder,'C.divOrder=(C.divOrder===\'protettore\'?null:\'protettore\');re()');
-    html += radioRow('taumaturgo','📜 Taumaturgo','Maestria in Arcano o Religione; +1 trucchetto da chierico',C.divOrder,'C.divOrder=(C.divOrder===\'taumaturgo\'?null:\'taumaturgo\');re()');
+    html += radioRow('taumaturgo','📜 Taumaturgo','+1 trucchetto da chierico; bonus a prove INT (Arcano o Religione) = mod.SAG (min +1)',C.divOrder,'C.divOrder=(C.divOrder===\'taumaturgo\'?null:\'taumaturgo\');re()');
     html += '</div>';
     if(lv>=7){
       html += '<div style="'+boxS+'">';
@@ -8140,8 +8169,8 @@ function fPreparedFormula(){
   const lv = C.level||1;
   switch(C.cls){
     case 'wizard':  return (isIt?'Da tabella':'From table')+' = '+fWizardMaxPrepared();
-    case 'cleric':  return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
-    case 'druid':   return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
+    case 'cleric':
+    case 'druid':   return (isIt?'Da tabella PHB 2024':'PHB 2024 table')+' = '+(SPELLS_KNOWN_TABLE[C.cls]?.[lv-1]||0);
     case 'paladin': return (isIt?'CAR':'CHA')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('CHA')));
     case 'ranger':  return (isIt?'SAG':'WIS')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('WIS')));
     default: return '';
