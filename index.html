@@ -5055,7 +5055,9 @@ function fCanNext(){
     const mc=fMasteryCount(C.cls,lv);
     const ec=cl?cl.expertiseCount||0:0;
     const ec2=fExtraExpertiseCount(C.cls,lv);
-    const scSkCount=(C.cls==='bard'&&C.subclass==='sapienza'&&lv>=3)?3:0;
+    const scSkCount=(C.cls==='bard'&&C.subclass==='sapienza'&&lv>=3)?3:
+                    (C.cls==='fighter'&&C.subclass==='maestro-battaglia'&&lv>=3)?1:0;
+    const scToolCount=(C.cls==='fighter'&&C.subclass==='maestro-battaglia'&&lv>=3)?1:0;
     const wizSch=(C.cls==='wizard'&&lv>=2);
     // Grant automatici sottoclasse (no scelta)
     const autoSk=fSubclassAutoSkills(C.cls,C.subclass,lv);
