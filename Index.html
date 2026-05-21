@@ -2039,27 +2039,31 @@ const SUBCLASS_FEATURES = {
 
 // ══ CHIERICO ═════════════════════════════════════════════════════
 "vita": [
+  { lv:3,  it:"Incantesimi del Dominio della Vita", desc:"Preparati: Lv.3 aiuto, benedizione, cura ferite, ristorare inferiore · Lv.5 parola guaritrice di massa, rinascita · Lv.7 aura di vita, interdizione alla morte · Lv.9 ristorare superiore, cura ferite di massa." },
   { lv:3,  it:"Discepolo della Vita", desc:"Quando lanci un incantesimo con slot che ripristina PF, la creatura recupera PF aggiuntivi pari a 2 + livello dello slot." },
   { lv:3,  it:"Preservare Vita", desc:"Azione di Magia: spende un uso di Incanalare Divinità per distribuire PF pari a 5 × livello da chierico tra creature sanguinanti entro 9 m (non oltre la metà dei PF massimi di ciascuna)." },
   { lv:6,  it:"Guaritore Benedetto", desc:"Quando lanci con uno slot un incantesimo che ripristina PF a un'altra creatura, recupera PF = 2 + livello slot." },
   { lv:17, it:"Guarigione Suprema", desc:"Quando stai per tirare dadi per ripristinare PF con un incantesimo o con Incanalare Divinità, usa invece il valore massimo possibile di ogni dado." },
 ],
 "luce": [
-  { lv:3,  it:"Bagliore di Interdizione", desc:"Reazione: impone svantaggio al tiro per colpire di una creatura entro 9 m visibile prima che il colpo vada a segno o meno." },
-  { lv:3,  it:"Fulgore dell'Alba", desc:"Azione di Magia: spende un uso di Incanalare Divinità per emettere un lampo di luce in un'emanazione di 9 m. Le creature nell'area devono superare un TS su COS (CD incantesimi): subiscono 2d10 + livello danni radiosi in caso di fallimento, o la metà in caso di successo." },
-  { lv:6,  it:"Bagliore di Interdizione Migliorato", desc:"Recupera tutti gli usi di Bagliore di Interdizione ogni riposo breve o lungo. Ogni volta che usa Bagliore di Interdizione può concedere al bersaglio dell'attacco PF temporanei pari a 2d6 + mod. SAG." },
-  { lv:17, it:"Corona di Luce", desc:"Azione di Magia: emette un'aura di luce solare per 1 minuto (nessuna azione richiesta per interrompere). Luce intensa 18 m, fioca 9 m aggiuntivi. I nemici nella luce intensa hanno svantaggio ai TS contro Fulgore dell'Alba e incantesimi da fuoco/radiosi. Usi = mod. SAG (min 1), recupero: riposo lungo." },
+  { lv:3,  it:"Bagliore di Interdizione", desc:"Reazione: impone svantaggio al tiro per colpire di una creatura entro 9 m visibile. Usi = mod.SAG (min 1); recupero: riposo breve o lungo." },
+  { lv:3,  it:"Fulgore dell'Alba", desc:"Azione di Magia + 1 uso Incanalare Divinità: lampo di luce in emanazione 9 m. Creature nell'area → TS COS (CD inc.): 2d10+livello danni radiosi in fallimento, metà in successo. Dissipa anche oscurità magica." },
+  { lv:3,  it:"Incantesimi del Dominio della Luce", desc:"Preparati: Lv.3 mani brucianti, luminescenza, raggio rovente, vedere invisibilità · Lv.5 luce diurna, palla di fuoco · Lv.7 occhio arcano, muro di fuoco · Lv.9 colpo infuocato, scrutare." },
+  { lv:6,  it:"Bagliore di Interdizione Migliorato", desc:"Recupero riposo breve o lungo. Ogni utilizzo concede al bersaglio dell'attacco PF temporanei pari a 2d6 + mod.SAG." },
+  { lv:17, it:"Corona di Luce", desc:"Azione di Magia: aura luce solare per 1 minuto. Luce intensa 18 m + fioca 9 m. I nemici nella luce intensa hanno svantaggio ai TS vs Fulgore dell'Alba e incantesimi fuoco/radiosi. Usi = mod.SAG (min 1); recupero: riposo lungo." },
 ],
 "inganno": [
-  { lv:3,  it:"Benedizione dell'Ingannatore", desc:"Azione di Magia: sceglie sé stesso o una creatura consenziente entro 9 m; ottiene vantaggio sulle prove di DES (Furtività) finché non completa un riposo lungo o usa di nuovo il privilegio." },
-  { lv:3,  it:"Invocare Duplicato", desc:"Azione bonus: spende un uso di Incanalare Divinità per creare un duplicato illusorio di sé in uno spazio libero entro 9 m. Dura 1 minuto. Ottiene: Distrarre (vantaggio ai tiri contro creature entro 1,5 m dall'illusione), Lanciare incantesimi (come se fosse nello spazio dell'illusione), Movimento (azione bonus: sposta l'illusione fino a 9 m)." },
-  { lv:6,  it:"Trasposizione dell'Ingannatore", desc:"Ogni volta che usa l'azione bonus per creare o muovere l'illusione di Invocare Duplicato, può teletrasportarsi scambiando di posto con l'illusione." },
-  { lv:17, it:"Duplicato Migliorato", desc:"L'illusione di Invocare Duplicato diventa più potente. Diversivo condiviso: lui e i suoi alleati hanno vantaggio su tiri per colpire contro creature entro 1,5 m dall'illusione. Illusione curativa: quando l'illusione termina, lui o una creatura a scelta entro 1,5 m recupera PF = livello da chierico." },
+  { lv:3,  it:"Incantesimi del Dominio dell'Inganno", desc:"Preparati: Lv.3 camuffare se stesso, charme su persone, invisibilità, passare senza tracce · Lv.5 trama ipnotica, anti-individuazione · Lv.7 confusione, porta dimensionale · Lv.9 dominare persone, modificare memoria." },
+  { lv:3,  it:"Benedizione dell'Ingannatore", desc:"Azione di Magia: sé stesso o una creatura consenziente entro 9 m ottiene vantaggio sulle prove di DES (Furtività). Dura finché non completa un riposo lungo o usa di nuovo il privilegio." },
+  { lv:3,  it:"Invocare Duplicato", desc:"Azione bonus + 1 uso Incanalare Divinità: duplicato illusorio entro 9 m per 1 minuto. Distrae (vantaggio tiri vs creature entro 1,5 m dall'illus.), Lancia incantesimi (dallo spazio dell'illus.), Muove (az. bonus: sposta illus. 9 m)." },
+  { lv:6,  it:"Trasposizione dell'Ingannatore", desc:"Ogni volta che crea o muove l'illusione di Invocare Duplicato, può teletrasportarsi scambiando posto con essa." },
+  { lv:17, it:"Duplicato Migliorato", desc:"Diversivo condiviso: lui e alleati hanno vantaggio sui tiri vs creature entro 1,5 m dall'illus. Illusione curativa: quando l'illusione termina, lui o creatura entro 1,5 m recupera PF = livello da chierico." },
 ],
 "guerra": [
-  { lv:3,  it:"Colpo Guidato", desc:"Reazione: quando lui o una creatura entro 9 m manca un tiro per colpire, spende un uso di Incanalare Divinità per conferire +10 al tiro, aumentando la possibilità che vada a segno." },
-  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: può effettuare un attacco con un'arma o un colpo senz'armi. Usi = mod. SAG (min 1); recupero: riposo lungo." },
-  { lv:6,  it:"Benedizione del Dio della Guerra", desc:"Spende un uso di Incanalare Divinità per lanciare scudo della fede o arma spirituale senza slot e senza concentrazione (dura 1 min, termina se incapacitato/morto o se rilanci)." },
+  { lv:3,  it:"Incantesimi del Dominio della Guerra", desc:"Preparati: Lv.3 dardo tracciante, arma magica, scudo della fede, arma spirituale · Lv.5 manto del crociato, guardiani spirituali · Lv.7 scudo di fuoco, libertà di movimento · Lv.9 blocca mostri, turbine implacabile." },
+  { lv:3,  it:"Colpo Guidato", desc:"Reazione: lui o una creatura entro 9 m manca un tiro per colpire → spende 1 uso Incanalare Divinità per conferire +10 al tiro." },
+  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: attacco con arma o colpo senz'armi. Usi = mod.SAG (min 1); recupero: riposo lungo." },
+  { lv:6,  it:"Benedizione del Dio della Guerra", desc:"Usa Incanalare Divinità per lanciare scudo della fede o arma spirituale senza slot e senza concentrazione (dura 1 min, termina se incapacitato/morto o rilanci)." },
   { lv:17, it:"Avatar della Battaglia", desc:"Ottiene resistenza ai danni contundenti, perforanti e taglienti." },
 ],
 
@@ -3589,7 +3593,7 @@ function fShortRest(){
   if(C.cls==='barbarian')C.rageImplacableCD=10;
   if(C.cls==='fighter'){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
   if(C.cls==='monk'){C.ki={used:0};}
-  if(C.cls==='cleric'||C.cls==='paladin'){C.channelDiv={used:0};}
+  if(C.cls==='cleric'||C.cls==='paladin'){C.channelDiv={used:0};C.bagliorUsed=0;C.warPriestUsed=0;}
   if(C.cls==='druid'&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
   if(C.cls==='bard'&&(C.level||1)>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
   re();
@@ -3601,7 +3605,7 @@ function fLongRest(){
   C.bardicInsp={used:0};C.channelDiv={used:0};
   C.wildShapeUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
   C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
-  C.divPunish={used:false};C.arcaneRecovUsed=false;
+  C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
   C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
   C.spettralCreatUsed=false;C.phantomDoppUsed=false;C.overchargeUsed=0;
@@ -4232,10 +4236,28 @@ function fRClassBlock(){
     }
     if(lv>=7){
       if(!C.blessedStrikes){
-        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u26a1 Colpi Benedetti (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ Colpo Divino</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
+        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ Colpi Benedetti (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ Colpo Divino</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
       } else {
-        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Colpi: <strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?'⚔️ Divino':'✨ Potenti')+'</strong> <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+        var lv14note='';
+        if(lv>=14)lv14note=C.blessedStrikes==='divino'?' <span style="color:var(--muted);font-size:9px">(Lv.14: →2d8)</span>':' <span style="color:var(--muted);font-size:9px">(Lv.14: PF temp 2×SAG)</span>';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Colpi: <strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?'⚔️ Divino':'✨ Potenti')+'</strong>'+lv14note+' <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
       }
+    }
+    // Bruciare i Non Morti (Lv.5) — feature base classe
+    if(lv>=5){
+      var burnDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🔥 Bruciare i Non Morti (Lv.5)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Scacciare i non morti: <strong style="color:var(--gold)">'+burnDice+'</strong> danni radiosi extra ai fallimenti · CD incantesimo</div>';
+      html+='</div>';
+    }
+    // Sacerdote di Guerra (Dominio della Guerra Lv.3)
+    if(sc==='guerra'){
+      var swMax2=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(C.warPriestUsed===undefined)C.warPriestUsed=0;
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⚔️ Sacerdote di Guerra (Lv.3)</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. Bonus Attacco</span>'+fDots(C.warPriestUsed,swMax2,'C.warPriestUsed=Math.min('+(swMax2)+',C.warPriestUsed+1);re()','if(C.warPriestUsed>0)C.warPriestUsed--;re()','#e74c3c')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax2-C.warPriestUsed)+'/'+swMax2+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Recupero: riposo lungo · usi = mod. SAG (min 1)</div>';
+      html+='</div>';
     }
     // Intervento Divino (Lv.10+)
     if(lv>=10){
@@ -4252,6 +4274,18 @@ function fRClassBlock(){
     var cdSc2=cdEffects[sc]||[];
     if(cdSc2.length>0)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Effetto CD sottoclasse: <strong>'+cdSc2[0]+'</strong></div>';
     html+='</div>';
+
+    // ── LUCE: Bagliore di Interdizione (tracker separato, recupero riposo breve)
+    if(sc==='luce'){
+      var biMax=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(!C.bagliorUsed)C.bagliorUsed=0;
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">✨ Bagliore di Interdizione</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Reazione</span>'+fDots(C.bagliorUsed,biMax,'C.bagliorUsed=Math.min('+biMax+',C.bagliorUsed+1);re()','if(C.bagliorUsed>0)C.bagliorUsed--;re()','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(biMax-C.bagliorUsed)+'/'+biMax+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Svantaggio al tiro avversario · usi = mod. SAG (min 1) · recupero: riposo breve o lungo</div>';
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6: +2d6+SAG PF temp al bersaglio dell\'attacco</div>';
+      html+='</div>';
+    }
   }
 
   // ── PALADINO
@@ -5030,7 +5064,7 @@ function nuovoPersonaggio(){
     statMethod:"pointbuy",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -5727,6 +5761,9 @@ function fSubclassGrantsProfs(cls, sc){
   const r={armorExtra:[],weaponExtra:'',toolExtra:''};
   if(cls==='bard'    && sc==='valore')  { r.armorExtra=['Armature medie','Scudi']; r.weaponExtra='Armi da guerra'; }
   if(cls==='monk'    && sc==='mercy')   { r.toolExtra='Borsa da erborista'; }
+  // Chierico Ordine Protettore (Lv.1): armature pesanti + armi da guerra
+  if(cls==='cleric'  && C.divOrder==='protettore') { r.armorExtra=['Armature pesanti']; r.weaponExtra='Armi da guerra'; }
+  // Nota: Dominio della Guerra NON dà armi/armature aggiuntive — lo fa l'Ordine Protettore
   return r;
 }
 
