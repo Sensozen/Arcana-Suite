@@ -1135,7 +1135,89 @@ const CLASS_SKILLS = {
   wizard:    { count:2, any:false, skills:['Arcana','History','Insight','Investigation','Medicine','Nature','Religion'] },
 };
 
-// ── Abilità conferite dalla specie (PHB 5e 2024) ─────────────────────────
+// ── Lista completa strumenti PHB 2024 ────────────────────────────────────
+const TOOLS_DATA = {
+  // Strumenti da artigiano
+  artigiano: [
+    { id:'conciatore',  it:'Strumenti da conciatore',  en:'Leatherworker\'s Tools',  stat:'DEX', desc:'Lavorazione cuoio e pellame. Crea/ripara oggetti in cuoio.' },
+    { id:'fabbro',      it:'Strumenti da fabbro',       en:'Smith\'s Tools',           stat:'STR', desc:'Lavorazione metalli. Crea/ripara oggetti metallici e armi.' },
+    { id:'falegname',   it:'Strumenti da falegname',    en:'Carpenter\'s Tools',       stat:'STR', desc:'Lavorazione del legno. Crea/ripara strutture e oggetti in legno.' },
+    { id:'intagliatore',it:'Strumenti da intagliatore', en:'Woodcarver\'s Tools',      stat:'DEX', desc:'Intaglio del legno. Crea frecce, trofei e oggetti decorativi.' },
+    { id:'inventore',   it:'Strumenti da inventore',    en:'Tinker\'s Tools',          stat:'DEX', desc:'Piccoli meccanismi. Crea e ripara congegni, trappole semplici.' },
+    { id:'muratore',    it:'Strumenti da muratore',     en:'Mason\'s Tools',           stat:'STR', desc:'Lavorazione pietra. Costruisce muri, sculture e strutture.' },
+    { id:'tessitore',   it:'Strumenti da tessitore',    en:'Weaver\'s Tools',          stat:'DEX', desc:'Tessitura e cucito. Crea abiti, reti e oggetti tessili.' },
+    { id:'vasaio',      it:'Strumenti da vasaio',       en:'Potter\'s Tools',          stat:'DEX', desc:'Lavorazione argilla. Crea vasi, anfore e oggetti ceramici.' },
+    { id:'incisore',    it:'Strumenti da incisore',     en:'Glassblower\'s Tools',     stat:'DEX', desc:'Lavorazione vetro. Crea oggetti in vetro e lenti.' },
+    { id:'gioielliere', it:'Strumenti da gioielliere',  en:'Jeweler\'s Tools',         stat:'INT', desc:'Lavorazione gemme e metalli preziosi. Valuta e crea gioielli.' },
+    { id:'calzolaio',   it:'Strumenti da calzolaio',    en:'Cobbler\'s Tools',         stat:'DEX', desc:'Lavorazione scarpe e stivali. Crea e ripara calzature.' },
+    { id:'cuoco',       it:'Utensili da cuoco',          en:'Cook\'s Utensils',         stat:'WIS', desc:'Preparazione cibi. Può preparare pasti speciali con effetti meccanici.' },
+    { id:'pittore',     it:'Forniture da pittore',       en:'Painter\'s Supplies',      stat:'WIS', desc:'Creazione opere d\'arte. Dipinti, miniature, mappe artistiche.' },
+    { id:'calligrafo',  it:'Forniture da calligrafo',    en:'Calligrapher\'s Supplies', stat:'INT', desc:'Scrittura ornamentale. Copia testi, crea documenti ufficiali.' },
+    { id:'cartografo',  it:'Strumenti da cartografo',   en:'Cartographer\'s Tools',    stat:'INT', desc:'Creazione mappe. Svantaggio trasformato in vantaggio per orientamento.' },
+    { id:'erborista',   it:'Borsa da erborista',         en:'Herbalism Kit',            stat:'WIS', desc:'Raccolta e uso erbe. Può creare pozioni di guarigione e antidoti.' },
+    { id:'avvelenatore',it:'Kit da avvelenatore',        en:'Poisoner\'s Kit',          stat:'INT', desc:'Creazione veleni. Può creare veleni e antidoti.' },
+    { id:'chirurgo',    it:'Kit da chirurgo',            en:'Healer\'s Kit',            stat:'WIS', desc:'Cure d\'emergenza. Può stabilizzare personaggi a 0 PF senza tiro.' },
+    { id:'burlone',     it:'Forniture da burlone',       en:'Disguise Kit',             stat:'CHA', desc:'Travestimenti. Vantaggio alle prove di Inganno per mascherarsi.' },
+    { id:'falsario',    it:'Kit del falsario',           en:'Forgery Kit',              stat:'DEX', desc:'Falsificazione documenti. Crea documenti falsi convincenti.' },
+    { id:'navigator',   it:'Strumenti da navigatore',   en:'Navigator\'s Tools',       stat:'WIS', desc:'Navigazione. Determina posizione, traccia rotte marittime.' },
+    { id:'ladro',       it:'Arnesi da scasso',           en:'Thieves\' Tools',          stat:'DEX', desc:'Scasso serrature, disattivazione trappole. Essenziali per i ladri.' },
+    { id:'gioco-dadi',  it:'Set di dadi',                en:'Dice Set',                 stat:'CHA', desc:'Giochi d\'azzardo con i dadi. Vantaggio ai giochi di dadi.' },
+    { id:'gioco-carte', it:'Mazzo di carte',             en:'Playing Card Set',         stat:'CHA', desc:'Giochi di carte. Vantaggio ai giochi di carte.' },
+    { id:'gioco-drago', it:'Set di dragonchess',         en:'Dragonchess Set',          stat:'INT', desc:'Gioco strategico. Vantaggio alle prove di Insight durante le partite.' },
+    { id:'gioco-tre',   it:'Set tre-draghi-monte',       en:'Three-Dragon Ante Set',    stat:'CHA', desc:'Gioco di bluff. Aiuta a capire le intenzioni degli avversari.' },
+  ],
+  // Strumenti musicali
+  musicale: [
+    { id:'cornamusa',  it:'Cornamusa',   en:'Bagpipes',    stat:'CHA', desc:'Strumento a fiato celtico. Risonanza potente, udibile a distanza.' },
+    { id:'corno',      it:'Corno',        en:'Horn',        stat:'CHA', desc:'Strumento militare. Usato per segnali e comunicazioni sul campo.' },
+    { id:'dulcimer',   it:'Dulcimer',     en:'Dulcimer',    stat:'CHA', desc:'Strumento a corde pizzicate. Musica delicata e melodiosa.' },
+    { id:'flauto',     it:'Flauto',       en:'Flute',       stat:'CHA', desc:'Strumento a fiato versatile. Melodie dolci e precise.' },
+    { id:'liuto',      it:'Liuto',        en:'Lute',        stat:'CHA', desc:'Strumento a corde tipico dei bardi. Accompagnamento versatile.' },
+    { id:'lira',       it:'Lira',         en:'Lyre',        stat:'CHA', desc:'Strumento a corde antico. Evoca atmosfere classiche e solenni.' },
+    { id:'pan-flauto', it:'Pan di flauto',en:'Pan Flute',  stat:'CHA', desc:'Multipli tubi a fiato. Musica naturale e pastorale.' },
+    { id:'shawm',      it:'Scialmaia',    en:'Shawm',       stat:'CHA', desc:'Strumento a fiato medievale. Suono forte e squillante.' },
+    { id:'tamburo',    it:'Tamburo',      en:'Drum',        stat:'CHA', desc:'Percussione ritmica. Mantiene il tempo e galvanizza le truppe.' },
+    { id:'viola',      it:'Viola da gamba',en:'Viol',      stat:'CHA', desc:'Strumento a corde ad arco. Musica ricca e profonda.' },
+  ],
+  // Veicoli
+  veicolo: [
+    { id:'veicoli-terra', it:'Veicoli (terra)',  en:'Vehicles (Land)',  stat:'DEX', desc:'Cavalcare carri, carrozze. Manovrare durante inseguimenti.' },
+    { id:'veicoli-acqua', it:'Veicoli (acqua)',  en:'Vehicles (Water)', stat:'WIS', desc:'Condurre navi e imbarcazioni. Navigazione e manovra in mare.' },
+    { id:'veicoli-aria',  it:'Veicoli (aria)',   en:'Vehicles (Air)',   stat:'WIS', desc:'Pilotare veicoli volanti. Dirigibili e cavalcature aeree.' },
+  ],
+};
+
+// Lista piatta di tutti gli strumenti (per lookup e picker)
+const ALL_TOOLS = [
+  ...TOOLS_DATA.artigiano,
+  ...TOOLS_DATA.musicale,
+  ...TOOLS_DATA.veicolo,
+];
+
+// Ottieni tutte le competenze negli strumenti del personaggio
+function fGetAllToolProfs(){
+  const cls    = (fgCl()?.toolsEn||'').replace(' and ',',').split(',').map(t=>t.trim()).filter(Boolean);
+  const bg     = (fgBg()?.toolsEn||'').replace(' and ',',').split(',').map(t=>t.trim()).filter(Boolean);
+  const feats  = (C.featTools||[]).map(t=>t.tool||t);
+  const subSc  = fSubclassGrantsProfs(C.cls,C.subclass||'').toolExtra ? [fSubclassGrantsProfs(C.cls,C.subclass||'').toolExtra] : [];
+  const moMcy  = (C.cls==='monk'&&(C.subclass||'')==='mercy'&&(C.level||1)>=3) ? ['Herbalism Kit'] : [];
+  // Cerca match per nome IT o EN
+  const all    = [...cls,...bg,...feats,...subSc,...moMcy];
+  return [...new Set(all)];
+}
+
+// Controlla se il personaggio ha competenza in uno strumento (per id o nome EN)
+function fHasToolProf(toolIdOrEn){
+  const tool = ALL_TOOLS.find(t=>t.id===toolIdOrEn||t.en===toolIdOrEn||t.it===toolIdOrEn);
+  if(!tool) return false;
+  const profs = fGetAllToolProfs();
+  return profs.some(p => {
+    const t2 = ALL_TOOLS.find(t=>t.en===p||t.it===p||t.id===p);
+    return t2 ? t2.id===tool.id : p.toLowerCase().includes(tool.en.toLowerCase().split('\'')[0].toLowerCase());
+  });
+}
+
+
 // Solo 2 specie richiedono una scelta attiva:
 //   • Elfo    → Sensi Acuti: 1 tra Insight, Perception, Survival
 //   • Umano   → Pluriabilità: qualsiasi 1 abilità
@@ -1541,25 +1623,32 @@ bard: [
 // ──────────────────────────────────────────────────────────────────
 cleric: [
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Saggezza. Conosce 3 trucchetti (ne impara 1 in più ai Lv.4 e 10). Prepara un numero di incantesimi pari al livello + mod. SAG (min 1). Può cambiare la lista di preparati dopo ogni riposo lungo." },
-  { lv:1,  it:"Ispirazione Divina",
-    desc:"Sceglie il Dominio Divino (Vita, Luce, Inganno, Guerra). Ottiene gli incantesimi del dominio (sempre preparati) e la prima facoltà del dominio." },
+    desc:"Caratteristica da incantatore: Saggezza. Trucchetti: 3 (Lv.1-3), 4 (Lv.4-9), 5 (Lv.10+). Incantesimi preparati: dalla tabella PHB 2024 (es. Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→22). Include sempre gli incantesimi del dominio della sottoclasse." },
+  { lv:1,  it:"Ordine Divino",
+    desc:"Sceglie il ruolo sacro: Protettore (competenza armi da guerra e armature pesanti) oppure Taumaturgo (+1 trucchetto da chierico; bonus prove INT Arcano/Religione = mod.SAG, min +1)." },
   { lv:2,  it:"Incanalare Divinità",
-    desc:"Canalizza energia divina per potenziare effetti magici. Ottiene Scacciare i Non Morti e un secondo effetto dal suo Dominio. Usi: 2 (Lv.2–5), 3 (Lv.6–8), illimitati (Lv.9+). Recupero: riposo breve o lungo." },
-  { lv:2,  it:"Canale: Scacciare i Non Morti",
-    desc:"Come azione, mostra il simbolo sacro. Ogni non morto entro 9 m che può vederlo o sentirlo deve superare un TS su SAG (CD incantesimi) o è scacciato per 1 minuto o finché non subisce danni." },
+    desc:"Canalizza energia divina. 2 usi (Lv.2-5), 3 usi (Lv.6-17), 4 usi (Lv.18+). Recupero: riposo breve o lungo. Effetti disponibili: Scacciare Non Morti, Scintilla Divina, effetto del Dominio." },
+  { lv:2,  it:"Scacciare i Non Morti",
+    desc:"Az. di Magia: mostra il simbolo sacro. Ogni non morto entro 9 m deve superare TS SAG (CD inc.) o è spaventato e incapacitato per 1 min." },
+  { lv:2,  it:"Scintilla Divina",
+    desc:"Az. di Magia: 1 uso Incanalare Divinità, creatura entro 9 m. Cura o infligge danni radiosi/necrotici (a scelta) pari a 1d8 + mod.SAG. Scala: Lv.7 → 2d8, Lv.13 → 3d8, Lv.18 → 4d8." },
+  { lv:3,  it:"Sottoclasse del Chierico",
+    desc:"Sceglie il Dominio (Vita, Luce, Inganno, Guerra). Ottiene gli incantesimi del dominio (sempre preparati) e le facoltà del dominio." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
-  { lv:5,  it:"Distruggi Non Morti",
-    desc:"I non morti che falliscono il TS contro Scacciare i Non Morti vengono invece distrutti se il loro CR è inferiore o pari alla soglia: CR 1/2 (Lv.5), CR 1 (Lv.8), CR 2 (Lv.11), CR 3 (Lv.14), CR 4 (Lv.17)." },
-  { lv:5,  it:"Intervento Divino",
-    desc:"Come azione, implora la divinità. Tira percentuale: se il risultato è pari o inferiore al livello da chierico, il dio interviene. Se riesce, non può usarlo di nuovo per 7 giorni; altrimenti si ricarica con il riposo lungo. Dal Lv.10 il successo è automatico." },
-  { lv:10, it:"Intervento Divino Automatico",
-    desc:"L'Intervento Divino riesce automaticamente senza necessità di tirare i dadi." },
+  { lv:5,  it:"Bruciare i Non Morti",
+    desc:"Scacciare non morti: i non morti che falliscono il TS subiscono anche danni radiosi = 1d8×mod.SAG (min 1d8). Scala: Lv.7 → 2d8, Lv.13 → 3d8, Lv.18 → 4d8." },
+  { lv:7,  it:"Colpi Benedetti",
+    desc:"Sceglie una delle due opzioni (permanente). Colpo Divino: 1×/turno, +1d8 necrotici/radiosi quando colpisci con arma (Lv.14: +2d8). Incantesimi Potenti: aggiungi mod.SAG ai danni dei trucchetti (Lv.14: lancia trucchetto → 1 creatura entro 18 m recupera PF = 2×mod.SAG)." },
+  { lv:9,  it:"—", desc:"" },
+  { lv:10, it:"Intervento Divino",
+    desc:"Az. di Magia: chiede aiuto alla divinità. Sceglie un incantesimo di 5° livello o inferiore da chierico e lo lancia senza slot né componenti. 1/riposo lungo." },
+  { lv:14, it:"Colpi Benedetti Migliorati",
+    desc:"L'opzione scelta per i Colpi Benedetti diventa più potente (vedi Colpi Benedetti)." },
   { lv:19, it:"Dono Epico",
-    desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
-  { lv:20, it:"Avatar Divino",
-    desc:"Può lanciare Desiderio senza spendere uno slot. Non può usarlo di nuovo finché non completa un riposo lungo. Non può più essere invecchiato magicamente." },
+    desc:"Ottiene un Dono Epico (vedi Capitolo 5) o un altro talento. Consigliato: Dono del Fato." },
+  { lv:20, it:"Intervento Divino Superiore",
+    desc:"Quando usa Intervento Divino, può scegliere l'incantesimo desiderato da qualsiasi lista. Dopo l'uso non può usare Intervento Divino per 2d4 riposi lunghi." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -1569,7 +1658,7 @@ druid: [
   { lv:1,  it:"Druidico e Ordine Primordiale",
     desc:"Conosce il Druidico (lingua segreta dei druidi). Sceglie l'Ordine Primordiale: Custode (comp. armi da guerra e armature pesanti) o Mago (trucchetto extra dalla lista druidica + bonus INT alle prove di Arcano e Natura)." },
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Saggezza. Conosce 2 trucchetti (ne ottiene altri ai Lv.4 e 10). Prepara incantesimi pari al livello + mod. SAG (min 1). L'incantesimo parlare con gli animali è sempre preparato. Può cambiare la lista dopo ogni riposo lungo." },
+    desc:"Caratteristica da incantatore: Saggezza. Trucchetti: 2 (Lv.1-3), 3 (Lv.4-9), 4 (Lv.10+). Incantesimi preparati: dalla tabella PHB 2024 (es. Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→22). L'incantesimo parlare con gli animali è sempre preparato." },
   { lv:2,  it:"Compagno Selvatico",
     desc:"Come azione di Magia, spende uno slot incantesimo o un uso di Forma Selvatica per lanciare trova famiglio senza componenti materiali. Il famiglio evocato è un folletto." },
   { lv:2,  it:"Forma Selvatica",
@@ -1957,55 +2046,62 @@ const SUBCLASS_FEATURES = {
 
 // ══ CHIERICO ═════════════════════════════════════════════════════
 "vita": [
+  { lv:3,  it:"Incantesimi del Dominio della Vita", desc:"Preparati: Lv.3 aiuto, benedizione, cura ferite, ristorare inferiore · Lv.5 parola guaritrice di massa, rinascita · Lv.7 aura di vita, interdizione alla morte · Lv.9 ristorare superiore, cura ferite di massa." },
   { lv:3,  it:"Discepolo della Vita", desc:"Quando lanci un incantesimo con slot che ripristina PF, la creatura recupera PF aggiuntivi pari a 2 + livello dello slot." },
   { lv:3,  it:"Preservare Vita", desc:"Azione di Magia: spende un uso di Incanalare Divinità per distribuire PF pari a 5 × livello da chierico tra creature sanguinanti entro 9 m (non oltre la metà dei PF massimi di ciascuna)." },
   { lv:6,  it:"Guaritore Benedetto", desc:"Quando lanci con uno slot un incantesimo che ripristina PF a un'altra creatura, recupera PF = 2 + livello slot." },
   { lv:17, it:"Guarigione Suprema", desc:"Quando stai per tirare dadi per ripristinare PF con un incantesimo o con Incanalare Divinità, usa invece il valore massimo possibile di ogni dado." },
 ],
 "luce": [
-  { lv:3,  it:"Bagliore di Interdizione", desc:"Reazione: impone svantaggio al tiro per colpire di una creatura entro 9 m visibile prima che il colpo vada a segno o meno." },
-  { lv:3,  it:"Fulgore dell'Alba", desc:"Azione di Magia: spende un uso di Incanalare Divinità per emettere un lampo di luce in un'emanazione di 9 m. Le creature nell'area devono superare un TS su COS (CD incantesimi): subiscono 2d10 + livello danni radiosi in caso di fallimento, o la metà in caso di successo." },
-  { lv:6,  it:"Bagliore di Interdizione Migliorato", desc:"Recupera tutti gli usi di Bagliore di Interdizione ogni riposo breve o lungo. Ogni volta che usa Bagliore di Interdizione può concedere al bersaglio dell'attacco PF temporanei pari a 2d6 + mod. SAG." },
-  { lv:17, it:"Corona di Luce", desc:"Azione di Magia: emette un'aura di luce solare per 1 minuto (nessuna azione richiesta per interrompere). Luce intensa 18 m, fioca 9 m aggiuntivi. I nemici nella luce intensa hanno svantaggio ai TS contro Fulgore dell'Alba e incantesimi da fuoco/radiosi. Usi = mod. SAG (min 1), recupero: riposo lungo." },
+  { lv:3,  it:"Bagliore di Interdizione", desc:"Reazione: impone svantaggio al tiro per colpire di una creatura entro 9 m visibile. Usi = mod.SAG (min 1); recupero: riposo breve o lungo." },
+  { lv:3,  it:"Fulgore dell'Alba", desc:"Azione di Magia + 1 uso Incanalare Divinità: lampo di luce in emanazione 9 m. Creature nell'area → TS COS (CD inc.): 2d10+livello danni radiosi in fallimento, metà in successo. Dissipa anche oscurità magica." },
+  { lv:3,  it:"Incantesimi del Dominio della Luce", desc:"Preparati: Lv.3 mani brucianti, luminescenza, raggio rovente, vedere invisibilità · Lv.5 luce diurna, palla di fuoco · Lv.7 occhio arcano, muro di fuoco · Lv.9 colpo infuocato, scrutare." },
+  { lv:6,  it:"Bagliore di Interdizione Migliorato", desc:"Recupero riposo breve o lungo. Ogni utilizzo concede al bersaglio dell'attacco PF temporanei pari a 2d6 + mod.SAG." },
+  { lv:17, it:"Corona di Luce", desc:"Azione di Magia: aura luce solare per 1 minuto. Luce intensa 18 m + fioca 9 m. I nemici nella luce intensa hanno svantaggio ai TS vs Fulgore dell'Alba e incantesimi fuoco/radiosi. Usi = mod.SAG (min 1); recupero: riposo lungo." },
 ],
 "inganno": [
-  { lv:3,  it:"Benedizione dell'Ingannatore", desc:"Azione di Magia: sceglie sé stesso o una creatura consenziente entro 9 m; ottiene vantaggio sulle prove di DES (Furtività) finché non completa un riposo lungo o usa di nuovo il privilegio." },
-  { lv:3,  it:"Invocare Duplicato", desc:"Azione bonus: spende un uso di Incanalare Divinità per creare un duplicato illusorio di sé in uno spazio libero entro 9 m. Dura 1 minuto. Ottiene: Distrarre (vantaggio ai tiri contro creature entro 1,5 m dall'illusione), Lanciare incantesimi (come se fosse nello spazio dell'illusione), Movimento (azione bonus: sposta l'illusione fino a 9 m)." },
-  { lv:6,  it:"Trasposizione dell'Ingannatore", desc:"Ogni volta che usa l'azione bonus per creare o muovere l'illusione di Invocare Duplicato, può teletrasportarsi scambiando di posto con l'illusione." },
-  { lv:17, it:"Duplicato Migliorato", desc:"L'illusione di Invocare Duplicato diventa più potente. Diversivo condiviso: lui e i suoi alleati hanno vantaggio su tiri per colpire contro creature entro 1,5 m dall'illusione. Illusione curativa: quando l'illusione termina, lui o una creatura a scelta entro 1,5 m recupera PF = livello da chierico." },
+  { lv:3,  it:"Incantesimi del Dominio dell'Inganno", desc:"Preparati: Lv.3 camuffare se stesso, charme su persone, invisibilità, passare senza tracce · Lv.5 trama ipnotica, anti-individuazione · Lv.7 confusione, porta dimensionale · Lv.9 dominare persone, modificare memoria." },
+  { lv:3,  it:"Benedizione dell'Ingannatore", desc:"Azione di Magia: sé stesso o una creatura consenziente entro 9 m ottiene vantaggio sulle prove di DES (Furtività). Dura finché non completa un riposo lungo o usa di nuovo il privilegio." },
+  { lv:3,  it:"Invocare Duplicato", desc:"Azione bonus + 1 uso Incanalare Divinità: duplicato illusorio entro 9 m per 1 minuto. Distrae (vantaggio tiri vs creature entro 1,5 m dall'illus.), Lancia incantesimi (dallo spazio dell'illus.), Muove (az. bonus: sposta illus. 9 m)." },
+  { lv:6,  it:"Trasposizione dell'Ingannatore", desc:"Ogni volta che crea o muove l'illusione di Invocare Duplicato, può teletrasportarsi scambiando posto con essa." },
+  { lv:17, it:"Duplicato Migliorato", desc:"Diversivo condiviso: lui e alleati hanno vantaggio sui tiri vs creature entro 1,5 m dall'illus. Illusione curativa: quando l'illusione termina, lui o creatura entro 1,5 m recupera PF = livello da chierico." },
 ],
 "guerra": [
-  { lv:3,  it:"Colpo Guidato", desc:"Reazione: quando lui o una creatura entro 9 m manca un tiro per colpire, spende un uso di Incanalare Divinità per conferire +10 al tiro, aumentando la possibilità che vada a segno." },
-  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: può effettuare un attacco con un'arma o un colpo senz'armi. Usi = mod. SAG (min 1); recupero: riposo lungo." },
-  { lv:6,  it:"Benedizione del Dio della Guerra", desc:"Spende un uso di Incanalare Divinità per lanciare scudo della fede o arma spirituale senza slot e senza concentrazione (dura 1 min, termina se incapacitato/morto o se rilanci)." },
+  { lv:3,  it:"Incantesimi del Dominio della Guerra", desc:"Preparati: Lv.3 dardo tracciante, arma magica, scudo della fede, arma spirituale · Lv.5 manto del crociato, guardiani spirituali · Lv.7 scudo di fuoco, libertà di movimento · Lv.9 blocca mostri, turbine implacabile." },
+  { lv:3,  it:"Colpo Guidato", desc:"Reazione: lui o una creatura entro 9 m manca un tiro per colpire → spende 1 uso Incanalare Divinità per conferire +10 al tiro." },
+  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: attacco con arma o colpo senz'armi. Usi = mod.SAG (min 1); recupero: riposo lungo." },
+  { lv:6,  it:"Benedizione del Dio della Guerra", desc:"Usa Incanalare Divinità per lanciare scudo della fede o arma spirituale senza slot e senza concentrazione (dura 1 min, termina se incapacitato/morto o rilanci)." },
   { lv:17, it:"Avatar della Battaglia", desc:"Ottiene resistenza ai danni contundenti, perforanti e taglienti." },
 ],
 
 // ══ DRUIDO ═══════════════════════════════════════════════════════
 "luna": [
-  { lv:3,  it:"Forme del Circolo", desc:"In Forma Selvatica: Grado di sfida massimo = livello/3 (arrot. per difetto), CA = 13+mod. SAG (se più alta dell'animale), PF temporanei = 3×livello. Può lanciare gli incantesimi del Circolo anche in Forma Selvatica." },
-  { lv:6,  it:"Forme del Circolo Migliorate", desc:"In Forma Selvatica: Radianza lunare (ogni attacco può infliggere i danni normali o radiosi a scelta) e Robustezza aumentata (aggiunge mod. SAG ai TS su COS)." },
-  { lv:10, it:"Passo Chiardiluna", desc:"Azione bonus: si teletrasporta fino a 9 m in uno spazio libero visibile; vantaggio sui prossimi tiri per colpire fino alla fine del turno. Usi = mod. SAG (min 1); recupero: riposo lungo. Può anche recuperare un uso spendendo uno slot di 2°+." },
-  { lv:14, it:"Forma Lunare", desc:"Quando usa Passo Chiardiluna può teletrasportare anche una creatura consenziente entro 3 m. Radianza lunare migliorata: una volta per turno inflisce 2d10 danni radiosi extra colpendo in Forma Selvatica." },
+  { lv:3,  it:"Forme del Circolo", desc:"In Forma Selvatica: GS max = livello/3 (arrot.), CA = 13+mod.SAG (se più alta), PF temp = 3×livello. Può lanciare incantesimi del Circolo anche in Forma Selvatica." },
+  { lv:3,  it:"Incantesimi del Circolo della Luna", desc:"Sempre preparati: Lv.3 bagliore lunare, cura ferite, luce splendente · Lv.5 evoca animali · Lv.7 fonte di luce lunare · Lv.9 cura ferite di massa." },
+  { lv:6,  it:"Forme del Circolo Migliorate", desc:"In Forma Selvatica: Radianza lunare (ogni attacco può essere radiosi) e Robustezza aumentata (mod.SAG ai TS su COS)." },
+  { lv:10, it:"Passo Chiardiluna", desc:"Az. bonus: teletrasporto 9 m + vantaggio tiri colpire fino fine turno. Usi = mod.SAG (min 1); recupero: riposo lungo. Oppure spendi 1 slot 2°+ per recuperare un uso." },
+  { lv:14, it:"Forma Lunare", desc:"Passo Chiardiluna può trasportare anche una creatura entro 3 m. Radianza lunare migliorata: 1×/turno +2d10 radiosi in Forma Selvatica." },
 ],
 "terra": [
-  { lv:3,  it:"Ausilio dalla Terra", desc:"Azione di Magia: spende un utilizzo di Forma Selvatica per evocare un'emanazione di vita e spine di 3 m raggio per 1 minuto centrata su un punto entro 18 m. Le creature nell'area devono superare un TS su COS (CD incantesimi): subiscono 2d6 danni necrotici in fallimento (metà in successo); una creatura a scelta nella zona recupera 2d6 PF." },
-  { lv:6,  it:"Recupero Naturale", desc:"Quando completa un riposo breve, recupera slot incantesimo per un totale di livelli ≤ metà del livello da druido (arrot. per eccesso); nessuno slot di 6°+ livello. 1/riposo lungo." },
-  { lv:10, it:"Interdizione della Natura", desc:"Immune alla condizione avvelenato; resistenza al tipo di danno del suo Circolo della Terra (tabella). Gli alleati entro 18 m ottengono la stessa resistenza mentre si trovano nell'aura." },
-  { lv:14, it:"Rifugio della Natura", desc:"Azione di Magia: spende un utilizzo di Forma Selvatica per far apparire alberi e viticci in un cubo di 4,5 m entro 36 m da sé per 1 minuto. Lui e i suoi alleati nell'area hanno metà copertura e resistenza del tipo della Interdizione della Natura." },
+  { lv:3,  it:"Ausilio dalla Terra", desc:"Az. di Magia + 1 uso Forma Selvatica: emanazione vita e spine (r.3 m, 1 min) in punto entro 18 m. Creature nell'area → TS COS: 2d6 necrotici in fallimento. Una creatura a scelta recupera 2d6 PF. Danni/guarigione: +1d6 a Lv.10 (3d6), +1d6 a Lv.14 (4d6)." },
+  { lv:3,  it:"Incantesimi del Circolo della Terra", desc:"A fine riposo lungo scegli tipo: Arida, Polare, Temperata o Tropicale. Preparati per tipo — Arida Lv.3: dardo fuoco, mani brucianti, sfocatura · Lv.5: palla di fuoco · Lv.7: inaridire · Lv.9: muro di pietra. Polare Lv.3: blocca persone, nube di nebbia, raggio di gelo · Lv.5: tempesta di nevischio · Lv.7: tempesta di ghiaccio · Lv.9: cono di freddo. Temperata Lv.3: passo velato, sonno, stretta folgorante · Lv.5: fulmine · Lv.7: libertà di movimento · Lv.9: traslazione arborea. Tropicale Lv.3: fiotto acido, raggio di infermità, ragnatela · Lv.5: nube maleodorante · Lv.7: metamorfosi · Lv.9: piaga degli insetti." },
+  { lv:6,  it:"Recupero Naturale", desc:"Riposo breve: recupera slot per totale livelli ≤ metà livello druido (max 6°). 1/riposo lungo. Inoltre può lanciare 1 incantesimo del Circolo senza slot (1/riposo lungo)." },
+  { lv:10, it:"Interdizione della Natura", desc:"Immune condizione avvelenato; resistenza al tipo del suo terreno. Alleati entro 18 m ottengono la stessa resistenza nell'aura." },
+  { lv:14, it:"Rifugio della Natura", desc:"Az. di Magia + 1 uso Forma Selvatica: alberi e viticci in cubo 4,5 m entro 36 m per 1 min. Lui e alleati nell'area: mezza copertura + resistenza del terreno. Az. bonus: muove il cubo fino a 18 m." },
 ],
 "mare": [
-  { lv:3,  it:"Furia dei Mari", desc:"Azione bonus: spende un utilizzo di Forma Selvatica per generare un'emanazione di 1,5 m di brezza oceanica per 10 minuti. Come azione bonus nelle sue successive azioni può scegliere una creatura nell'emanazione: TS su COS (CD incantesimi) o subisce danni da freddo (d6 × mod. SAG) ed è spinta 4,5 m." },
-  { lv:6,  it:"Affinità Acquatica", desc:"Il raggio dell'emanazione di Furia dei Mari aumenta di 3 m. Ottiene velocità di nuoto = velocità." },
-  { lv:10, it:"Nato dalla Tempesta", desc:"Mentre Furia dei Mari è attiva ottiene: resistenza ai danni da freddo, fulmine e tuono; velocità di volo = velocità." },
-  { lv:14, it:"Dono Oceanico", desc:"Invece di generare l'emanazione attorno a sé, può generarla attorno a una creatura consenziente entro 18 m. Può usare entrambe le varianti spendendo 2 utilizzi di Forma Selvatica." },
+  { lv:3,  it:"Furia dei Mari", desc:"Az. bonus + 1 uso Forma Selvatica: emanazione brezza oceanica (r.1,5 m, 10 min). Az. bonus successive: creatura nell'emanazione → TS COS o subisce danni freddo pari a d6×mod.SAG ed è spinta 4,5 m." },
+  { lv:3,  it:"Incantesimi del Circolo del Mare", desc:"Sempre preparati: Lv.3 nebbia, onda tonante · Lv.5 cammina sull'acqua, velocità · Lv.7 controllo dell'acqua, zona di verità · Lv.9 comunione con la natura, cono di freddo." },
+  { lv:6,  it:"Affinità Acquatica", desc:"Il raggio dell'emanazione di Furia dei Mari aumenta di 3 m. Velocità di nuoto = velocità terrestre." },
+  { lv:10, it:"Nato dalla Tempesta", desc:"Mentre Furia dei Mari è attiva: resistenza a danni freddo, fulmine e tuono; velocità di volo = velocità." },
+  { lv:14, it:"Dono Oceanico", desc:"Può generare l'emanazione attorno a una creatura consenziente entro 18 m. Entrambe le varianti (sé + creatura) costano 2 usi di Forma Selvatica." },
 ],
 "stelle": [
-  { lv:3,  it:"Carta Celeste", desc:"Crea una carta celeste (focus arcano). Mentre la impugna, dardo tracciante e guida sono preparati (lancia dardo tracciante senza slot: usi = mod. SAG, recupero: riposo lungo). La forma del corpo del druido dipende dalla costellazione estratta dalla carta." },
-  { lv:3,  it:"Forma Siderale", desc:"Azione bonus: spende un utilizzo di Forma Selvatica per assumere una forma stellare (10 minuti) a scelta. Arciere (azione bonus: freccia luminosa 1d8 radiosi contro una creatura entro 18 m), Calice (quando lancia un incantesimo con slot per ripristinare PF, un'altra creatura entro 9 m recupera 1d8+mod. SAG), Drago (un risultato 9- sul d20 conta come 10)." },
-  { lv:6,  it:"Profezia Cosmica", desc:"A ogni riposo lungo consulta la Carta Celeste per tirare un dado di presagio. Può usarlo come reazione per aggiungere o sottrarre il risultato a qualsiasi tiro d20 entro 9 m. Usi = mod. SAG (min 1); recupero: riposo lungo." },
-  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: il dado di Arciere e Calice passa da d8 a d10; la velocità di volo ottenuta con Drago aumenta a 6 m con fluttuazione. All'inizio di ogni turno può cambiare costellazione." },
-  { lv:14, it:"Manto di Stelle", desc:"Quando attiva Forma Siderale diventa parzialmente incorporeo: ottiene resistenza ai danni contundenti, perforanti e taglienti." },
+  { lv:3,  it:"Carta Celeste", desc:"Focus arcano. Impugnandola: dardo tracciante e guida sempre preparati; dardo tracciante senza slot (usi = mod.SAG, recupero: riposo lungo). Può tirare sull'aspetto (Arciere/Calice/Drago) o scegliere." },
+  { lv:3,  it:"Forma Siderale", desc:"Az. bonus + 1 uso Forma Selvatica: forma stellare per 10 min. Arciere (az. bonus: freccia luminosa 1d8 radiosi entro 18 m), Calice (incantesimo con slot che ripristina PF → altra creatura entro 9 m recupera 1d8+SAG), Drago (risultato ≤9 sul d20 conta come 10)." },
+  { lv:6,  it:"Profezia Cosmica", desc:"Fine riposo lungo: tira 1d dado dalla Carta Celeste. Reazione: aggiunge (+) o sottrae (−) il risultato a qualsiasi tiro d20 entro 9 m. Usi = mod.SAG (min 1); recupero: riposo lungo." },
+  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: dado Arciere e Calice passa a d10; Drago volo 6 m con fluttuazione. Inizio turno: può cambiare costellazione." },
+  { lv:14, it:"Manto di Stelle", desc:"Attivando Forma Siderale: resistenza a danni contundenti, perforanti e taglienti per tutta la durata." },
 ],
 
 // ══ GUERRIERO ════════════════════════════════════════════════════
@@ -2018,7 +2114,7 @@ const SUBCLASS_FEATURES = {
 ],
 "maestro-battaglia": [
   { lv:3,  it:"Studioso di Guerra", desc:"Ottiene competenza in uno strumento da artigiano a scelta e in un'abilità a scelta dalla lista del guerriero." },
-  { lv:3,  it:"Superiorità in Combattimento", desc:"Ha affinato le tecniche di combattimento. Apprende 3 manovre (sceglie tra le Opzioni di Manovra). Possiede 4 dadi di superiorità d8; recupero: riposo breve o lungo. Aggiunge un dado a Lv.7 (5 tot), Lv.10 (5+d10), Lv.15 (6 d10), Lv.18 (6 d12). CD = 8 + bonus comp. + FOR o DES." },
+  { lv:3,  it:"Superiorità in Combattimento", desc:"Apprende 3 manovre (sceglie tra le 20 Opzioni di Manovra). 4 dadi di superiorità d8; recupero: riposo breve o lungo. A Lv.7: 6 dadi. A Lv.10: d10. A Lv.15: +2 manovre (tot.9). A Lv.18: d12. CD = 8 + comp. + FOR o DES (il più alto)." },
   { lv:7,  it:"Conosci il tuo Nemico", desc:"Azione bonus: discerne punti di forza e debolezza di una creatura entro 9 m visibile (sapere immunità, resistenze, vulnerabilità). 1/riposo lungo (recuperabile spendendo un dado di superiorità)." },
   { lv:10, it:"Superiorità in Combattimento Migliorata", desc:"Il dado di superiorità diventa un d10." },
   { lv:15, it:"Implacabile", desc:"Una volta per turno, quando usa una manovra, può tirare 1d8 e usare il risultato invece di spendere un dado di superiorità." },
@@ -2710,9 +2806,9 @@ const FEAT_METADATA = {
   'fortunato':               { cat:'origin' },
   'guaritore':               { cat:'origin' },
   'iniziato-magia':          { cat:'origin', repeatable:true, spellList:'choice', cantrips:2, lvl1Spell:1 },
-  'lavoro-manuale':          { cat:'origin' },
+  'lavoro-manuale':          { cat:'origin', grants:{tools:'artigiano'} },
   'lottatore-taverna':       { cat:'origin', statBonus:{any:'STR_CON', val:1}, max:20 },
-  'musicista':               { cat:'origin' },
+  'musicista':               { cat:'origin', grants:{tools:'musicale'} },
   'robusto':                 { cat:'origin', hpBonus:{perLevel:2} },
 
   // ═══════════════════════════════════════════════════════════════════
@@ -3439,6 +3535,40 @@ function fResetArcana(){
 
 function fSetPactBoon(boon){ C.pactBoon = boon; re(); }
 
+// ── Lista Manovre PHB 2024 — Maestro di Battaglia ────────────────────────
+const BATTLE_MANEUVERS = [
+  { id:'att-adescante',   it:'Attacco Adescante',    desc:'Colpisci: spendi 1 dado, aggiungi ai danni. Il bersaglio TS Saggezza o svantaggio vs altri bersagli fino al tuo turno successivo.' },
+  { id:'att-affondo',     it:'Attacco con Affondo',  desc:'Az. bonus: Scatto. Se percorri ≥1,5 m prima di colpire in mischia, aggiungi 1 dado ai danni.' },
+  { id:'att-finta',       it:'Attacco con Finta',    desc:'Az. bonus: spendi 1 dado, scegli creatura entro 1,5 m. Vantaggio al prossimo attacco vs quella creatura; se colpisci, aggiungi 1 dado ai danni.' },
+  { id:'att-manovra',     it:'Attacco con Manovra',  desc:'Colpisci: spendi 1 dado, aggiungi ai danni. Scegli alleato in vista: può usare reazione per muoversi metà velocità senza AdO.' },
+  { id:'att-preciso',     it:'Attacco Preciso',      desc:'Manchi con attacco: spendi 1 dado, aggiungilo al tiro per colpire. Puoi farlo dopo aver visto il tiro.' },
+  { id:'att-sbilanciante',it:'Attacco Sbilanciante', desc:'Colpisci con arma o senz\'armi: spendi 1 dado, aggiungi ai danni. Se Grande o inferiore, TS Forza o cade prono.' },
+  { id:'att-spazzata',    it:'Attacco con Spazzata', desc:'Colpisci in mischia: spendi 1 dado, tenta di colpire altra creatura entro 1,5 m dal bersaglio (stessa arma, danni = dado di superiorità, stesso tipo).' },
+  { id:'att-spinta',      it:'Attacco con Spinta',   desc:'Colpisci con arma o senz\'armi: spendi 1 dado, aggiungi ai danni. Se Grande o inferiore, TS Forza o spinto fino a 4,5 m.' },
+  { id:'att-disarmante',  it:'Attacco Disarmante',   desc:'Colpisci: spendi 1 dado, aggiungi ai danni. TS Forza del bersaglio o lascia cadere un oggetto che impugna.' },
+  { id:'att-minaccioso',  it:'Attacco Minaccioso',   desc:'Colpisci: spendi 1 dado, aggiungi ai danni. TS Saggezza del bersaglio o spaventato fino alla fine del tuo turno successivo.' },
+  { id:'colpo-comandante',it:'Colpo del Comandante', desc:'Rinuncia a un attacco: ordina a un alleato consenziente in vista di attaccare con reazione. Aggiungi 1 dado ai danni se colpisce.' },
+  { id:'colpo-distraente',it:'Colpo Distraente',     desc:'Colpisci: spendi 1 dado, aggiungi ai danni. Prossimo attacco di un altro attaccante contro il bersaglio ha vantaggio (fino al tuo turno successivo).' },
+  { id:'imboscata',       it:'Imboscata',             desc:'Prova Furtività o iniziativa: spendi 1 dado, aggiungilo al risultato.' },
+  { id:'incoraggiamento', it:'Incoraggiamento',       desc:'Az. bonus: spendi 1 dado. Alleato in vista ottiene PF temporanei = dado + metà livello guerriero.' },
+  { id:'parata',          it:'Parata',                desc:'Reazione: una creatura ti colpisce in mischia. Spendi 1 dado, riduci i danni subiti di dado + mod. FOR o DES.' },
+  { id:'presenza-imp',    it:'Presenza Imponente',   desc:'Prova di CAR (Intimidire, Intrattenere o Persuasione): spendi 1 dado, aggiungilo al risultato.' },
+  { id:'replica',         it:'Replica',               desc:'Reazione: una creatura ti manca in mischia. Spendi 1 dado, esegui attacco con arma o senz\'armi. Se colpisci, aggiungi 1 dado ai danni.' },
+  { id:'scambio',         it:'Scambio',               desc:'Nel tuo turno, entro 1,5 m da un alleato consenziente: spendi 1 dado e scambia posizione. Fino al tuo turno successivo, tu e l\'alleato ottenete bonus CA = dado.' },
+  { id:'scarto-elusivo',  it:'Scarto Elusivo',        desc:'Az. bonus: spendi 1 dado, esegui Disimpegno. Aggiungi il dado alla CA fino al turno successivo.' },
+  { id:'valutazione',     it:'Valutazione Tattica',  desc:'Prova INT (Storia/Indagare) o SAG (Intuizione): spendi 1 dado, aggiungilo al risultato.' },
+];
+
+function fToggleManeuver(id){
+  if(!C.maneuvers) C.maneuvers = [];
+  const lv = C.level||1;
+  const max = fManeuverMax(lv);
+  const idx = C.maneuvers.indexOf(id);
+  if(idx >= 0){ C.maneuvers.splice(idx,1); }
+  else if(C.maneuvers.length < max){ C.maneuvers.push(id); }
+  re();
+}
+
 // Toggle supplica dalla lista strutturata
 function fToggleWarlockInvocation(id){
   if(!C.warlockInvocations) C.warlockInvocations = [];
@@ -3454,12 +3584,27 @@ function fToggleWarlockInvocation(id){
 function fMaxRage(lv){if(lv>=20)return 99;if(lv>=17)return 6;if(lv>=12)return 5;if(lv>=6)return 4;if(lv>=3)return 3;return 2;}
 function fMaxSecondWind(lv){if(lv>=13)return 4;if(lv>=4)return 3;return 2;}
 function fMaxActionSurge(lv){return lv>=17?2:1;}
-function fSuperiorityDiceTotal(lv){if(lv>=15)return 6;if(lv>=10)return 5;return 4;}
+// PHB 2024: 4d8 a Lv.3, 5d8 a Lv.7, 6d8 a Lv.7 (totale), d10 a Lv.10, 6d10 a Lv.15, d12 a Lv.18
+function fSuperiorityDiceTotal(lv){if(lv>=7)return 6;if(lv>=3)return 4;return 4;}
 function fSuperiorityDiceType(lv){if(lv>=18)return'd12';if(lv>=10)return'd10';return'd8';}
+// PHB 2024: manovre note — 3 a Lv.3, +2 a Lv.7, +2 a Lv.10, +2 a Lv.15 = max 9
+function fManeuverMax(lv){if(lv>=15)return 9;if(lv>=10)return 7;if(lv>=7)return 5;return 3;}
 function fMaxKi(lv){return lv;}
-function fMaxChannelDiv(lv){if(lv>=6&&(C.cls==='cleric'))return 3;if(lv>=11)return 3;return 2;}
+// PHB 2024: Incanalare Divinità — Lv.2→2, Lv.6→3, Lv.18→4 (chierico)
+// Paladino: Lv.3→2, Lv.11→3
+function fMaxChannelDiv(lv){
+  if(C.cls==='cleric'){
+    if(lv>=18) return 4;
+    if(lv>=6)  return 3;
+    return 2;
+  }
+  // Paladino e altri
+  if(lv>=11) return 3;
+  return 2;
+}
 function fMaxSorcPoints(lv){return lv;}
-function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=10)return 3;if(lv>=6)return 3;return 2;}
+// PHB 2024: Forma Selvatica — 2 usi base, scala con il livello
+function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=6)return 3;return 2;}
 
 function fUseZealotDei(){if(!C.zealotDivinePool)C.zealotDivinePool={used:0};var lv=C.level||1;var max=lv>=17?7:lv>=12?6:lv>=6?5:4;if(C.zealotDivinePool.used<max)C.zealotDivinePool.used++;re();}
 function fRestoreZealotDei(){if(C.zealotDivinePool&&C.zealotDivinePool.used>0)C.zealotDivinePool.used--;re();}
@@ -3470,7 +3615,7 @@ function fShortRest(){
   if(C.cls==='barbarian')C.rageImplacableCD=10;
   if(C.cls==='fighter'){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
   if(C.cls==='monk'){C.ki={used:0};}
-  if(C.cls==='cleric'||C.cls==='paladin'){C.channelDiv={used:0};}
+  if(C.cls==='cleric'||C.cls==='paladin'){C.channelDiv={used:0};C.bagliorUsed=0;C.warPriestUsed=0;}
   if(C.cls==='druid'&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
   if(C.cls==='bard'&&(C.level||1)>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
   re();
@@ -3480,9 +3625,9 @@ function fLongRest(){
   C.rage={used:0};C.secondWind={used:0};C.actionSurge={used:0};
   C.superiorityDice={used:0};C.psiDice={used:0};C.ki={used:0};
   C.bardicInsp={used:0};C.channelDiv={used:0};
-  C.wildShapeUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
-  C.innateUsed=0;C.arcanaUsed={};
-  C.divPunish={used:false};C.arcaneRecovUsed=false;
+  C.wildShapeUsed=0;C.starDartUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
+  C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
+  C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
   C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
   C.spettralCreatUsed=false;C.phantomDoppUsed=false;C.overchargeUsed=0;
@@ -3521,6 +3666,8 @@ function fUseSupDie(){if(!C.superiorityDice)C.superiorityDice={used:0};var tot=f
 function fRestoreSupDie(){if(C.superiorityDice&&C.superiorityDice.used>0)C.superiorityDice.used--;re();}
 function fUsePsiDie(){if(!C.psiDice)C.psiDice={used:0};var tot=C.level>=17?12:C.level>=13?10:C.level>=11?8:C.level>=9?8:C.level>=5?6:4;if(C.psiDice.used<tot)C.psiDice.used++;re();}
 function fRestorePsiDie(){if(C.psiDice&&C.psiDice.used>0)C.psiDice.used--;re();}
+function fUseEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};C.eldritchKnightSpells[slv]=(C.eldritchKnightSpells[slv]||0)+1;re();}
+function fRestoreEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};if((C.eldritchKnightSpells[slv]||0)>0)C.eldritchKnightSpells[slv]--;re();}
 function fUseKi(){if(!C.ki)C.ki={used:0};if(C.ki.used<fMaxKi(C.level))C.ki.used++;re();}
 function fRestoreKi(){if(C.ki&&C.ki.used>0)C.ki.used--;re();}
 function fUseBardicInsp(){if(!C.bardicInsp)C.bardicInsp={used:0};var bMax=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.bardicInsp.used<bMax)C.bardicInsp.used++;re();}
@@ -3979,22 +4126,97 @@ function fRClassBlock(){
     html+='<div style="'+rowS+'"><span style="'+lblS+'">💪 '+(isIt?'Rec. Energie':'Second Wind')+'</span>'+fDots(swUsed,swMax,'fUseSecondWind','fRestoreSecondWind','var(--green)')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax-swUsed)+'/'+swMax+'</span></div>';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">\u26a1 '+(isIt?'Az. Impetuosa':'Action Surge')+'</span>'+fDots(asUsed,asMax,'fUseActionSurge','fRestoreActionSurge','#4a8fff')+'</div>';
     html+='</div>';
-    if(sc==='battlemaster'){
+    if(sc==='maestro-battaglia'){
       var dTot=fSuperiorityDiceTotal(lv),dUsed=(C.superiorityDice&&C.superiorityDice.used)||0;
       var dType=fSuperiorityDiceType(lv);
-      var mMax=lv>=15?7:lv>=10?6:lv>=7?5:lv>=4?4:3;
-      html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">\u2694\ufe0f Superiorit\u00e0 Marziale</div>';
-      html+='<div style="'+rowS+'"><span style="'+lblS+'">'+dType+' \u00d7'+dTot+'</span>'+fDots(dUsed,dTot,'fUseSupDie','fRestoreSupDie','#e8c86a')+'<span style="font-size:10px;color:var(--vdim)">'+(dTot-dUsed)+'/'+dTot+'</span></div>';
+      var mMax=fManeuverMax(lv);
       var mans=C.maneuvers||[];
-      html+='<div style="margin-top:8px"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">Manovre ('+mans.length+'/'+mMax+'):</div>';
-      html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
-      mans.forEach(function(m,i){html+='<span style="background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--text);display:flex;align-items:center;gap:4px">'+m+'<span onclick="fRemoveManeuver('+i+')" style="cursor:pointer;color:var(--vdim);">\u2715</span></span>';});
+      var cdBattle=8+fpb(lv)+Math.max(fcmod(fTotalStat('STR')),fcmod(fTotalStat('DEX')));
+
+      // Dadi di superiorità
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">⚔️ Superiorità in Combattimento</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">'+dType+' ×'+dTot+'</span>'+fDots(dUsed,dTot,'fUseSupDie','fRestoreSupDie','#e8c86a')+'<span style="font-size:10px;color:var(--vdim)">'+(dTot-dUsed)+'/'+dTot+'</span></div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">CD tiro salvezza: <strong style="color:var(--gold)">'+cdBattle+'</strong> (8 + comp. + mod. FOR o DES)</div>';
+      if(lv>=15) html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">⚡ Implacabile (Lv.15): usa 1d8 invece di spendere un dado</div>';
       html+='</div>';
-      if(mans.length<mMax)html+='<div style="display:flex;gap:4px"><input id="man-inp" placeholder="Nome manovra..." style="flex:1;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 7px" onkeydown="if(event.key===\'Enter\')fAddManeuver()"><button onclick="fAddManeuver()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 9px;cursor:pointer">+</button></div>';
-      html+='</div></div>';
+
+      // Studioso di Guerra (Lv.3): strumento + abilità
+      if(lv>=3){
+        html+='<div style="'+boxS+'">';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">📚 Studioso di Guerra (Lv.3)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Competenza in 1 strumento da artigiano + 1 abilità del guerriero (selezionate nel wizard)</div>';
+        if(lv>=7) html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Conosci il tuo Nemico (Lv.7): az. bonus — rivela caratteristiche di una creatura (1/riposo lungo o spendendo 1 dado)</div>';
+        html+='</div>';
+      }
+
+      // Picker manovre
+      html+='<div style="'+boxS+'">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+      html+='<span style="font-size:10px;color:var(--gold2)">⚔️ Manovre</span>';
+      html+='<span style="font-size:10px;color:'+(mans.length>=mMax?'var(--green)':'var(--gold2)')+'">'+mans.length+'/'+mMax+'</span>';
+      html+='</div>';
+
+      // Manovre selezionate con descrizione
+      if(mans.length>0){
+        html+='<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">';
+        mans.forEach(function(id){
+          var m=BATTLE_MANEUVERS.find(function(x){return x.id===id;});
+          if(!m) return;
+          html+='<div onclick="fToggleManeuver(\''+id+'\')" style="cursor:pointer;padding:6px 8px;border:1px solid var(--gold);background:rgba(200,164,90,.08);border-radius:3px">';
+          html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">';
+          html+='<span style="font-size:11px;font-weight:600;color:var(--gold)">'+m.it+'</span>';
+          html+='<span style="font-size:10px;color:var(--vdim)">× rimuovi</span>';
+          html+='</div>';
+          html+='<div style="font-size:10px;color:var(--muted);line-height:1.4">'+m.desc+'</div>';
+          html+='</div>';
+        });
+        html+='</div>';
+      }
+
+      // Lista picker disponibili
+      if(mans.length<mMax){
+        html+='<div style="font-size:9px;color:var(--vdim);margin-bottom:5px">Scegli ancora '+(mMax-mans.length)+':</div>';
+        html+='<div style="display:flex;flex-direction:column;gap:3px">';
+        BATTLE_MANEUVERS.filter(function(m){return!mans.includes(m.id);}).forEach(function(m){
+          html+='<div onclick="fToggleManeuver(\''+m.id+'\')" style="cursor:pointer;padding:5px 8px;border:1px solid rgba(200,164,90,.18);border-radius:3px;background:rgba(0,0,0,.15)">';
+          html+='<div style="font-size:11px;color:var(--text);margin-bottom:1px">'+m.it+'</div>';
+          html+='<div style="font-size:9px;color:var(--vdim);line-height:1.3">'+m.desc+'</div>';
+          html+='</div>';
+        });
+        html+='</div>';
+      }
+      html+='</div>';
     }
-    if(sc==='psi_warrior'){
+    if(sc==='cavaliere-mistico'){
+      // Tabella slot PHB 2024 Cavaliere Mistico
+      var kmSlots={3:[2],4:[3],5:[3],6:[3],7:[4,2],8:[4,2],9:[4,2],10:[4,3],
+        11:[4,3],12:[4,3],13:[4,3,2],14:[4,3,2],15:[4,3,2],16:[4,3,3],
+        17:[4,3,3],18:[4,3,3],19:[4,3,3,1],20:[4,3,3,1]};
+      var slots=kmSlots[lv]||[2];
+      var usedSp=C.eldritchKnightSpells||{};
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🔮 Slot Incantesimo (Cavaliere Mistico · INT)</div>';
+      for(var sv=1;sv<=slots.length;sv++){
+        var tot=slots[sv-1];
+        var usedV=usedSp[sv]||0;
+        html+='<div style="'+rowS+'"><span style="'+lblS+'">Slot '+sv+'°</span>';
+        html+=fDots(usedV,tot,'fUseEKSlot('+sv+')','fRestoreEKSlot('+sv+')','#7a8fff');
+        html+='<span style="font-size:10px;color:var(--vdim)">'+(tot-usedV)+'/'+tot+'</span></div>';
+      }
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Caratteristica: INT · Recupero: riposo lungo</div>';
+      html+='</div>';
+    }
+    if(sc==='campione'&&lv>=7){
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🏆 Campione — feature attive</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Lv.3: Critico 19-20 · Lv.7: +1 stile combattimento</div>';
+      if(lv>=10) html+='<div style="font-size:10px;color:var(--muted)">Lv.10: Ispirazione Eroica (1/turno)</div>';
+      if(lv>=15) html+='<div style="font-size:10px;color:var(--muted)">Lv.15: Critico 18-20</div>';
+      if(lv>=18) html+='<div style="font-size:10px;color:var(--muted)">Lv.18: Sopravvissuto — 5+COS PF/turno se sanguinante</div>';
+      html+='</div>';
+    }
+    if(sc==='guerriero-psionico'){
       var psiLv=lv>=17?12:lv>=13?10:lv>=11?8:lv>=9?8:lv>=5?6:4;
       var psiType=lv>=17?'d12':lv>=11?'d10':lv>=5?'d8':'d6';
       var psiUsed=(C.psiDice&&C.psiDice.used)||0;
@@ -4027,19 +4249,48 @@ function fRClassBlock(){
   // ── CHIERICO
   if(cl==='cleric'){
     var cdMax=fMaxChannelDiv(lv),cdUsed=(C.channelDiv&&C.channelDiv.used)||0;
+    var cantripCount=lv>=10?5:lv>=4?4:3;
+    var sparkDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
     html+='<div style="'+boxS+'">';
-    html+='<div style="'+rowS+'"><span style="'+lblS+'">\u271d\ufe0f '+(isIt?'Incan. Divinit\u00e0':'Channel Div.')+'</span>'+fDots(cdUsed,cdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'</div>';
-    if(!C.divOrder){
+    html+='<div style="'+rowS+'"><span style="'+lblS+'">✝️ '+(isIt?'Incan. Divinità':'Channel Div.')+'</span>'+fDots(cdUsed,cdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(cdMax-cdUsed)+'/'+cdMax+'</span></div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Effetti: Scacciare non morti · Scintilla Divina · effetto sottoclasse</div>';
+    html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">✨ Scintilla Divina: <strong style="color:var(--gold)">'+sparkDice+'</strong> <span style="font-size:9px;color:var(--muted)">cura o danni radiosi/necrotici a 1 creatura entro 9 m (scelta al lancio)</span></div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Trucchetti: <strong style="color:var(--gold)">'+cantripCount+'</strong> (Lv.1-3→3, Lv.4-9→4, Lv.10+→5)</div>';
+    html+='</div>';
+        if(!C.divOrder){
       html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u2699\ufe0f Ordine Divino (Lv.1)</div><div style="display:flex;gap:6px"><button onclick="fSetDivOrder(\'protettore\')" style="'+selS+'">🛡️ Protettore</button><button onclick="fSetDivOrder(\'taumaturgo\')" style="'+selS+'">📜 Taumaturgo</button></div></div>';
     } else {
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.divOrder==='protettore'?'🛡️ Protettore':'📜 Taumaturgo')+'</strong> <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.divOrder==='protettore'?'🛡️ Protettore':'📜 Taumaturgo')+'</strong>';
+      if(C.divOrder==='taumaturgo'){
+        var sagBonus=Math.max(1,fcmod(fTotalStat('WIS')));
+        html+=' <span style="font-size:9px;color:var(--muted)">— bonus INT(Arcano/Religione): <strong style="color:var(--gold)">+'+(sagBonus)+'</strong></span>';
+      }
+      html+=' <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
     }
     if(lv>=7){
       if(!C.blessedStrikes){
-        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u26a1 Colpi Benedetti (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ Colpo Divino</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
+        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ Colpi Benedetti (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ Colpo Divino</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
       } else {
-        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Colpi: <strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?'⚔️ Divino':'✨ Potenti')+'</strong> <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+        var lv14note='';
+        if(lv>=14)lv14note=C.blessedStrikes==='divino'?' <span style="color:var(--muted);font-size:9px">(Lv.14: →2d8)</span>':' <span style="color:var(--muted);font-size:9px">(Lv.14: PF temp 2×SAG)</span>';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Colpi: <strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?'⚔️ Divino':'✨ Potenti')+'</strong>'+lv14note+' <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
       }
+    }
+    // Bruciare i Non Morti (Lv.5) — feature base classe
+    if(lv>=5){
+      var burnDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🔥 Bruciare i Non Morti (Lv.5)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Scacciare i non morti: <strong style="color:var(--gold)">'+burnDice+'</strong> danni radiosi extra ai fallimenti · CD incantesimo</div>';
+      html+='</div>';
+    }
+    // Sacerdote di Guerra (Dominio della Guerra Lv.3)
+    if(sc==='guerra'){
+      var swMax2=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(C.warPriestUsed===undefined)C.warPriestUsed=0;
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⚔️ Sacerdote di Guerra (Lv.3)</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. Bonus Attacco</span>'+fDots(C.warPriestUsed,swMax2,'C.warPriestUsed=Math.min('+(swMax2)+',C.warPriestUsed+1);re()','if(C.warPriestUsed>0)C.warPriestUsed--;re()','#e74c3c')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax2-C.warPriestUsed)+'/'+swMax2+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Recupero: riposo lungo · usi = mod. SAG (min 1)</div>';
+      html+='</div>';
     }
     // Intervento Divino (Lv.10+)
     if(lv>=10){
@@ -4056,6 +4307,18 @@ function fRClassBlock(){
     var cdSc2=cdEffects[sc]||[];
     if(cdSc2.length>0)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Effetto CD sottoclasse: <strong>'+cdSc2[0]+'</strong></div>';
     html+='</div>';
+
+    // ── LUCE: Bagliore di Interdizione (tracker separato, recupero riposo breve)
+    if(sc==='luce'){
+      var biMax=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(!C.bagliorUsed)C.bagliorUsed=0;
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">✨ Bagliore di Interdizione</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Reazione</span>'+fDots(C.bagliorUsed,biMax,'C.bagliorUsed=Math.min('+biMax+',C.bagliorUsed+1);re()','if(C.bagliorUsed>0)C.bagliorUsed--;re()','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(biMax-C.bagliorUsed)+'/'+biMax+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Svantaggio al tiro avversario · usi = mod. SAG (min 1) · recupero: riposo breve o lungo</div>';
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6: +2d6+SAG PF temp al bersaglio dell\'attacco</div>';
+      html+='</div>';
+    }
   }
 
   // ── PALADINO
@@ -4122,13 +4385,35 @@ function fRClassBlock(){
         html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Furia: <strong style="color:var(--gold)">'+(C.elementalFury==='colpo'?'\u26a1 Colpo Primordiale':'✨ Inc. Potenti')+'</strong> <span onclick="fSetElementalFury(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
       }
     }
-    // Circolo della Terra: tipo
+    // Furia Elementale Migliorata (Lv.15)
+    if(lv>=15 && C.elementalFury){
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">⚡ Furia Migliorata (Lv.15): ';
+      if(C.elementalFury==='colpo') html+='Colpo primordiale → 2d8 danni extra</div>';
+      else html+='Inc. Potenti → trucchetti a 90 m di gittata in più</div>';
+    }
+    // Incantesimi Bestiali (Lv.18)
+    if(lv>=18) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🐾 Incantesimi Bestiali (Lv.18): puoi lanciare incantesimi in Forma Selvatica</div>';
+    // Arcidruido (Lv.20)
+    if(lv>=20) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🌿 Arcidruido (Lv.20): Forma Selvatica sempreverde · Mago della natura · Corpo senza tempo</div>';
+
+    // Circolo della Terra: tipo terreno
     if(sc==='terra'){
       var tTypes=[{id:'arida',it:'Arida',r:'Fuoco'},{id:'polare',it:'Polare',r:'Freddo'},{id:'temperata',it:'Temperata',r:'Fulmine'},{id:'tropicale',it:'Tropicale',r:'Veleno'}];
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">\uD83C\uDF0D Tipo di Terra</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
       tTypes.forEach(function(t){var sel=(C.circleTerrainType===t.id);html+='<button onclick="C.circleTerrainType=\''+t.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+t.it+'</button>';});
       html+='</div>';
       if(C.circleTerrainType){var cur=tTypes.find(function(t){return t.id===C.circleTerrainType;});if(cur)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resist. '+cur.r+' (Lv.10: Interdizione della Natura)</div>';}
+      html+='</div>';
+    }
+    // Circolo delle Stelle: tracker dardo tracciante (Carta Celeste)
+    if(sc==='stelle'){
+      var starMax=Math.max(1,fcmod(fTotalStat('WIS')));
+      if(!C.starDartUsed)C.starDartUsed=0;
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⭐ Carta Celeste — Dardo Tracciante</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Senza slot</span>'+fDots(C.starDartUsed,starMax,'C.starDartUsed=Math.min('+starMax+',C.starDartUsed+1);re()','if(C.starDartUsed>0)C.starDartUsed--;re()','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(starMax-C.starDartUsed)+'/'+starMax+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Usi = mod. SAG (min 1) · recupero: riposo lungo</div>';
+      if(lv>=6) html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6 Profezia Cosmica: dado presagio (+/-) 1×/riposo lungo per creatura entro 9 m</div>';
       html+='</div>';
     }
     html+='</div>';
@@ -4756,6 +5041,12 @@ function fCanNext(){
   // Step 3: Sottoclasse (obbligatoria)
   if(step===3){
     if(!C.subclass) return false;
+    if(C.cls==='cleric' && !C.divOrder) return false;
+    if(C.cls==='cleric' && C.divOrder==='taumaturgo' && !C.taumaturgoBonusSkill) return false;
+    if(C.cls==='cleric' && (C.level||1)>=7 && !C.blessedStrikes) return false;
+    if(C.cls==='druid'  && !C.primordialOrder) return false;
+    if(C.cls==='druid'  && (C.level||1)>=7 && !C.elementalFury) return false;
+    if(C.cls==='druid'  && C.subclass==='terra' && (C.level||1)>=3 && !C.circleTerrainType) return false;
     return true;
   }
   // Step 4: Padronanza Armi (auto-skip se non applicabile)
@@ -4772,6 +5063,7 @@ function fCanNext(){
     if(ec>0&&(C.expertiseSkills||[]).length<ec) return false;
     if(ec2>0&&(C.expertiseSkills2||[]).length<ec2) return false;
     if(scSkCount>0&&(C.subclassSkills||[]).length<scSkCount) return false;
+    if(scToolCount>0&&(C.featTools||[]).filter(t=>t.uid==='mb-studioso').length<scToolCount) return false;
     if(wizSch&&!C.wizardScholarSkill) return false;
     return true;
   }
@@ -4833,7 +5125,7 @@ function nuovoPersonaggio(){
     statMethod:"pointbuy",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -4843,8 +5135,8 @@ function nuovoPersonaggio(){
     rage:{used:0},rageActive:false,rageImplacableCD:10,primordialKnowledge:null,wildHeartAspect:null,wildHeartNature:null,wildHeartPower:null,zealotDivineType:null,zealotDivinePool:{used:0},berserkerIntimUsed:false,worldTreeTeleUsed:false,zealotPresenceUsed:false,zealotRageUsed:false,brutalStrike:null,hunterPrey:null,hunterDefense:null,divIntUsed:false,divPunish:{used:false},palLayHands:null,arcaneRecovUsed:false,clockworkEquil:{used:0},lastWildSurge:null,
     secondWind:{used:0},actionSurge:{used:0},maneuvers:[],superiorityDice:{used:0},psiDice:{used:0},
     ki:{used:0},bardicInsp:{used:0},channelDiv:{used:0},
-    divOrder:null,blessedStrikes:null,
-    wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,
+    divOrder:null,blessedStrikes:null,taumaturgoBonusSkill:null,
+    wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,starDartUsed:0,
     nemesisMark:{used:0},
     sorcPoints:{used:0},metamagicChoices:[],draconicAncestor:null,innateUsed:0,
     divinatorPresage:[null,null],spellbookSpells:[],beastCompanion:null,
@@ -5231,8 +5523,17 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
     html += '<div style="'+boxS+'">';
     html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">⚙️ '+(isIt?'Ordine Divino (Lv.1)':'Divine Order (Lv.1)')+'</div>';
     html += radioRow('protettore','🛡️ Protettore','Competenza in tutte le armature, Armi da Guerra',C.divOrder,'C.divOrder=(C.divOrder===\'protettore\'?null:\'protettore\');re()');
-    html += radioRow('taumaturgo','📜 Taumaturgo','Maestria in Arcano o Religione; +1 trucchetto da chierico',C.divOrder,'C.divOrder=(C.divOrder===\'taumaturgo\'?null:\'taumaturgo\');re()');
+    html += radioRow('taumaturgo','📜 Taumaturgo','+1 trucchetto da chierico; bonus a prove INT (Arcano o Religione) = mod.SAG (min +1)',C.divOrder,'C.divOrder=(C.divOrder===\'taumaturgo\'?null:\'taumaturgo\');re()');
     html += '</div>';
+    // Taumaturgo: scelta expertise
+    if(C.divOrder==='taumaturgo'){
+      html += '<div style="'+boxS+'">';
+      html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">📖 Abilità bonus (Taumaturgo)</div>';
+      html += selBtn('Arcano', C.taumaturgoBonusSkill==='Arcana', 'C.taumaturgoBonusSkill=\'Arcana\';re()');
+      html += selBtn('Religione', C.taumaturgoBonusSkill==='Religion', 'C.taumaturgoBonusSkill=\'Religion\';re()');
+      html += '<div style="font-size:10px;color:var(--vdim);margin-top:5px">Bonus = mod. SAG (min +1) alle prove di questa abilità</div>';
+      html += '</div>';
+    }
     if(lv>=7){
       html += '<div style="'+boxS+'">';
       html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">⚡ '+(isIt?'Colpi Benedetti (Lv.7)':'Blessed Strikes (Lv.7)')+'</div>';
@@ -5246,7 +5547,7 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
   if(cls==='druid'){
     html += '<div style="'+boxS+'">';
     html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🌿 '+(isIt?'Ordine Primordiale (Lv.1)':'Primal Order (Lv.1)')+'</div>';
-    html += radioRow('custode','🛡️ Custode','Competenza nelle armature medie e scudi',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'custode\'?null:\'custode\');re()');
+    html += radioRow('custode','🛡️ Custode','Competenza nelle armature pesanti e nelle armi da guerra',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'custode\'?null:\'custode\');re()');
     html += radioRow('mago','📚 Mago','Maestria in Arcano o Natura; +1 trucchetto da druido',C.primordialOrder,'C.primordialOrder=(C.primordialOrder===\'mago\'?null:\'mago\');re()');
     html += '</div>';
     if(lv>=7){
@@ -5527,10 +5828,13 @@ function fMasteryCount(cls, lv){
 
 // ─── Grant automatici dalla sottoclasse (no scelta) ────────────────────────
 function fSubclassGrantsProfs(cls, sc){
-  // Restituisce {armorExtra:[], weaponExtra:'', toolExtra:''} aggiunte automaticamente
   const r={armorExtra:[],weaponExtra:'',toolExtra:''};
   if(cls==='bard'    && sc==='valore')  { r.armorExtra=['Armature medie','Scudi']; r.weaponExtra='Armi da guerra'; }
   if(cls==='monk'    && sc==='mercy')   { r.toolExtra='Borsa da erborista'; }
+  // Chierico Ordine Protettore (Lv.1): armature pesanti + armi da guerra
+  if(cls==='cleric'  && C.divOrder==='protettore') { r.armorExtra=['Armature pesanti']; r.weaponExtra='Armi da guerra'; }
+  // Druido Ordine Primordiale Custode (Lv.1): armature pesanti + armi da guerra
+  if(cls==='druid' && C.primordialOrder==='custode') { r.armorExtra=['Armature pesanti']; r.weaponExtra='Armi da guerra'; }
   return r;
 }
 
@@ -5560,11 +5864,13 @@ function fRS2(){
   const mc  = fMasteryCount(C.cls, lv);
   const ec  = cl.expertiseCount||0;
   const ec2 = fExtraExpertiseCount(C.cls, lv);
-  const scSkCount = (C.cls==='bard' && sc==='sapienza' && lv>=3) ? 3 : 0;
+  const scSkCount = (C.cls==='bard' && sc==='sapienza' && lv>=3) ? 3 :
+                    (C.cls==='fighter' && sc==='maestro-battaglia' && lv>=3) ? 1 : 0;
+  const scToolCount = (C.cls==='fighter' && sc==='maestro-battaglia' && lv>=3) ? 1 : 0;
   const wizSch = (C.cls==='wizard' && lv>=2);
   const autoSk   = fSubclassAutoSkills(C.cls, sc, lv);
   const autoProf = fSubclassGrantsProfs(C.cls, sc);
-  const hasAnything = mc>0 || ec>0 || ec2>0 || scSkCount>0 || wizSch || autoSk.length>0 || autoProf.weaponExtra;
+  const hasAnything = mc>0 || ec>0 || ec2>0 || scSkCount>0 || scToolCount>0 || wizSch || autoSk.length>0 || autoProf.weaponExtra;
 
   if(!hasAnything){
     // Skip step automatically — passa direttamente al Background (step 5)
@@ -5789,7 +6095,27 @@ function fRS2(){
     html+='</div></div>';
   }
 
-  // ── GRANT AUTOMATICI SOTTOCLASSE (info senza scelta)
+  // ── MAESTRO DI BATTAGLIA: Studioso di Guerra — 1 strumento artigiano + 1 abilità
+  if(scToolCount>0){
+    const mbTools=(C.featTools||[]).filter(t=>t.uid==='mb-studioso').map(t=>t.tool||t);
+    html+=`<div class="panel">
+      <div class="sec-title">🔨 ${isIt?'Studioso di Guerra (Lv.3) — Strumento':'War Scholar (Lv.3) — Tool'}</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">
+        ${isIt?'Scegli <strong style="color:var(--gold)">1</strong> strumento da artigiano.':'Choose <strong style="color:var(--gold)">1</strong> artisan\'s tool.'}
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${TOOLS_DATA.artigiano.map(t=>{
+          const sel=mbTools.includes(t.id);
+          const dis=!sel&&mbTools.length>=1;
+          return `<span onclick="${dis?'':`fAddFeatTool('mb-studioso','${t.id}')`}"
+            style="font-size:10px;padding:3px 8px;border:1px solid ${sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)'};
+            background:${sel?'rgba(150,120,60,.2)':'transparent'};color:${sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)'};
+            border-radius:3px;cursor:${dis?'not-allowed':'pointer'};opacity:${dis?.4:1}"
+            title="${t.desc}">${isIt?t.it:t.en}</span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }
   if(autoProf.weaponExtra || autoProf.armorExtra.length || autoProf.toolExtra || autoSk.length){
     html+=`<div class="panel" style="border-left:2px solid var(--gold2)">
       <div class="sec-title">🎁 ${isIt?'Competenze da Sottoclasse (automatiche)':'Subclass Proficiencies (automatic)'}</div>`;
@@ -5923,11 +6249,11 @@ function fBuildClassResourcesPrint(){
   if(cl==='fighter'){
     lines.push('RECUPERARE ENERGIE: '+fMaxSecondWind(lv)+' usi/riposo breve · 1d10+Lv PF');
     lines.push('AZIONE IMPETUOSA: '+fMaxActionSurge(lv)+' uso/riposo breve');
-    if(sc==='battlemaster'){
+    if(sc==='maestro-battaglia'){
       lines.push('SUPERIORITÀ: '+fSuperiorityDiceTotal(lv)+'× '+fSuperiorityDiceType(lv)+'/riposo breve');
       lines.push('Manovre: '+(C.maneuvers||[]).join(', ')||'—');
     }
-    if(sc==='psi_warrior'){
+    if(sc==='guerriero-psionico'){
       var pd=lv>=17?12:lv>=13?10:lv>=11?8:lv>=9?8:lv>=5?6:4;
       lines.push('ENERGIA PSIONICA: '+(lv>=17?'d12':lv>=11?'d10':lv>=5?'d8':'d6')+'×'+pd);
     }
@@ -7384,6 +7710,30 @@ function fRSheet(){
           <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armature':'Armor'}</span><span style="color:var(--gold);font-size:12px">${armorDisp2}</span></div>
           <div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Armi':'Weapons'}</span><span style="color:var(--gold);font-size:12px">${weaponDisp2}</span></div>
           ${toolFinal2!=='—'?`<div class="sheet-row"><span style="color:var(--muted);font-size:11px">${isIt?'Strumenti':'Tools'}</span><span style="color:var(--gold);font-size:12px">${toolFinal2}</span></div>`:''}</div>`;
+
+        // ── BLOCCO STRUMENTI STRUTTURATO ─────────────────────────────────
+        const allToolProfs2=fGetAllToolProfs();
+        const profTools2=ALL_TOOLS.filter(t=>fHasToolProf(t.id));
+        if(profTools2.length>0){
+          const pb2=fpb(C.level||1);
+          html+=`<div class="box"><div class="box-title">🔧 ${isIt?'Competenze negli Strumenti':'Tool Proficiencies'}</div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:4px">`;
+          profTools2.forEach(t=>{
+            const statMod=fcmod(fTotalStat(t.stat));
+            const total=statMod+pb2;
+            const totalStr=(total>=0?'+':'')+total;
+            const statStr=(statMod>=0?'+':'')+statMod;
+            html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 7px;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.15);border-radius:3px">
+              <span style="font-size:14px;font-weight:700;color:var(--gold);min-width:36px;text-align:center">${totalStr}</span>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:11px;font-weight:600;color:var(--text)">${isIt?t.it:t.en}</div>
+                <div style="font-size:9px;color:var(--vdim)">${t.stat} ${statStr} + comp. ${pb2>=0?'+':''}${pb2}</div>
+              </div>
+              <div style="font-size:9px;color:var(--vdim);max-width:100px;text-align:right;line-height:1.3">${t.desc.split('.')[0]}</div>
+            </div>`;
+          });
+          html+=`</div></div>`;
+        }
         // Padronanza armi — scheda finale
         if(hasW){
           const propColors = {
@@ -7624,12 +7974,8 @@ const ALWAYS_PREPARED_SUBCLASS = {
       7: ["Fonte di luce lunare"],
       9: ["Cura ferite di massa"],
     },
-    terra: {
-      3: ["Passo velato", "Sonno", "Stretta folgorante"],
-      5: ["Fulmine"],
-      7: ["Libertà di movimento"],
-      9: ["Traslazione arborea"],
-    },
+    // Terra: incantesimi dipendono dal tipo scelto — gestiti dinamicamente in fGetAlwaysPrepared
+    terra: {},
     mare: {
       3: ["Nube di nebbia", "Folata di vento", "Raggio di gelo", "Frantumare", "Onda tonante"],
       5: ["Fulmine", "Respirare sott'acqua"],
@@ -7830,8 +8176,8 @@ function fPreparedFormula(){
   const lv = C.level||1;
   switch(C.cls){
     case 'wizard':  return (isIt?'Da tabella':'From table')+' = '+fWizardMaxPrepared();
-    case 'cleric':  return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
-    case 'druid':   return (isIt?'SAG':'WIS')+'+Lv = '+(lv+fcmod(fTotalStat('WIS')));
+    case 'cleric':
+    case 'druid':   return (isIt?'Da tabella PHB 2024':'PHB 2024 table')+' = '+(SPELLS_KNOWN_TABLE[C.cls]?.[lv-1]||0);
     case 'paladin': return (isIt?'CAR':'CHA')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('CHA')));
     case 'ranger':  return (isIt?'SAG':'WIS')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('WIS')));
     default: return '';
@@ -7872,6 +8218,8 @@ function fGetCastingStat(){ return CAST_STAT_MAP[C.cls] || 'INT'; }
 function fGetAlwaysPrepared(){
   const result = [];
   const lv = C.level || 1;
+
+  // Incantesimi di sottoclasse dalla mappa statica
   const scMap = ALWAYS_PREPARED_SUBCLASS[C.cls]?.[C.subclass];
   if(scMap){
     for(const [reqLv,spells] of Object.entries(scMap)){
@@ -7879,6 +8227,45 @@ function fGetAlwaysPrepared(){
         spells.forEach(nome=>result.push({nome,fonte:'subclass',reqLv:parseInt(reqLv)}));
     }
   }
+
+  // Circolo della Terra (druido): incantesimi dipendono dal tipo di terra scelto
+  if(C.cls==='druid' && C.subclass==='terra' && C.circleTerrainType){
+    const TERRA_SPELLS = {
+      arida: {
+        3: ["Dardo di fuoco","Mani brucianti","Sfocatura"],
+        5: ["Palla di fuoco"],
+        7: ["Inaridire"],
+        9: ["Muro di pietra"],
+      },
+      polare: {
+        3: ["Blocca persone","Nube di nebbia","Raggio di gelo"],
+        5: ["Tempesta di nevischio"],
+        7: ["Tempesta di ghiaccio"],
+        9: ["Cono di freddo"],
+      },
+      temperata: {
+        3: ["Passo velato","Sonno","Stretta folgorante"],
+        5: ["Fulmine"],
+        7: ["Libertà di movimento"],
+        9: ["Traslazione arborea"],
+      },
+      tropicale: {
+        3: ["Fiotto acido","Raggio di infermità","Ragnatela"],
+        5: ["Nube maleodorante"],
+        7: ["Metamorfosi"],
+        9: ["Piaga degli insetti"],
+      },
+    };
+    const tMap = TERRA_SPELLS[C.circleTerrainType];
+    if(tMap){
+      for(const [reqLv,spells] of Object.entries(tMap)){
+        if(lv>=parseInt(reqLv))
+          spells.forEach(nome=>result.push({nome,fonte:'subclass',reqLv:parseInt(reqLv)}));
+      }
+    }
+  }
+
+  // Incantesimi da specie
   const spMap = ALWAYS_PREPARED_SPECIES[C.species];
   if(spMap){
     const key = C.subrace && spMap[C.subrace] ? C.subrace : (spMap['null']?'null':null);
@@ -8559,6 +8946,17 @@ function fAddFeatSkill(uid, skillEn){
 }
 
 // Render UI for a feat's required choices (after it's been added)
+function fAddFeatTool(uid, toolId){
+  if(!C.featTools) C.featTools = [];
+  const existing = C.featTools.find(t => t.uid === uid && (t.tool||t) === toolId);
+  if(existing){
+    C.featTools = C.featTools.filter(t => !(t.uid === uid && (t.tool||t) === toolId));
+  } else {
+    C.featTools.push({ uid, tool: toolId });
+  }
+  re();
+}
+
 function fRFeatChoices(feat){
   const meta = FEAT_METADATA[feat.id];
   if(!meta) return '';
@@ -8668,28 +9066,68 @@ function fRFeatChoices(feat){
   }
   
   // Skill choice (Abile, Skilled)
-  if(meta.grants?.skillsOrTools || meta.grants?.skills){
-    const max = meta.grants.skillsOrTools || meta.grants.skills;
-    const allProfs = fGetAllSkillProfs();
-    const featSkillsForThisUid = (C.featSkills||[]).filter(s => s.uid === feat.uid).map(s => s.skill);
-    const remainingForThisFeat = max - featSkillsForThisUid.length;
-    html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
-      <div style="font-size:10px;color:var(--gold2);margin-bottom:4px">${isIt?'Abilità':'Skills'} (${featSkillsForThisUid.length}/${max})</div>
-      <div style="display:flex;flex-wrap:wrap;gap:3px">
-        ${FSKL.map(sk => {
-          const sel = featSkillsForThisUid.includes(sk.en);
-          const alreadyProf = !sel && allProfs.includes(sk.en);
-          const disabled = alreadyProf || (!sel && featSkillsForThisUid.length >= max);
-          return `<span onclick="${disabled?'':`fAddFeatSkill('${feat.uid}','${sk.en}')`}"
-            style="font-size:10px;padding:2px 6px;border:1px solid ${sel?'var(--gold)':disabled?'var(--vdim)':'var(--border2)'};
-            background:${sel?'rgba(200,164,90,.2)':'transparent'};color:${sel?'var(--gold)':disabled?'var(--vdim)':'var(--text)'};
-            border-radius:2px;cursor:${disabled?'not-allowed':'pointer'};opacity:${disabled?'.4':'1'}"
-            title="${alreadyProf?(isIt?'Già competente':'Already proficient'):''}">${isIt?sk.it:sk.en}</span>`;
-        }).join('')}
-      </div>
-    </div>`;
+  if(meta.grants?.skillsOrTools || meta.grants?.skills || meta.grants?.tools){
+    const maxSkTool = meta.grants?.skillsOrTools || 0;
+    const maxSk     = meta.grants?.skills || 0;
+    const allProfs  = fGetAllSkillProfs();
+    const featSkillsForUid = (C.featSkills||[]).filter(s=>s.uid===feat.uid).map(s=>s.skill);
+    const featToolsForUid  = (C.featTools||[]).filter(t=>t.uid===feat.uid).map(t=>t.tool||t);
+
+    if(maxSkTool > 0){
+      const totalChosen = featSkillsForUid.length + featToolsForUid.length;
+      html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+        <div style="font-size:10px;color:var(--gold2);margin-bottom:6px">${isIt?'Abilità o Strumenti':'Skills or Tools'} (${totalChosen}/${maxSkTool})</div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">${isIt?'Abilità:':'Skills:'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px">
+          ${FSKL.map(sk=>{const sel=featSkillsForUid.includes(sk.en);const already=!sel&&allProfs.includes(sk.en);const dis=already||(!sel&&totalChosen>=maxSkTool);
+            return '<span onclick="'+( dis?'':"fAddFeatSkill('"+feat.uid+"','"+sk.en+"')" )+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(200,164,90,.2)':'transparent')+';color:'+(sel?'var(--gold)':dis?'var(--vdim)':'var(--text)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+(already?(isIt?'Già competente':'Already proficient'):'')+'">'+(isIt?sk.it:sk.en)+'</span>';
+          }).join('')}
+        </div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:4px">${isIt?'Strumenti:':'Tools:'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${ALL_TOOLS.map(t=>{const sel=featToolsForUid.includes(t.id);const already=!sel&&fHasToolProf(t.id);const dis=already||(!sel&&totalChosen>=maxSkTool);
+            return '<span onclick="'+(dis?'':"fAddFeatTool('"+feat.uid+"','"+t.id+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(150,120,60,.2)':'transparent')+';color:'+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+t.desc+'">'+(isIt?t.it:t.en)+'</span>';
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    if(meta.grants?.tools==='artigiano'){
+      const pool=TOOLS_DATA.artigiano;
+      html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+        <div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🔨 ${isIt?'Strumenti da artigiano (3)':'Artisan Tools (3)'} (${featToolsForUid.length}/3)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${pool.map(t=>{const sel=featToolsForUid.includes(t.id);const already=!sel&&fHasToolProf(t.id);const dis=already||(!sel&&featToolsForUid.length>=3);
+            return '<span onclick="'+(dis?'':"fAddFeatTool('"+feat.uid+"','"+t.id+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(150,120,60,.2)':'transparent')+';color:'+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+t.desc+'">'+(isIt?t.it:t.en)+'</span>';
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    if(meta.grants?.tools==='musicale'){
+      const pool=TOOLS_DATA.musicale;
+      html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+        <div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🎵 ${isIt?'Strumenti musicali (3)':'Musical Instruments (3)'} (${featToolsForUid.length}/3)</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${pool.map(t=>{const sel=featToolsForUid.includes(t.id);const already=!sel&&fHasToolProf(t.id);const dis=already||(!sel&&featToolsForUid.length>=3);
+            return '<span onclick="'+(dis?'':"fAddFeatTool('"+feat.uid+"','"+t.id+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(150,120,60,.2)':'transparent')+';color:'+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+t.desc+'">'+(isIt?t.it:t.en)+'</span>';
+          }).join('')}
+        </div>
+      </div>`;
+    }
+
+    if(maxSk > 0 && !maxSkTool){
+      html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+        <div style="font-size:10px;color:var(--gold2);margin-bottom:4px">${isIt?'Abilità':'Skills'} (${featSkillsForUid.length}/${maxSk})</div>
+        <div style="display:flex;flex-wrap:wrap;gap:3px">
+          ${FSKL.map(sk=>{const sel=featSkillsForUid.includes(sk.en);const already=!sel&&allProfs.includes(sk.en);const dis=already||(!sel&&featSkillsForUid.length>=maxSk);
+            return '<span onclick="'+(dis?'':"fAddFeatSkill('"+feat.uid+"','"+sk.en+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(200,164,90,.2)':'transparent')+';color:'+(sel?'var(--gold)':dis?'var(--vdim)':'var(--text)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'">'+(isIt?sk.it:sk.en)+'</span>';
+          }).join('')}
+        </div>
+      </div>`;
+    }
   }
-  
+
   return html;
 }
 
@@ -8714,7 +9152,8 @@ function fGoBack(){
       const wizSch=(C.cls==='wizard'&&lv>=2);
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=3;
+      const scTool2=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool2===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=3;
     }
   }
   re();
@@ -8732,7 +9171,8 @@ function fGoNext(){
       const wizSch=(C.cls==='wizard'&&lv>=2);
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=5;
+      const scTool3=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool3===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=5;
     }
     if(step>=FNSTEPS-1){screen='sheet';}
   } else {
@@ -9484,7 +9924,12 @@ function fGetMasteryWeapons(clsId){
   return WEAPONS_MASTERY;
 }
 
-// Helper: check if a skill has expertise (da tutte le sorgenti)
+// Helper: bonus Taumaturgo (mod.SAG min +1) per Arcano o Religione
+function fTaumaturgBonus(skillEn){
+  if(C.cls!=='cleric' || C.divOrder!=='taumaturgo') return 0;
+  if(!C.taumaturgoBonusSkill || C.taumaturgoBonusSkill!==skillEn) return 0;
+  return Math.max(1, fcmod(fTotalStat('WIS')));
+}
 function fHasExpertise(skillEn){
   if((C.expertiseSkills||[]).includes(skillEn)) return true;
   if((C.expertiseSkills2||[]).includes(skillEn)) return true;
@@ -9498,11 +9943,12 @@ function fSkillMod(skillEn, statKey){
   const pb=fpb(C.level);
   const bgSk=fgBg()?fgBg().skillsEn.split(' and ').map(s=>s.trim()):[];
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
-  const isProf=allProfs.some(p=>p.trim()===skillEn);
+  const isProf=allProfs.some(p=>p.trim()===skillEn)||fGetAllSkillProfs().includes(skillEn);
   const isExp=fHasExpertise(skillEn);
-  if(isExp) return base+pb*2;
-  if(isProf) return base+pb;
-  return base;
+  const taumBonus=fTaumaturgBonus(skillEn);
+  if(isExp) return base+pb*2+taumBonus;
+  if(isProf) return base+pb+taumBonus;
+  return base+taumBonus;
 }
 
 // ═══════════════════════════════════════
