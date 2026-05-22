@@ -1119,6 +1119,30 @@ function setLang(l){
 const FSTAT_MAP_IT = {FOR:"STR",DES:"DEX",COS:"CON",INT:"INT",SAG:"WIS",CAR:"CHA"};
 const FSTAT_MAP_EN = {STR:"STR",DEX:"DEX",CON:"CON",INT:"INT",WIS:"WIS",CHA:"CHA"};
 
+// Abbreviazioni caratteristiche per lingua
+const FSAB_IT = {STR:"FOR", DEX:"DES", CON:"COS", INT:"INT", WIS:"SAG", CHA:"CAR"};
+const FSAB_EN = {STR:"STR", DEX:"DEX", CON:"CON", INT:"INT", WIS:"WIS", CHA:"CHA"};
+
+// Helper: restituisce l'abbreviazione localizzata di una caratteristica (chiave EN interna)
+function fSA(enKey){ return (lang==='it' ? FSAB_IT : FSAB_EN)[enKey] || enKey; }
+
+// Helper: localizza le abbreviazioni in una stringa di descrizione
+// Accetta sia abbr. IT (FOR/DES/COS/SAG/CAR) che EN (STR/DEX/CON/WIS/CHA)
+function fLocalizeStatAbbr(text){
+  if(!text) return text;
+  if(lang==='it'){
+    // EN → IT
+    return text
+      .replace(/\bSTR\b/g,'FOR').replace(/\bDEX\b/g,'DES').replace(/\bCON\b/g,'COS')
+      .replace(/\bWIS\b/g,'SAG').replace(/\bCHA\b/g,'CAR');
+  } else {
+    // IT → EN
+    return text
+      .replace(/\bFOR\b/g,'STR').replace(/\bDES\b/g,'DEX').replace(/\bCOS\b/g,'CON')
+      .replace(/\bSAG\b/g,'WIS').replace(/\bCAR\b/g,'CHA');
+  }
+}
+
 // ── Abilità per classe (PHB 5e 2024) — nome skill EN = chiave di FSKL ────
 const CLASS_SKILLS = {
   barbarian: { count:2, any:false, skills:['Animal Handling','Athletics','Intimidation','Nature','Perception','Survival'] },
@@ -1600,22 +1624,22 @@ bard: [
     desc:"Sceglie il suo Collegio Bardico (Danza, Fascino, Sapienza, Valore). Il Collegio determina le facoltà aggiuntive ai Lv.3, 6, 14." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
-  { lv:5,  it:"Ispirazione Bardica d8 e Recupero",
-    desc:"Il dado di Ispirazione Bardica diventa d8. I dadi di Ispirazione spesi si recuperano anche con un riposo breve (oltre che lungo)." },
+  { lv:5,  it:"Fonte di Ispirazione",
+    desc:"Il dado di Ispirazione Bardica diventa d8. Recupera tutti gli utilizzi spesi di Ispirazione Bardica quando completa un riposo breve o lungo. Inoltre, può spendere uno slot incantesimo (nessuna azione richiesta) per recuperare un utilizzo speso di Ispirazione Bardica." },
   { lv:7,  it:"Controfascino",
-    desc:"Come azione, inizia una performance che dura finché mantiene la concentrazione (max 1 minuto). Durante la performance, ogni creatura ostile entro 9 m che tenta di lanciare un incantesimo deve superare un TS su CAR (CD incantesimi) o spende lo slot senza effetto." },
+    desc:"Reazione: se il bardo o una creatura entro 9 m fallisce un tiro salvezza contro un effetto che applica la condizione affascinato o spaventato, il bardo può far sì che il tiro venga ripetuto e che il nuovo tiro disponga di vantaggio." },
   { lv:10, it:"Segreti Magici Aggiuntivi e Ispirazione d10",
     desc:"Apprende altri 2 incantesimi da qualsiasi lista. Il dado di Ispirazione Bardica diventa d10." },
   { lv:14, it:"Segreti Magici Aggiuntivi",
     desc:"Apprende altri 2 incantesimi da qualsiasi lista. Ottiene anche il privilegio di sottoclasse di 14° livello." },
   { lv:15, it:"Ispirazione Bardica d12",
     desc:"Il dado di Ispirazione Bardica diventa d12." },
-  { lv:17, it:"Ispirazione Superiore",
-    desc:"Quando tira l'iniziativa e non ha dadi di Ispirazione Bardica rimasti, ne recupera un numero pari al modificatore di CAR (minimo 1)." },
+  { lv:18, it:"Ispirazione Superiore",
+    desc:"Quando tira per l'iniziativa, se ha meno di 2 utilizzi di Ispirazione Bardica, li recupera fin\u00f2 ad averne 2." },
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
-  { lv:20, it:"Parole di Creazione",
-    desc:"Padroneggia le Parole della Creazione. Può lanciare Desiderio senza consumare uno slot incantesimo. Non può usarlo di nuovo finché non completa un riposo lungo." },
+  { lv:20, it:"Parole della Creazione",
+    desc:"Padroneggia le Parole della Creazione: parola del potere guarire e parola del potere uccidere sono sempre considerate preparate. Quando lancia uno dei due incantesimi, il bardo può bersagliare una seconda creatura se questa si trova entro 3 metri dal primo bersaglio." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -1774,7 +1798,7 @@ monk: [
 // ──────────────────────────────────────────────────────────────────
 paladin: [
   { lv:1,  it:"Imposizione delle Mani",
-    desc:"Riserva di PF = 5× livello da paladino. Come azione, tocca una creatura per farle recuperare PF fino al totale della riserva, oppure spende 5 PF per curare una malattia o neutralizzare un veleno. Recupero: riposo lungo." },
+    desc:"Riserva di PF = 5× livello da paladino. Come azione bonus, tocca una creatura per farle recuperare PF dalla riserva, fino all'ammontare massimo disponibile. Oppure: consuma 5 PF dalla riserva per curare un veleno (i PF consumati non ripristinano PF). Recupero: riposo lungo." },
   { lv:1,  it:"Incantesimi",
     desc:"Caratteristica da incantatore: Carisma. Prepara incantesimi pari a metà livello (arrotondato per eccesso) + mod. CAR (min 1). Apprende 2 trucchetti da chierico (Guerriero Benedetto). Ottiene slot da mezzi-incantatori." },
   { lv:1,  it:"Padronanza d'Armi",
@@ -1792,17 +1816,17 @@ paladin: [
   { lv:5,  it:"Attacco Extra",
     desc:"Può effettuare due attacchi (invece di uno) quando esegue l'azione Attacco." },
   { lv:5,  it:"Fido Destriero",
-    desc:"Può sempre lanciare trova destriero senza componenti e senza spendere uno slot incantesimo." },
+    desc:"L'incantesimo trova cavalcatura è sempre considerato preparato. Può lanciarlo una volta senza consumare uno slot incantesimo; recupera l'utilizzo dopo un riposo lungo." },
   { lv:6,  it:"Aura di Protezione",
-    desc:"Finché è cosciente, lui e le creature amiche entro 3 m aggiungono il suo mod. CAR (min +1) a tutti i TS. Un personaggio può beneficiare di una sola Aura di Protezione alla volta. L'aura si estende a 9 m al Lv.18." },
+    desc:"L'aura è inattiva quando è incapacitato. Lui e le creature amiche entro 3 m aggiungono il suo mod. CAR (min +1) a tutti i TS. Un personaggio può beneficiare di una sola Aura di Protezione alla volta. L'aura si estende a 9 m al Lv.18." },
   { lv:9,  it:"Abiurare Nemici",
-    desc:"Come azione di Magia, sceglie una creatura entro 18 m e la bandisce. Deve superare un TS su CAR (CD incantesimi) o è terrorizzata dal paladino per 1 minuto. Può ripetere il TS alla fine di ogni turno." },
+    desc:"Azione di Magia: consuma 1 uso di Incanalare Divinità. Prende di mira un numero di creature entro 18 m pari al suo mod. CAR (min 1). Ognuna supera un TS su SAG (CD incantesimi) o è spaventata per 1 minuto, e nel proprio turno può svolgere solo una tra: muoversi, un'azione o un'azione bonus. Il privilegio termina se riutilizzato. Trasferimento se creatura scende a 0 PF (nessuna azione)." },
   { lv:10, it:"Aura di Coraggio",
-    desc:"Finché è cosciente, lui e le creature amiche entro 3 m non possono essere spaventati. L'aura si estende a 9 m al Lv.18." },
+    desc:"Lui e i suoi alleati sono immuni alla paura nell'Aura di Protezione. Se un alleato spaventato entra nel raggio d'influenza, non subirà più l'effetto della paura finché sarà al suo interno. L'aura si estende a 9 m al Lv.18." },
   { lv:11, it:"Colpi Radiosi",
-    desc:"Quando colpisce con un'arma, aggiunge 1d8 danni radiosi al colpo (con o senza Punizione del Paladino). Al Lv.11 l'Incanalare Divinità ha 3 usi." },
+    desc:"Quando colpisce con un'arma da mischia o un colpo senz'armi, aggiunge 1d8 danni radiosi. (L'Incanalare Divinità sale a 3 usi a questo livello.)" },
   { lv:14, it:"Tocco Rigenerante",
-    desc:"Come azione di Magia, tocca una creatura e termina una condizione di suo scelta tra: accecato, affascinato, indebolito, intossicato, paralizzato, spaventato. Usi: mod. CAR (min 1). Recupero: riposo lungo." },
+    desc:"Quando usa Imposizione delle Mani, può liberare la creatura da una delle seguenti condizioni: accecato, affascinato, assordato, paralizzato, spaventato o stordito. Per farlo, attinge 5 PF dalla riserva per ogni condizione rimossa (quei PF non ripristinano PF della creatura)." },
   { lv:18, it:"Ampliamento dell'Aura",
     desc:"Le Aure di Protezione e Coraggio si estendono ora a 9 m invece di 3 m." },
   { lv:19, it:"Dono Epico",
@@ -1855,48 +1879,45 @@ ranger: [
 // LADRO (tabella p.152 PHB 2024 IT)
 // ──────────────────────────────────────────────────────────────────
 rogue: [
-  { lv:1,  it:"Maestria",
-    desc:"Sceglie 2 competenze tra le sue abilità o gli arnesi da scasso. Raddoppia il bonus di competenza per esse. Ottiene altre 2 al Lv.6." },
   { lv:1,  it:"Attacco Furtivo",
-    desc:"Una volta per turno: quando colpisce con un'arma accurata o a distanza e ha vantaggio al tiro per colpire, oppure un alleato non incapacitato è entro 1,5 m dal bersaglio (senza svantaggio), infligge danni extra: 1d6 (Lv.1), +1d6 ogni 2 livelli successivi fino a 10d6 (Lv.19)." },
+    desc:"Una volta per turno: quando colpisce con un'arma accurata o a distanza e ha vantaggio al tiro (o un alleato non incapacitato è entro 1,5 m dal bersaglio senza svantaggio), infligge danni extra: 1d6 (Lv.1), +1d6 ogni 2 livelli fino a 10d6 (Lv.19)." },
   { lv:1,  it:"Gergo Ladresco",
-    desc:"Conosce il gergo ladresco: un mix di dialetto, gergo e codice segreto usato dai ladri." },
+    desc:"Conosce il Gergo Ladresco (lingua segreta dei ladri) e impara 1 lingua aggiuntiva a scelta." },
+  { lv:1,  it:"Maestria",
+    desc:"Sceglie 2 abilità (o arnesi da scasso) tra le competenze acquisite: il bonus di competenza viene raddoppiato per esse. Al Lv.6 sceglie altre 2." },
   { lv:1,  it:"Padronanza d'Armi",
-    desc:"Competenza nelle proprietà di padronanza per 2 tipi di arma a scelta. Può cambiarne una dopo ogni riposo lungo." },
+    desc:"Competenza nelle proprietà di padronanza per 2 tipi di arma a scelta (es. pugnali e archi corti). Può cambiarne uno dopo ogni riposo lungo." },
   { lv:2,  it:"Azione Scaltra",
-    desc:"Può effettuare come azione bonus: Scatto, Disimpegno o Nascondersi." },
+    desc:"Nel suo turno può effettuare come azione bonus: Scatto, Disimpegno o Nascondersi." },
+  { lv:3,  it:"Mira Ferma",
+    desc:"Azione bonus: ottiene vantaggio al prossimo tiro per colpire nel turno corrente. Può usarlo solo se non si è mosso durante il turno; dopo averlo usato la sua velocità è ridotta a 0 fino alla fine del turno." },
   { lv:3,  it:"Sottoclasse del Ladro",
     desc:"Sceglie la sottoclasse (Furfante, Assassino, Mistificatore Arcano, Lama Spirituale). Le facoltà si ottengono ai Lv.3, 9, 13, 17." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 10, 12, 16." },
   { lv:5,  it:"Colpo Astuto",
-    desc:"Quando infligge danni da Attacco Furtivo, può spendere dadi per aggiungere un effetto. Effetti: Inciampo (1d6, TS DES o prona), Ritirata rapida (1d6, si muove senza OA), Veleno (1d6, TS COS o avvelenato). CD = 8+DES+comp." },
+    desc:"Quando infligge danni da Attacco Furtivo, può spendere dadi di quel danno per aggiungere un effetto (il dado viene rimosso prima del tiro). CD = 8+DES+comp. Effetti: Inciampo (1d6: TS DES o creatura Grande/inferiore cade prona), Ritirata (1d6: si muove fino a metà velocità senza provocare OA), Veleno (1d6: TS COS o avvelenata per 1 min, TS ripetuto fine turno)." },
   { lv:5,  it:"Schivata Prodigiosa",
-    desc:"Quando un attaccante nel suo campo visivo lo colpisce, puÃ² usare la reazione per dimezzare i danni subiti (arrotondando per difetto)." },
+    desc:"Reazione: quando un attaccante nel suo campo visivo lo colpisce, dimezza i danni subiti (arrotondando per difetto)." },
+  { lv:6,  it:"Maestria (extra)",
+    desc:"Sceglie altre 2 competenze per la Maestria (raddoppia il bonus di competenza)." },
+  { lv:7,  it:"Dote Affidabile",
+    desc:"Quando effettua una prova di caratteristica che include il suo bonus di competenza, tratta un risultato di 9 o inferiore sul d20 come un 10." },
   { lv:7,  it:"Elusione",
-    desc:"TS su DES per effetti a metà danno: nessun danno se supera. Metà danno se fallisce (purché non incapacitato)." },
-  { lv:9,  it:"Privilegio della Sottoclasse",
-    desc:"Ottiene il secondo privilegio della sottoclasse scelta." },
-  { lv:10, it:"Aumento dei Punteggi di Caratteristica",
-    desc:"Ulteriore Incremento del Punteggio di Caratteristica o Talento (questo slot è specifico del ladro al Lv.10)." },
+    desc:"Quando è soggetto a un effetto che consente un TS su Destrezza per dimezzare i danni: non subisce alcun danno se lo supera, solo la metà se lo fallisce. Non funziona se è incapacitato." },
   { lv:11, it:"Colpo Astuto Migliorato",
-    desc:"Quando effettua una prova di abilità che include il suo bonus di competenza, tratta un risultato di 9 o inferiore sul d20 come un 10." },
-  { lv:13, it:"Privilegio della Sottoclasse",
-    desc:"Ottiene il terzo privilegio della sottoclasse scelta." },
+    desc:"Quando infligge danni da Attacco Furtivo, può usare fino a 2 effetti di Colpo Astuto (pagando il costo in dadi per ciascuno)." },
   { lv:14, it:"Colpi Infidi",
-    desc:"Percepisce la posizione di qualsiasi creatura nascosta o invisibile entro 3 m, purché non sia incapacitato e percepisca suoni." },
+    desc:"Aggiunge i seguenti 3 effetti alle opzioni di Colpo Astuto. Atterramento (6d6: TS COS o privo di sensi per 1 min o finché non subisce danni). Confusione (2d6: TS COS o nel turno successivo può solo muoversi, effettuare un'azione o un'azione bonus). Rabbuio (3d6: TS DES o accecato fino alla fine del suo turno successivo)." },
   { lv:15, it:"Mente Sfuggente",
-    desc:"Ha vantaggio ai TS su INT, SAG e CAR." },
-  { lv:17, it:"Privilegio della Sottoclasse",
-    desc:"Ottiene il quarto privilegio della sottoclasse scelta." },
+    desc:"Ottiene competenza nei tiri salvezza su Saggezza e Carisma." },
   { lv:18, it:"Inafferrabile",
-    desc:"Nessun tiro per colpire ha vantaggio contro di lui finché non è incapacitato." },
+    desc:"Nessun tiro per colpire può avere vantaggio contro il ladro, a meno che non sia incapacitato." },
   { lv:19, it:"Dono Epico",
-    desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
+    desc:"Ottiene un Dono Epico (vedi capitolo 5). Consigliato: Dono dello Spirito Notturno." },
   { lv:20, it:"Colpo di Fortuna",
-    desc:"Quando colpisce con un'arma, può far sì che il bersaglio superi un TS su COS (CD = 8 + bonus comp. + mod. DES) o scenda a 0 PF. 1/riposo lungo." },
+    desc:"Quando fallisce una prova con d20, può trasformare il risultato in un 20. 1/riposo breve o lungo." },
 ],
-
 // ──────────────────────────────────────────────────────────────────
 // STREGONE (tabella p.158 PHB 2024 IT)
 // ──────────────────────────────────────────────────────────────────
@@ -1958,31 +1979,25 @@ warlock: [
 // ──────────────────────────────────────────────────────────────────
 wizard: [
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Intelligenza. Conosce 3 trucchetti (4 al Lv.4, 5 al Lv.10). Inizia con un libro degli incantesimi con 6 incantesimi di 1° livello. Prepara incantesimi pari al livello + mod. INT (min 1). Può copiare nuovi incantesimi nel libro." },
+    desc:"Caratteristica da incantatore: Intelligenza. Trucchetti: 3 (Lv.1-3), 4 (Lv.4), 5 (Lv.10). Libro degli incantesimi con 6 incantesimi di 1° livello. Incantesimi preparati: dalla tabella PHB 2024 (Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→25) — non usa la formula livello+INT. Può copiare nuovi incantesimi nel libro (2 ore + 50 mo per livello)." },
   { lv:1,  it:"Adepto dei Rituali",
-    desc:"Può lanciare come Rituale qualsiasi incantesimo con la proprietà Rituale presente nel libro degli incantesimi, anche se non è preparato." },
+    desc:"Può lanciare come Rituale qualsiasi incantesimo con il descrittore Rituale presente nel libro degli incantesimi, anche se non è preparato (deve poterlo leggere)." },
   { lv:1,  it:"Recupero Arcano",
-    desc:"Una volta per giorno durante un riposo breve: recupera slot incantesimo esauriti per un totale di livelli ≤ metà del livello mago (arr. per eccesso). Nessuno slot di 6° o superiore." },
-  { lv:3,  it:"Sottoclasse del Mago",
-    desc:"Sceglie la Tradizione Arcana (Abiurazione, Divinazione, Illusione, Evocazione). Le facoltà si ottengono ai Lv.6, 10, 14." },
+    desc:"Una volta per giorno durante un riposo breve: recupera slot incantesimo esauriti per un totale di livelli ≤ metà del livello mago (arr. per eccesso). Nessuno slot di 6° livello o superiore. Dopo l'utilizzo: 1/riposo lungo." },
   { lv:2,  it:"Studioso",
-    desc:"Sceglie 2 abilità tra Arcano, Indagare, Medicina, Natura, Religione, Storia. Ottiene la Maestria in quelle abilità. Impara 2 lingue aggiuntive." },
+    desc:"Sceglie 1 abilità tra Arcano, Indagare, Intuizione, Medicina, Natura, Religione o Storia: ottiene Maestria in quell'abilità (se già competente). Impara 2 lingue aggiuntive." },
+  { lv:3,  it:"Sottoclasse del Mago",
+    desc:"Sceglie la Tradizione Arcana: Abiuratore, Divinatore, Invocatore o Illusionista. Le facoltà si ottengono ai Lv.6, 10, 14." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
   { lv:5,  it:"Memorizzare Incantesimi",
-    desc:"Quando completa un riposo lungo, può sostituire un incantesimo dalla lista con un altro del libro degli incantesimi di livello per cui possiede slot." },
-  { lv:6,  it:"Tradizione Arcana — Facoltà 2",
-    desc:"Ottiene la seconda facoltà della Tradizione Arcana scelta." },
-  { lv:10, it:"Tradizione Arcana — Facoltà 3",
-    desc:"Ottiene la terza facoltà della Tradizione Arcana scelta." },
-  { lv:14, it:"Tradizione Arcana — Facoltà 4",
-    desc:"Ottiene la quarta e ultima facoltà della Tradizione Arcana scelta." },
+    desc:"Quando completa un riposo breve, può studiare il libro e sostituire 1 incantesimo preparato con un altro del libro di 1° livello o superiore. 1/riposo breve." },
   { lv:18, it:"Maestria negli Incantesimi",
-    desc:"Sceglie 1 incantesimo di 1° livello e 1 di 2° livello dal libro. Può lanciarli al livello minimo senza spendere slot. Recupero: riposo breve o lungo (ciascuno)." },
+    desc:"Scegli 1 incantesimo di 1° livello e 1 di 2° livello dal libro degli incantesimi con tempo di lancio di un'azione. Sono sempre preparati e puoi lanciarli al loro livello minimo senza spendere uno slot. Recupero di ciascuno: riposo breve o lungo." },
   { lv:19, it:"Dono Epico",
-    desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
+    desc:"Ottiene un Dono Epico (vedi capitolo 5). Consigliato: Dono del Richiamo degli Incantesimi." },
   { lv:20, it:"Incantesimi Personali",
-    desc:"Sceglie 2 incantesimi di 3° livello o inferiore dal libro. Questi sono sempre preparati e può lanciarli a 3° livello senza spendere uno slot. Recupero: riposo breve o lungo (ciascuno)." },
+    desc:"Scegli 2 incantesimi di 3° livello contenuti nel libro degli incantesimi come tuoi incantesimi personali. Sono sempre preparati e puoi lanciarli a 3° livello senza spendere uno slot 1 volta ciascuno. Recupero: riposo breve o lungo. Per livelli superiori, devi spendere uno slot." },
 ],
 
 }; // fine CLASS_FEATURES
@@ -2020,15 +2035,15 @@ const SUBCLASS_FEATURES = {
 
 // ══ BARDO ════════════════════════════════════════════════════════
 "danza": [
-  { lv:3,  it:"Scarto Smagliante", desc:"Senza armatura o scudo ottieni: vantaggio su prove di Intrattenere (danza), CA = 10+DES+CAR, Colpi scattanti (colpo senz'armi come parte dell'azione bonus quando spendi Ispirazione Bardica), Danno bardico (usa DES per tiro; infligge 1d+DES contundenti anziché danni normali senz'armi)." },
+  { lv:3,  it:"Scarto Smagliante", desc:"Senza armatura o scudo ottieni: Virtuoso della danza (vantaggio su prove CAR(Intrattenere) legate alla danza), Difesa senza armatura (CA = 10+DES+CAR), Colpi scattanti (quando spendi un'Ispirazione Bardica come parte di un'azione, azione bonus o reazione, puoi effettuare un colpo senz'armi come parte di essa), Danno bardico (usa DES per colpire; danni = dado IB + mod.DES contundenti; il dado non viene consumato)." },
   { lv:6,  it:"Movimento Ispiratore", desc:"Reazione quando un nemico visibile a 1,5 m da te termina il turno: spendi Ispirazione Bardica per muoverti alla metà velocità. Un alleato entro 9 m può poi muoversi alla metà della sua velocità come reazione." },
   { lv:6,  it:"Scarto Coordinato", desc:"Tirando per l'iniziativa non incapacitato, puoi spendere un'Ispirazione Bardica: tira e distribuisci il risultato come bonus all'iniziativa a te e agli alleati entro 9 m visibili/udibili." },
-  { lv:14, it:"Elusione Trainante", desc:"Quando effettui un TS su DES per dimezzare un'area-danno, riesci → 0 danni; fallisci → metà. Puoi condividere questo beneficio a creature entro 1,5 m che stiano effettuando lo stesso TS." },
+  { lv:14, it:"Elusione Trainante", desc:"Quando effettui un TS su DES per dimezzare un'area-danno, riesci → 0 danni; fallisci → metà. Puoi condividere questo beneficio con creature entro 1,5 m che stiano effettuando lo stesso TS su Destrezza. Il bardo non può utilizzare questo privilegio se è incapacitato." },
 ],
 "fascino": [
   { lv:3,  it:"Magia Ammaliante", desc:"charme su persone e immagine speculare sempre preparati. Dopo aver lanciato un incantesimo di ammaliamento/illusione con slot, una creatura entro 18 m deve superare TS su SAG (CD incantesimi) o è affascinata e spaventata per 1 minuto. 1/riposo lungo (recuperabile con Ispirazione Bardica)." },
-  { lv:3,  it:"Manto di Ispirazione", desc:"Azione bonus: spendi un'Ispirazione Bardica; fino a mod. CAR creature entro 18 m ottengono PF temporanei = 2×dado+CAR e possono usare la loro reazione per muoversi alla velocità senza OA." },
-  { lv:6,  it:"Manto di Maestosità", desc:"Il bardo lancia comando senza slot come azione bonus. Assume sembianze ultraterrene per 1 minuto (concentrazione): può lanciare comando come azione bonus; creature affasinate dal bardo falliscono automaticamente il TS contro questi comandi. 1/riposo lungo (recuperabile con slot 3°+)." },
+  { lv:3,  it:"Manto di Ispirazione", desc:"Azione bonus: spendi un'Ispirazione Bardica; scegli fino a mod. CAR creature entro 18 m (min 1). Ognuna ottiene PF temporanei pari al doppio del dado di Ispirazione Bardica e può usare la sua reazione per muoversi fino alla sua velocità senza provocare attacchi di opportunità." },
+  { lv:6,  it:"Manto di Maestosità", desc:"Il bardo lancia comando senza slot come azione bonus. Assume sembianze ultraterrene per 1 minuto (concentrazione): può lanciare comando come azione bonus; creature affascinate dal bardo falliscono automaticamente il TS contro questi comandi. 1/riposo lungo (recuperabile con slot 3°+)." },
   { lv:14, it:"Maestosità Invitta", desc:"Azione bonus: presenza maestosa per 1 minuto. Chi lo colpisce per la prima volta in un turno deve superare TS su CAR (CD incantesimi) o fallisce l'attacco e indietreggia spaventato. 1/riposo breve o lungo." },
 ],
 "sapienza": [
@@ -2186,7 +2201,7 @@ const SUBCLASS_FEATURES = {
   { lv:20, it:"Leggenda Vivente", desc:"Azione bonus: ottiene benefici per 10 minuti. Carismatico (vantaggio in tutte le prove CAR), Colpo infallibile (una volta per turno se manca, trasforma il colpo in un successo), Ripete il tiro salvezza (reazione se fallisce un TS, può ripeterlo). 1/riposo lungo (recuperabile con slot 5°)." },
 ],
 "vengeance": [
-  { lv:3,  it:"Voto di Inimicizia", desc:"Azione di Magia: spende un uso di Incanalare Divinità per pronunciare un voto contro una creatura visibile entro 9 m. Ottiene vantaggio ai tiri per colpire contro di essa per 1 minuto, o finché scende a 0 PF (trasferibile a un altro bersaglio entro 9 m)." },
+  { lv:3,  it:"Voto di Inimicizia", desc:"Quando effettua l'azione di Attacco: consuma 1 uso di Incanalare Divinità per pronunciare un voto contro una creatura visibile entro 9 m. Ottiene vantaggio ai tiri per colpire contro di essa per 1 minuto, o finché non usa di nuovo questo privilegio. Trasferibile se la creatura scende a 0 PF (nessuna azione)." },
   { lv:7,  it:"Vendetta Implacabile", desc:"Quando colpisce con un OA, può ridurre la velocità del bersaglio a 0 fino alla fine del turno. Come parte della stessa reazione, può muoversi fino alla metà della velocità senza OA." },
   { lv:15, it:"Anima Vendicativa", desc:"Reazione: quando una creatura sotto Voto di Inimicizia mette a segno o manca un colpo contro di lui, può effettuare un attacco in mischia contro di essa se si trova a portata." },
   { lv:20, it:"Angelo Vendicatore", desc:"Azione bonus: ottiene benefici per 10 minuti. Aura di terrore (nemici all'inizio del turno nell'aura effettuano TS su SAG o sono spaventati per 1 minuto), Volo (ali eteree, velocità 18 m + fluttuazione), Vantaggio su attacchi contro creature spaventate. 1/riposo lungo (recuperabile con slot 5°)." },
@@ -2237,10 +2252,11 @@ const SUBCLASS_FEATURES = {
   { lv:17, it:"Colpo di Morte", desc:"Quando colpisce con il suo Attacco Furtivo al primo round di un combattimento, il bersaglio deve superare un TS su COS (CD 8+DES+comp) o subisce il doppio dei danni." },
 ],
 "arcane": [
-  { lv:3,  it:"Incantesimi", desc:"Caratteristica da incantatore: INT. Ottiene slot incantesimo (vedi tabella Incantesimi del Mistificatore Arcano). Apprende 3 incantesimi da mago di 1° livello. Può lanciare incantesimi mentre è invisibile senza rivelare la propria posizione. Focus arcano: un arnese da scasso." },
+  { lv:3,  it:"Gioco di Prestigio della Mano Magica", desc:"Quando lancia mano magica, può farlo come azione bonus e rendere invisibile la mano spettrale. Può anche controllare la mano come azione bonus e utilizzarla per effettuare prove di Destrezza (Rapidità di Mano)." },
+  { lv:3,  it:"Incantesimi", desc:"Caratteristica da incantatore: INT. 3 trucchetti (mano magica + 2 a scelta da lista mago). Incantesimi preparati da tabella (Lv.3→3, Lv.7→5, Lv.13→9). Slot da mezzi-incantatori (tabella Incantesimi del Mistificatore Arcano). Recupero slot: riposo lungo. Caratteristica: INT." },
   { lv:9,  it:"Imboscata Magica", desc:"Se è invisibile quando lancia un incantesimo su una creatura, questa ha svantaggio a qualsiasi tiro salvezza contro l'incantesimo per quel lancio." },
-  { lv:13, it:"Ingannatore Versatile", desc:"Ottiene la capacità di distrarre i bersagli con la mano magica. Quando usa l'opzione Inciampo del suo Colpo Astuto su una creatura, può applicarla anche a un altro bersaglio a 1,5 m dal primo." },
-  { lv:17, it:"Ladro di Incantesimi", desc:"Reazione: quando una creatura lancia un incantesimo contro di lui, può costringere la creatura a effettuare un TS su INT (CD = 8+INT+comp). In caso di fallimento, il ladro annulla tutti gli effetti dell'incantesimo e se il livello è ≤ 1° o di un livello disponibile per il personaggio (da mago), lo ruba: è considerato preparato per 8 ore; la creatura non può più usarlo per 8 ore. 1/riposo lungo." },
+  { lv:13, it:"Ingannatore Versatile", desc:"Quando usa l'opzione Inciampo del suo Colpo Astuto su una creatura, può applicarla anche a un secondo bersaglio a 1,5 m dalla prima creatura (con mano magica)." },
+  { lv:17, it:"Ladro di Incantesimi", desc:"Reazione: quando una creatura lancia un incantesimo contro di lui o lo include nell'area, costringerla a TS su INT (CD 8+INT+comp). Fallimento: annulla gli effetti sull'incantesimo; se di 1° livello o un livello disponibile per lui, lo ruba (preparato per 8 ore; la creatura non può usarlo per 8 ore). 1/riposo lungo." },
 ],
 "soul": [
   { lv:3,  it:"Lame Psichiche", desc:"Può richiamare Lame Psichiche di energia psichica. Quando effettua l'azione Attacco o un OA, manifesta la Lama Psichica in mano libera e attacca con essa (arma da mischia semplice accurata, lancio 18/36 m, 1d6 psichici+car. usata per colpire, svanisce dopo l'attacco). Come azione bonus: secondo attacco con la lama (1d4 psichici)." },
@@ -2313,29 +2329,37 @@ const SUBCLASS_FEATURES = {
 
 // ══ MAGO (sottoclassi non presenti nei PDF forniti — dati dalla sessione precedente) ══
 "abjuration": [
-  { lv:3,  it:"Protezione Abiuratoria", desc:"Quando lancia un incantesimo di abiurazione, ottiene PF temporanei pari a 2 × livello dell'incantesimo + mod. INT." },
-  { lv:6,  it:"Magia Proiettata", desc:"Quando lancia un incantesimo di abiurazione che protegge solo sé stesso, può estenderlo a una creatura consenziente entro 9 m." },
-  { lv:10, it:"Resistenza Migliorata all'Abiurazione", desc:"Vantaggio ai TS contro incantesimi e altri effetti magici." },
-  { lv:14, it:"Incantamento", desc:"Può usare la sua reazione per far sì che un incantesimo che lo bersaglia non abbia effetto su di lui." },
+  { lv:3,  it:"Abiuratore Sapiente", desc:"Aggiunge gratuitamente 2 incantesimi di abiurazione Lv.1-2 al libro. Ogni volta che ottieni un nuovo livello di slot in questa classe, puoi aggiungere gratuitamente 1 incantesimo di abiurazione del livello corrispondente." },
+  { lv:3,  it:"Interdizione Arcana", desc:"Lanciando un incantesimo di abiurazione con uno slot: crea Interdizione Arcana su di te (1/riposo lungo). PF Ward = 2×livello mago + mod.INT. Assorbe i danni al posto tuo. Recupera PF = 2×livello slot ogni volta che lanci abiurazione con slot; oppure spendi 1 slot come azione bonus per recuperare 2×livello slot." },
+  { lv:6,  it:"Interdizione Proiettata", desc:"Reazione: quando una creatura entro 9 m visibile subisce danni, puoi far assorbire quei danni alla tua Interdizione Arcana al suo posto. Se scende a 0 PF, la creatura subisce i danni rimanenti." },
+  { lv:10, it:"Spezzamagia", desc:"Controincantesimo e dissolvi magie sono sempre preparati. Puoi lanciare dissolvi magie come azione bonus aggiungendo il bonus di competenza al tiro. Se lo slot non riesce a fermare il bersaglio, non viene speso." },
+  { lv:14, it:"Resistenza agli Incantesimi", desc:"Vantaggio ai tiri salvezza contro gli incantesimi. Resistenza ai danni degli incantesimi." },
 ],
+
 "divination": [
-  { lv:3,  it:"Portento", desc:"Quando completa un riposo lungo, tira 2d20 e registra i risultati. Prima di un tiro d20 di lui, un mostro o un personaggio entro 18 m, può sostituire il tiro con uno dei risultati registrati. Usa ogni dado al massimo una volta." },
-  { lv:6,  it:"Intuizione dell'Esperto", desc:"Quando lancia un incantesimo di divinazione, aggiunge il doppio del bonus di competenza alle prove delle abilità in cui non ha già la Maestria." },
-  { lv:10, it:"Il Terzo Occhio", desc:"Azione: ottiene uno dei benefici: Comprensione delle lingue, Visione dell'invisibilità (vede le creature invisibili entro 18 m), Vista aeterea (vede nel Piano Etereo entro 18 m). Dura finché usa questa abilità di nuovo." },
-  { lv:14, it:"Portento Superiore", desc:"Tira 3d20 invece di 2d20 quando usa Portento." },
+  { lv:3,  it:"Divinatore Sapiente", desc:"Aggiunge gratuitamente 2 incantesimi di divinazione Lv.1-2 al libro. Ogni volta che ottieni un nuovo livello di slot, aggiunge gratuitamente 1 incantesimo di divinazione del livello corrispondente." },
+  { lv:3,  it:"Portento", desc:"Dopo ogni riposo lungo: tira 2d20 e annota i risultati (Tiri Divinatori). Puoi sostituire con uno di questi tiri qualsiasi prova d20 tua o di una creatura visibile, dichiarandolo prima del tiro. Ogni tiro usabile 1 sola volta. I tiri inutilizzati vanno persi." },
+  { lv:6,  it:"Divinazione Esperta", desc:"Lanciando un incantesimo di Divinazione con slot di 2° o superiore, recuperi automaticamente 1 slot di livello inferiore (max 5°)." },
+  { lv:10, it:"Terzo Occhio", desc:"Azione bonus: scegli 1 tra Comprensione Superiore (leggi/capisci qualsiasi lingua), Scurovisione (36 m), o Vedere l'Invisibile (vedi invisibilità senza slot). Dura finché non completi un riposo breve o lungo. 1/riposo breve o lungo." },
+  { lv:14, it:"Portento Superiore", desc:"Il privilegio Portento genera ora 3d20 invece di 2." },
 ],
+
 "illusion": [
-  { lv:3,  it:"Illusioni Migliorate", desc:"Può lanciare illusione minore senza spendere uno slot. L'illusione può includere anche suono." },
-  { lv:6,  it:"Illusione Malleabile", desc:"Quando mantiene la concentrazione su un incantesimo di illusione, può usare un'azione per modificare la natura dell'illusione (se l'incantesimo lo consente)." },
-  { lv:10, it:"Doppio Illusorio", desc:"Può creare un duplicato illusorio di sé stesso come azione bonus. La prima volta che viene colpito ogni round può far sì che l'attacco prenda il duplicato invece. Il duplicato svanisce dopo essere stato colpito." },
-  { lv:14, it:"Realismo Illusorio", desc:"Quando lancia un incantesimo di illusione di 1° livello o superiore, può rendere una delle sue parti non magicamente reale. Un oggetto o effetto illusorio a scelta diventa fisicamente reale per 1 minuto." },
+  { lv:3,  it:"Illusionista Sapiente", desc:"Aggiunge gratuitamente 2 incantesimi di illusione Lv.1-2 al libro. Ogni volta che ottieni un nuovo livello di slot, aggiunge gratuitamente 1 incantesimo di illusione del livello corrispondente." },
+  { lv:3,  it:"Illusioni Migliorate", desc:"I trucchetti di Illusione non richiedono componenti verbali. Se un incantesimo di Illusione ha gittata ≥3 m, questa aumenta di 18 m. Conosce il trucchetto illusione minore (non conta nel totale). Con un lancio di illusione minore come azione bonus può riprodurre un suono e un'immagine." },
+  { lv:6,  it:"Creature Spettrali", desc:"Richiama bestia e richiama folletto sono sempre preparati. Quando vengono lanciati, le creature appaiono in forma spettrale (scuola Illusione). La versione spettrale può essere lanciata senza slot (PF dimezzati). Recupero senza slot: 1/riposo lungo." },
+  { lv:10, it:"Sosia Illusorio", desc:"Reazione: quando una creatura ti colpisce con un tiro per colpire, puoi frapporre un sosia illusorio: l'attacco manca automaticamente e l'illusione svanisce. 1/riposo breve o lungo; oppure spendi 1 slot 2°+ per ripristinarlo (nessuna azione)." },
+  { lv:14, it:"Realtà Illusoria", desc:"Lanciando un incantesimo di Illusione con uno slot, puoi rendere reale 1 oggetto non magico inanimato che fa parte dell'illusione per 1 minuto (finché l'incantesimo è attivo, azione bonus nel tuo turno). L'oggetto non può infliggere danni o condizioni." },
 ],
+
 "evocation": [
-  { lv:3,  it:"Intagliare Incantesimi", desc:"Quando lancia un incantesimo di evocazione che interessa un'area, può escludere un numero di creature pari al modificatore di INT (min 1) da quegli effetti." },
-  { lv:6,  it:"Intagliare Incantesimi Potenziato", desc:"Quando lancia un incantesimo di evocazione che richiede un TS, le creature escluse con Intagliare Incantesimi effettuano il TS con vantaggio." },
-  { lv:10, it:"Evocatore Potenziato", desc:"Aggiunge il suo modificatore di INT ai danni di qualsiasi incantesimo di evocazione che lancia (min 1 danno extra)." },
-  { lv:14, it:"Sovraccaricare Incantesimi", desc:"Quando lancia un incantesimo di evocazione di 1°-5° livello che causa danni, può causare il massimo dei danni invece di tirare. Usa questo privilegio una volta, poi non può più farlo fino al prossimo riposo lungo per quello stesso incantesimo." },
+  { lv:3,  it:"Invocatore Sapiente", desc:"Aggiunge gratuitamente 2 incantesimi di invocazione Lv.1-2 al libro. Ogni volta che ottieni un nuovo livello di slot, aggiunge gratuitamente 1 incantesimo di invocazione del livello corrispondente." },
+  { lv:3,  it:"Trucchetto Potente", desc:"Quando lanci un trucchetto e manchi con il tiro per colpire, o il bersaglio supera il tiro salvezza, il bersaglio subisce comunque metà dei danni (nessun effetto aggiuntivo)." },
+  { lv:6,  it:"Plasmare Incantesimi", desc:"Lanciando un incantesimo di invocazione che influenza più creature nel campo visivo, puoi escludere un numero di creature pari a 1 + livello dell'incantesimo. Le creature scelte superano automaticamente il TS e non subiscono danni in caso di successo." },
+  { lv:10, it:"Invocazione Potente", desc:"Quando lanci un incantesimo di Invocazione, puoi aggiungere il tuo modificatore di Intelligenza ai danni di quel singolo lancio." },
+  { lv:14, it:"Saturazione Magica", desc:"Lanciando un incantesimo con slot 1°-5° che infligge danni, puoi infliggere il massimo dei danni. Prima volta: nessuna conseguenza. Ogni utilizzo successivo prima del riposo lungo infligge 2d12 danni necrotici per livello dello slot (ignorano resistenze/immunità). I danni aumentano di 1d12 per ogni ulteriore riutilizzo prima del riposo lungo." },
 ],
+
 
 }; // fine SUBCLASS_FEATURES
 
@@ -3615,7 +3639,7 @@ function fShortRest(){
   if(C.cls==='barbarian')C.rageImplacableCD=10;
   if(C.cls==='fighter'){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
   if(C.cls==='monk'){C.ki={used:0};}
-  if(C.cls==='cleric'||C.cls==='paladin'){C.channelDiv={used:0};C.bagliorUsed=0;C.warPriestUsed=0;}
+  if(C.cls==='cleric'||C.cls==='paladin'){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;C.bagliorUsed=0;C.warPriestUsed=0;}
   if(C.cls==='druid'&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
   if(C.cls==='bard'&&(C.level||1)>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
   re();
@@ -3917,7 +3941,7 @@ function fRClassBlock(){
         html+='<div onclick="fSetBrutalStrike(C.brutalStrike===\''+e.id+'\'?null:\''+e.id+'\')" style="cursor:pointer;padding:6px 8px;border:1px solid '+(sel?'#c43030':'rgba(200,164,90,.2)')+';background:'+(sel?'rgba(196,48,48,.1)':'rgba(0,0,0,.15)')+';border-radius:3px;display:flex;align-items:flex-start;gap:8px">';
         html+='<span style="font-size:14px;color:'+(sel?'#ff6b6b':'var(--vdim)')+';margin-top:1px">'+(sel?'◉':'◯')+'</span>';
         html+='<div><div style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+e.it+'</div>';
-        html+='<div style="font-size:10px;color:var(--vdim)">'+e.desc+'</div></div></div>';
+        html+='<div style="font-size:10px;color:var(--vdim)">'+fLocalizeStatAbbr(e.desc)+'</div></div></div>';
       });
       html+='</div>';
       html+='<div style="font-size:10px;color:var(--muted);margin-top:5px">Usa con Attacco Irruento: rinuncia a vantaggio, colpo con FOR → effetto</div>';
@@ -4168,7 +4192,7 @@ function fRClassBlock(){
           html+='<span style="font-size:11px;font-weight:600;color:var(--gold)">'+m.it+'</span>';
           html+='<span style="font-size:10px;color:var(--vdim)">× rimuovi</span>';
           html+='</div>';
-          html+='<div style="font-size:10px;color:var(--muted);line-height:1.4">'+m.desc+'</div>';
+          html+='<div style="font-size:10px;color:var(--muted);line-height:1.4">'+fLocalizeStatAbbr(m.desc)+'</div>';
           html+='</div>';
         });
         html+='</div>';
@@ -4222,6 +4246,56 @@ function fRClassBlock(){
       var psiUsed=(C.psiDice&&C.psiDice.used)||0;
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:6px">\uD83E\udde0 Energia Psionica ('+psiType+' \u00d7'+psiLv+')</div>';
       html+='<div style="'+rowS+'">'+fDots(psiUsed,psiLv,'fUsePsiDie','fRestorePsiDie','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(psiLv-psiUsed)+'/'+psiLv+'</span></div></div>';
+    }
+  }
+
+  // ── LADRO
+  if(cl==='rogue'){
+    var af=Math.ceil(lv/2);
+    html+='<div style="'+boxS+'">';
+    html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🗡️ '+(isIt?'Attacco Furtivo':'Sneak Attack')+': '+af+'d6</div>';
+    html+='<div style="font-size:10px;color:var(--muted)">1×/turno · con vantaggio o con alleato entro 1,5 m dal bersaglio · arma accurata o a distanza</div>';
+    if(lv>=5){
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">⚡ Colpo Astuto (Lv.5) — spendi dadi per effetti:</div>';
+      html+='<div style="font-size:9px;color:var(--vdim)">Inciampo 1d6 · Ritirata 1d6 · Veleno 1d6'+(lv>=11?' · (fino a 2 effetti)':'')+'</div>';
+    }
+    if(lv>=14){
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">💀 Colpi Infidi (Lv.14): Atterramento 6d6 · Confusione 2d6 · Rabbuio 3d6</div>';
+    }
+    html+='</div>';
+
+    // Mistificatore Arcano: slot incantesimo
+    if(sc==='arcane' && lv>=3){
+      var amSlots={3:[2],4:[3],5:[3],6:[3],7:[4,2],8:[4,2],9:[4,2],10:[4,3],
+        11:[4,3],12:[4,3],13:[4,3,2],14:[4,3,2],15:[4,3,2],16:[4,3,3],
+        17:[4,3,3],18:[4,3,3],19:[4,3,3,1],20:[4,3,3,1]};
+      var amSl=amSlots[lv]||[2];
+      var usedSp2=C.eldritchKnightSpells||{};
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🔮 '+(isIt?'Slot Incantesimo — INT':'Spell Slots — INT')+'</div>';
+      for(var sv2=1;sv2<=amSl.length;sv2++){
+        var tot2=amSl[sv2-1];
+        var usedV2=usedSp2[sv2]||0;
+        html+='<div style="'+rowS+'"><span style="'+lblS+'">Slot '+sv2+'°</span>';
+        html+=fDots(usedV2,tot2,'fUseEKSlot('+sv2+')','fRestoreEKSlot('+sv2+')','#7a8fff');
+        html+='<span style="font-size:10px;color:var(--vdim)">'+(tot2-usedV2)+'/'+tot2+'</span></div>';
+      }
+      html+='<div style="font-size:9px;color:var(--muted);margin-top:4px">Recupero: riposo lungo · Focus: focus arcano o arnesi da scasso</div>';
+      if(lv>=3)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">🤚 Mano Magica come azione bonus (mano invisibile)</div>';
+      html+='</div>';
+    }
+
+    // Lama Spirituale: dadi Energia Psionica
+    if(sc==='soul' && lv>=3){
+      var psiLvR=lv>=17?12:lv>=13?10:lv>=11?8:lv>=9?8:lv>=5?6:4;
+      var psiTypeR=lv>=17?'d12':lv>=11?'d10':lv>=5?'d8':'d6';
+      var psiUsedR=(C.psiDice&&C.psiDice.used)||0;
+      html+='<div style="'+boxS+'">';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🧠 Energia Psionica ('+psiTypeR+' ×'+psiLvR+')</div>';
+      html+='<div style="'+rowS+'">'+fDots(psiUsedR,psiLvR,'fUsePsiDie','fRestorePsiDie','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(psiLvR-psiUsedR)+'/'+psiLvR+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--muted);margin-top:4px">1 dado recuperato/riposo breve · tutti/riposo lungo</div>';
+      if(lv>=13)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Velo Psichico (Lv.13): 1/riposo lungo</div>';
+      html+='</div>';
     }
   }
 
@@ -4324,8 +4398,8 @@ function fRClassBlock(){
   // ── PALADINO
   if(cl==='paladin'){
     var pcdMax=lv>=11?3:2,pcdUsed=(C.channelDiv&&C.channelDiv.used)||0;
-    var oathFx={devotion:['Arma Consacrata','Scacciare Non Morti'],ancients:['Furia della Natura','Scacciare Non Morti'],vengeance:['Giuramento di Odio','Scacciare Non Morti'],glory:['Ispirare Alleato','Scacciare Non Morti']};
-    var oEff=oathFx[sc]||['Scacciare Non Morti'];
+    var oathFx={devotion:['Percezione del Divino','Arma Consacrata'],ancients:['Percezione del Divino','Furia della Natura'],vengeance:['Percezione del Divino','Voto di Inimicizia','Abiurare Nemici'],glory:['Percezione del Divino','Atleta Impareggiabile']};
+    var oEff=oathFx[sc]||['Percezione del Divino'];
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">✝️ '+(isIt?'Incan. Divinità':'Channel Div.')+'</span>'+fDots(pcdUsed,pcdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(pcdMax-pcdUsed)+'/'+pcdMax+'</span></div>';
     html+='<div style="font-size:10px;color:var(--muted)">Effetti: '+oEff.join(' · ')+'</div></div>';
@@ -4636,6 +4710,13 @@ function fRClassBlock(){
 
       // ── DIVINATORE ─────────────────────────────────────────────────────
       if(sc==='divination'){
+        // Divinazione Esperta (Lv.6) — nota passiva
+        if(lv>=6){
+          html+='<div style="'+boxS+';border-color:rgba(200,164,90,.2)">';
+          html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:3px">✨ Divinazione Esperta (Lv.6)</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">Quando lanci un incantesimo di Divinazione con slot 2°+, recuperi automaticamente 1 slot di livello inferiore (max 5°).</div>';
+          html+='</div>';
+        }
         // Portento (Lv.3)
         var p3=C.divinatorPresage||[null,null,null];
         var pUsed=C.presageUsed||[false,false,false];
@@ -4804,7 +4885,7 @@ function fRWarlockBlock(){
         ${inv.prereqLv>1?`<span style="font-size:9px;color:var(--vdim);margin-left:auto">Lv.${inv.prereqLv}+</span>`:''}
         ${inv.repeatable?`<span style="font-size:8px;color:var(--gold2);border:1px solid rgba(200,164,90,.3);border-radius:8px;padding:0 4px">×N</span>`:''}
       </div>
-      <div style="font-size:10px;color:var(--muted);line-height:1.4;padding-left:15px">${inv.desc}</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.4;padding-left:15px">${fLocalizeStatAbbr(inv.desc)}</div>
     </div>`;
   });
 
@@ -5042,9 +5123,11 @@ function fCanNext(){
   if(step===3){
     if(!C.subclass) return false;
     if(C.cls==='cleric' && !C.divOrder) return false;
+    if(C.cls==='cleric' && C.divOrder==='taumaturgo' && !C.taumaturgoBonusSkill) return false;
     if(C.cls==='cleric' && (C.level||1)>=7 && !C.blessedStrikes) return false;
     if(C.cls==='druid'  && !C.primordialOrder) return false;
     if(C.cls==='druid'  && (C.level||1)>=7 && !C.elementalFury) return false;
+    if(C.cls==='druid'  && C.subclass==='terra' && (C.level||1)>=3 && !C.circleTerrainType) return false;
     return true;
   }
   // Step 4: Padronanza Armi (auto-skip se non applicabile)
@@ -5053,7 +5136,9 @@ function fCanNext(){
     const mc=fMasteryCount(C.cls,lv);
     const ec=cl?cl.expertiseCount||0:0;
     const ec2=fExtraExpertiseCount(C.cls,lv);
-    const scSkCount=(C.cls==='bard'&&C.subclass==='sapienza'&&lv>=3)?3:0;
+    const scSkCount=(C.cls==='bard'&&C.subclass==='sapienza'&&lv>=3)?3:
+                    (C.cls==='fighter'&&C.subclass==='maestro-battaglia'&&lv>=3)?1:0;
+    const scToolCount=(C.cls==='fighter'&&C.subclass==='maestro-battaglia'&&lv>=3)?1:0;
     const wizSch=(C.cls==='wizard'&&lv>=2);
     // Grant automatici sottoclasse (no scelta)
     const autoSk=fSubclassAutoSkills(C.cls,C.subclass,lv);
@@ -5133,7 +5218,7 @@ function nuovoPersonaggio(){
     rage:{used:0},rageActive:false,rageImplacableCD:10,primordialKnowledge:null,wildHeartAspect:null,wildHeartNature:null,wildHeartPower:null,zealotDivineType:null,zealotDivinePool:{used:0},berserkerIntimUsed:false,worldTreeTeleUsed:false,zealotPresenceUsed:false,zealotRageUsed:false,brutalStrike:null,hunterPrey:null,hunterDefense:null,divIntUsed:false,divPunish:{used:false},palLayHands:null,arcaneRecovUsed:false,clockworkEquil:{used:0},lastWildSurge:null,
     secondWind:{used:0},actionSurge:{used:0},maneuvers:[],superiorityDice:{used:0},psiDice:{used:0},
     ki:{used:0},bardicInsp:{used:0},channelDiv:{used:0},
-    divOrder:null,blessedStrikes:null,
+    divOrder:null,blessedStrikes:null,taumaturgoBonusSkill:null,
     wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,starDartUsed:0,
     nemesisMark:{used:0},
     sorcPoints:{used:0},metamagicChoices:[],draconicAncestor:null,innateUsed:0,
@@ -5390,7 +5475,7 @@ function fRS0cl(){
             <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt?f.it:(f.en||f.it)}</span>
             <span style="font-size:9px;color:var(--green);margin-left:auto">✓</span>
           </div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.55">${f.desc}</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.55">${fLocalizeStatAbbr(f.desc)}</div>
         </div>`;
       });
       if(locked.length){
@@ -5469,7 +5554,7 @@ function fRS0sc(){
             <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt?f.it:(f.en||f.it)}</span>
             <span style="font-size:9px;color:var(--green);margin-left:auto">✓</span>
           </div>
-          <div style="font-size:11px;color:var(--muted);line-height:1.55">${f.desc}</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.55">${fLocalizeStatAbbr(f.desc)}</div>
         </div>`;
       });
       html += `</div>`;
@@ -5523,6 +5608,15 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
     html += radioRow('protettore','🛡️ Protettore','Competenza in tutte le armature, Armi da Guerra',C.divOrder,'C.divOrder=(C.divOrder===\'protettore\'?null:\'protettore\');re()');
     html += radioRow('taumaturgo','📜 Taumaturgo','+1 trucchetto da chierico; bonus a prove INT (Arcano o Religione) = mod.SAG (min +1)',C.divOrder,'C.divOrder=(C.divOrder===\'taumaturgo\'?null:\'taumaturgo\');re()');
     html += '</div>';
+    // Taumaturgo: scelta expertise
+    if(C.divOrder==='taumaturgo'){
+      html += '<div style="'+boxS+'">';
+      html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">📖 Abilità bonus (Taumaturgo)</div>';
+      html += selBtn('Arcano', C.taumaturgoBonusSkill==='Arcana', 'C.taumaturgoBonusSkill=\'Arcana\';re()');
+      html += selBtn('Religione', C.taumaturgoBonusSkill==='Religion', 'C.taumaturgoBonusSkill=\'Religion\';re()');
+      html += '<div style="font-size:10px;color:var(--vdim);margin-top:5px">Bonus = mod. SAG (min +1) alle prove di questa abilità</div>';
+      html += '</div>';
+    }
     if(lv>=7){
       html += '<div style="'+boxS+'">';
       html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">⚡ '+(isIt?'Colpi Benedetti (Lv.7)':'Blessed Strikes (Lv.7)')+'</div>';
@@ -5961,7 +6055,7 @@ function fRS2(){
       html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise('${sk.en}',${ec})" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
         </div>
         <div style="font-size:9px;color:var(--gold2);margin-top:2px">
           ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`● ${modStr} → ●● <span style="color:var(--green)">${expModStr}</span>`}
@@ -5990,7 +6084,7 @@ function fRS2(){
       html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise('${sk.en}',${ec})" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
         </div>
         <div style="font-size:9px;color:var(--gold2);margin-top:2px">
           ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`● ${modStr} → ●● <span style="color:var(--green)">${expModStr}</span>`}
@@ -6019,7 +6113,7 @@ function fRS2(){
       html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise2('${sk.en}',${ec2})" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
         </div>
         <div style="font-size:9px;color:var(--gold2);margin-top:2px">
           ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`●● <span style="color:var(--green)">${expModStr}</span>`}
@@ -6047,7 +6141,7 @@ function fRS2(){
       html+=`<div class="card ${sel?'sel':''}" onclick="C.wizardScholarSkill=(C.wizardScholarSkill==='${skEn}'?null:'${skEn}');re()" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
         </div>
         <div style="font-size:9px;color:var(--gold2);margin-top:2px">
           ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`●● <span style="color:var(--green)">${expModStr}</span>`}
@@ -6076,7 +6170,7 @@ function fRS2(){
       html+=`<div class="card ${sel?'sel':''}" onclick="fToggleSubclassSkill('${sk.en}',${scSkCount})" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${sk.s}</span>
+          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
         </div>
         <div style="font-size:9px;color:var(--gold2);margin-top:2px">${modStr}</div>
       </div>`;
@@ -7322,7 +7416,7 @@ function fRClassFeatures(){
         <span style="font-family:'Comfortaa', sans-serif;font-size:9px;color:var(--gold);background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.25);border-radius:2px;padding:1px 5px;white-space:nowrap">Lv.${f.lv}</span>
         <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt ? f.it : (f.en||f.it)}</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.6">${f.desc}</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.6">${fLocalizeStatAbbr(f.desc)}</div>
     </div>`).join('');
 
   const nextRow = next ? `
@@ -7356,7 +7450,7 @@ function fRSubclassFeatures(){
         <span style="font-family:'Comfortaa', sans-serif;font-size:9px;color:var(--gold);background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.3);border-radius:2px;padding:1px 6px">Lv.${f.lv}</span>
         <span style="font-size:13px;font-weight:600;color:var(--text)">${isIt?f.it:(f.en||f.it)}</span>
       </div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.6">${f.desc}</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6">${fLocalizeStatAbbr(f.desc)}</div>
     </div>`).join('');
   const nextRow=next?`
     <div style="margin-top:8px;padding:8px 10px;background:rgba(90,90,90,.08);border:1px dashed rgba(200,164,90,.2);border-radius:3px;opacity:.65">
@@ -7716,9 +7810,9 @@ function fRSheet(){
               <span style="font-size:14px;font-weight:700;color:var(--gold);min-width:36px;text-align:center">${totalStr}</span>
               <div style="flex:1;min-width:0">
                 <div style="font-size:11px;font-weight:600;color:var(--text)">${isIt?t.it:t.en}</div>
-                <div style="font-size:9px;color:var(--vdim)">${t.stat} ${statStr} + comp. ${pb2>=0?'+':''}${pb2}</div>
+                <div style="font-size:9px;color:var(--vdim)">${fSA(t.stat)} ${statStr} + comp. ${pb2>=0?'+':''}${pb2}</div>
               </div>
-              <div style="font-size:9px;color:var(--vdim);max-width:100px;text-align:right;line-height:1.3">${t.desc.split('.')[0]}</div>
+              <div style="font-size:9px;color:var(--vdim);max-width:100px;text-align:right;line-height:1.3">${fLocalizeStatAbbr(t.desc).split('.')[0]}</div>
             </div>`;
           });
           html+=`</div></div>`;
@@ -7824,7 +7918,7 @@ function fRSubclassPreview(clsId, scId, lv){
         <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt?f.it:(f.en||f.it)}</span>
         <span style="font-size:9px;color:var(--green);margin-left:auto">✓ ${isIt?"disponibile":"available"}</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.55;padding-left:2px">${f.desc}</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.55;padding-left:2px">${fLocalizeStatAbbr(f.desc)}</div>
     </div>`).join("");
 
   const lockedHTML = locked.length ? `
@@ -7836,7 +7930,7 @@ function fRSubclassPreview(clsId, scId, lv){
             <span style="font-family:'Comfortaa', sans-serif;font-size:9px;color:var(--vdim);background:rgba(90,90,90,.15);border:1px solid rgba(90,90,90,.3);border-radius:2px;padding:1px 6px">Lv.${f.lv}</span>
             <span style="font-size:12px;font-weight:600;color:var(--dim)">${isIt?f.it:(f.en||f.it)}</span>
           </div>
-          <div style="font-size:10px;color:var(--vdim);line-height:1.5;margin-top:2px;padding-left:2px">${f.desc}</div>
+          <div style="font-size:10px;color:var(--vdim);line-height:1.5;margin-top:2px;padding-left:2px">${fLocalizeStatAbbr(f.desc)}</div>
         </div>`).join("")}
     </div>` : "";
 
@@ -7963,12 +8057,8 @@ const ALWAYS_PREPARED_SUBCLASS = {
       7: ["Fonte di luce lunare"],
       9: ["Cura ferite di massa"],
     },
-    terra: {
-      3: ["Passo velato", "Sonno", "Stretta folgorante"],
-      5: ["Fulmine"],
-      7: ["Libertà di movimento"],
-      9: ["Traslazione arborea"],
-    },
+    // Terra: incantesimi dipendono dal tipo scelto — gestiti dinamicamente in fGetAlwaysPrepared
+    terra: {},
     mare: {
       3: ["Nube di nebbia", "Folata di vento", "Raggio di gelo", "Frantumare", "Onda tonante"],
       5: ["Fulmine", "Respirare sott'acqua"],
@@ -8151,10 +8241,8 @@ function fHasSpellbook(){ return C.cls === 'wizard'; }
 function fIsKnownCaster(){ return C.cls === 'warlock' || C.cls === 'sorcerer'; }
 
 // Mago: incantesimi preparati dalla tabella PHB 2024 (NON INT+Lv)
-const WIZARD_PREPARED_TABLE = [4,5,6,7,9,10,11,12,14,15,16,16,17,18,19,21,22,23,24,25];
 function fWizardMaxPrepared(){
-  const lv = Math.min(Math.max(C.level||1, 1), 20);
-  return WIZARD_PREPARED_TABLE[lv-1];
+  return SPELLS_KNOWN_TABLE['wizard']?.[Math.min(C.level||1,20)-1] || 0;
 }
 
 // Max incantesimi: per il Mago è la formula; per gli altri è dalla tabella
@@ -8168,7 +8256,7 @@ function fPreparedFormula(){
   const isIt = lang==='it';
   const lv = C.level||1;
   switch(C.cls){
-    case 'wizard':  return (isIt?'Da tabella':'From table')+' = '+fWizardMaxPrepared();
+    case 'wizard':  return (isIt?'Da tabella PHB 2024':'PHB 2024 table')+' = '+fWizardMaxPrepared();
     case 'cleric':
     case 'druid':   return (isIt?'Da tabella PHB 2024':'PHB 2024 table')+' = '+(SPELLS_KNOWN_TABLE[C.cls]?.[lv-1]||0);
     case 'paladin': return (isIt?'CAR':'CHA')+'+'+(isIt?'½Lv':'½Lv')+' = '+(Math.floor(lv/2)+fcmod(fTotalStat('CHA')));
@@ -8211,6 +8299,8 @@ function fGetCastingStat(){ return CAST_STAT_MAP[C.cls] || 'INT'; }
 function fGetAlwaysPrepared(){
   const result = [];
   const lv = C.level || 1;
+
+  // Incantesimi di sottoclasse dalla mappa statica
   const scMap = ALWAYS_PREPARED_SUBCLASS[C.cls]?.[C.subclass];
   if(scMap){
     for(const [reqLv,spells] of Object.entries(scMap)){
@@ -8218,6 +8308,45 @@ function fGetAlwaysPrepared(){
         spells.forEach(nome=>result.push({nome,fonte:'subclass',reqLv:parseInt(reqLv)}));
     }
   }
+
+  // Circolo della Terra (druido): incantesimi dipendono dal tipo di terra scelto
+  if(C.cls==='druid' && C.subclass==='terra' && C.circleTerrainType){
+    const TERRA_SPELLS = {
+      arida: {
+        3: ["Dardo di fuoco","Mani brucianti","Sfocatura"],
+        5: ["Palla di fuoco"],
+        7: ["Inaridire"],
+        9: ["Muro di pietra"],
+      },
+      polare: {
+        3: ["Blocca persone","Nube di nebbia","Raggio di gelo"],
+        5: ["Tempesta di nevischio"],
+        7: ["Tempesta di ghiaccio"],
+        9: ["Cono di freddo"],
+      },
+      temperata: {
+        3: ["Passo velato","Sonno","Stretta folgorante"],
+        5: ["Fulmine"],
+        7: ["Libertà di movimento"],
+        9: ["Traslazione arborea"],
+      },
+      tropicale: {
+        3: ["Fiotto acido","Raggio di infermità","Ragnatela"],
+        5: ["Nube maleodorante"],
+        7: ["Metamorfosi"],
+        9: ["Piaga degli insetti"],
+      },
+    };
+    const tMap = TERRA_SPELLS[C.circleTerrainType];
+    if(tMap){
+      for(const [reqLv,spells] of Object.entries(tMap)){
+        if(lv>=parseInt(reqLv))
+          spells.forEach(nome=>result.push({nome,fonte:'subclass',reqLv:parseInt(reqLv)}));
+      }
+    }
+  }
+
+  // Incantesimi da specie
   const spMap = ALWAYS_PREPARED_SPECIES[C.species];
   if(spMap){
     const key = C.subrace && spMap[C.subrace] ? C.subrace : (spMap['null']?'null':null);
@@ -9038,7 +9167,7 @@ function fRFeatChoices(feat){
         <div style="font-size:9px;color:var(--muted);margin-bottom:4px">${isIt?'Strumenti:':'Tools:'}</div>
         <div style="display:flex;flex-wrap:wrap;gap:3px">
           ${ALL_TOOLS.map(t=>{const sel=featToolsForUid.includes(t.id);const already=!sel&&fHasToolProf(t.id);const dis=already||(!sel&&totalChosen>=maxSkTool);
-            return '<span onclick="'+(dis?'':"fAddFeatTool('"+feat.uid+"','"+t.id+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(150,120,60,.2)':'transparent')+';color:'+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+t.desc+'">'+(isIt?t.it:t.en)+'</span>';
+            return '<span onclick="'+(dis?'':"fAddFeatTool('"+feat.uid+"','"+t.id+"'"+")")+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(150,120,60,.2)':'transparent')+';color:'+(sel?'var(--gold2)':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'" title="'+fLocalizeStatAbbr(t.desc)+'">'+(isIt?t.it:t.en)+'</span>';
           }).join('')}
         </div>
       </div>`;
@@ -9876,7 +10005,12 @@ function fGetMasteryWeapons(clsId){
   return WEAPONS_MASTERY;
 }
 
-// Helper: check if a skill has expertise (da tutte le sorgenti)
+// Helper: bonus Taumaturgo (mod.SAG min +1) per Arcano o Religione
+function fTaumaturgBonus(skillEn){
+  if(C.cls!=='cleric' || C.divOrder!=='taumaturgo') return 0;
+  if(!C.taumaturgoBonusSkill || C.taumaturgoBonusSkill!==skillEn) return 0;
+  return Math.max(1, fcmod(fTotalStat('WIS')));
+}
 function fHasExpertise(skillEn){
   if((C.expertiseSkills||[]).includes(skillEn)) return true;
   if((C.expertiseSkills2||[]).includes(skillEn)) return true;
@@ -9890,11 +10024,12 @@ function fSkillMod(skillEn, statKey){
   const pb=fpb(C.level);
   const bgSk=fgBg()?fgBg().skillsEn.split(' and ').map(s=>s.trim()):[];
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
-  const isProf=allProfs.some(p=>p.trim()===skillEn);
+  const isProf=allProfs.some(p=>p.trim()===skillEn)||fGetAllSkillProfs().includes(skillEn);
   const isExp=fHasExpertise(skillEn);
-  if(isExp) return base+pb*2;
-  if(isProf) return base+pb;
-  return base;
+  const taumBonus=fTaumaturgBonus(skillEn);
+  if(isExp) return base+pb*2+taumBonus;
+  if(isProf) return base+pb+taumBonus;
+  return base+taumBonus;
 }
 
 // ═══════════════════════════════════════
@@ -10026,7 +10161,7 @@ function fRSpPreview(sp,sr){
     </div>
     <div style="margin-bottom:10px">
       <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">${ft("Tratti","Traits")}</div>
-      ${sp.features.map(f=>`<div style="margin-bottom:5px"><span style="color:var(--text);font-size:12px;font-weight:600">${lang==="it"?f.it:f.en}: </span><span style="color:var(--muted);font-size:12px">${lang==="it"?f.desc:f.descEn}</span></div>`).join("")}
+      ${sp.features.map(f=>`<div style="margin-bottom:5px"><span style="color:var(--text);font-size:12px;font-weight:600">${lang==="it"?f.it:f.en}: </span><span style="color:var(--muted);font-size:12px">${fLocalizeStatAbbr(lang==="it"?f.desc:f.descEn)}</span></div>`).join("")}
     </div>
     ${sp.subraces?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
       <div style="font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">⚠️ ${ft("Scegli Lignaggio (obbligatorio)","Choose Lineage (required)")}</div>
@@ -10036,7 +10171,7 @@ function fRSpPreview(sp,sr){
           <span style="font-size:13px;font-weight:600;color:${C.subrace===r.id?"var(--gold)":"var(--text)"}">${lang==="it"?r.it:r.en}</span>
           ${C.subrace===r.id?'<span style="margin-left:auto;color:var(--gold)">✓</span>':""}
         </div>
-        ${r.features?r.features.map(f=>`<div style="font-size:11px;color:var(--dim);margin-top:2px"><b style="color:var(--muted)">${lang==="it"?f.it:f.en}:</b> ${lang==="it"?f.desc:f.descEn}</div>`).join(""):""}
+        ${r.features?r.features.map(f=>`<div style="font-size:11px;color:var(--dim);margin-top:2px"><b style="color:var(--muted)">${lang==="it"?f.it:f.en}:</b> ${fLocalizeStatAbbr(lang==="it"?f.desc:f.descEn)}</div>`).join(""):""}
       </div>`).join("")}
     </div>`:""}
   </div>`;
