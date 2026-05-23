@@ -2526,7 +2526,7 @@ const FFEATS_DATA_V2 = [
         descEn:'+2 to one ability score or +1 to two different ability scores (max 20 each). Always repeatable.' },
       { id:'atleta', it:'Atleta', en:'Athlete',
         prereq: { level:4, stats:{STR:13} },
-        descIt:'+1 FOR o DES (max 20). Scalata = velocità normale. Rialzarsi costa solo 1,5 m di movimento. Salto in lungo/alto con solo 1,5 m di rincorsa.',
+        descIt:'+1 FOR o DES (max 20). Velocità scalata = velocità normale. Rialzarsi costa solo 1,5 m di movimento. Salto in lungo/alto con solo 1,5 m di rincorsa.',
         descEn:'+1 STR or DEX (max 20). Climbing costs no extra movement. Standing up costs only 5 ft. Running jump needs only 5 ft. of running start.' },
       { id:'attore', it:'Attore', en:'Actor',
         prereq: { level:4, stats:{CHA:13} },
@@ -2601,7 +2601,7 @@ const FFEATS_DATA_V2 = [
         prereq: { level:4 },
         descIt:'+1 FOR/DES/SAG (max 20). Vantaggio contro creature di taglia inferiore alla tua cavalcatura. Balzo laterale: cavalcatura supera TS DEX senza danni (metà se fallisce). Deviazione: dirigi l\'attacco verso la cavalcatura.',
         descEn:'+1 STR/DEX/WIS (max 20). Advantage vs creatures smaller than your mount. Evasive Maneuvers: mount passes DEX save with no damage (half on fail). Redirect: direct attack toward your mount.' },
-      { id:'competenza-armi-guerra', it:'Competenza nelle Armi da Guerra', en:'War Caster',
+      { id:'competenza-armi-guerra', it:'Competenza nelle Armi da Guerra', en:'Martial Weapon Training',
         prereq: { level:4 },
         statBonus:{ any:'STR_DEX', val:1 }, max:20,
         descIt:'+1 FOR o DES (max 20). Ottieni competenza nelle armi da guerra.',
@@ -2829,7 +2829,7 @@ const FEAT_METADATA = {
   'guaritore':               { cat:'origin' },
   'iniziato-magia':          { cat:'origin', repeatable:true, spellList:'choice', cantrips:2, lvl1Spell:1 },
   'lavoro-manuale':          { cat:'origin', grants:{tools:'artigiano'} },
-  'lottatore-taverna':       { cat:'origin', statBonus:{any:'STR_CON', val:1}, max:20 },
+  'lottatore-taverna':       { cat:'origin' },
   'musicista':               { cat:'origin', grants:{tools:'musicale'} },
   'robusto':                 { cat:'origin', hpBonus:{perLevel:2} },
 
@@ -2837,9 +2837,9 @@ const FEAT_METADATA = {
   // TALENTI GENERALI (prerequisito: Lv.4+, salvo diverso)
   // ═══════════════════════════════════════════════════════════════════
   'abilita-impeccabile':     { cat:'general', prereq:'lv4', statBonus:{any:1, val:1}, max:20, grants:{skills:1, expertise:1} },
-  'adepto-elementale':       { cat:'general', prereq:'lv4,spellcasting', repeatable:true, statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
+  'adepto-elementale':       { cat:'general', prereq:'lv4,spellcasting', repeatable:true, statBonus:{any:'INT_WIS_CHA', val:1}, max:20, grants:{damageType:true} },
   'appostato':               { cat:'general', prereq:'lv4,DEX_13', statBonus:{stat:'DEX', val:1}, max:20 },
-  'atleta':                  { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX_CON', val:1}, max:20 },
+  'atleta':                  { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'attore':                  { cat:'general', prereq:'lv4', statBonus:{stat:'CHA', val:1}, max:20 },
   'aumento-caratteristica':  { cat:'general', prereq:'lv4', statBonus:{any:1, val:2}, alt:{any:2, val:1}, max:20, repeatable:true },
   'bisturi-battaglia':       { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
@@ -2849,9 +2849,9 @@ const FEAT_METADATA = {
   'combattente-sella':       { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX_WIS', val:1}, max:20 },
   'competenza-armi-guerra':  { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'condottiero-ispiratore':  { cat:'general', prereq:'lv4,WIS_CHA_13', statBonus:{any:'WIS_CHA', val:1}, max:20 },
-  'contaminazione-fatata':   { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
-  'contaminazione-oscura':   { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
-  'corazze-leggere':         { cat:'general', prereq:'lv4' },
+  'contaminazione-fatata':   { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20, grants:{spell1Schools:['Enchantment','Divination']} },
+  'contaminazione-oscura':   { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20, grants:{spell1Schools:['Illusion','Necromancy']} },
+  'corazze-leggere':         { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'corazze-medie':           { cat:'general', prereq:'lv4,armor:light', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'corazze-pesanti':         { cat:'general', prereq:'lv4,armor:medium', statBonus:{any:'CON_STR', val:1}, max:20 },
   'cuoco':                   { cat:'general', prereq:'lv4', statBonus:{any:'CON_WIS', val:1}, max:20 },
@@ -2868,13 +2868,13 @@ const FEAT_METADATA = {
   'maestro-armature-pesanti':{ cat:'general', prereq:'lv4,armor:heavy', statBonus:{any:'CON_STR', val:1}, max:20 },
   'maestro-scudi':           { cat:'general', prereq:'lv4,shield', statBonus:{any:'STR', val:1}, max:20 },
   'martello-vivente':        { cat:'general', prereq:'lv4', statBonus:{any:'STR_CON', val:1}, max:20 },
-  'mente-acuta':             { cat:'general', prereq:'lv4,INT_13', statBonus:{any:'INT', val:1}, max:20, grants:{skills:1} },
-  'osservatore':             { cat:'general', prereq:'lv4,INT_WIS_13', statBonus:{any:'INT_WIS', val:1}, max:20, grants:{skills:1} },
+  'mente-acuta':             { cat:'general', prereq:'lv4,INT_13', statBonus:{any:'INT', val:1}, max:20, grants:{skillFromList:['Arcana','Investigation','Nature','Religion','History']} },
+  'osservatore':             { cat:'general', prereq:'lv4,INT_WIS_13', statBonus:{any:'INT_WIS', val:1}, max:20, grants:{skillFromList:['Insight','Investigation','Perception']} },
   'rapidita':                { cat:'general', prereq:'lv4,DEX_CON_13', statBonus:{any:'DEX_CON', val:1}, max:20 },
   'resiliente':              { cat:'general', prereq:'lv4', statBonus:{any:1, val:1}, max:20, grants:{saveProf:1} },
   'sentinella':              { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'sterminatore-maghi':      { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
-  'stile-penetrante':        { cat:'general', prereq:'lv4' },
+  'stile-penetrante':        { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'telecinesi':              { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
   'telepatia':               { cat:'general', prereq:'lv4', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
   'tenace':                  { cat:'general', prereq:'lv4', statBonus:{stat:'CON', val:1}, max:20 },
@@ -2897,7 +2897,7 @@ const FEAT_METADATA = {
   // ═══════════════════════════════════════════════════════════════════
   // DONI EPICI (prerequisito: Lv.19+)
   // ═══════════════════════════════════════════════════════════════════
-  'dono-abilita':            { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-abilita':            { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30, grants:{allSkillsProf:true, expertise:1} },
   'dono-abilita-combattimento':{ cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-fato':               { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-offensiva':          { cat:'epic', prereq:'lv19', statBonus:{any:'STR_DEX', val:1}, max:30 },
@@ -2905,10 +2905,10 @@ const FEAT_METADATA = {
   'dono-resistenza':         { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-richiamo':           { cat:'epic', prereq:'lv19', statBonus:{any:'INT_WIS_CHA', val:1}, max:30 },
   'dono-spirito-notturno':   { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
-  'dono-tempra':             { cat:'epic', prereq:'lv19', statBonus:{any:'CON', val:1}, max:30 },
-  'dono-teletrasporto':      { cat:'epic', prereq:'lv19', statBonus:{any:'INT_WIS_CHA', val:1}, max:30 },
-  'dono-velocita':           { cat:'epic', prereq:'lv19', statBonus:{any:'DEX', val:1}, max:30 },
-  'dono-vista-pura':         { cat:'epic', prereq:'lv19', statBonus:{any:'WIS', val:1}, max:30 },
+  'dono-tempra':             { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-teletrasporto':      { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-velocita':           { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-vista-pura':         { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
 };
 
 // Helper: get the list of allowed stats for a feat's bonus
@@ -2917,7 +2917,8 @@ function fGetFeatStatChoices(featId){
   if(!meta || !meta.statBonus) return [];
   const sb = meta.statBonus;
   if(sb.stat) return [sb.stat];
-  if(sb.any === 1) return ['STR','DEX','CON','INT','WIS','CHA'];
+  // any === 1 (numero intero) significa "qualsiasi delle 6 statistiche"
+  if(sb.any === 1 || sb.any === '1') return ['STR','DEX','CON','INT','WIS','CHA'];
   if(typeof sb.any === 'string') return sb.any.split('_');
   return [];
 }
@@ -6858,7 +6859,7 @@ function fRS3(){
 }
 function fRS4(){
   const slots   = fFeatSlots(C.cls, C.level);
-  const used    = C.feats.length;
+  const used    = C.feats.filter(f => !f.fromBg).length;
   const bg      = fgBg();
   const bgFeat  = bg ? (lang==='it' ? bg.featIt : bg.featEn) : null;
   const isIt    = lang === 'it';
@@ -7007,7 +7008,7 @@ function fRS4(){
       </div>
       <div style="flex:1">
         <div style="font-size:11px;color:var(--muted)">${ft("Comp.","Prof.")} <span style="color:var(--gold)">+${fpb(C.level)}</span></div>
-        <div style="font-size:11px;color:var(--muted)">${ft("Slot ASI classe","Class ASI slots")}: <span style="color:var(--gold)">${used}</span>/<span style="color:var(--gold)">${slots}</span></div>
+        <div style="font-size:11px;color:var(--muted)">\${ft("Slot ASI usati","Used ASI slots")}: <span style="color:\${used>=slots?'#e07070':'var(--gold);font-weight:600'}">\${used}</span>/<span style="color:var(--gold)">\${slots}</span>\${used>=slots?' <span style="font-size:9px;color:#e07070">● \${ft("completo","full")}</span>':''}</div>
       </div>
       <button class="btn sm" onclick="step=0;re()" style="font-size:11px;padding:5px 10px;opacity:.7">✎ ${ft("Cambia livello","Change level")}</button>
     </div>
@@ -7049,26 +7050,35 @@ function fRS4(){
     </div>` : ''}
 
     <!-- SCELTE TALENTI: stat, abilità, etc. -->
-    ${(C.feats || []).filter(f => {
-      const meta = FEAT_METADATA[f.id];
-      if(!meta) return false;
-      return meta.statBonus || meta.grants?.skills || meta.grants?.skillsOrTools;
-    }).length > 0 ? `<div class="box" style="margin-bottom:12px;border-color:var(--gold2)">
-      <div class="box-title">🎯 ${ft('Scelte richieste dai Talenti','Required Feat Choices')}</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${ft('Alcuni talenti richiedono scelte aggiuntive. Selezionale qui sotto.','Some feats require additional choices. Pick them below.')}</div>
-      ${(C.feats || []).map(feat => {
-        const meta = FEAT_METADATA[feat.id];
-        if(!meta) return '';
-        if(!meta.statBonus && !meta.grants?.skills && !meta.grants?.skillsOrTools) return '';
-        return `<div style="margin-bottom:10px;padding:8px;background:rgba(13,10,6,.4);border:1px solid var(--border2);border-radius:3px">
-          <div style="font-size:12px;color:var(--gold);font-weight:600">${ft(feat.nameIt||feat.name, feat.nameEn||feat.name)}</div>
-          ${fRFeatChoices(feat)}
-        </div>`;
-      }).join('')}
-    </div>` : ''}
-
     <!-- TALENTI PER CATEGORIA -->
     ${FFEATS_DATA_V2.map(cat => renderCat(cat)).join('')}
+
+    <!-- SCELTE RICHIESTE DAI TALENTI (dopo la selezione) -->
+    ${(()=>{
+      function hasFeatChoices(meta){
+        if(!meta) return false;
+        return !!(meta.statBonus || meta.grants?.skills || meta.grants?.skillsOrTools
+          || meta.grants?.tools || meta.grants?.spellList
+          || meta.grants?.skillFromList || meta.grants?.expertise
+          || meta.grants?.damageType || meta.grants?.spell1Schools
+          || meta.grants?.allSkillsProf);
+      }
+      const featsWithChoices = (C.feats||[]).filter(f=>!f.fromBg && hasFeatChoices(FEAT_METADATA[f.id]));
+      if(featsWithChoices.length === 0) return '';
+      return `<div class="box" style="margin-top:14px;border-color:var(--gold2)">
+        <div class="box-title">🎯 ${ft('Scelte richieste dai Talenti','Required Feat Choices')}</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">${ft('Per i talenti selezionati, configura qui le scelte aggiuntive.','Configure additional choices for your selected feats.')}</div>
+        ${featsWithChoices.map(feat => {
+          const meta = FEAT_METADATA[feat.id];
+          const choices = fRFeatChoices(feat);
+          if(!choices) return '';
+          return '<div style="margin-bottom:10px;padding:8px;background:rgba(13,10,6,.4);border:1px solid var(--border2);border-radius:3px">'
+            +'<div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:4px">'+ft(feat.nameIt||feat.name, feat.nameEn||feat.name)+'</div>'
+            + choices
+            +'</div>';
+        }).join('')}
+      </div>`;
+    })()}
 
     <!-- Slot personalizzato -->
     <div class="box">
@@ -7154,6 +7164,8 @@ function fGetAllStatBonuses(){
     if(sb.stat){
       // Bonus fisso a una stat specifica
       addBonus(sb.stat, sb.val, featName);
+    } else if(!choice.stats && sb.any === 1){
+      // Nessuna scelta ancora fatta — non aggiungere nulla al totale
     } else if(choice.stats && Array.isArray(choice.stats)){
       // Player ha scelto una o più stat
       // Per aumento-caratteristica: rispetta la modalità (+2 o +1+1)
@@ -7364,11 +7376,18 @@ function fGetAllSkillProfs(){
   const feat = (C.featSkills || []).map(f=>f.skill||f);
   const prim = (C.cls==='barbarian'&&(C.level||1)>=3&&C.primordialKnowledgeSkill)
     ? [C.primordialKnowledgeSkill] : [];
-  // Abilità da sottoclasse (scelte wizard: Bardo Sapienza)
   const scSk = (C.subclassSkills || []);
-  // Abilità automatiche da sottoclasse (Monaco Misericordia)
   const autoSk = fSubclassAutoSkills(C.cls, C.subclass||'', C.level||1);
-  return [...new Set([...bg, ...cls, ...sp, ...feat, ...prim, ...scSk, ...autoSk])];
+  // Abilità da skillFromList (Osservatore, Mente Acuta) — solo se scelti
+  const featListSk = (C.feats||[]).flatMap(f=>{
+    const ch=(C.featChoices||{})[f.uid]||{};
+    return ch.skillFromList ? [ch.skillFromList] : [];
+  });
+  // Dono dell'Abilità: tutte le abilità
+  const allSkProf = (C.feats||[]).some(f=>{
+    const m=FEAT_METADATA[f.id]; return m?.grants?.allSkillsProf;
+  }) ? FSKL.map(s=>s.en) : [];
+  return [...new Set([...bg, ...cls, ...sp, ...feat, ...prim, ...scSk, ...autoSk, ...featListSk, ...allSkProf])];
 }
 
 // [fGetAllSkillProfs removed duplicate - fixed]
@@ -8932,7 +8951,8 @@ function fFeatCount(id){
 
 // ─── aggiungi una istanza di feat ripetibile ──────────────────────────────
 function fFeatAdd(id, nameIt, nameEn){
-  if(C.feats.length >= fFeatSlots(C.cls, C.level)) return;
+  const nonBgCount = C.feats.filter(f => !f.fromBg).length;
+  if(nonBgCount >= fFeatSlots(C.cls, C.level)) return;
   // Genera UID per tracciare scelte specifiche di questo talento (utile per ripetibili)
   const uid = id + '_' + Date.now() + '_' + Math.floor(Math.random()*1000);
   C.feats.push({id, uid, name: lang==='it'?nameIt:nameEn, nameIt, nameEn});
@@ -8961,6 +8981,34 @@ function fFeatRemoveLast(id){
 }
 
 // ─── Feat choice helpers ────────────────────────────────────────────────────
+// ─── Setter: expertise da talento ─────────────────────────────────────────
+function fSetFeatExpertise(uid, skillEn){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  C.featChoices[uid].expertise = (C.featChoices[uid].expertise===skillEn) ? null : skillEn;
+  re();
+}
+// ─── Setter: abilità da skillFromList ─────────────────────────────────────
+function fSetFeatSkillFromList(uid, skillEn){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  C.featChoices[uid].skillFromList = (C.featChoices[uid].skillFromList===skillEn) ? null : skillEn;
+  re();
+}
+// ─── Setter: tipo danno (Adepto Elementale) ────────────────────────────────
+function fSetFeatDamageType(uid, dtype){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  C.featChoices[uid].damageType = (C.featChoices[uid].damageType===dtype) ? null : dtype;
+  re();
+}
+// ─── Setter: incantesimo 1° da scuola (Cont. Fatata/Oscura) ────────────────
+function fSetFeatSpell1(uid, spellName){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  C.featChoices[uid].spell1 = (C.featChoices[uid].spell1===spellName) ? null : spellName;
+  re();
+}
 function fSetAsiMode(uid, mode){
   if(!C.featChoices) C.featChoices = {};
   if(!C.featChoices[uid]) C.featChoices[uid] = {};
@@ -9205,6 +9253,128 @@ function fRFeatChoices(feat){
         </div>
       </div>`;
     }
+  }
+
+  // ── Picker abilità da lista ristretta (Osservatore, Mente Acuta) ────────────
+  if(meta.grants?.skillFromList){
+    const list = meta.grants.skillFromList;
+    const chosen = (C.featChoices?.[feat.uid]?.skillFromList) || null;
+    const allProfs = fGetAllSkillProfs();
+    const skillLabels = {};
+    FSKL.forEach(s=>{ skillLabels[s.en] = isIt ? s.it : s.en; });
+    html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+      <div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🎯 ${isIt?'Abilità (1)':'Skill (1)'}</div>
+      <div style="font-size:9px;color:var(--muted);margin-bottom:5px">${isIt?'Se già competente → Maestria automatica':'If already proficient → Auto Expertise'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${list.map(skEn=>{
+          const sel = chosen===skEn;
+          const alreadyProf = !sel && allProfs.includes(skEn);
+          const label = skillLabels[skEn]||skEn;
+          const badge = alreadyProf ? (isIt?' [Maestria]':' [Exp]') : (isIt?' [Comp]':' [Prof]');
+          const col = sel ? 'var(--gold)' : 'var(--border2)';
+          const bg  = sel ? 'rgba(200,164,90,.2)' : 'transparent';
+          const tc  = sel ? 'var(--gold)' : 'var(--text)';
+          return `<span onclick="fSetFeatSkillFromList('${feat.uid}','${skEn}')"
+            style="font-size:10px;padding:2px 8px;border:1px solid ${col};background:${bg};
+            color:${tc};border-radius:3px;cursor:pointer">
+            ${label}<span style="font-size:9px;opacity:.7">${badge}</span>
+          </span>`;
+        }).join('')}
+      </div>
+      ${chosen ? `<div style="font-size:10px;color:var(--gold2);margin-top:4px">✓ ${skillLabels[chosen]||chosen} — ${allProfs.includes(chosen)?isIt?'Maestria':'Expertise':isIt?'Competenza':'Proficiency'}</div>` : ''}
+    </div>`;
+  }
+
+  // ── Picker expertise (Abilità Impeccabile, Dono Abilità) ─────────────────
+  if(meta.grants?.expertise){
+    const chosenExp = (C.featChoices?.[feat.uid]?.expertise) || null;
+    const allProfs  = fGetAllSkillProfs();
+    const skillLabels = {};
+    FSKL.forEach(s=>{ skillLabels[s.en] = isIt ? s.it : s.en; });
+    // Solo skills con competenza (ma non già con expertise da questo talento)
+    const eligible = FSKL.map(s=>s.en).filter(skEn => allProfs.includes(skEn));
+    html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(180,120,200,.08);border-left:2px solid #9b59b6;border-radius:2px">
+      <div style="font-size:10px;color:#9b59b6;margin-bottom:5px">⭐ ${isIt?'Maestria (1)':'Expertise (1)'} <span style="font-size:9px;opacity:.7">${isIt?'(da abilità con competenza)':'(from proficient skills)'}</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${eligible.length ? eligible.map(skEn=>{
+          const sel = chosenExp===skEn;
+          const alreadyExp = !sel && fHasExpertise(skEn);
+          const dis = !sel && alreadyExp;
+          const label = skillLabels[skEn]||skEn;
+          const col = sel ? '#9b59b6' : dis ? 'var(--vdim)' : 'var(--border2)';
+          const bg  = sel ? 'rgba(155,89,182,.2)' : 'transparent';
+          const tc  = sel ? '#9b59b6' : dis ? 'var(--vdim)' : 'var(--text)';
+          const cu  = dis ? 'not-allowed' : 'pointer';
+          const op  = dis ? .4 : 1;
+          return `<span onclick="${dis?'':"fSetFeatExpertise('"+feat.uid+"','"+skEn+"')"}"
+            style="font-size:10px;padding:2px 7px;border:1px solid ${col};background:${bg};
+            color:${tc};border-radius:3px;cursor:${cu};opacity:${op}">
+            ${label}
+          </span>`;
+        }).join('') : `<span style="font-size:10px;color:var(--vdim)">${isIt?'Scegli prima abilità con competenza':'Choose skills first'}</span>`}
+      </div>
+      ${chosenExp ? `<div style="font-size:10px;color:#9b59b6;margin-top:4px">⭐ ${skillLabels[chosenExp]||chosenExp} → ${isIt?'Maestria':'Expertise'}</div>` : ''}
+    </div>`;
+  }
+
+  // ── Picker tipo danno (Adepto Elementale) ─────────────────────────────────
+  if(meta.grants?.damageType){
+    const chosen = (C.featChoices?.[feat.uid]?.damageType) || null;
+    const types = isIt
+      ? [{id:'acid',it:'Acido'},{id:'cold',it:'Freddo'},{id:'fire',it:'Fuoco'},{id:'lightning',it:'Fulmine'},{id:'thunder',it:'Tuono'}]
+      : [{id:'acid',it:'Acid'},{id:'cold',it:'Cold'},{id:'fire',it:'Fire'},{id:'lightning',it:'Lightning'},{id:'thunder',it:'Thunder'}];
+    html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">
+      <div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🔥 ${isIt?'Tipo di danno elementale':'Elemental damage type'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${types.map(t=>{
+          const sel = chosen===t.id;
+          return `<span onclick="fSetFeatDamageType('${feat.uid}','${t.id}')"
+            style="font-size:10px;padding:2px 8px;border:1px solid ${sel?'var(--gold)':'var(--border2)'};
+            background:${sel?'rgba(200,164,90,.2)':'transparent'};color:${sel?'var(--gold)':'var(--text)'};
+            border-radius:3px;cursor:pointer">${t.it}</span>`;
+        }).join('')}
+      </div>
+      ${chosen ? `<div style="font-size:10px;color:var(--gold2);margin-top:3px">✓ ${types.find(t=>t.id===chosen)?.it||chosen}</div>` : ''}
+    </div>`;
+  }
+
+  // ── Picker incantesimo 1° da scuola (Contaminazione Fatata/Oscura) ─────────
+  if(meta.grants?.spell1Schools){
+    const schools = meta.grants.spell1Schools;
+    const chosen  = (C.featChoices?.[feat.uid]?.spell1) || null;
+    // Filtra incantesimi di 1° dalle scuole indicate
+    const schoolMap_it = {Enchantment:'Ammaliamento',Divination:'Divinazione',Illusion:'Illusione',Necromancy:'Negromanzia'};
+    const schoolNames  = isIt ? schools.map(s=>schoolMap_it[s]||s) : schools;
+    const eligible = (typeof SPELLS !== 'undefined' ? SPELLS : [])
+      .filter(sp => sp.level===1 && schools.some(sc=>sp.school===sc || sp.schoolIt===schoolMap_it[sc]))
+      .sort((a,b)=>(isIt?a.nameIt:a.nameEn||a.name||'').localeCompare(isIt?b.nameIt:b.nameEn||b.name||''));
+    html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(100,180,200,.07);border-left:2px solid #3498db;border-radius:2px">
+      <div style="font-size:10px;color:#3498db;margin-bottom:4px">✨ ${isIt?'Incantesimo 1° ('+schoolNames.join('/')+')':'1st-level spell ('+schoolNames.join('/')+')'}</div>
+      ${eligible.length > 0
+        ? `<div style="max-height:120px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:2px">
+          ${eligible.map(sp=>{
+            const name = isIt?(sp.nameIt||sp.name):(sp.nameEn||sp.name);
+            const sel  = chosen===name;
+            return `<span onclick="fSetFeatSpell1('${feat.uid}','${fHtmlEsc(name)}')"
+              style="font-size:10px;padding:2px 6px;border:1px solid ${sel?'#3498db':'var(--border2)'};
+              background:${sel?'rgba(52,152,219,.2)':'transparent'};color:${sel?'#3498db':'var(--muted)'};
+              border-radius:2px;cursor:pointer">${name}</span>`;
+          }).join('')}
+        </div>`
+        : `<input type="text" placeholder="${isIt?'Scrivi il nome dell incantesimo…':'Type the spell name…'}"
+            value="${chosen||''}"
+            oninput="fSetFeatSpell1('${feat.uid}',this.value)"
+            style="width:100%;padding:4px 6px;background:rgba(13,10,6,.7);border:1px solid var(--border2);border-radius:3px;color:var(--gold);font-size:11px">`
+      }
+      ${chosen ? `<div style="font-size:10px;color:#3498db;margin-top:3px">✓ ${chosen}</div>` : ''}
+    </div>`;
+  }
+
+  // ── Info automatico: Dono dell'Abilità — tutte le abilità ─────────────────
+  if(meta.grants?.allSkillsProf){
+    html += `<div style="margin-top:6px;padding:5px 8px;background:rgba(90,180,90,.07);border-left:2px solid var(--green);border-radius:2px">
+      <div style="font-size:10px;color:var(--green)">✓ ${isIt?'Competenza in tutte le abilità (automatica)':'Proficiency in all skills (automatic)'}</div>
+    </div>`;
   }
 
   return html;
@@ -10013,6 +10183,8 @@ function fHasExpertise(skillEn){
   if((C.expertiseSkills||[]).includes(skillEn)) return true;
   if((C.expertiseSkills2||[]).includes(skillEn)) return true;
   if(C.wizardScholarSkill===skillEn) return true;
+  // Expertise da talenti (featChoices[uid].expertise)
+  if((C.feats||[]).some(f=>(C.featChoices||{})[f.uid]?.expertise===skillEn)) return true;
   return false;
 }
 
