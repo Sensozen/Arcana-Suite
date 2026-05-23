@@ -6225,13 +6225,7 @@ function fRS2(){
     }
   }
 
-  html+=`<div class="nav">
-    <button class="btn" onclick="fGoBack()">← ${isIt?'Indietro':'Back'}</button>
-    <button class="btn primary" onclick="fGoNext()" ${fCanNext()?'':'disabled'}>
-      ${isIt?'Avanti':'Next'} →
-    </button>
-  </div>
-  </div>`;
+  html+=`</div>`;
   return html;
 }
 function fToggleMastery(wEn, wIt, max){
@@ -6826,19 +6820,87 @@ function fRS3(){
     <div class="sec-title">📜 ${ft("5 · Background","5 · Background")}</div>
     
     <div class="ga-sm" style="margin-bottom:12px">
-      ${BACKGROUNDS.map(b=>`<div class="card ${C.bg===b.id?"sel":""}" onclick="fSelBg('${b.id}')">
-        <div style="font-size:16px;margin-bottom:2px">${b.icon}</div>
-        <div style="font-size:12px;font-weight:600;color:${C.bg===b.id?"var(--gold)":"var(--text)"}">${lang==="it"?b.it:b.en}</div>
-        <div style="font-size:9px;color:var(--dim);margin-top:1px">${lang==="it"?b.skillsIt:b.skillsEn}</div>
-      </div>`).join("")}
+      ${BACKGROUNDS.map(b=>{
+        const isSel = C.bg===b.id;
+        const stats = (lang==="it"?b.statsIt:b.statsEn).split(",").map(s=>s.trim());
+        // Colori per stat
+        const statColor = {STR:"#e07070",DEX:"#70b8e0",CON:"#e09870",INT:"#9b8be0",WIS:"#70c870",CHA:"#e0b870",
+                           FOR:"#e07070",DES:"#70b8e0",COS:"#e09870",INT:"#9b8be0",SAG:"#70c870",CAR:"#e0b870"};
+        const statBadges = stats.map(s=>`<span style="font-size:8px;padding:1px 4px;border-radius:2px;background:rgba(0,0,0,.35);color:${statColor[s]||"var(--gold)"};font-weight:700;letter-spacing:.3px">${s}</span>`).join(" ");
+        // Tool icon
+        const toolsStr = lang==="it"?b.toolsIt:b.toolsEn;
+        const toolIcon = toolsStr.toLowerCase().includes("gioc")||toolsStr.toLowerCase().includes("gaming")?"🎲"
+          : toolsStr.toLowerCase().includes("music")?"🎵"
+          : toolsStr.toLowerCase().includes("herb")?"🌿"
+          : toolsStr.toLowerCase().includes("thieves")||toolsStr.toLowerCase().includes("scasso")?"🔓"
+          : toolsStr.toLowerCase().includes("forgery")||toolsStr.toLowerCase().includes("falsario")?"📋"
+          : toolsStr.toLowerCase().includes("navig")?"🧭"
+          : toolsStr.toLowerCase().includes("calligr")?"✒️"
+          : toolsStr.toLowerCase().includes("artigian")||toolsStr.toLowerCase().includes("artisan")?"⚒️"
+          : toolsStr.toLowerCase().includes("falegnam")||toolsStr.toLowerCase().includes("carpent")?"🪚"
+          : "🔧";
+        return `<div class="card ${isSel?"sel":""}" onclick="fSelBg('${b.id}')" style="position:relative">
+          <div style="font-size:15px;margin-bottom:2px">${b.icon}</div>
+          <div style="font-size:11px;font-weight:600;color:${isSel?"var(--gold)":"var(--text)"};margin-bottom:4px">${lang==="it"?b.it:b.en}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:2px;justify-content:center;margin-bottom:3px">${statBadges}</div>
+          <div style="font-size:8px;color:var(--dim);line-height:1.3">${lang==="it"?b.skillsIt:b.skillsEn}</div>
+          <div style="font-size:9px;color:var(--muted);margin-top:2px" title="${toolsStr}">${toolIcon} <span style="font-size:7.5px">${toolsStr.length>22?toolsStr.slice(0,20)+"…":toolsStr}</span></div>
+        </div>`;
+      }).join("")}
     </div>
     ${bg?`<div class="panel sel-border fade-in" style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">
-        <span style="font-size:20px">${bg.icon}</span><div style="font-family:'Comfortaa', sans-serif;color:var(--gold);font-size:13px">${lang==="it"?bg.it:bg.en}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+        <span style="font-size:20px">${bg.icon}</span>
+        <div style="font-family:'Comfortaa', sans-serif;color:var(--gold);font-size:13px">${lang==="it"?bg.it:bg.en}</div>
       </div>
-      <p style="color:var(--muted);font-size:12px;font-style:italic;margin-bottom:10px">${lang==="it"?bg.descIt:bg.descEn}</p>
+      <p style="color:var(--muted);font-size:11px;font-style:italic;margin-bottom:10px">${lang==="it"?bg.descIt:bg.descEn}</p>
+
+      <!-- Stat badges espansi -->
+      <div style="margin-bottom:10px;padding:8px 10px;background:rgba(200,164,90,.07);border-radius:4px;border:1px solid rgba(200,164,90,.2)">
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${ft("Bonus Caratteristiche (+1 ciascuna)","Ability Bonuses (+1 each)")}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${(()=>{
+            const SCOL={STR:"#e07070",DEX:"#70b8e0",CON:"#e09870",INT:"#9b8be0",WIS:"#70c870",CHA:"#e0b870",
+                        FOR:"#e07070",DES:"#70b8e0",COS:"#e09870",SAG:"#70c870",CAR:"#e0b870"};
+            const SFUL_IT={FOR:"Forza",DES:"Destrezza",COS:"Costituzione",INT:"Intelligenza",SAG:"Saggezza",CAR:"Carisma"};
+            const SFUL_EN={STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
+            return (lang==="it"?bg.statsIt:bg.statsEn).split(",").map(s=>{
+              const st=s.trim(); const col=SCOL[st]||"var(--gold)";
+              const full=lang==="it"?(SFUL_IT[st]||st):(SFUL_EN[st]||st);
+              return '<div style="display:flex;flex-direction:column;align-items:center;padding:5px 10px;background:rgba(0,0,0,.35);border:1px solid '+col+'40;border-radius:4px;min-width:50px">'
+                +'<span style="font-size:14px;font-weight:700;color:'+col+'">+1</span>'
+                +'<span style="font-size:9px;color:'+col+';opacity:.85;font-weight:600">'+st+'</span>'
+                +'<span style="font-size:7.5px;color:var(--dim);margin-top:1px">'+full+'</span>'
+                +'</div>';
+            }).join("");
+          })()}
+        </div>
+      </div>
+
+      <!-- Strumenti evidenziati -->
+      <div style="margin-bottom:10px;padding:8px 10px;background:rgba(90,150,180,.07);border-radius:4px;border:1px solid rgba(90,150,180,.2)">
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">${ft("Strumento","Tool")}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:16px">${(()=>{
+            const t=(lang==="it"?bg.toolsIt:bg.toolsEn).toLowerCase();
+            return t.includes("gioc")||t.includes("gaming")?"🎲"
+              :t.includes("music")?"🎵"
+              :t.includes("herb")?"🌿"
+              :t.includes("thieves")||t.includes("scasso")?"🔓"
+              :t.includes("forgery")||t.includes("falsario")?"📋"
+              :t.includes("navig")?"🧭"
+              :t.includes("calligr")?"✒️"
+              :t.includes("artigian")||t.includes("artisan")?"⚒️"
+              :t.includes("falegnam")||t.includes("carpent")?"🪚"
+              :"🔧";
+          })()}</span>
+          <span style="font-size:12px;color:#70b8e0;font-weight:600">${lang==="it"?bg.toolsIt:bg.toolsEn}</span>
+        </div>
+      </div>
+
+      <!-- Abilità e Talento -->
       <div class="g2" style="gap:8px">
-        ${[[ft("Caratteristiche","Stats"),lang==="it"?bg.statsIt:bg.statsEn],[ft("Abilità","Skills"),lang==="it"?bg.skillsIt:bg.skillsEn],[ft("Strumenti","Tools"),lang==="it"?bg.toolsIt:bg.toolsEn],[ft("Talento Origine","Origin Feat"),lang==="it"?bg.featIt:bg.featEn]].map(([l,v])=>`<div style="border-bottom:1px solid var(--border);padding-bottom:7px"><div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">${l}</div><div style="font-size:12px;color:var(--gold)">${v}</div></div>`).join("")}
+        ${[[ft("Abilità","Skills"),lang==="it"?bg.skillsIt:bg.skillsEn],[ft("Talento Origine","Origin Feat"),lang==="it"?bg.featIt:bg.featEn]].map(([l,v])=>`<div style="border-bottom:1px solid var(--border);padding-bottom:7px"><div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">${l}</div><div style="font-size:12px;color:var(--gold)">${v}</div></div>`).join("")}
       ${bg ? (()=>{
         const bgSkEn = bg.skillsEn.split(' and ').map(s=>s.trim()).filter(Boolean);
         const clsProfs = C.classSkills || [];
@@ -7008,7 +7070,7 @@ function fRS4(){
       </div>
       <div style="flex:1">
         <div style="font-size:11px;color:var(--muted)">${ft("Comp.","Prof.")} <span style="color:var(--gold)">+${fpb(C.level)}</span></div>
-        <div style="font-size:11px;color:var(--muted)">\${ft("Slot ASI usati","Used ASI slots")}: <span style="color:\${used>=slots?'#e07070':'var(--gold);font-weight:600'}">\${used}</span>/<span style="color:var(--gold)">\${slots}</span>\${used>=slots?' <span style="font-size:9px;color:#e07070">● \${ft("completo","full")}</span>':''}</div>
+        <div style="font-size:11px;color:var(--muted)">${ft("Slot ASI usati","Used ASI slots")}: <span style="color:${used>=slots?'#e07070':'var(--gold)'};font-weight:${used>=slots?'400':'600'}">${used}</span>/<span style="color:var(--gold)">${slots}</span>${used>=slots?' <span style="font-size:9px;color:#e07070">● '+ft("completo","full")+'</span>':''}</div>
       </div>
       <button class="btn sm" onclick="step=0;re()" style="font-size:11px;padding:5px 10px;opacity:.7">✎ ${ft("Cambia livello","Change level")}</button>
     </div>
