@@ -2025,7 +2025,7 @@ const SUBCLASS_FEATURES = {
 ],
 "zelota": [
   { lv:3,  it:"Furia Divina", desc:"In Ira, la prima creatura colpita per turno con arma o colpo senz'armi subisce 1d6 extra (necrotici o radiosi, a scelta ogni volta). Aumenta a 2d6 al Lv.11, 3d6 al Lv.16." },
-  { lv:3,  it:"Guerriero degli Dèi", desc:"Hai una riserva di d12 pari a 4 (sale a 5 a Lv.6, poi a 7 a Lv.17). Azione bonus: consuma dadi per recuperare PF pari al totale. Si recuperano dopo riposo lungo." },
+  { lv:3,  it:"Guerriero degli Dèi", desc:"Hai una riserva di d12 pari a 4 (sale a 5 a Lv.6, a 6 a Lv.12, poi a 7 a Lv.17). Azione bonus: consuma dadi per recuperare PF pari al totale. Si recuperano dopo riposo lungo." },
   { lv:6,  it:"Focus Fanatico", desc:"Una volta per ira: se fallisci un tiro salvezza, puoi ripeterlo e usare il nuovo risultato." },
   { lv:10, it:"Presenza Zelante", desc:"Azione bonus: urlo di guerra divino. Fino a 10 creature a scelta entro 18 m ottengono vantaggio su tiri per colpire e TS fino all'inizio del tuo prossimo turno. 1/riposo lungo, ma puoi ignorare il limite spendendo un utilizzo di ira." },
   { lv:14, it:"Ira degli Dèi", desc:"Azione bonus in Ira: assumi la forma di un guerriero divino per 1 minuto o finché non scendi a 0 PF. Ottieni: resistenza ai danni necrotici, psichici e radiosi; al ritorno a 0 PF un alleato entro 9 m può spendere un'ira per scambiare i suoi PF con quelli del bersaglio (a tuo valore × livello); velocità di volo = velocità." },
@@ -6823,10 +6823,7 @@ function fRS3(){
       ${BACKGROUNDS.map(b=>{
         const isSel = C.bg===b.id;
         const stats = (lang==="it"?b.statsIt:b.statsEn).split(",").map(s=>s.trim());
-        // Colori per stat
-        const statColor = {STR:"#e07070",DEX:"#70b8e0",CON:"#e09870",INT:"#9b8be0",WIS:"#70c870",CHA:"#e0b870",
-                           FOR:"#e07070",DES:"#70b8e0",COS:"#e09870",INT:"#9b8be0",SAG:"#70c870",CAR:"#e0b870"};
-        const statBadges = stats.map(s=>`<span style="font-size:8px;padding:1px 4px;border-radius:2px;background:rgba(0,0,0,.35);color:${statColor[s]||"var(--gold)"};font-weight:700;letter-spacing:.3px">${s}</span>`).join(" ");
+        const statBadges = stats.map(s=>`<span style="font-size:8px;padding:1px 4px;border-radius:2px;background:rgba(255,255,255,.05);color:var(--muted);letter-spacing:.3px">${s}</span>`).join(" ");
         // Tool icon
         const toolsStr = lang==="it"?b.toolsIt:b.toolsEn;
         const toolIcon = toolsStr.toLowerCase().includes("gioc")||toolsStr.toLowerCase().includes("gaming")?"🎲"
@@ -6855,25 +6852,11 @@ function fRS3(){
       </div>
       <p style="color:var(--muted);font-size:11px;font-style:italic;margin-bottom:10px">${lang==="it"?bg.descIt:bg.descEn}</p>
 
-      <!-- Stat badges espansi -->
-      <div style="margin-bottom:10px;padding:8px 10px;background:rgba(200,164,90,.07);border-radius:4px;border:1px solid rgba(200,164,90,.2)">
-        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">${ft("Bonus Caratteristiche (+1 ciascuna)","Ability Bonuses (+1 each)")}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          ${(()=>{
-            const SCOL={STR:"#e07070",DEX:"#70b8e0",CON:"#e09870",INT:"#9b8be0",WIS:"#70c870",CHA:"#e0b870",
-                        FOR:"#e07070",DES:"#70b8e0",COS:"#e09870",SAG:"#70c870",CAR:"#e0b870"};
-            const SFUL_IT={FOR:"Forza",DES:"Destrezza",COS:"Costituzione",INT:"Intelligenza",SAG:"Saggezza",CAR:"Carisma"};
-            const SFUL_EN={STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
-            return (lang==="it"?bg.statsIt:bg.statsEn).split(",").map(s=>{
-              const st=s.trim(); const col=SCOL[st]||"var(--gold)";
-              const full=lang==="it"?(SFUL_IT[st]||st):(SFUL_EN[st]||st);
-              return '<div style="display:flex;flex-direction:column;align-items:center;padding:5px 10px;background:rgba(0,0,0,.35);border:1px solid '+col+'40;border-radius:4px;min-width:50px">'
-                +'<span style="font-size:14px;font-weight:700;color:'+col+'">+1</span>'
-                +'<span style="font-size:9px;color:'+col+';opacity:.85;font-weight:600">'+st+'</span>'
-                +'<span style="font-size:7.5px;color:var(--dim);margin-top:1px">'+full+'</span>'
-                +'</div>';
-            }).join("");
-          })()}
+      <!-- Caratteristiche influenzate (informativo) -->
+      <div style="margin-bottom:10px;padding:7px 10px;background:rgba(255,255,255,.03);border-radius:4px;border:1px solid var(--border)">
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">${ft("Caratteristiche influenzate","Affected Abilities")}</div>
+        <div style="font-size:11px;color:var(--muted)">${lang==="it"?bg.statsIt:bg.statsEn}
+
         </div>
       </div>
 
