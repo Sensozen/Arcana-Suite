@@ -6042,38 +6042,15 @@ function fRS2(){
   }
 
   // ── EXPERTISE section
+  
+  // ── EXPERTISE section (base: Bardo Lv.1, Ladro Lv.1, Ranger Lv.2)
   if(ec>0 && allProfs.length>0){
+    const ecLbl=C.cls==='ranger'?(isIt?'Maestria nelle Abilità — Lv.2 (Esploratore Esperto)':'Skill Expertise — Lv.2 (Seasoned Wanderer)'):
+                C.cls==='bard'  ?(isIt?'Maestria nelle Abilità — Lv.1 (Maestria)':'Skill Expertise — Lv.1 (Expertise)'):
+                C.cls==='rogue' ?(isIt?'Maestria nelle Abilità — Lv.1 (Maestria)':'Skill Expertise — Lv.1 (Expertise)'):
+                                  (isIt?'Maestria nelle Abilità (Lv.1/2)':'Skill Expertise (Lv.1/2)');
     html+=`<div class="panel">
-      <div class="sec-title">⭐ ${isIt?'Maestria nelle Abilità':'Skill Expertise'}</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
-        ${isIt?`Scegli <strong style="color:var(--gold)">${ec}</strong> abilità in cui possiedi competenza: il tuo bonus di competenza viene <strong style="color:var(--gold)">raddoppiato</strong> per queste abilità.`:
-        `Choose <strong style="color:var(--gold)">${ec}</strong> skills you're proficient in: your proficiency bonus is <strong style="color:var(--gold)">doubled</strong> for these.`}
-      </div>
-      <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${expChosen.length}/${ec}</div>
-      <div class="ga">`;
-    FSKL.filter(sk=>allProfs.includes(sk.en)).forEach(sk=>{
-      const sel=expChosen.includes(sk.en);
-      const mod=fSkillMod(sk.en,sk.s);
-      const modStr=(mod>=0?'+':'')+mod;
-      const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
-      const expModStr=(expMod>=0?'+':'')+expMod;
-      html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise('${sk.en}',${ec})" style="padding:6px 8px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
-          <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
-        </div>
-        <div style="font-size:9px;color:var(--gold2);margin-top:2px">
-          ${sel?`●● <strong style="color:var(--green)">${expModStr}</strong>`:`● ${modStr} → ●● <span style="color:var(--green)">${expModStr}</span>`}
-        </div>
-      </div>`;
-    });
-    html+='</div></div>';
-  }
-
-  // ── EXPERTISE section (base: Bardo Lv.2, Ladro Lv.1, Ranger Lv.1)
-  if(ec>0 && allProfs.length>0){
-    html+=`<div class="panel">
-      <div class="sec-title">⭐ ${isIt?'Maestria nelle Abilità (Lv.1/2)':'Skill Expertise (Lv.1/2)'}</div>
+      <div class="sec-title">⭐ ${ecLbl}</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
         ${isIt?`Scegli <strong style="color:var(--gold)">${ec}</strong> abilità in cui possiedi competenza: il bonus di competenza viene <strong style="color:var(--gold)">raddoppiato</strong>.`:
         `Choose <strong style="color:var(--gold)">${ec}</strong> skills you're proficient in: your proficiency bonus is <strong style="color:var(--gold)">doubled</strong>.`}
@@ -7170,10 +7147,16 @@ function fStatTotalExcluding(statKey, excludeUid){
     const choice = (C.featChoices||{})[excFeat.uid]||{};
     if(meta && meta.statBonus){
       const sb = meta.statBonus;
+      // Calcola il valore effettivo per stat:
+      // aumento-caratteristica in plus1x2 vale +1/stat (non +2 come sb.val)
+      let actualVal = sb.val;
+      if(excFeat.id === 'aumento-caratteristica'){
+        actualVal = (choice.asiMode === 'plus1x2') ? 1 : 2;
+      }
       if(sb.stat===statKey){
-        total -= sb.val;
+        total -= actualVal;
       } else if(choice.stats && Array.isArray(choice.stats) && choice.stats.includes(statKey)){
-        total -= sb.val;
+        total -= actualVal;
       }
     }
   }
