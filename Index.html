@@ -1589,13 +1589,13 @@ barbarian: [
   { lv:7,  it:"Balzo Istintivo",
     desc:"Come parte dell'azione bonus per entrare in Ira, può muoversi fino alla metà della sua velocità." },
   { lv:7,  it:"Istinto Ferino",
-    desc:"Vantaggio ai tiri per iniziativa. Se è sorpreso all'inizio di un combattimento e non è incapacitato, può agire normalmente nel primo turno a patto di entrare in Ira prima di fare altro." },
+    desc:"Vantaggio ai tiri per iniziativa. Se è sorpreso all'inizio di un combattimento e non è incapacitato, può agire normalmente nel primo round a patto di entrare in Ira prima di fare qualsiasi altra cosa." },
   { lv:9,  it:"Colpo Brutale",
     desc:"Usando Attacco Irruento nel proprio turno, può rinunciare al vantaggio su un tiro per colpire (basato su FOR) per ottenere effetti aggiuntivi in caso di successo: Colpo spaccaossa (velocità ridotta), Colpo violento (spingere il bersaglio) o Colpo sbalorditivo (svantaggio TS e blocca opportunità). Infligge anche 1d10 danni extra dello stesso tipo." },
   { lv:11, it:"Ira Implacabile",
     desc:"Se scende a 0 PF mentre è in Ira e non è ucciso, può effettuare un TS su COS con CD 10. Con successo, i PF diventano un numero pari al doppio del suo livello da barbaro. Ogni successivo utilizzo aumenta la CD di 5. Recupero: riposo breve o lungo." },
   { lv:13, it:"Colpo Brutale Migliorato",
-    desc:"Si aggiungono nuove opzioni di Colpo Brutale." },
+    desc:"Si aggiungono due nuove opzioni di Colpo Brutale: Colpo sbalorditivo (il bersaglio ha svantaggio ai TS e non può effettuare attacchi di opportunità fino all'inizio del suo prossimo turno), Colpo di scissione (prima dell'inizio del prossimo turno del barbaro, il prossimo attacco di un'altra creatura contro il bersaglio ottiene +5 al tiro; un tiro per colpire può ottenere un solo bonus da questo effetto)." },
   { lv:15, it:"Ira Persistente",
     desc:"Quando effettua un tiro per l'iniziativa, recupera tutti gli usi di Ira spesi. Dopo aver recuperato in questo modo, non può ripeterlo prima di un riposo breve o lungo. Inoltre l'Ira dura 10 minuti senza bisogno di prolungarla ogni round." },
   { lv:17, it:"Colpo Brutale Migliorato",
@@ -1626,6 +1626,8 @@ bard: [
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
   { lv:5,  it:"Fonte di Ispirazione",
     desc:"Il dado di Ispirazione Bardica diventa d8. Recupera tutti gli utilizzi spesi di Ispirazione Bardica quando completa un riposo breve o lungo. Inoltre, può spendere uno slot incantesimo (nessuna azione richiesta) per recuperare un utilizzo speso di Ispirazione Bardica." },
+  { lv:9,  it:"Maestria",
+    desc:"Il bardo ottiene maestria in altre due competenze nelle abilità a scelta." },
   { lv:7,  it:"Controfascino",
     desc:"Reazione: se il bardo o una creatura entro 9 m fallisce un tiro salvezza contro un effetto che applica la condizione affascinato o spaventato, il bardo può far sì che il tiro venga ripetuto e che il nuovo tiro disponga di vantaggio." },
   { lv:10, it:"Segreti Magici Aggiuntivi e Ispirazione d10",
@@ -1635,7 +1637,7 @@ bard: [
   { lv:15, it:"Ispirazione Bardica d12",
     desc:"Il dado di Ispirazione Bardica diventa d12." },
   { lv:18, it:"Ispirazione Superiore",
-    desc:"Quando tira per l'iniziativa, se ha meno di 2 utilizzi di Ispirazione Bardica, li recupera fin\u00f2 ad averne 2." },
+    desc:"Quando tira per l'iniziativa, se ha meno di 2 utilizzi di Ispirazione Bardica, li recupera finché non ne ha 2." },
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
   { lv:20, it:"Parole della Creazione",
@@ -1661,18 +1663,18 @@ cleric: [
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
   { lv:5,  it:"Bruciare i Non Morti",
-    desc:"Scacciare non morti: i non morti che falliscono il TS subiscono anche danni radiosi = 1d8×mod.SAG (min 1d8). Scala: Lv.7 → 2d8, Lv.13 → 3d8, Lv.18 → 4d8." },
+    desc:"Scacciare non morti: i non morti che falliscono il TS subiscono anche danni radiosi pari alla somma di un numero di d8 pari al modificatore di SAG (min 1d8). I danni non interrompono l'effetto di Scacciare non morti." },
   { lv:7,  it:"Colpi Benedetti",
     desc:"Sceglie una delle due opzioni (permanente). Colpo Divino: 1×/turno, +1d8 necrotici/radiosi quando colpisci con arma (Lv.14: +2d8). Incantesimi Potenti: aggiungi mod.SAG ai danni dei trucchetti (Lv.14: lancia trucchetto → 1 creatura entro 18 m recupera PF = 2×mod.SAG)." },
   { lv:9,  it:"—", desc:"" },
   { lv:10, it:"Intervento Divino",
-    desc:"Az. di Magia: chiede aiuto alla divinità. Sceglie un incantesimo di 5° livello o inferiore da chierico e lo lancia senza slot né componenti. 1/riposo lungo." },
+    desc:"Az. di Magia: chiede aiuto alla divinità. Sceglie un incantesimo da chierico di 5° livello o inferiore che non richieda una reazione per essere lanciato e lo lancia senza slot né componenti materiali. 1/riposo lungo." },
   { lv:14, it:"Colpi Benedetti Migliorati",
     desc:"L'opzione scelta per i Colpi Benedetti diventa più potente (vedi Colpi Benedetti)." },
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi Capitolo 5) o un altro talento. Consigliato: Dono del Fato." },
   { lv:20, it:"Intervento Divino Superiore",
-    desc:"Quando usa Intervento Divino, può scegliere l'incantesimo desiderato da qualsiasi lista. Dopo l'uso non può usare Intervento Divino per 2d4 riposi lunghi." },
+    desc:"Quando usa Intervento Divino, può scegliere l'incantesimo *desiderio* (oltre ai normali incantesimi da chierico 5° lv o inferiore senza reazione). Se sceglie desiderio, non può usare di nuovo Intervento Divino finché non completa 2d4 riposi lunghi." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -1692,17 +1694,17 @@ druid: [
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
   { lv:5,  it:"Rinascita Selvatica",
-    desc:"Quando usa l'azione Attacco nel suo turno, può spendere un uso di Forma Selvatica (azione bonus) per trasformarsi. Può anche spendere un uso di Forma Selvatica (azione bonus) per recuperare uno slot incantesimo speso di livello non superiore a metà del suo livello da druido." },
+    desc:"Due opzioni (nessuna azione richiesta): 1) Se non ha usi di Forma Selvatica, spende uno slot incantesimo per recuperarne uno. 2) Spende un uso di Forma Selvatica per ottenere uno slot incantesimo di 1° livello; non può farlo di nuovo finché non completa un riposo lungo." },
   { lv:7,  it:"Furia Elementale",
-    desc:"In Forma Selvatica, gli attacchi senz'armi infliggono 1d6 danni aggiuntivi (acido, freddo, fuoco, fulmine o tuono a scelta quando assume la forma)." },
+    desc:"Sceglie un'opzione permanente. Colpo primordiale: 1×/turno, quando colpisce con un'arma o attacco bestiale in Forma Selvatica, +1d8 danni (freddo, fuoco, fulmine o tuono a scelta). Incantesimi potenti: aggiunge il modificatore di Saggezza al danno inferto con qualsiasi trucchetto da druido." },
   { lv:15, it:"Furia Elementale Migliorata",
-    desc:"I danni extra della Furia Elementale aumentano a 2d6." },
+    desc:"L'opzione scelta per la Furia Elementale diventa più potente. Colpo primordiale: i danni extra aumentano a 2d8. Incantesimi potenti: quando lancia un trucchetto da druido con raggio ≥ 3 m, la gittata aumenta di 90 m." },
   { lv:18, it:"Incantesimi Bestiali",
     desc:"Può lanciare incantesimi anche mentre è in Forma Selvatica (anche con componenti S e V, grazie alla forma bestiale)." },
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
   { lv:20, it:"Arcidruido",
-    desc:"La connessione con la natura è insuperabile. Usa a volontà Forma Selvatica (illimitata). Può assumere qualsiasi bestia o elementale. Aggiunge il mod. SAG ai danni degli attacchi in Forma Selvatica." },
+    desc:"Tre benefici. Forma selvatica sempreverde: quando tira per l'iniziativa e non ha usi di Forma Selvatica, ne recupera uno. Mago della natura: può convertire usi di Forma Selvatica in slot incantesimo (nessuna azione richiesta); ogni uso contribuisce a 2 livelli di incantesimo (es. 2 usi → slot 4°), 1/riposo lungo. Corpo senza tempo: invecchia di 1 anno ogni 10 anni." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -2008,7 +2010,7 @@ const SUBCLASS_FEATURES = {
   { lv:3,  it:"Vitalità dell'Albero", desc:"Entrando in Ira ottieni PF temporanei = livello da barbaro (Impeto di vitalità). All'inizio di ogni turno in Ira puoi far ottenere PF temporanei a un'altra creatura entro 3 m (Forza vivificante): tira d6 × bonus Danni dell'ira." },
   { lv:6,  it:"Rami dell'Albero", desc:"Reazione: quando una creatura entro 9 m inizia il turno in tua presenza, puoi evocare rami spettrali. Supera un TS su FOR (CD 8+FOR+comp) o viene teletrasportata in uno spazio libero entro 1,5 m; puoi ridurre la sua velocità a 0 fino a fine turno." },
   { lv:10, it:"Radici d'Assalto", desc:"La tua portata con armi pesanti o versatili aumenta di 3 m. Quando colpisci con tali armi, puoi attivare proprietà spinta o rovesciamento in aggiunta a un'altra proprietà di padronanza." },
-  { lv:14, it:"Viaggio Lungo l'Albero", desc:"Entrando in Ira, azione bonus per teletrasportarti fino a 18 m in uno spazio libero visibile. Una volta per ira puoi aumentare la distanza a 63 m e portare con te fino a 6 creature entro 3 m." },
+  { lv:14, it:"Viaggio Lungo l'Albero", desc:"Quando il barbaro entra in Ira, come azione bonus può teletrasportarsi in uno spazio libero entro 18 m che sia in grado di vedere. Una volta per ogni ira può aumentare il raggio di teletrasporto a 45 metri e portare fino a 6 creature consenzienti entro 3 m da sé; ogni creatura appare in uno spazio libero entro 3 m dallo spazio di destinazione del barbaro." },
 ],
 "berserker": [
   { lv:3,  it:"Frenesia", desc:"Quando usi Attacco Irruento in Ira, infliggi danni extra al primo bersaglio colpito nel turno con attacco basato su FOR: tira d6 × bonus Danni dell'ira, stesso tipo dell'arma." },
@@ -2018,7 +2020,7 @@ const SUBCLASS_FEATURES = {
 ],
 "cuore-selvaggio": [
   { lv:3,  it:"Portavoce degli Animali", desc:"Puoi lanciare Parlare con gli Animali e Percezione delle Bestie come rituali (caratteristica SAG)." },
-  { lv:3,  it:"Aspetto Bestiale", desc:"Scegli uno dei seguenti aspetti (puoi cambiarlo ad ogni riposo lungo): 🦅 Aquila — in ira: Disimpegno + Scatto come parte dell'azione bonus per entrare in Ira, più un'ulteriore azione bonus in ira. 🐺 Lupo — in ira: gli alleati hanno vantaggio ai tiri per colpire contro nemici entro 1,5 m da te. 🐻 Orso — in ira: resistenza a tutti i tipi di danno tranne FOR, necrotici, psichici e radiosi." },
+  { lv:3,  it:"Aspetto Bestiale", desc:"Scegli uno dei seguenti aspetti (puoi cambiarlo ad ogni riposo lungo): 🦅 Aquila — in ira: Disimpegno + Scatto come parte dell'azione bonus per entrare in Ira, più un'ulteriore azione bonus in ira. 🐺 Lupo — in ira: gli alleati hanno vantaggio ai tiri per colpire contro nemici entro 1,5 m da te. 🐻 Orso — in ira: resistenza a tutti i tipi di danno tranne danni da forza, necrotici, psichici e radiosi." },
   { lv:6,  it:"Aspetto della Natura Selvaggia", desc:"Scegli una delle seguenti opzioni (puoi cambiarla ad ogni riposo lungo): 🦉 Gufo — scurovisione 18 m (o +18 m se già posseduta). 🐆 Pantera — velocità di scalata pari alla tua velocità. 🐟 Salmone — velocità di nuoto pari alla tua velocità." },
   { lv:10, it:"Portavoce della Natura", desc:"Puoi lanciare Comunione con la Natura come rituale (caratteristica SAG)." },
   { lv:14, it:"Potere della Natura Selvaggia", desc:"Scegli una delle seguenti opzioni ogni volta che entri in Ira: 🦅 Falco — velocità di volo pari alla tua velocità (senza armatura). 🦁 Leone — i nemici entro 1,5 m da te subiscono svantaggio agli attacchi contro bersagli diversi da te. 🐗 Sfondamento — se colpisci in mischia una creatura Grande o inferiore, cade prona." },
@@ -2026,34 +2028,34 @@ const SUBCLASS_FEATURES = {
 "zelota": [
   { lv:3,  it:"Furia Divina", desc:"In Ira, la prima creatura colpita per turno con arma o colpo senz'armi subisce 1d6 extra (necrotici o radiosi, a scelta ogni volta). Aumenta a 2d6 al Lv.11, 3d6 al Lv.16." },
   { lv:3,  it:"Guerriero degli Dèi", desc:"Hai una riserva di d12 pari a 4 (sale a 5 a Lv.6, a 6 a Lv.12, poi a 7 a Lv.17). Azione bonus: consuma dadi per recuperare PF pari al totale. Si recuperano dopo riposo lungo." },
-  { lv:6,  it:"Focus Fanatico", desc:"Una volta per ira: se fallisci un tiro salvezza, puoi ripeterlo e usare il nuovo risultato." },
+  { lv:6,  it:"Focus Fanatico", desc:"Una volta per ogni ira in atto: se il barbaro fallisce un tiro salvezza, può ripeterlo con un bonus pari al suo bonus Danni dell'ira e deve usare il nuovo risultato." },
   { lv:10, it:"Presenza Zelante", desc:"Azione bonus: urlo di guerra divino. Fino a 10 creature a scelta entro 18 m ottengono vantaggio su tiri per colpire e TS fino all'inizio del tuo prossimo turno. 1/riposo lungo, ma puoi ignorare il limite spendendo un utilizzo di ira." },
-  { lv:14, it:"Ira degli Dèi", desc:"Azione bonus in Ira: assumi la forma di un guerriero divino per 1 minuto o finché non scendi a 0 PF. Ottieni: resistenza ai danni necrotici, psichici e radiosi; al ritorno a 0 PF un alleato entro 9 m può spendere un'ira per scambiare i suoi PF con quelli del bersaglio (a tuo valore × livello); velocità di volo = velocità." },
+  { lv:14, it:"Ira degli Dèi", desc:"Entrando in Ira, può assumere la forma di un guerriero divino per 1 minuto o finché non scende a 0 PF. Resistenza ai danni necrotici, psichici e radiosi. Ritorno alla vita: quando una creatura entro 9 m sta per essere ridotta a 0 PF, il barbaro può usare una reazione per spendere un utilizzo dell'ira e cambiare i PF di quella creatura in un numero pari al proprio livello da barbaro. Volo: velocità di volo pari alla velocità base con possibilità di fluttuare. 1/riposo lungo." },
 ],
 
 // ══ BARDO ════════════════════════════════════════════════════════
 "danza": [
   { lv:3,  it:"Scarto Smagliante", desc:"Senza armatura o scudo ottieni: Virtuoso della danza (vantaggio su prove CAR(Intrattenere) legate alla danza), Difesa senza armatura (CA = 10+DES+CAR), Colpi scattanti (quando spendi un'Ispirazione Bardica come parte di un'azione, azione bonus o reazione, puoi effettuare un colpo senz'armi come parte di essa), Danno bardico (usa DES per colpire; danni = dado IB + mod.DES contundenti; il dado non viene consumato)." },
-  { lv:6,  it:"Movimento Ispiratore", desc:"Reazione quando un nemico visibile a 1,5 m da te termina il turno: spendi Ispirazione Bardica per muoverti alla metà velocità. Un alleato entro 9 m può poi muoversi alla metà della sua velocità come reazione." },
+  { lv:6,  it:"Movimento Ispiratore", desc:"Reazione: quando un nemico visibile a 10 m termina il turno a 1,5 m dal bardo, spendi un utilizzo di Ispirazione Bardica per muoverti fino alla metà della tua velocità. Poi un alleato a scelta entro 9 m può usare la sua reazione per muoversi fino alla metà della sua velocità. Nessuno dei due movimenti provoca attacchi di opportunità." },
   { lv:6,  it:"Scarto Coordinato", desc:"Tirando per l'iniziativa non incapacitato, puoi spendere un'Ispirazione Bardica: tira e distribuisci il risultato come bonus all'iniziativa a te e agli alleati entro 9 m visibili/udibili." },
   { lv:14, it:"Elusione Trainante", desc:"Quando effettui un TS su DES per dimezzare un'area-danno, riesci → 0 danni; fallisci → metà. Puoi condividere questo beneficio con creature entro 1,5 m che stiano effettuando lo stesso TS su Destrezza. Il bardo non può utilizzare questo privilegio se è incapacitato." },
 ],
 "fascino": [
-  { lv:3,  it:"Magia Ammaliante", desc:"charme su persone e immagine speculare sempre preparati. Dopo aver lanciato un incantesimo di ammaliamento/illusione con slot, una creatura entro 18 m deve superare TS su SAG (CD incantesimi) o è affascinata e spaventata per 1 minuto. 1/riposo lungo (recuperabile con Ispirazione Bardica)." },
+  { lv:3,  it:"Magia Ammaliante", desc:"charme su persone e immagine speculare sempre preparati. Dopo aver lanciato un incantesimo di ammaliamento o illusione con slot, una creatura nel campo visivo entro 18 m deve superare un TS su SAG (CD incantesimi): se fallisce, è affascinata o spaventata (a scelta del bardo) per 1 minuto; ripete il TS a fine turno. 1/riposo lungo (recuperabile con un utilizzo di Ispirazione Bardica, nessuna azione)." },
   { lv:3,  it:"Manto di Ispirazione", desc:"Azione bonus: spendi un'Ispirazione Bardica; scegli fino a mod. CAR creature entro 18 m (min 1). Ognuna ottiene PF temporanei pari al doppio del dado di Ispirazione Bardica e può usare la sua reazione per muoversi fino alla sua velocità senza provocare attacchi di opportunità." },
-  { lv:6,  it:"Manto di Maestosità", desc:"Il bardo lancia comando senza slot come azione bonus. Assume sembianze ultraterrene per 1 minuto (concentrazione): può lanciare comando come azione bonus; creature affascinate dal bardo falliscono automaticamente il TS contro questi comandi. 1/riposo lungo (recuperabile con slot 3°+)." },
+  { lv:6,  it:"Manto di Maestosità", desc:"Comando è sempre considerato preparato. Come azione bonus, lancia comando senza slot e assume sembianze ultraterrene per 1 minuto (concentrazione). Durante: può lanciare comando come azione bonus senza slot; creature affascinate dal bardo falliscono automaticamente il TS contro il comando. 1/riposo lungo (recuperabile spendendo uno slot di 3° livello o superiore, nessuna azione)." },
   { lv:14, it:"Maestosità Invitta", desc:"Azione bonus: presenza maestosa per 1 minuto. Chi lo colpisce per la prima volta in un turno deve superare TS su CAR (CD incantesimi) o fallisce l'attacco e indietreggia spaventato. 1/riposo breve o lungo." },
 ],
 "sapienza": [
   { lv:3,  it:"Competenze Bonus", desc:"Ottieni competenza in tre abilità a scelta." },
   { lv:3,  it:"Parole Taglienti", desc:"Reazione: quando una creatura entro 18 m effettua un tiro per danni, una prova di caratteristica o un tiro per colpire, spendi un'Ispirazione Bardica; tira il dado e sottrai il risultato, riducendo potenzialmente un successo in fallimento." },
-  { lv:6,  it:"Scoperte Magiche", desc:"Apprende 2 incantesimi da qualsiasi lista (chierico, druido o mago). Sono sempre considerati preparati e contano come incantesimi da bardo." },
+  { lv:6,  it:"Scoperte Magiche", desc:"Apprende 2 incantesimi a scelta da qualsiasi lista (chierico, druido o mago, o combinazione): devono essere un trucchetto o un incantesimo di livello per cui il bardo possiede slot, come da tabella Privilegi del bardo. Sempre considerati preparati; sostituibili al level-up. La caratteristica da incantatore è quella del bardo." },
   { lv:14, it:"Abilità Impareggiabile", desc:"Quando effettua una prova di caratteristica o un tiro per colpire che fallisce, può spendere un'Ispirazione Bardica: tira e aggiunge il risultato, trasformando potenzialmente il fallimento in un successo (Ispirazione non consumata se fallisce ancora)." },
 ],
 "valore": [
   { lv:3,  it:"Addestramento Marziale", desc:"Ottiene competenza nelle armi da guerra, nelle armature medie e negli scudi. Può usare un'arma semplice o da guerra come focus da incantatore." },
   { lv:3,  it:"Ispirazione in Combattimento", desc:"Una creatura che possiede un dado di Ispirazione Bardica può usarlo per uno dei seguenti effetti: Attacco (subito dopo aver colpito: aggiunge il dado ai danni), Difesa (reazione quando viene colpita: aggiunge il dado alla CA contro quell'attacco)." },
-  { lv:6,  it:"Attacco Extra", desc:"Può effettuare due attacchi invece di uno quando usa l'azione Attacco. Può anche lanciare uno dei suoi trucchetti come parte di uno degli attacchi." },
+  { lv:6,  it:"Attacco Extra", desc:"Quando effettua l'azione di Attacco nel proprio turno, può attaccare due volte anziché una. Può inoltre lanciare uno dei suoi trucchetti con tempo di lancio di un'azione al posto di uno degli attacchi." },
   { lv:14, it:"Magia da Combattimento", desc:"Dopo aver lanciato un incantesimo con tempo di lancio di un'azione, può effettuare un attacco con un'arma come azione bonus." },
 ],
 
@@ -2082,7 +2084,7 @@ const SUBCLASS_FEATURES = {
 "guerra": [
   { lv:3,  it:"Incantesimi del Dominio della Guerra", desc:"Preparati: Lv.3 dardo tracciante, arma magica, scudo della fede, arma spirituale · Lv.5 manto del crociato, guardiani spirituali · Lv.7 scudo di fuoco, libertà di movimento · Lv.9 blocca mostri, turbine implacabile." },
   { lv:3,  it:"Colpo Guidato", desc:"Reazione: lui o una creatura entro 9 m manca un tiro per colpire → spende 1 uso Incanalare Divinità per conferire +10 al tiro." },
-  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: attacco con arma o colpo senz'armi. Usi = mod.SAG (min 1); recupero: riposo lungo." },
+  { lv:3,  it:"Sacerdote di Guerra", desc:"Azione bonus: attacco con arma o colpo senz'armi. Usi = mod.SAG (min 1); recupero: riposo breve o lungo." },
   { lv:6,  it:"Benedizione del Dio della Guerra", desc:"Usa Incanalare Divinità per lanciare scudo della fede o arma spirituale senza slot e senza concentrazione (dura 1 min, termina se incapacitato/morto o rilanci)." },
   { lv:17, it:"Avatar della Battaglia", desc:"Ottiene resistenza ai danni contundenti, perforanti e taglienti." },
 ],
@@ -2096,24 +2098,24 @@ const SUBCLASS_FEATURES = {
   { lv:14, it:"Forma Lunare", desc:"Passo Chiardiluna può trasportare anche una creatura entro 3 m. Radianza lunare migliorata: 1×/turno +2d10 radiosi in Forma Selvatica." },
 ],
 "terra": [
-  { lv:3,  it:"Ausilio dalla Terra", desc:"Az. di Magia + 1 uso Forma Selvatica: emanazione vita e spine (r.3 m, 1 min) in punto entro 18 m. Creature nell'area → TS COS: 2d6 necrotici in fallimento. Una creatura a scelta recupera 2d6 PF. Danni/guarigione: +1d6 a Lv.10 (3d6), +1d6 a Lv.14 (4d6)." },
+  { lv:3,  it:"Ausilio dalla Terra", desc:"Az. di Magia + 1 uso Forma Selvatica: in un punto entro 18 m appaiono istantaneamente fiori (istantaneo, non dura 1 min). Ogni creatura dell'area (r.3 m) a scelta → TS COS (CD inc.): 2d6 necrotici in fallimento, metà in successo. Una creatura a scelta recupera 2d6 PF. Danni/guarigione: Lv.10 → 3d6, Lv.14 → 4d6." },
   { lv:3,  it:"Incantesimi del Circolo della Terra", desc:"A fine riposo lungo scegli tipo: Arida, Polare, Temperata o Tropicale. Preparati per tipo — Arida Lv.3: dardo fuoco, mani brucianti, sfocatura · Lv.5: palla di fuoco · Lv.7: inaridire · Lv.9: muro di pietra. Polare Lv.3: blocca persone, nube di nebbia, raggio di gelo · Lv.5: tempesta di nevischio · Lv.7: tempesta di ghiaccio · Lv.9: cono di freddo. Temperata Lv.3: passo velato, sonno, stretta folgorante · Lv.5: fulmine · Lv.7: libertà di movimento · Lv.9: traslazione arborea. Tropicale Lv.3: fiotto acido, raggio di infermità, ragnatela · Lv.5: nube maleodorante · Lv.7: metamorfosi · Lv.9: piaga degli insetti." },
   { lv:6,  it:"Recupero Naturale", desc:"Riposo breve: recupera slot per totale livelli ≤ metà livello druido (max 6°). 1/riposo lungo. Inoltre può lanciare 1 incantesimo del Circolo senza slot (1/riposo lungo)." },
-  { lv:10, it:"Interdizione della Natura", desc:"Immune condizione avvelenato; resistenza al tipo del suo terreno. Alleati entro 18 m ottengono la stessa resistenza nell'aura." },
+  { lv:10, it:"Interdizione della Natura", desc:"Immune alla condizione avvelenato; resistenza a un tipo di danno in base al terreno scelto. Arida → Fuoco, Polare → Freddo, Temperata → Fulmine, Tropicale → Veleno." },
   { lv:14, it:"Rifugio della Natura", desc:"Az. di Magia + 1 uso Forma Selvatica: alberi e viticci in cubo 4,5 m entro 36 m per 1 min. Lui e alleati nell'area: mezza copertura + resistenza del terreno. Az. bonus: muove il cubo fino a 18 m." },
 ],
 "mare": [
   { lv:3,  it:"Furia dei Mari", desc:"Az. bonus + 1 uso Forma Selvatica: emanazione brezza oceanica (r.1,5 m, 10 min). Az. bonus successive: creatura nell'emanazione → TS COS o subisce danni freddo pari a d6×mod.SAG ed è spinta 4,5 m." },
-  { lv:3,  it:"Incantesimi del Circolo del Mare", desc:"Sempre preparati: Lv.3 nebbia, onda tonante · Lv.5 cammina sull'acqua, velocità · Lv.7 controllo dell'acqua, zona di verità · Lv.9 comunione con la natura, cono di freddo." },
+  { lv:3,  it:"Incantesimi del Circolo del Mare", desc:"Sempre preparati: Lv.3 nube di nebbia, folata di vento, raggio di gelo, frantumare, onda tonante · Lv.5 fulmine, respirare sott'acqua · Lv.7 controllare acqua, tempesta di ghiaccio · Lv.9 evoca elementale, blocca mostri." },
   { lv:6,  it:"Affinità Acquatica", desc:"Il raggio dell'emanazione di Furia dei Mari aumenta di 3 m. Velocità di nuoto = velocità terrestre." },
   { lv:10, it:"Nato dalla Tempesta", desc:"Mentre Furia dei Mari è attiva: resistenza a danni freddo, fulmine e tuono; velocità di volo = velocità." },
   { lv:14, it:"Dono Oceanico", desc:"Può generare l'emanazione attorno a una creatura consenziente entro 18 m. Entrambe le varianti (sé + creatura) costano 2 usi di Forma Selvatica." },
 ],
 "stelle": [
   { lv:3,  it:"Carta Celeste", desc:"Focus arcano. Impugnandola: dardo tracciante e guida sempre preparati; dardo tracciante senza slot (usi = mod.SAG, recupero: riposo lungo). Può tirare sull'aspetto (Arciere/Calice/Drago) o scegliere." },
-  { lv:3,  it:"Forma Siderale", desc:"Az. bonus + 1 uso Forma Selvatica: forma stellare per 10 min. Arciere (az. bonus: freccia luminosa 1d8 radiosi entro 18 m), Calice (incantesimo con slot che ripristina PF → altra creatura entro 9 m recupera 1d8+SAG), Drago (risultato ≤9 sul d20 conta come 10)." },
+  { lv:3,  it:"Forma Siderale", desc:"Az. bonus + 1 uso Forma Selvatica: forma stellare per 10 min. Arciere (az. bonus: freccia luminosa entro 18 m → 1d8+mod.SAG radiosi se colpisce), Calice (incantesimo con slot che ripristina PF → lui o creatura entro 9 m recupera 1d8+mod.SAG), Drago (prova SAG/INT o TS COS concentrazione: risultato ≤9 conta come 10)." },
   { lv:6,  it:"Profezia Cosmica", desc:"Fine riposo lungo: tira 1d dado dalla Carta Celeste. Reazione: aggiunge (+) o sottrae (−) il risultato a qualsiasi tiro d20 entro 9 m. Usi = mod.SAG (min 1); recupero: riposo lungo." },
-  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: dado Arciere e Calice passa a d10; Drago volo 6 m con fluttuazione. Inizio turno: può cambiare costellazione." },
+  { lv:10, it:"Costellazioni Scintillanti", desc:"In Forma Siderale: dado Arciere e Calice passa da 1d8 a 2d8; Drago: velocità di volo 6 m con possibilità di fluttuare. All'inizio di ogni turno può cambiare costellazione." },
   { lv:14, it:"Manto di Stelle", desc:"Attivando Forma Siderale: resistenza a danni contundenti, perforanti e taglienti per tutta la durata." },
 ],
 
@@ -2220,6 +2222,7 @@ const SUBCLASS_FEATURES = {
   { lv:15, it:"Condividi Incantesimi", desc:"Quando lancia un incantesimo con il bersaglio su sé stesso può condividerne l'effetto con la Bestia Primordiale se si trova entro 9 m." },
 ],
 "gloom": [
+  { lv:3,  it:"Incantesimi del Cacciatore delle Tenebre", desc:"Sempre preparati: Lv.3 camuffare se stesso · Lv.5 trucco della corda · Lv.9 paura · Lv.13 invisibilità superiore · Lv.17 sembrare." },
   { lv:3,  it:"Imboscata Terrificante", desc:"All'inizio del primo turno di ogni combattimento la velocità aumenta di 3 m. Nel tiro per l'iniziativa può aggiungere il modificatore di SAG. Colpo terribile: quando colpisce con un'arma, può infliggere 2d6 danni psichici aggiuntivi. Usi = mod. SAG (min 1); recupero: riposo lungo." },
   { lv:3,  it:"Vista dell'Ombra", desc:"Ottiene scurovisione 18 m (o +18 m se già posseduta). Nell'oscurità totale è invisibile per le creature che fanno affidamento su scurovisione." },
   { lv:7,  it:"Mente di Ferro", desc:"Ottiene competenza nei TS su SAG. Se la possiede già, in INT o CAR (a scelta)." },
@@ -2227,6 +2230,7 @@ const SUBCLASS_FEATURES = {
   { lv:15, it:"Schivata dell'Ombra", desc:"Reazione: quando una creatura effettua un tiro per colpire contro il ranger, questi può imporre svantaggio all'avversario per quell'attacco. Che l'attacco vada a segno o meno, il ranger può poi teletrasportarsi fino a 9 m in uno spazio libero che è in grado di vedere." },
 ],
 "fey": [
+  { lv:3,  it:"Incantesimi del Viandante Fatato", desc:"Sempre preparati: Lv.3 charme su persone · Lv.5 passo velato · Lv.9 richiama folletto · Lv.13 porta dimensionale · Lv.17 fuorviare." },
   { lv:3,  it:"Colpi Terribili", desc:"Quando colpisce una creatura con un'arma, può infliggere 1d4 danni psichici aggiuntivi. Al Lv.11, aumentano a 1d6. 1/turno." },
   { lv:3,  it:"Fascino Ultraterreno", desc:"Quando effettua una prova di CAR, ottiene un bonus pari al modificatore di SAG (min +1). Ottiene competenza in una delle seguenti abilità: Inganno, Intrattenere o Persuasione." },
   { lv:7,  it:"Scambio Seducente", desc:"Vantaggio ai TS contro affascinato e spaventato, e per terminare queste condizioni. Reazione: quando una creatura entro 36 m supera un TS contro affascinato/spaventato, può costringere un'altra creatura entro 36 m a effettuare un TS su SAG (CD incantesimi ranger): se fallisce, è affascinata o spaventata (a scelta del ranger) per 1 minuto, ripete il TS a fine turno." },
@@ -4351,9 +4355,10 @@ function fRClassBlock(){
     }
     // Bruciare i Non Morti (Lv.5) — feature base classe
     if(lv>=5){
-      var burnDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
+      var burnMod=Math.max(1,fcmod(fTotalStat('WIS')));
+      var burnDiceStr=burnMod+'d8';
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🔥 Bruciare i Non Morti (Lv.5)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Scacciare i non morti: <strong style="color:var(--gold)">'+burnDice+'</strong> danni radiosi extra ai fallimenti · CD incantesimo</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Scacciare non morti: <strong style="color:var(--gold)">'+burnDiceStr+'</strong> danni radiosi extra ai fallimenti <span style="font-size:9px;color:var(--vdim)">(mod.SAG d8, min 1d8 · CD incantesimo)</span></div>';
       html+='</div>';
     }
     // Sacerdote di Guerra (Dominio della Guerra Lv.3)
@@ -4362,7 +4367,7 @@ function fRClassBlock(){
       if(C.warPriestUsed===undefined)C.warPriestUsed=0;
       html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⚔️ Sacerdote di Guerra (Lv.3)</div>';
       html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. Bonus Attacco</span>'+fDots(C.warPriestUsed,swMax2,'C.warPriestUsed=Math.min('+(swMax2)+',C.warPriestUsed+1);re()','if(C.warPriestUsed>0)C.warPriestUsed--;re()','#e74c3c')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax2-C.warPriestUsed)+'/'+swMax2+'</span></div>';
-      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Recupero: riposo lungo · usi = mod. SAG (min 1)</div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Recupero: riposo breve o lungo · usi = mod. SAG (min 1)</div>';
       html+='</div>';
     }
     // Intervento Divino (Lv.10+)
@@ -4373,7 +4378,7 @@ function fRClassBlock(){
       if(!divIntUsed){html+='<button onclick="C.divIntUsed=true;re()" style="background:rgba(241,196,15,.15);border:1px solid rgba(241,196,15,.4);border-radius:3px;color:#f1c40f;font-size:11px;padding:4px 10px;cursor:pointer">\u26a1 Attiva</button>';}
       else{html+='<span style="font-size:10px;color:var(--vdim)">Usato <button onclick="C.divIntUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">\u21a9 reset</button></span>';}
       html+='</div>';
-      if(lv<20)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">% successo = livello da chierico \u00b7 1/riposo lungo</div>';
+      if(lv<20)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Incantesimo da chierico \u2264 5\u00b0 lv (no reazione) \u00b7 senza slot n\u00e9 componenti \u00b7 1/riposo lungo</div>';
       html+='</div>';
     }
     var cdEffects={vita:['Preservare Vita'],luce:['Fulgore dell\'Alba'],inganno:['Invocare Duplicato'],guerra:['Colpo Guidato']};
@@ -5901,7 +5906,7 @@ function fRS1(){
 function fMasteryCount(cls, lv){
   if(cls==='barbarian') return lv>=10?4:lv>=4?3:2;
   if(cls==='fighter')   return lv>=16?5:lv>=10?4:3;
-  if(cls==='ranger')    return lv>=10?3:2;
+  if(cls==='ranger')    return 2; // Padronanza d'Armi: sempre 2 (nessun aumento per livello - PHB 2024)
   if(cls==='rogue')     return lv>=10?3:2;
   if(cls==='paladin')   return lv>=10?3:2;
   const cl=CLASSES.find(c=>c.id===cls);
@@ -5931,6 +5936,7 @@ function fSubclassAutoSkills(cls, sc, lv){
 function fExtraExpertiseCount(cls, lv){
   if(cls==='bard'   && lv>=9) return 2; // Maestria Lv.9
   if(cls==='rogue'  && lv>=6) return 2; // Maestria Lv.6
+  if(cls==='ranger' && lv>=9) return 2; // Maestria Lv.9
   return 0;
 }
 
@@ -6095,7 +6101,7 @@ function fRS2(){
 
   // ── EXPERTISE EXTRA (Bardo Lv.9, Ladro Lv.6)
   if(ec2>0 && allProfs.length>0){
-    const lbl=C.cls==='bard'?isIt?'Maestria nelle Abilità (Lv.9)':'Skill Expertise (Lv.9)':
+    const lbl=C.cls==='bard'||C.cls==='ranger'?isIt?'Maestria nelle Abilità (Lv.9)':'Skill Expertise (Lv.9)':
                              isIt?'Maestria nelle Abilità (Lv.6)':'Skill Expertise (Lv.6)';
     html+=`<div class="panel">
       <div class="sec-title">⭐⭐ ${lbl}</div>
@@ -8125,7 +8131,7 @@ const ALWAYS_PREPARED_SUBCLASS = {
       3: ["Nube di nebbia", "Folata di vento", "Raggio di gelo", "Frantumare", "Onda tonante"],
       5: ["Fulmine", "Respirare sott'acqua"],
       7: ["Controllare acqua", "Tempesta di ghiaccio"],
-      9: ["Richiama elementale", "Blocca mostri"],
+      9: ["Evoca elementale", "Blocca mostri"],
     },
     stelle: {
       3: ["Dardo tracciante", "Guida"],
@@ -8164,11 +8170,18 @@ const ALWAYS_PREPARED_SUBCLASS = {
   ranger: {
     hunter: {}, beast: {},
     gloom: {
-      3: ["Armatura di Agathys", "Camuffare se stesso"],
+      3: ["Camuffare se stesso"],
+      5: ["Trucco della corda"],
+      9: ["Paura"],
+      13: ["Invisibilità superiore"],
+      17: ["Sembrare"],
     },
     fey: {
-      3: ["Calmare emozioni", "Passo velato"],
-      5: ["Richiama folletto", "Invisibilità superiore"],
+      3: ["Charme su persone"],
+      5: ["Passo velato"],
+      9: ["Richiama folletto"],
+      13: ["Porta dimensionale"],
+      17: ["Fuorviare"],
     },
   },
   warlock: {
