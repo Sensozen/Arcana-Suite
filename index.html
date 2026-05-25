@@ -5133,6 +5133,8 @@ function fCanNext(){
   // Step 3: Sottoclasse (obbligatoria)
   if(step===3){
     if(!C.subclass) return false;
+    // Campione: stile di combattimento aggiuntivo obbligatorio dal Lv.7
+    if(C.cls==='fighter' && C.subclass==='campione' && (C.level||1)>=7 && C.fightingStyle && !C.fightingStyle2) return false;
     if(C.cls==='cleric' && !C.divOrder) return false;
     if(C.cls==='cleric' && C.divOrder==='taumaturgo' && !C.taumaturgoBonusSkill) return false;
     if(C.cls==='cleric' && (C.level||1)>=7 && !C.blessedStrikes) return false;
@@ -5317,21 +5319,21 @@ function fRHome(){
 // ═══════════════════════════════════════
 function fRGuided(){
   const sp=fgSp(),cl=fgCl(),bg=fgBg(),sr=fgSr();
+  // Didascalie allineate al contenuto reale di ogni step (indici 0–12).
   const stepHints=[
-    ft("Classe & Sottoclasse","Class & Subclass"),
-    ft("Livello","Starting Level"),
-    ft("Classe","Class"),
-    ft("Sottoclasse","Subclass"),
-    ft("Competenze & Padronanza","Proficiencies & Mastery"),
-    ft("Background","Background"),
-    ft("Talenti","Feats"),
-    ft("Caratteristiche","Ability Scores"),
-    ft("Specie","Species"),
-    ft("Allineamento","Alignment"),
-    ft("Lingue","Languages"),
-    ft("Nome","Name"),
-    ft("Personalità & Storia","Personality & Story"),
-    ft("Equipaggiamento","Equipment"),
+    ft("Nome del Personaggio","Character Name"),   // step 0  · fRS9
+    ft("Livello","Starting Level"),                // step 1  · fRS1
+    ft("Classe","Class"),                          // step 2  · fRS0cl
+    ft("Sottoclasse","Subclass"),                  // step 3  · fRS0sc
+    ft("Competenze & Padronanza","Proficiencies & Mastery"), // step 4 · fRS2
+    ft("Background","Background"),                  // step 5  · fRS3
+    ft("Specie","Species"),                        // step 6  · fRS6
+    ft("Allineamento","Alignment"),                // step 7  · fRS7
+    ft("Caratteristiche","Ability Scores"),        // step 8  · fRS5
+    ft("Lingue","Languages"),                      // step 9  · fRS8
+    ft("Talenti","Feats"),                         // step 10 · fRS4
+    ft("Personalità & Storia","Personality & Story"), // step 11 · fRS10
+    ft("Equipaggiamento","Equipment"),             // step 12 · fRS11
   ];
   return`<div class="fade-in">
     ${fRDots()}
@@ -5442,31 +5444,13 @@ function fRS0cl(){
       (C.cls==='ranger'  && lv>=2)
     );
     if(hasFightingStyle){
-      var fightingStyles = [
-        {id:'arcieri',it:'Arcieri',desc:'+2 ai tiri per colpire con armi a distanza'},
-        {id:'cieco',it:'Combattimento Cieco',desc:'Percezione sensoriale entro 3m (anche senza vedere)'},
-        {id:'difesa',it:'Difesa',desc:'+1 CA con armatura'},
-        {id:'duello',it:'Duello',desc:'+2 danni con arma a una mano (l\'altra libera)'},
-        {id:'grande',it:'Grande Arma',desc:'Tira di nuovo 1 o 2 sui dadi danno (una volta per lancio)'},
-        {id:'intercezione',it:'Intercezione',desc:'Reazione: -1d10+comp danni alla creatura entro 1,5m'},
-        {id:'protezione',it:'Protezione',desc:'Reazione: svantaggio agli attacchi vs alleato adiacente'},
-        {id:'due-armi',it:'Due Armi',desc:'Aggiungi mod.FOR/DES ai danni del secondo attacco'},
-      ];
-      if(C.cls==='paladin') fightingStyles.push({id:'beato',it:'Guerriero Benedetto',desc:'Trucchetto di Chierico, CAR come stat'});
-      if(C.cls==='ranger')  fightingStyles.push({id:'druidico',it:'Guerriero Druidico',desc:'Trucchetto di Druido, SAG come stat'});
-      if(!C.fightingStyle) C.fightingStyle=null;
+      var fsTitle = (C.cls==='paladin') ? (isIt?'Stile di Combattimento (Lv.2)':'Fighting Style (Lv.2)')
+                  : (C.cls==='ranger')  ? (isIt?'Stile di Combattimento (Lv.2)':'Fighting Style (Lv.2)')
+                  : (isIt?'Stile di Combattimento (Lv.1)':'Fighting Style (Lv.1)');
       html += `<div style="margin:12px 0;padding:10px 12px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:4px">
-        <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">⚔️ ${isIt?'Stile di Combattimento':'Fighting Style'}</div>
-        <div style="display:flex;flex-direction:column;gap:5px">`;
-      fightingStyles.forEach(function(s){
-        var sel=(C.fightingStyle===s.id);
-        html += `<div onclick="C.fightingStyle=(C.fightingStyle==='${s.id}'?null:'${s.id}');re()" style="cursor:pointer;padding:7px 9px;border:1px solid ${sel?'var(--gold)':'rgba(200,164,90,.2)'};background:${sel?'rgba(200,164,90,.1)':'rgba(0,0,0,.15)'};border-radius:3px;display:flex;align-items:flex-start;gap:8px">
-          <span style="color:${sel?'var(--gold)':'var(--vdim)'};font-size:13px;flex-shrink:0">${sel?'◉':'◯'}</span>
-          <div><div style="font-size:11px;color:${sel?'var(--text)':'var(--muted)'};font-weight:${sel?'600':'400'}">${s.it}</div>
-          <div style="font-size:10px;color:var(--vdim)">${s.desc}</div></div>
-        </div>`;
-      });
-      html += `</div></div>`;
+        <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">\u2694\ufe0f ${fsTitle}</div>
+        ${fRenderFSPicker('fightingStyle', C.cls, null)}
+      </div>`;
     }
 
     // ── FACOLTÀ DI CLASSE per livello ─────────────────────────────────────
@@ -5509,6 +5493,64 @@ function fRS0cl(){
 // ═══════════════════════════════════════════════════════════════════════════
 // STEP 3 — SOTTOCLASSE (con facoltà e scelte interattive)
 // ═══════════════════════════════════════════════════════════════════════════
+// ── Stili di Combattimento (PHB 2024) — lista condivisa ─────────────────
+function fFightingStylesList(clsId){
+  var L = [
+    {id:'tiro',       it:'Tiro',                          en:'Archery',               desc:'+2 ai tiri per colpire con armi a distanza', descEn:'+2 to attack rolls with ranged weapons'},
+    {id:'difesa',     it:'Difesa',                        en:'Defense',               desc:"+1 alla CA mentre indossi un'armatura (leggera, media o pesante)", descEn:'+1 AC while wearing armor'},
+    {id:'duellare',   it:'Duellare',                      en:'Dueling',               desc:"+2 ai danni con un'arma da mischia a una mano, se non impugni altre armi", descEn:'+2 damage with a one-handed melee weapon and no other weapon'},
+    {id:'possenti',   it:'Combattere con Armi Possenti',  en:'Great Weapon Fighting', desc:'Arma a due mani o versatile (due mani): un 1 o 2 sul dado dei danni conta come 3', descEn:'Two-handed/versatile (two hands): a 1 or 2 on a damage die counts as 3'},
+    {id:'due-armi',   it:'Combattere con Due Armi',       en:'Two-Weapon Fighting',   desc:"Aggiungi il modificatore di caratteristica al danno dell'attacco extra con arma leggera", descEn:'Add your ability modifier to the off-hand light-weapon attack damage'},
+    {id:'intercettazione', it:'Intercettazione',          en:'Interception',          desc:'Reazione: riduci di 1d10 + bonus comp. i danni a una creatura entro 1,5 m (devi impugnare uno scudo o un\'arma)', descEn:'Reaction: reduce damage to a creature within 5 ft by 1d10 + prof (must hold a shield or a weapon)'},
+    {id:'protezione', it:'Protezione',                    en:'Protection',            desc:'Reazione: svantaggio al tiro per colpire contro un alleato entro 1,5 m (devi impugnare uno scudo)', descEn:'Reaction: impose disadvantage on an attack against an ally within 5 ft (must hold a shield)'},
+    {id:'cieca',      it:'Combattere alla Cieca',         en:'Blind Fighting',        desc:'Vista cieca con un raggio di 3 m', descEn:'Blindsight with a range of 10 ft'},
+    {id:'disarmato',  it:'Combattere Disarmato',          en:'Unarmed Fighting',      desc:"Colpo senz'armi 1d6 contundenti (1d8 se non impugni armi né scudo); 1d4 a inizio turno a una creatura afferrata", descEn:'Unarmed strike 1d6 bludgeoning (1d8 if no weapon/shield held); 1d4 at start of turn to a grappled creature'},
+    {id:'lancio',     it:'Combattere con Armi da Lancio', en:'Thrown Weapon Fighting',desc:"+2 ai danni con le armi da lancio; puoi estrarre l'arma come parte dell'attacco", descEn:'+2 damage with thrown weapons; can draw the weapon as part of the attack'}
+  ];
+  if(clsId==='paladin') L.push({id:'beato',   it:'Guerriero Benedetto', en:'Blessed Warrior', desc:'Invece di uno stile: impari 2 trucchetti da chierico; CAR \u00e8 la caratteristica da incantatore', descEn:'Instead of a style: learn 2 cleric cantrips; CHA is your spellcasting ability'});
+  if(clsId==='ranger')  L.push({id:'druidico',it:'Guerriero Druidico',  en:'Druidic Warrior', desc:'Invece di uno stile: impari 2 trucchetti da druido; SAG \u00e8 la caratteristica da incantatore', descEn:'Instead of a style: learn 2 druid cantrips; WIS is your spellcasting ability'});
+  return L;
+}
+// Etichetta leggibile per uno stile dato il suo id (per la scheda)
+function fFightingStyleLabel(id, clsId, isIt){
+  if(!id) return '';
+  var s = fFightingStylesList(clsId||C.cls).find(function(x){return x.id===id;});
+  return s ? (isIt?s.it:s.en) : id;
+}
+// Render di un selettore di stile (slot = nome del campo in C, exclude = id da escludere)
+function fRenderFSPicker(slot, clsId, exclude){
+  var isIt = lang==='it';
+  var list = fFightingStylesList(clsId).filter(function(s){return s.id!==exclude;});
+  var cur = C[slot]||null;
+  var html = '<div style="display:flex;flex-direction:column;gap:5px">';
+  list.forEach(function(s){
+    var sel=(cur===s.id);
+    html += '<div onclick="C.'+slot+'=(C.'+slot+'===\''+s.id+'\'?null:\''+s.id+'\');re()" style="cursor:pointer;padding:7px 9px;border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.2)')+';background:'+(sel?'rgba(200,164,90,.1)':'rgba(0,0,0,.15)')+';border-radius:3px;display:flex;align-items:flex-start;gap:8px">'
+      + '<span style="color:'+(sel?'var(--gold)':'var(--vdim)')+';font-size:13px;flex-shrink:0">'+(sel?'\u25c9':'\u25cb')+'</span>'
+      + '<div><div style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+(isIt?s.it:s.en)+'</div>'
+      + '<div style="font-size:10px;color:var(--vdim)">'+(isIt?s.desc:s.descEn)+'</div></div>'
+      + '</div>';
+  });
+  html += '</div>';
+  return html;
+}
+// Box riepilogo stile/i per la scheda finale
+function fSheetFSBox(isIt){
+  var lv = C.level||1;
+  var has = (C.cls==='fighter') || (C.cls==='paladin'&&lv>=2) || (C.cls==='ranger'&&lv>=2);
+  if(!has) return '';
+  var rows = '';
+  if(C.fightingStyle){
+    rows += '<div style="font-size:12px;color:var(--text);padding:3px 0">\u2694\ufe0f '+fFightingStyleLabel(C.fightingStyle, C.cls, isIt)+'</div>';
+  }
+  var needs2 = (C.cls==='fighter' && C.subclass==='campione' && lv>=7);
+  if(needs2 && C.fightingStyle2){
+    rows += '<div style="font-size:12px;color:var(--text);padding:3px 0">\u2694\ufe0f '+fFightingStyleLabel(C.fightingStyle2, C.cls, isIt)+' <span style="font-size:9px;color:var(--vdim)">('+(isIt?'aggiuntivo \u2013 Campione Lv.7':'additional \u2013 Champion Lv.7')+')</span></div>';
+  }
+  if(!rows) return '';
+  return '<div class="box"><div class="box-title">\u2694\ufe0f '+(isIt?'Stile di Combattimento':'Fighting Style')+'</div>'+rows+'</div>';
+}
+
 function fRS0sc(){
   const cl  = fgCl();
   const lv  = C.level||1;
@@ -5600,6 +5642,20 @@ function fRS0sc(){
 function fRSubclassChoicesWizard(cls, sc, lv, isIt){
   var html = '';
   var boxS = 'margin:8px 0;padding:10px 12px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:4px';
+
+  // ── GUERRIERO / CAMPIONE: Stile di Combattimento Aggiuntivo (Lv.7) ────
+  if(cls==='fighter' && sc==='campione' && lv>=7){
+    html += '<div style="'+boxS+'">';
+    html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">\u2694\ufe0f '+(isIt?'Stile di Combattimento Aggiuntivo (Lv.7)':'Additional Fighting Style (Lv.7)')+'</div>';
+    if(!C.fightingStyle){
+      html += '<div style="font-size:10px;color:var(--vdim);font-style:italic">'+(isIt?'Scegli prima lo stile principale nel passo Classe.':'Choose your main style in the Class step first.')+'</div>';
+    } else {
+      html += '<div style="font-size:10px;color:var(--vdim);margin-bottom:6px">'+(isIt?'Scegli un secondo stile, diverso dal primo.':'Choose a second style, different from the first.')+'</div>';
+      html += fRenderFSPicker('fightingStyle2', cls, C.fightingStyle);
+    }
+    html += '</div>';
+  }
+
   var selBtn = function(label,active,fn){
     return '<button onclick="'+fn+'" style="border:1px solid '+(active?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(active?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(active?'var(--gold)':'var(--muted)')+';font-size:11px;padding:4px 10px;cursor:pointer;margin:2px">'+label+'</button>';
   };
@@ -5983,7 +6039,7 @@ function fRS2(){
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
 
   const armorWeaponSummary = cl ? `<div class="panel" style="margin-bottom:12px">
-    <div class="sec-title">🛡️ ${isIt?'Competenze di Classe':'Class Proficiencies'}</div>
+    <div class="sec-title">🛡️ ${isIt?'5 · Competenze di Classe':'5 · Class Proficiencies'}</div>
     <div class="sheet-row" style="padding:8px 0;border-bottom:1px solid var(--border)">
       <span style="color:var(--muted);font-size:12px">${isIt?'Armature':'Armor'}</span>
       <span style="color:var(--gold);font-size:13px">${isIt?cl.armorIt:cl.armorEn}</span>
@@ -6035,6 +6091,8 @@ function fRS2(){
           <div style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':atLimit?'var(--vdim)':'var(--text)'}">
             ${isIt?w.it:w.en}
           </div>
+          ${w.dmg?`<div style="font-size:9px;color:var(--muted);margin-top:2px;line-height:1.3">\u2694\ufe0f ${w.dmg} ${DMG_TYPE[w.dt]?(isIt?DMG_TYPE[w.dt].ab:DMG_TYPE[w.dt].en):''}${(w.props&&w.props.length)?' \u00b7 '+fFmtWeaponProps(w.props,isIt):''}</div>
+          <div style="font-size:8px;color:var(--vdim);margin-top:1px">${w.wt?w.wt+' kg':'\u2014'}${w.cost?' \u00b7 '+w.cost:''}</div>`:''}
           ${prop?`<div style="display:inline-block;margin-top:3px;font-size:9px;color:var(--gold2);background:rgba(200,164,90,.13);border:1px solid rgba(200,164,90,.25);border-radius:10px;padding:1px 6px">
             ${isIt?prop.it:prop.en}
           </div>`:''}
@@ -6823,7 +6881,7 @@ function fRS3(){
   const bg=fgBg();
   return`
   <div>
-    <div class="sec-title">📜 ${ft("5 · Background","5 · Background")}</div>
+    <div class="sec-title">📜 ${ft("6 · Background","6 · Background")}</div>
     
     <div class="ga-sm" style="margin-bottom:12px">
       ${BACKGROUNDS.map(b=>{
@@ -7049,7 +7107,7 @@ function fRS4(){
   }
 
   return `<div>
-    <div class="sec-title">⭐ ${ft("10 · Talenti e Capacità","10 · Feats & Abilities")}</div>
+    <div class="sec-title">⭐ ${ft("11 · Talenti e Capacità","11 · Feats & Abilities")}</div>
 
     <!-- Riepilogo livello (scelto allo step 0) -->
     <div style="margin-bottom:16px;padding:10px 12px;background:rgba(200,164,90,.07);border:1px solid rgba(200,164,90,.2);border-radius:3px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
@@ -7915,6 +7973,7 @@ function fRSheet(){
           });
           html+=`</div></div>`;
         }
+        html += fSheetFSBox(isIt);
         // Padronanza armi — scheda finale
         if(hasW){
           const propColors = {
@@ -7940,6 +7999,7 @@ function fRSheet(){
                   ${w?`<span style="font-size:9px;color:var(--vdim);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:1px 5px">${w.type==='semplice'?(isIt?'semplice':'simple'):(isIt?'da guerra':'martial')} · ${rangeLabel}</span>`:''}
                   ${prop?`<span style="font-size:9px;font-weight:700;background:${col}22;border:1px solid ${col}66;border-radius:8px;padding:1px 7px;color:${col};letter-spacing:.04em">${isIt?prop.it:prop.en}</span>`:''}
                 </div>
+                ${(w&&w.dmg)?`<div style="font-size:11px;color:var(--text);margin-top:5px;line-height:1.5">\u2694\ufe0f <strong>${w.dmg}</strong> ${DMG_TYPE[w.dt]?(isIt?DMG_TYPE[w.dt].it:DMG_TYPE[w.dt].en):''}${(w.props&&w.props.length)?' &nbsp;\u00b7&nbsp; '+fFmtWeaponProps(w.props,isIt):''}${w.wt?' &nbsp;\u00b7&nbsp; '+w.wt+' kg':''}${w.cost?' &nbsp;\u00b7&nbsp; '+w.cost:''}</div>`:''}
                 ${prop?`<div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">${isIt?prop.desc:prop.descEn}</div>`:''}
               </div>`;
             }).join('')}
@@ -7956,6 +8016,14 @@ function fRSheet(){
         }
         return html;
       })()}
+    <details class="box" style="cursor:pointer">
+      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">⚔️ ${ft("Tabella Armi (PHB 2024)","Weapons Table (PHB 2024)")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
+      <div style="margin-top:8px">${fEquipWeaponsRef()}</div>
+    </details>
+    <details class="box" style="cursor:pointer">
+      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">🛡️ ${ft("Tabella Armature & Scudi (PHB 2024)","Armor & Shields Table (PHB 2024)")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
+      <div style="margin-top:8px">${fEquipArmorRef()}</div>
+    </details>
 ${C.backstory?`<div class="box"><div class="box-title">📜 ${ft('Storia','Backstory')}</div><div style="font-size:13px;color:var(--text);font-style:italic;line-height:1.7">${C.backstory}</div></div>`:''}
 
       <div class="box"><div class="box-title">🎲 ${ft('Abilità','Skills')}</div>
@@ -10202,48 +10270,123 @@ const MASTERY_PROPS = {
 // prop: chiave in MASTERY_PROPS
 const WEAPONS_MASTERY = [
   // ── Armi da mischia semplici ──────────────────────────────────────────
-  {it:'Ascia',          en:'Handaxe',       type:'semplice', range:'mischia',   prop:'vassazione'},
-  {it:'Bastone ferrato',en:'Quarterstaff',  type:'semplice', range:'mischia',   prop:'rovesciamento'},
-  {it:'Falcetto',       en:'Sickle',        type:'semplice', range:'mischia',   prop:'graffio'},
-  {it:'Giavellotto',    en:'Javelin',       type:'semplice', range:'mischia',   prop:'lentezza'},
-  {it:'Lancia',         en:'Spear',         type:'semplice', range:'mischia',   prop:'prosciugamento'},
-  {it:'Martello leggero',en:'Light Hammer', type:'semplice', range:'mischia',   prop:'graffio'},
-  {it:'Mazza',          en:'Mace',          type:'semplice', range:'mischia',   prop:'prosciugamento'},
-  {it:'Pugnale',        en:'Dagger',        type:'semplice', range:'mischia',   prop:'graffio'},
-  {it:'Randello',       en:'Club',          type:'semplice', range:'mischia',   prop:'lentezza'},
-  {it:'Randello pesante',en:'Greatclub',    type:'semplice', range:'mischia',   prop:'spinta'},
+  {it:'Ascia',          en:'Handaxe',       type:'semplice', range:'mischia',   prop:'vassazione', dmg:'1d6', dt:'T', props:['lancio:6/18','leggera'], wt:1, cost:'5 mo'},
+  {it:'Bastone ferrato',en:'Quarterstaff',  type:'semplice', range:'mischia',   prop:'rovesciamento', dmg:'1d6', dt:'C', props:['versatile:1d8'], wt:2, cost:'2 ma'},
+  {it:'Falcetto',       en:'Sickle',        type:'semplice', range:'mischia',   prop:'graffio', dmg:'1d4', dt:'T', props:['leggera'], wt:1, cost:'1 mo'},
+  {it:'Giavellotto',    en:'Javelin',       type:'semplice', range:'mischia',   prop:'lentezza', dmg:'1d6', dt:'P', props:['lancio:9/36'], wt:1, cost:'5 ma'},
+  {it:'Lancia',         en:'Spear',         type:'semplice', range:'mischia',   prop:'prosciugamento', dmg:'1d6', dt:'P', props:['lancio:6/18','versatile:1d8'], wt:1.5, cost:'1 mo'},
+  {it:'Martello leggero',en:'Light Hammer', type:'semplice', range:'mischia',   prop:'graffio', dmg:'1d4', dt:'C', props:['lancio:6/18','leggera'], wt:1, cost:'2 mo'},
+  {it:'Mazza',          en:'Mace',          type:'semplice', range:'mischia',   prop:'prosciugamento', dmg:'1d6', dt:'C', props:[], wt:2, cost:'5 mo'},
+  {it:'Pugnale',        en:'Dagger',        type:'semplice', range:'mischia',   prop:'graffio', dmg:'1d4', dt:'P', props:['accurata','lancio:6/18','leggera'], wt:0.5, cost:'2 mo'},
+  {it:'Randello',       en:'Club',          type:'semplice', range:'mischia',   prop:'lentezza', dmg:'1d4', dt:'C', props:['leggera'], wt:1, cost:'1 ma'},
+  {it:'Randello pesante',en:'Greatclub',    type:'semplice', range:'mischia',   prop:'spinta', dmg:'1d8', dt:'C', props:['duemani'], wt:5, cost:'2 ma'},
   // ── Armi a distanza semplici ──────────────────────────────────────────
-  {it:'Arco corto',     en:'Shortbow',      type:'semplice', range:'distanza',  prop:'vassazione'},
-  {it:'Balestra leggera',en:'Light Crossbow',type:'semplice',range:'distanza',  prop:'lentezza'},
-  {it:'Dardo',          en:'Dart',          type:'semplice', range:'distanza',  prop:'vassazione'},
-  {it:'Fionda',         en:'Sling',         type:'semplice', range:'distanza',  prop:'lentezza'},
+  {it:'Arco corto',     en:'Shortbow',      type:'semplice', range:'distanza',  prop:'vassazione', dmg:'1d6', dt:'P', props:['duemani','munizioni:24/96:freccia'], wt:1, cost:'25 mo'},
+  {it:'Balestra leggera',en:'Light Crossbow',type:'semplice',range:'distanza',  prop:'lentezza', dmg:'1d8', dt:'P', props:['duemani','munizioni:24/96:quadrello','ricarica'], wt:2.5, cost:'25 mo'},
+  {it:'Dardo',          en:'Dart',          type:'semplice', range:'distanza',  prop:'vassazione', dmg:'1d4', dt:'P', props:['accurata','lancio:6/18'], wt:0.125, cost:'5 mr'},
+  {it:'Fionda',         en:'Sling',         type:'semplice', range:'distanza',  prop:'lentezza', dmg:'1d4', dt:'C', props:['munizioni:9/36:proiettile'], wt:0, cost:'1 ma'},
   // ── Armi da mischia da guerra ─────────────────────────────────────────
-  {it:'Alabarda',       en:'Halberd',       type:'guerra',   range:'mischia',   prop:'doppio-fendente'},
-  {it:'Ascia bipenne',  en:'Greataxe',      type:'guerra',   range:'mischia',   prop:'doppio-fendente'},
-  {it:'Ascia da battaglia',en:'Battleaxe',  type:'guerra',   range:'mischia',   prop:'rovesciamento'},
-  {it:'Falcione',       en:'Glaive',        type:'guerra',   range:'mischia',   prop:'colpo-di-striscio'},
-  {it:'Frusta',         en:'Whip',          type:'guerra',   range:'mischia',   prop:'lentezza'},
-  {it:'Lancia da cavaliere',en:'Lance',     type:'guerra',   range:'mischia',   prop:'rovesciamento'},
-  {it:'Maglio',         en:'Maul',          type:'guerra',   range:'mischia',   prop:'rovesciamento'},
-  {it:'Martello da guerra',en:'Warhammer',  type:'guerra',   range:'mischia',   prop:'spinta'},
-  {it:'Mazza chiodata', en:'Morningstar',   type:'guerra',   range:'mischia',   prop:'prosciugamento'},
-  {it:'Mazzafrusto',    en:'Flail',         type:'guerra',   range:'mischia',   prop:'prosciugamento'},
-  {it:'Picca',          en:'Pike',          type:'guerra',   range:'mischia',   prop:'spinta'},
-  {it:'Piccone da guerra',en:'War Pick',    type:'guerra',   range:'mischia',   prop:'prosciugamento'},
-  {it:'Scimitarra',     en:'Scimitar',      type:'guerra',   range:'mischia',   prop:'graffio'},
-  {it:'Spada corta',    en:'Shortsword',    type:'guerra',   range:'mischia',   prop:'vassazione'},
-  {it:'Spada lunga',    en:'Longsword',     type:'guerra',   range:'mischia',   prop:'prosciugamento'},
-  {it:'Spadone',        en:'Greatsword',    type:'guerra',   range:'mischia',   prop:'colpo-di-striscio'},
-  {it:'Stocco',         en:'Rapier',        type:'guerra',   range:'mischia',   prop:'vassazione'},
-  {it:'Tridente',       en:'Trident',       type:'guerra',   range:'mischia',   prop:'rovesciamento'},
+  {it:'Alabarda',       en:'Halberd',       type:'guerra',   range:'mischia',   prop:'doppio-fendente', dmg:'1d10', dt:'T', props:['duemani','pesante','portata'], wt:3, cost:'20 mo'},
+  {it:'Ascia bipenne',  en:'Greataxe',      type:'guerra',   range:'mischia',   prop:'doppio-fendente', dmg:'1d12', dt:'T', props:['duemani','pesante'], wt:3.5, cost:'30 mo'},
+  {it:'Ascia da battaglia',en:'Battleaxe',  type:'guerra',   range:'mischia',   prop:'rovesciamento', dmg:'1d8', dt:'T', props:['versatile:1d10'], wt:2, cost:'10 mo'},
+  {it:'Falcione',       en:'Glaive',        type:'guerra',   range:'mischia',   prop:'colpo-di-striscio', dmg:'1d10', dt:'T', props:['duemani','pesante','portata'], wt:3, cost:'20 mo'},
+  {it:'Frusta',         en:'Whip',          type:'guerra',   range:'mischia',   prop:'lentezza', dmg:'1d4', dt:'T', props:['accurata','portata'], wt:1.5, cost:'2 mo'},
+  {it:'Lancia da cavaliere',en:'Lance',     type:'guerra',   range:'mischia',   prop:'rovesciamento', dmg:'1d10', dt:'P', props:['duemani-sella','pesante','portata'], wt:3, cost:'10 mo'},
+  {it:'Maglio',         en:'Maul',          type:'guerra',   range:'mischia',   prop:'rovesciamento', dmg:'2d6', dt:'C', props:['duemani','pesante'], wt:5, cost:'10 mo'},
+  {it:'Martello da guerra',en:'Warhammer',  type:'guerra',   range:'mischia',   prop:'spinta', dmg:'1d8', dt:'C', props:['versatile:1d10'], wt:2.5, cost:'15 mo'},
+  {it:'Mazza chiodata', en:'Morningstar',   type:'guerra',   range:'mischia',   prop:'prosciugamento', dmg:'1d8', dt:'P', props:[], wt:2, cost:'15 mo'},
+  {it:'Mazzafrusto',    en:'Flail',         type:'guerra',   range:'mischia',   prop:'prosciugamento', dmg:'1d8', dt:'C', props:[], wt:1, cost:'10 mo'},
+  {it:'Picca',          en:'Pike',          type:'guerra',   range:'mischia',   prop:'spinta', dmg:'1d10', dt:'P', props:['duemani','pesante','portata'], wt:9, cost:'5 mo'},
+  {it:'Piccone da guerra',en:'War Pick',    type:'guerra',   range:'mischia',   prop:'prosciugamento', dmg:'1d8', dt:'P', props:['versatile:1d10'], wt:1, cost:'5 mo'},
+  {it:'Scimitarra',     en:'Scimitar',      type:'guerra',   range:'mischia',   prop:'graffio', dmg:'1d6', dt:'T', props:['accurata','leggera'], wt:1.5, cost:'25 mo'},
+  {it:'Spada corta',    en:'Shortsword',    type:'guerra',   range:'mischia',   prop:'vassazione', dmg:'1d6', dt:'P', props:['accurata','leggera'], wt:1, cost:'10 mo'},
+  {it:'Spada lunga',    en:'Longsword',     type:'guerra',   range:'mischia',   prop:'prosciugamento', dmg:'1d8', dt:'T', props:['versatile:1d10'], wt:1.5, cost:'15 mo'},
+  {it:'Spadone',        en:'Greatsword',    type:'guerra',   range:'mischia',   prop:'colpo-di-striscio', dmg:'2d6', dt:'T', props:['duemani','pesante'], wt:3, cost:'50 mo'},
+  {it:'Stocco',         en:'Rapier',        type:'guerra',   range:'mischia',   prop:'vassazione', dmg:'1d8', dt:'P', props:['accurata'], wt:1, cost:'25 mo'},
+  {it:'Tridente',       en:'Trident',       type:'guerra',   range:'mischia',   prop:'rovesciamento', dmg:'1d8', dt:'P', props:['lancio:6/18','versatile:1d10'], wt:2, cost:'5 mo'},
   // ── Armi a distanza da guerra ─────────────────────────────────────────
-  {it:'Arco lungo',        en:'Longbow',         type:'guerra', range:'distanza', prop:'lentezza'},
-  {it:'Balestra a mano',   en:'Hand Crossbow',   type:'guerra', range:'distanza', prop:'vassazione'},
-  {it:'Balestra pesante',  en:'Heavy Crossbow',  type:'guerra', range:'distanza', prop:'spinta'},
-  {it:'Cerbottana',        en:'Blowgun',         type:'guerra', range:'distanza', prop:'vassazione'},
-  {it:'Moschetto',         en:'Musket',          type:'guerra', range:'distanza', prop:'lentezza'},
-  {it:'Pistola',           en:'Pistol',          type:'guerra', range:'distanza', prop:'vassazione'},
+  {it:'Arco lungo',        en:'Longbow',         type:'guerra', range:'distanza', prop:'lentezza', dmg:'1d8', dt:'P', props:['duemani','munizioni:45/180:freccia','pesante'], wt:1, cost:'50 mo'},
+  {it:'Balestra a mano',   en:'Hand Crossbow',   type:'guerra', range:'distanza', prop:'vassazione', dmg:'1d6', dt:'P', props:['leggera','munizioni:9/36:quadrello','ricarica'], wt:1.5, cost:'75 mo'},
+  {it:'Balestra pesante',  en:'Heavy Crossbow',  type:'guerra', range:'distanza', prop:'spinta', dmg:'1d10', dt:'P', props:['duemani','munizioni:30/120:quadrello','pesante','ricarica'], wt:9, cost:'50 mo'},
+  {it:'Cerbottana',        en:'Blowgun',         type:'guerra', range:'distanza', prop:'vassazione', dmg:'1', dt:'P', props:['munizioni:7/30:ago','ricarica'], wt:0.5, cost:'10 mo'},
+  {it:'Moschetto',         en:'Musket',          type:'guerra', range:'distanza', prop:'lentezza', dmg:'1d12', dt:'P', props:['duemani','munizioni:12/36:proiettile','ricarica'], wt:5, cost:'500 mo'},
+  {it:'Pistola',           en:'Pistol',          type:'guerra', range:'distanza', prop:'vassazione', dmg:'1d10', dt:'P', props:['munizioni:9/27:proiettile','ricarica'], wt:1.5, cost:'250 mo'},
 ];
+
+// ── Tipi di danno ──────────────────────────────────────────────────────
+const DMG_TYPE = {
+  T:{it:'taglienti',   en:'slashing',   ab:'tagl.'},
+  C:{it:'contundenti', en:'bludgeoning', ab:'cont.'},
+  P:{it:'perforanti',  en:'piercing',   ab:'perf.'}
+};
+
+// ── Proprietà delle armi (non di padronanza) — PHB 2024 IT ──────────────
+const WEAPON_PROPS = {
+  accurata:{it:'Accurata',en:'Finesse',desc:'Usa Forza o Destrezza (a tua scelta) per i tiri per colpire e per i danni; usa la stessa caratteristica per entrambi.',descEn:'Use STR or DEX (your choice) for attack and damage rolls; use the same for both.'},
+  leggera:{it:'Leggera',en:'Light',desc:"Con l'azione di Attacco puoi sferrare un attacco extra come azione bonus con un'altra arma leggera, senza aggiungere il modificatore di caratteristica al danno (salvo sia negativo).",descEn:'With the Attack action you can make an extra attack as a bonus action with a different light weapon, without adding your ability modifier to the damage (unless negative).'},
+  pesante:{it:'Pesante',en:'Heavy',desc:"Svantaggio ai tiri per colpire se usi un'arma pesante da mischia con Forza < 13, o a distanza con Destrezza < 13.",descEn:'Disadvantage on attack rolls if you use a heavy melee weapon with STR < 13, or a heavy ranged weapon with DEX < 13.'},
+  portata:{it:'Portata',en:'Reach',desc:'Aggiunge 1,5 m alla tua portata per attaccare e per gli attacchi di opportunità.',descEn:'Adds 5 ft to your reach when attacking and for opportunity attacks.'},
+  ricarica:{it:'Ricarica',en:'Loading',desc:"Puoi scagliare una sola munizione quando usi un'azione, un'azione bonus o una reazione per fare fuoco, indipendentemente dal numero di attacchi.",descEn:'You can fire only one piece of ammunition per action, bonus action or reaction, regardless of the number of attacks.'},
+  duemani:{it:'Due Mani',en:'Two-Handed',desc:'Richiede due mani per attaccare.',descEn:'Requires two hands to attack.'},
+  versatile:{it:'Versatile',en:'Versatile',desc:'Usabile a una o due mani. Il valore tra parentesi è il danno a due mani.',descEn:'Used with one or two hands. The value in parentheses is the two-handed damage.'},
+  lancio:{it:'Lancio',en:'Thrown',desc:"Puoi lanciare l'arma per un attacco a distanza usando la gittata indicata; usi la stessa caratteristica del corpo a corpo.",descEn:'You can throw the weapon for a ranged attack using the listed range; use the same ability as melee.'},
+  munizioni:{it:'Munizioni',en:'Ammunition',desc:'Richiede munizioni per attaccare a distanza; estrarre la munizione è parte dell\u2019attacco. Dopo il combattimento recuperi metà delle munizioni usate.',descEn:'Requires ammunition for a ranged attack; drawing it is part of the attack. After combat you recover half the ammunition used.'}
+};
+
+// Formatta i token di proprietà di un'arma in etichette leggibili
+function fFmtWeaponProps(props, isIt){
+  if(!props || !props.length) return '\u2014';
+  return props.map(tok=>{
+    const parts = tok.split(':');
+    const k = parts[0];
+    if(k==='lancio')        return (isIt?'Lancio ':'Thrown ')+parts[1]+' m';
+    if(k==='versatile')     return 'Versatile ('+parts[1]+')';
+    if(k==='munizioni')     return (isIt?'Munizioni ':'Ammo ')+parts[1]+' m'+(parts[2]?' ('+parts[2]+')':'');
+    if(k==='duemani-sella') return isIt?'Due mani (eccetto in sella)':'Two-handed (except mounted)';
+    const wp = WEAPON_PROPS[k];
+    return wp ? (isIt?wp.it:wp.en) : k;
+  }).join(' \u00b7 ');
+}
+
+// ── Armature e Scudi — PHB 2024 IT ──────────────────────────────────────
+// cat: 'leggera'|'media'|'pesante'|'scudo'
+// ca: CA base · dex: aggiunge mod.DES · dexMax: tetto al mod.DES (null = nessuno)
+// str: requisito di Forza (0 = nessuno; sotto soglia: -3 m velocità) · stealth: svantaggio Furtività
+const ARMORS = [
+  {it:'Armatura imbottita',          en:'Padded Armor',    cat:'leggera', ca:11, dex:true,  dexMax:null, str:0,  stealth:true,  wt:4,    cost:'5 mo'},
+  {it:'Armatura di cuoio',           en:'Leather Armor',   cat:'leggera', ca:11, dex:true,  dexMax:null, str:0,  stealth:false, wt:5,    cost:'10 mo'},
+  {it:'Armatura di cuoio borchiato', en:'Studded Leather', cat:'leggera', ca:12, dex:true,  dexMax:null, str:0,  stealth:false, wt:6.5,  cost:'45 mo'},
+  {it:'Armatura di pelle',           en:'Hide Armor',      cat:'media',   ca:12, dex:true,  dexMax:2,    str:0,  stealth:false, wt:6,    cost:'10 mo'},
+  {it:'Giaco di maglia',             en:'Chain Shirt',     cat:'media',   ca:13, dex:true,  dexMax:2,    str:0,  stealth:false, wt:10,   cost:'50 mo'},
+  {it:'Corazza a scaglie',           en:'Scale Mail',      cat:'media',   ca:14, dex:true,  dexMax:2,    str:0,  stealth:true,  wt:22.5, cost:'50 mo'},
+  {it:'Corazza di piastre',          en:'Breastplate',     cat:'media',   ca:14, dex:true,  dexMax:2,    str:0,  stealth:false, wt:10,   cost:'400 mo'},
+  {it:'Mezza armatura',              en:'Half Plate',      cat:'media',   ca:15, dex:true,  dexMax:2,    str:0,  stealth:true,  wt:20,   cost:'750 mo'},
+  {it:'Corazza ad anelli',           en:'Ring Mail',       cat:'pesante', ca:14, dex:false, dexMax:0,    str:0,  stealth:true,  wt:20,   cost:'30 mo'},
+  {it:'Cotta di maglia',             en:'Chain Mail',      cat:'pesante', ca:16, dex:false, dexMax:0,    str:13, stealth:true,  wt:27.5, cost:'75 mo'},
+  {it:'Corazza a strisce',           en:'Splint Armor',    cat:'pesante', ca:17, dex:false, dexMax:0,    str:15, stealth:true,  wt:30,   cost:'200 mo'},
+  {it:'Armatura a piastre',          en:'Plate Armor',     cat:'pesante', ca:18, dex:false, dexMax:0,    str:15, stealth:true,  wt:32.5, cost:'1.500 mo'},
+  {it:'Scudo',                       en:'Shield',          cat:'scudo',   ca:2,  dex:false, dexMax:0,    str:0,  stealth:false, wt:3,    cost:'10 mo'}
+];
+const ARMOR_DONDOFF = {
+  leggera:{it:'1 min per indossare / 1 min per togliere', en:'1 min to don / 1 min to doff'},
+  media:  {it:'5 min per indossare / 1 min per togliere', en:'5 min to don / 1 min to doff'},
+  pesante:{it:'10 min per indossare / 5 min per togliere',en:'10 min to don / 5 min to doff'},
+  scudo:  {it:'azione di Utilizzo', en:'Utilize action'}
+};
+// Formatta la formula di CA di un'armatura
+function fFmtArmorCA(a, isIt){
+  if(!a) return '';
+  if(a.cat==='scudo') return '+2 CA';
+  if(!a.dex) return ''+a.ca;
+  return a.ca+' + '+(isIt?'DES':'DEX')+(a.dexMax!=null?(' ('+(isIt?'max ':'max ')+a.dexMax+')'):'');
+}
+// Calcola la CA totale fornita da un'armatura dato il modificatore di DES
+function fArmorACValue(a, dexMod){
+  if(!a || a.cat==='scudo') return null;
+  let ca = a.ca;
+  if(a.dex) ca += (a.dexMax!=null ? Math.min(dexMod, a.dexMax) : dexMod);
+  return ca;
+}
 
 // Helper: restituisce le armi disponibili per padronanza in base alla classe
 // PHB 2024: le armi da fuoco (Pistola, Moschetto, Cerbottana) sono armi da guerra a distanza
@@ -10259,12 +10402,15 @@ function fGetMasteryWeapons(clsId){
   if(fullMartial.includes(clsId)) return WEAPONS_MASTERY;
 
   if(lightMartial.includes(clsId)){
-    // Monaco: semplici + da guerra con proprietà Graffio (leggera)
-    // Ladro:  semplici + da guerra con Vassazione o Graffio (accurata/leggera)
-    const lightProps = ['graffio','vassazione'];
-    return WEAPONS_MASTERY.filter(w =>
-      w.type === 'semplice' || (w.type === 'guerra' && lightProps.includes(w.prop))
-    );
+    // Monaco (PHB 2024): armi semplici + armi da guerra con proprietà Leggera.
+    // Ladro  (PHB 2024): armi semplici + armi da guerra con proprietà Accurata o Leggera.
+    return WEAPONS_MASTERY.filter(w => {
+      if(w.type === 'semplice') return true;
+      const pr = w.props || [];
+      if(clsId === 'monk')  return pr.includes('leggera');
+      if(clsId === 'rogue') return pr.includes('leggera') || pr.includes('accurata');
+      return false;
+    });
   }
 
   if(simpleOnly.includes(clsId)){
@@ -10309,7 +10455,7 @@ function fSkillMod(skillEn, statKey){
 function fRS5(){
   const spent=fSpentPB();
   return`<div>
-    <div class="sec-title">🎲 ${ft("8 · Punteggi di Caratteristica","8 · Ability Scores")}</div>
+    <div class="sec-title">🎲 ${ft("9 · Punteggi di Caratteristica","9 · Ability Scores")}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
       ${[{id:"pointbuy",it:"Acquisto Punti",en:"Point Buy"},{id:"standardarray",it:"Array Standard",en:"Standard Array"},{id:"roll",it:"4d6 Scarta 1",en:"4d6 Drop Lowest"},{id:"manual",it:"Libero",en:"Manual"}].map(m=>`<button class="btn sm ${C.statMethod===m.id?"primary":""}" onclick="fSetMeth('${m.id}')">${lang==="it"?m.it:m.en}</button>`).join("")}
     </div>
@@ -10354,7 +10500,7 @@ function fRS6(){
   const sp=fgSp(); const sr=fgSr();
   return`
   <div>
-    <div class="sec-title">🌍 ${ft("6 · Specie","6 · Species")}</div>
+    <div class="sec-title">🌍 ${ft("7 · Specie","7 · Species")}</div>
 
     <div style="color:var(--muted);font-size:13px;margin-bottom:10px">${ft("Specie","Species")}</div>
     <div class="ga-sm" style="margin-bottom:14px">
@@ -10373,7 +10519,7 @@ function fRS6(){
 function fRS7(){
   return`
   <div>
-    <div class="sec-title">⚖️ ${ft("7 · Allineamento","7 · Alignment")}</div>
+    <div class="sec-title">⚖️ ${ft("8 · Allineamento","8 · Alignment")}</div>
     <div style="color:var(--muted);font-size:13px;margin-bottom:8px">${ft("Allineamento","Alignment")}</div>
     <div class="g3" style="max-width:340px">
       ${ALIGNMENTS.map(a=>`<div class="card ${C.alignment===a.id?"sel":""}" style="padding:7px;text-align:center" onclick="C.alignment='${a.id}';re()">
@@ -10393,7 +10539,7 @@ function fRS8(){
   const bgLangs = bg ? (isIt ? bg.it : bg.en) + ' (BG)' : '';
   return`
   <div>
-    <div class="sec-title">🗣️ ${ft("9 · Lingue","9 · Languages")}</div>
+    <div class="sec-title">🗣️ ${ft("10 · Lingue","10 · Languages")}</div>
     <div class="panel" style="margin-bottom:12px">
       <div class="sec-title">${ft("Lingue dalla Specie e Background","Languages from Species & Background")}</div>
       ${sp ? `<div class="sheet-row" style="padding:6px 0">
@@ -10559,7 +10705,7 @@ function fRS10(){
   const fields=[{k:"trait",it:"Tratto di Personalità",en:"Personality Trait",ph:ft("Come ti percepiscono?","How do others see you?"),suggest:true},{k:"ideal",it:"Ideale",en:"Ideal",ph:ft("In cosa credi?","What do you believe in?")},{k:"bond",it:"Legame",en:"Bond",ph:ft("Cosa ti lega al mondo?","What ties you to the world?")},{k:"flaw",it:"Difetto",en:"Flaw",ph:ft("Qual è il tuo punto debole?","What is your weakness?")}];
   return`
   <div>
-    <div class="sec-title">🪶 ${ft("11 · Personalità e Storia","11 · Personality & Story")}</div>
+    <div class="sec-title">🪶 ${ft("12 · Personalità e Storia","12 · Personality & Story")}</div>
     
     ${fields.map(f=>{
       const suggestBtn = f.suggest ? `<button onclick="fSuggestTrait()" type="button" style="font-size:11px;background:rgba(200,164,90,.15);border:1px solid var(--gold);color:var(--gold);padding:3px 10px;border-radius:3px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.04em;margin-left:8px" title="${ft('Suggerisci tratto in base all\'allineamento','Suggest trait based on alignment')}">🎲 ${ft('Suggerisci','Suggest')}</button>` : '';
@@ -10572,10 +10718,70 @@ function fRS10(){
   </div>`;
 }
 
+// ── Tabelle di riferimento Equipaggiamento (sola lettura) ───────────────
+function fEquipWeaponsRef(){
+  const isIt = lang==='it';
+  const groups = [
+    [isIt?'Armi Semplici da Mischia':'Simple Melee',    WEAPONS_MASTERY.filter(w=>w.type==='semplice'&&w.range==='mischia')],
+    [isIt?'Armi Semplici a Distanza':'Simple Ranged',   WEAPONS_MASTERY.filter(w=>w.type==='semplice'&&w.range==='distanza')],
+    [isIt?'Armi da Guerra da Mischia':'Martial Melee',  WEAPONS_MASTERY.filter(w=>w.type==='guerra'&&w.range==='mischia')],
+    [isIt?'Armi da Guerra a Distanza':'Martial Ranged', WEAPONS_MASTERY.filter(w=>w.type==='guerra'&&w.range==='distanza')]
+  ];
+  let h = '';
+  groups.forEach(([lbl,list])=>{
+    if(!list.length) return;
+    h += '<div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 4px">'+lbl+'</div>';
+    list.forEach(w=>{
+      const mp = MASTERY_PROPS[w.prop];
+      h += '<div style="padding:6px 8px;margin-bottom:4px;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.14);border-radius:4px">'
+        +  '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'
+        +    '<span style="font-size:12px;font-weight:700;color:var(--gold)">'+(isIt?w.it:w.en)+'</span>'
+        +    '<span style="font-size:10px;color:var(--gold2);white-space:nowrap">'+(w.dmg||'')+' '+(DMG_TYPE[w.dt]?(isIt?DMG_TYPE[w.dt].it:DMG_TYPE[w.dt].en):'')+'</span>'
+        +  '</div>'
+        +  '<div style="font-size:9px;color:var(--muted);margin-top:2px">'+fFmtWeaponProps(w.props,isIt)+'</div>'
+        +  '<div style="font-size:9px;color:var(--vdim);margin-top:2px">'
+        +    '\u2728 '+(mp?(isIt?mp.it:mp.en):'\u2014')+' \u00b7 '+(w.wt?w.wt+' kg':'\u2014')+' \u00b7 '+(w.cost||'')+'</div>'
+        +  '</div>';
+    });
+  });
+  return h;
+}
+function fEquipArmorRef(){
+  const isIt = lang==='it';
+  const cats = [
+    ['leggera', isIt?'Armature Leggere':'Light Armor'],
+    ['media',   isIt?'Armature Medie':'Medium Armor'],
+    ['pesante', isIt?'Armature Pesanti':'Heavy Armor'],
+    ['scudo',   isIt?'Scudo':'Shield']
+  ];
+  let h = '';
+  cats.forEach(([cat,lbl])=>{
+    const list = ARMORS.filter(a=>a.cat===cat);
+    if(!list.length) return;
+    const dd = ARMOR_DONDOFF[cat];
+    h += '<div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 2px">'+lbl+'</div>'
+      +  '<div style="font-size:8px;color:var(--vdim);margin-bottom:4px">'+(isIt?dd.it:dd.en)+'</div>';
+    list.forEach(a=>{
+      const reqs = [];
+      if(a.str>0) reqs.push((isIt?'Forza ':'STR ')+a.str);
+      if(a.stealth) reqs.push(isIt?'Svant. Furtività':'Stealth disadv.');
+      h += '<div style="padding:6px 8px;margin-bottom:4px;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.14);border-radius:4px">'
+        +  '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">'
+        +    '<span style="font-size:12px;font-weight:700;color:var(--gold)">'+(isIt?a.it:a.en)+'</span>'
+        +    '<span style="font-size:11px;color:var(--gold2);white-space:nowrap">CA '+fFmtArmorCA(a,isIt)+'</span>'
+        +  '</div>'
+        +  '<div style="font-size:9px;color:var(--vdim);margin-top:2px">'
+        +    (reqs.length?reqs.join(' \u00b7 ')+' \u00b7 ':'')+(a.wt?a.wt+' kg':'\u2014')+' \u00b7 '+a.cost+'</div>'
+        +  '</div>';
+    });
+  });
+  return h;
+}
+
 function fRS11(cl){
   const eq=cl?FEQUIP[cl.id]:null;
   return`<div>
-    <div class="sec-title">🎒 ${ft("12 · Equipaggiamento","12 · Equipment")}</div>
+    <div class="sec-title">🎒 ${ft("13 · Equipaggiamento","13 · Equipment")}</div>
     ${cl&&eq?`<div class="box"><div class="box-title">${cl.icon} ${lang==="it"?cl.it:cl.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${lang==="it"?eq.it:eq.en}</div></div>`:""}
     <div class="box"><div class="box-title">${ft("Note","Notes")}</div><textarea rows="3" placeholder="${ft("Oggetti aggiuntivi...","Additional items...")}" oninput="C.equipNotes=this.value">${C.equipNotes||""}</textarea></div>
   </div>`;
