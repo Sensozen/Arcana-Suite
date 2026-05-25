@@ -7183,7 +7183,13 @@ function fStatTotalExcluding(statKey, excludeUid){
       }
     }
   }
-  return total; // raw, non cappato
+  // Esclude il bonus del capstone di Lv.20 (Campione Primordiale / Corpo e Mente):
+  // è un aumento FINALE che si applica sopra il valore raggiunto con ASI/talenti,
+  // quindi non deve occupare lo "spazio" disponibile per l'assegnazione dei talenti.
+  const _lv = C.level || 1;
+  if(C.cls === 'barbarian' && _lv >= 20 && (statKey === 'STR' || statKey === 'CON')) total -= 4;
+  if(C.cls === 'monk' && _lv >= 20 && (statKey === 'DEX' || statKey === 'WIS')) total -= 4;
+  return total; // raw, non cappato, e senza il capstone Lv.20
 }
 
 function fGetAllStatBonuses(){
@@ -7322,10 +7328,13 @@ function fStatCap(statKey){
     const sb = meta.statBonus;
     const epicMax = meta.max || 20;
     if(epicMax <= 20) return; // non è un Dono Epico
-    // Questo talento ha cap > 20: controlla se riguarda questa stat
-    if(sb.stat === statKey) cap = Math.max(cap, epicMax);
+    // Un Dono Epico può portare una caratteristica fino a 30 *in assoluto*, ma il
+    // singolo talento alza il tetto solo del proprio bonus (+1 -> 21). In fase di
+    // creazione si ottiene un solo Dono Epico, quindi il tetto effettivo è 20 + bonus.
+    const epicCap = 20 + (sb.val || 1);
+    if(sb.stat === statKey) cap = Math.max(cap, epicCap);
     const choice = (C.featChoices||{})[f.uid]||{};
-    if(choice.stats && choice.stats.includes(statKey)) cap = Math.max(cap, epicMax);
+    if(choice.stats && choice.stats.includes(statKey)) cap = Math.max(cap, epicCap);
   });
   // Privilegi di classe finali (Lv.20): alzano il tetto a 25
   const _lv = C.level || 1;
@@ -9189,7 +9198,7 @@ function fRFeatChoices(feat){
     const selectedStats = (C.featChoices?.[feat.uid]?.stats) || [];
     const val    = meta._asiVal !== undefined ? meta._asiVal : meta.statBonus.val;
     const maxSel = meta._asiMax !== undefined ? meta._asiMax : 1;
-    const capMax = meta.max || 20;
+    const isEpicFeat = (meta.max || 20) > 20;
 
     if(choices.length > 0){
       const statLabels = isIt ? {STR:'FOR',DEX:'DES',CON:'COS',INT:'INT',WIS:'SAG',CHA:'CAR'}
@@ -9198,6 +9207,18 @@ function fRFeatChoices(feat){
       const pills = choices.map(function(s){
         const isFixed = (meta.statBonus.stat === s);
         const sel = selectedStats.includes(s) || isFixed;
+        // Cap REALE per questa caratteristica nel pannello. Talenti normali: 20.
+        // Doni Epici: 20 + bonus del talento (= 21 in creazione), calcolato direttamente
+        // per evitare una dipendenza circolare con fStatCap (che dipende dalla scelta
+        // che stiamo decidendo). Se su questa stat agisce anche il capstone di Lv.20
+        // (Barbaro FOR/COS, Monaco DES/SAG), il tetto sale a 25.
+        let capMax = 20;
+        if(isEpicFeat){
+          capMax = 20 + (meta.statBonus.val || 1);
+          const _lv = C.level || 1;
+          if(C.cls === 'barbarian' && _lv >= 20 && (s === 'STR' || s === 'CON')) capMax = Math.max(capMax, 25);
+          if(C.cls === 'monk' && _lv >= 20 && (s === 'DEX' || s === 'WIS')) capMax = Math.max(capMax, 25);
+        }
 
         // Totale SENZA questo talento → ci dice quanto "spazio" c'è
         const totalWithoutThis = fStatTotalExcluding(s, feat.uid);
