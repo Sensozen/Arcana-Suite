@@ -9278,7 +9278,7 @@ function fRFeatChoices(feat){
         +'<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">'
         +(isIt?'Caratteristica':'Ability')
         +(maxSel > 1 ? ' (+'+val+' ciascuna, scegli '+maxSel+')' : ' (+'+val+')')
-        +(capMax>20?' <span style="font-size:9px;color:#9b59b6">(max '+capMax+')</span>':'')
+        +(isEpicFeat?' <span style="font-size:9px;color:#9b59b6">(max '+(20+(meta.statBonus.val||1))+')</span>':'')
         +'</div>'
         +'<div style="display:flex;flex-wrap:wrap;gap:5px">'+pills+'</div>';
 
