@@ -3769,13 +3769,6 @@ function fConvertSPtoSlot(slotLv,cost){
 }
 function fUseClockworkEquil(){if(!C.clockworkEquil)C.clockworkEquil={used:0};var m=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.clockworkEquil.used<m)C.clockworkEquil.used++;re();}
 function fRestoreClockworkEquil(){if(C.clockworkEquil&&C.clockworkEquil.used>0)C.clockworkEquil.used--;re();}
-function fAddSpellbookSpell(){
-  var n=document.getElementById('sb-name'),l=document.getElementById('sb-lv');
-  if(!n||!n.value.trim())return;
-  if(!C.spellbookSpells)C.spellbookSpells=[];
-  C.spellbookSpells.push({nome:n.value.trim(),lv:l&&l.value?parseInt(l.value):0});
-  n.value='';if(l)l.value='';re();
-}
 function fResetPresage(){
   var r1=Math.ceil(Math.random()*20),r2=Math.ceil(Math.random()*20);
   var r3=(C.level||1)>=14?Math.ceil(Math.random()*20):null;
@@ -8348,12 +8341,6 @@ function fIsKnownCaster(){ return C.cls === 'warlock' || C.cls === 'sorcerer'; }
 // Mago: incantesimi preparati dalla tabella PHB 2024 (NON INT+Lv)
 function fWizardMaxPrepared(){
   return SPELLS_KNOWN_TABLE['wizard']?.[Math.min(C.level||1,20)-1] || 0;
-}
-
-// Max incantesimi: per il Mago è la formula; per gli altri è dalla tabella
-function fGetMaxSpells(){
-  if(fHasSpellbook()) return fWizardMaxPrepared();
-  return SPELLS_KNOWN_TABLE[C.cls]?.[Math.min(C.level,20)-1] || 0;
 }
 
 // Formula testuale per caster preparati (usata nella UI)
