@@ -1569,7 +1569,7 @@ barbarian: [
   { lv:1,  it:"Difesa Senza Armatura",
     desc:"Senza armatura, la CA del barbaro è 10 + mod. DES + mod. COS. Può usare uno scudo." },
   { lv:1,  it:"Ira",
-    desc:"Azione bonus per entrare in Ira (non mentre si indossa armatura pesante). Vantaggi: resistenza C/P/T; vantaggio alle prove e TS di Forza; bonus ai danni (+2 Lv.1–8, +3 Lv.9–15, +4 Lv.16+). Ire: 2 (Lv.1–2), 3 (Lv.3–5), 4 (Lv.6–11), 5 (Lv.12–14), 6 (Lv.15–20). Recupero: 1 uso/riposo breve · tutti/riposo lungo. Max 10 minuti." },
+    desc:"Azione bonus per entrare in Ira (non mentre si indossa armatura pesante). Vantaggi: resistenza C/P/T; vantaggio alle prove e TS di Forza; bonus ai danni (+2 Lv.1–8, +3 Lv.9–15, +4 Lv.16+). Ire: 2 (Lv.1–2), 3 (Lv.3–5), 4 (Lv.6–11), 5 (Lv.12–16), 6 (Lv.17–20). Recupero: 1 uso con un riposo breve, tutti con un riposo lungo. Max 10 minuti." },
   { lv:1,  it:"Padronanza d'Armi",
     desc:"Competenza nelle proprietà di padronanza per 2 tipi di arma a scelta. Può cambiarne una dopo ogni riposo lungo." },
   { lv:2,  it:"Attacco Irruento",
@@ -1714,7 +1714,7 @@ fighter: [
   { lv:1,  it:"Padronanza d'Armi",
     desc:"Competenza nelle proprietà di padronanza per 3 tipi di arma a scelta. Può cambiarne una dopo ogni riposo lungo." },
   { lv:1,  it:"Recuperare Energie",
-    desc:"Azione bonus: recupera PF pari a 1d10 + livello da guerriero. Usi: 2 (Lv.1-3), 3 (Lv.4-12), 4 (Lv.13+). Recupero: 1 uso/riposo breve · entrambi/riposo lungo." },
+    desc:"Azione bonus: recupera PF pari a 1d10 + livello da guerriero. Usi: 2 (Lv.1-3), 3 (Lv.4-9), 4 (Lv.10+). Recupero: 1 uso/riposo breve · tutti/riposo lungo." },
   { lv:2,  it:"Azione Impetuosa",
     desc:"Azione aggiuntiva nel turno (non Magia). Usi: 1 (Lv.2-16), 2 (Lv.17+). Recupero: riposo breve o lungo." },
   { lv:2,  it:"Mente Tattica",
@@ -1939,7 +1939,7 @@ sorcerer: [
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
   { lv:20, it:"Apoteosi Arcana",
-    desc:"Quando il privilegio Stregoneria Innata è attivo, lo stregone può usare un'opzione di Metamagia a ogni incantesimo lanciato senza dover consumare punti stregoneria." },
+    desc:"Quando il privilegio Stregoneria Innata è attivo, lo stregone può usare un'opzione di Metamagia a ogni turno senza dover consumare punti stregoneria." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -1977,7 +1977,7 @@ warlock: [
 // ──────────────────────────────────────────────────────────────────
 wizard: [
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Intelligenza. Trucchetti: 3 (Lv.1-3), 4 (Lv.4), 5 (Lv.10). Libro degli incantesimi con 6 incantesimi di 1° livello. Incantesimi preparati: dalla tabella PHB 2024 (Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→25) — non usa la formula livello+INT. Può copiare nuovi incantesimi nel libro (2 ore + 50 mo per livello)." },
+    desc:"Caratteristica da incantatore: Intelligenza. Trucchetti: 3 (Lv.1-3), 4 (Lv.4-9), 5 (Lv.10+). Libro degli incantesimi con 6 incantesimi di 1° livello. Incantesimi preparati: dalla tabella PHB 2024 (Lv.1→4, Lv.5→9, Lv.10→15, Lv.20→25) — non usa la formula livello+INT. Può copiare nuovi incantesimi nel libro (2 ore + 50 mo per livello)." },
   { lv:1,  it:"Adepto dei Rituali",
     desc:"Può lanciare come Rituale qualsiasi incantesimo con il descrittore Rituale presente nel libro degli incantesimi, anche se non è preparato (deve poterlo leggere)." },
   { lv:1,  it:"Recupero Arcano",
@@ -3606,7 +3606,7 @@ function fToggleWarlockInvocation(id){
 //  SISTEMA RIPOSO + RISORSE DI CLASSE
 // ═══════════════════════════════════════════════════════════════════════════
 function fMaxRage(lv){if(lv>=17)return 6;if(lv>=12)return 5;if(lv>=6)return 4;if(lv>=3)return 3;return 2;}
-function fMaxSecondWind(lv){if(lv>=13)return 4;if(lv>=4)return 3;return 2;}
+function fMaxSecondWind(lv){if(lv>=10)return 4;if(lv>=4)return 3;return 2;}
 function fMaxActionSurge(lv){return lv>=17?2:1;}
 // PHB 2024: 4d8 a Lv.3, 5d8 a Lv.7, 6d8 a Lv.7 (totale), d10 a Lv.10, 6d10 a Lv.15, d12 a Lv.18
 function fSuperiorityDiceTotal(lv){if(lv>=15)return 6;if(lv>=7)return 5;if(lv>=3)return 4;return 4;}
@@ -4300,6 +4300,7 @@ function fRClassBlock(){
 
   // ── MONACO
   if(cl==='monk'){
+    if(lv>=2){
     var kiMax=fMaxKi(lv),kiUsed=(C.ki&&C.ki.used)||0;
     html+='<div style="'+boxS+'">';
     html+='<div style="font-size:11px;color:var(--gold2);margin-bottom:6px;font-weight:700">\uD83D\uDD35 '+(isIt?'Punti Concentrazione':'Ki Points')+' \u2014 '+(kiMax-kiUsed)+'/'+kiMax+'</div>';
@@ -4308,6 +4309,7 @@ function fRClassBlock(){
     html+='<div style="margin-top:6px;font-size:10px;color:var(--muted)">Difesa paziente (1) \u00b7 Passo del vento (1) \u00b7 Raffica di colpi (1)</div>';
     html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: tutti/riposo breve o lungo</div>';
     html+='</div>';
+    }
   }
 
   // ── BARDO
@@ -4512,7 +4514,7 @@ function fRClassBlock(){
 
   // ── STREGONE
   if(cl==='sorcerer'){
-    var spMax2=fMaxSorcPoints(lv),spUsed2=(C.sorcPoints&&C.sorcPoints.used)||0;
+    var spMax2=lv>=2?fMaxSorcPoints(lv):0,spUsed2=(C.sorcPoints&&C.sorcPoints.used)||0;
     // Punti Stregoneria
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">⭐ '+(isIt?'Punti Stregoneria':'Sorc. Points')+'</span>'+fDots(spUsed2,spMax2,'fUseSorcPoint','fRestoreSorcPoint','#8e44ad')+'<span style="font-size:10px;color:var(--vdim)">'+(spMax2-spUsed2)+'/'+spMax2+'</span></div>';
@@ -6149,11 +6151,16 @@ function fRS2(){
   if(scSkCount>0){
     const allSkEn=FSKL.map(s=>s.en);
     const taken=[...allProfs,...scSkChosen];
+    const scSkTitle = (C.cls==='bard' && sc==='sapienza')
+      ? (isIt?'Competenze Bonus — Sapienza (Lv.3)':'Bonus Proficiencies — Lore (Lv.3)')
+      : (C.cls==='fighter' && sc==='maestro-battaglia')
+      ? (isIt?'Studioso di Guerra — Maestro di Battaglia (Lv.3)':'Student of War — Battle Master (Lv.3)')
+      : (isIt?'Competenze Bonus':'Bonus Proficiencies');
     html+=`<div class="panel">
-      <div class="sec-title">📚 ${isIt?'Competenze Bonus — Sapienza (Lv.3)':'Bonus Proficiencies — Lore (Lv.3)'}</div>
+      <div class="sec-title">📚 ${scSkTitle}</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
-        ${isIt?`Scegli <strong style="color:var(--gold)">3</strong> abilità qualsiasi da aggiungere alle tue competenze.`:
-        `Choose <strong style="color:var(--gold)">3</strong> skills of any kind.`}
+        ${isIt?`Scegli <strong style="color:var(--gold)">${scSkCount}</strong> abilità qualsiasi da aggiungere alle tue competenze.`:
+        `Choose <strong style="color:var(--gold)">${scSkCount}</strong> skills of any kind.`}
       </div>
       <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${scSkChosen.length}/${scSkCount}</div>
       <div class="ga">`;
@@ -6292,6 +6299,15 @@ function fLoadJSON(evt){
       var loaded=JSON.parse(e.target.result);
       if(!loaded.cls&&!loaded.name) throw new Error('File non valido');
       Object.assign(C, loaded);
+      // Valida la sottoclasse: deve appartenere alla classe caricata (evita residui incoerenti, es. sottoclasse Bardo su Guerriero)
+      if(C.cls){
+        const clData = CLASSES.find(c => c.id === C.cls);
+        const validSc = clData && clData.subclasses && clData.subclasses.some(sc => sc.id === C.subclass);
+        if(!validSc) C.subclass = null;
+        // Valida anche la sottospecie rispetto alla specie
+        const spData = SPECIES.find(s => s.id === C.species);
+        if(spData && spData.subraces && !spData.subraces.some(r => r.id === C.subrace)) C.subrace = null;
+      }
       closeExport();
       re();
       var msg=document.getElementById('exp-load-msg');
@@ -6330,8 +6346,10 @@ function fBuildClassResourcesPrint(){
     }
   }
   if(cl==='monk'){
-    lines.push('PUNTI CONCENTRAZIONE: '+fMaxKi(lv)+'/riposo breve-lungo');
-    lines.push('Difesa paziente (1) · Passo del vento (1) · Raffica (1)');
+    if(lv>=2){
+      lines.push('PUNTI CONCENTRAZIONE: '+fMaxKi(lv)+'/riposo breve-lungo');
+      lines.push('Difesa paziente (1) · Passo del vento (1) · Raffica (1)');
+    }
   }
   if(cl==='bard'){
     var bd=lv>=15?'d12':lv>=10?'d10':lv>=5?'d8':'d6';
@@ -6340,7 +6358,7 @@ function fBuildClassResourcesPrint(){
     if(lv>=10) lines.push('Segreti Magici: prepara da Chierico/Druido/Mago');
   }
   if(cl==='cleric'){
-    lines.push('INCANALARE DIVINITÀ: '+fMaxChannelDiv(lv)+'/riposo breve-lungo');
+    if(lv>=2) lines.push('INCANALARE DIVINITÀ: '+fMaxChannelDiv(lv)+'/riposo breve-lungo');
     if(C.divOrder) lines.push('Ordine: '+(C.divOrder==='protettore'?'Protettore':'Taumaturgo'));
     if(C.blessedStrikes) lines.push('Colpi Benedetti: '+(C.blessedStrikes==='divino'?'Colpo Divino':'Inc. Potenti'));
     if(lv>=10) lines.push('INTERVENTO DIVINO: 1×/riposo lungo');
@@ -6348,12 +6366,12 @@ function fBuildClassResourcesPrint(){
   if(cl==='paladin'){
     var plh=lv*5;
     lines.push('IMPOSIZIONE DELLE MANI: '+plh+' PF/riposo lungo');
-    lines.push('INCANALARE DIVINITÀ: '+(lv>=11?3:2)+'/riposo breve-lungo');
-    lines.push('PUNIZIONE DIVINA: +2d8 radiosi / 1×senza slot');
+    if(lv>=3) lines.push('INCANALARE DIVINITÀ: '+(lv>=11?3:2)+'/riposo breve-lungo');
+    if(lv>=2) lines.push('PUNIZIONE DIVINA: +2d8 radiosi / 1×senza slot');
     if(lv>=6) lines.push('AURA DI PROTEZIONE: '+(lv>=18?9:3)+' m · +mod.CAR ai TS');
   }
   if(cl==='druid'){
-    lines.push('FORMA SELVATICA: '+fMaxWildShape(lv)+'/riposo breve-lungo · GS max '+(lv>=8?'1':lv>=4?'1/2':'1/4'));
+    if(lv>=2) lines.push('FORMA SELVATICA: '+fMaxWildShape(lv)+'/riposo breve-lungo · GS max '+(lv>=8?'1':lv>=4?'1/2':'1/4'));
     if(C.wildForms&&C.wildForms.length) lines.push('Forme: '+(C.wildForms.map(function(f){return f.nome+'('+f.gs+')';})).join(', '));
     if(C.primordialOrder) lines.push('Ordine: '+(C.primordialOrder==='custode'?'Custode':'Mago'));
     if(C.elementalFury) lines.push('Furia El.: '+(C.elementalFury==='colpo'?'Colpo Primordiale':'Inc. Potenti'));
@@ -6373,7 +6391,7 @@ function fBuildClassResourcesPrint(){
     lines.push('ATTACCO FURTIVO: '+af+'d6 extra');
   }
   if(cl==='sorcerer'){
-    lines.push('PUNTI STREGONERIA: '+fMaxSorcPoints(lv)+'/riposo lungo');
+    if(lv>=2) lines.push('PUNTI STREGONERIA: '+fMaxSorcPoints(lv)+'/riposo lungo');
     lines.push('STREGONERIA INNATA: 2 usi/riposo lungo');
     if(C.metamagicChoices&&C.metamagicChoices.length) lines.push('Metamagia: '+(C.metamagicChoices.join(', ')));
     if(C.draconicAncestor) lines.push('Antenato: '+C.draconicAncestor);
@@ -8364,6 +8382,7 @@ function fSpellbookIds(){
 }
 
 function fHasSpellcasting(){
+  const lv = C.level || 1;
   const full = ['bard','cleric','druid','paladin','ranger','sorcerer','warlock','wizard'];
   if(full.includes(C.cls)) return true;
   return SUBCLASS_CASTER_IDS[C.cls]?.includes(C.subclass) || false;
