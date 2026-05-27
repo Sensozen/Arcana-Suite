@@ -5058,6 +5058,7 @@ let C={
   expertiseSkills:[], // abilità con doppia competenza (maestria) - Lv.1/2 scelta classe
   expertiseSkills2:[], // maestria extra a livelli superiori (Bardo Lv.9, Ladro Lv.6)
   subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
+  bardDiscoveries:[], // Bardo Sapienza Lv.6: Scoperte Magiche (max 2, sempre preparati)
   wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
   monkMercyTool:false, // Monaco Misericordia: borsa da erborista (automatica)
   featChoices:{}, // scelte specifiche dei talenti (es: {"resiliente_uid":{stats:['CHA']}})
@@ -5271,7 +5272,7 @@ function nuovoPersonaggio(){
     statMethod:"standardarray",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],bardDiscoveries:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -8585,6 +8586,21 @@ function fGetAlwaysPrepared(){
       }
     }
   }
+
+  // Bardo — Collegio della Sapienza: Scoperte Magiche (Lv.6), 2 incantesimi sempre preparati
+  if(C.cls==='bard' && C.subclass==='sapienza' && lv>=6 && Array.isArray(C.bardDiscoveries)){
+    C.bardDiscoveries.forEach(id=>{
+      const sp=SPELLS.find(s=>s.id===id);
+      if(sp) result.push({nome:sp.nome,fonte:'subclass',reqLv:6});
+    });
+  }
+
+  // Bardo — Parole della Creazione (Lv.20): due incantesimi sempre preparati
+  if(C.cls==='bard' && lv>=20){
+    ['Parola del potere guarire','Parola del potere uccidere']
+      .forEach(nome=>result.push({nome,fonte:'subclass',reqLv:20}));
+  }
+
   return result;
 }
 
@@ -8674,9 +8690,13 @@ function fRenderSpellPicker(){
     if(activeSchool !== 'tutte' && s.scuola !== activeSchool) return false;
     // Filtra per classe
     if(srcMode === 'secrets'){
-      // Bardo Segreti Magici: mostra Chierico + Druido + Mago
-      const secretClasses = ['Chierico','Druido','Mago','Cleric','Druid','Wizard'];
+      // Bardo Segreti Magici (Lv.10): bardo + chierico + druido + mago (PHB 2024)
+      const secretClasses = ['Bardo','Chierico','Druido','Mago','Bard','Cleric','Druid','Wizard'];
       if(!s.classi || !s.classi.some(c=>secretClasses.some(sc=>c.toLowerCase()===sc.toLowerCase()))) return false;
+    } else if(srcMode === 'discoveries'){
+      // Collegio della Sapienza — Scoperte Magiche (Lv.6): chierico + druido + mago (no bardo)
+      const discClasses = ['Chierico','Druido','Mago','Cleric','Druid','Wizard'];
+      if(!s.classi || !s.classi.some(c=>discClasses.some(sc=>c.toLowerCase()===sc.toLowerCase()))) return false;
     } else if(srcMode === 'spellbook'){
       if(!s.classi || !s.classi.some(c=>c.toLowerCase().includes('mago')||c.toLowerCase().includes('wizard'))) return false;
     } else if(srcMode === 'wizardprepare'){
@@ -8762,7 +8782,9 @@ function fRenderSpellPicker(){
   // Selector scuola
   const schoolSel = `<select onchange="fSpSchool(this.value)" style="width:100%;background:#0a0a12;border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--text);font-size:11px;padding:5px;margin-bottom:8px;font-family:'Comfortaa',sans-serif">${scuole.map(sc=>`<option value="${sc}" ${sc===activeSchool?'selected':''}>${sc==='tutte'?'Tutte le scuole':sc}</option>`).join('')}</select>`;
   const srcLabel = srcMode==='secrets'
-    ? `<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCDA Segreti Magici \u2014 lista Chierico + Druido + Mago</div>`
+    ? `<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCDA Segreti Magici \u2014 lista Bardo + Chierico + Druido + Mago</div>`
+    : srcMode==='discoveries'
+    ? `<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCDA Scoperte Magiche (Sapienza) \u2014 lista Chierico + Druido + Mago</div>`
     : srcMode==='spellbook'
     ? `<div style="font-size:10px;color:#3498db;background:rgba(52,152,219,.08);border:1px solid rgba(52,152,219,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCD6 Aggiungi al Libro degli Incantesimi (nessun limite)</div>`
     : srcMode==='wizardprepare'
@@ -8838,6 +8860,23 @@ function fSpToggle(id){
 
 function fSpAdd(){
   const mode = typeof _spSourceMode !== 'undefined' ? _spSourceMode : 'class';
+
+  if(mode === 'discoveries'){
+    // Collegio della Sapienza — Scoperte Magiche (Lv.6): max 2 incantesimi sempre preparati
+    if(!C.bardDiscoveries) C.bardDiscoveries = [];
+    let added = 0;
+    state.selected.forEach(function(id){
+      const spell = SPELLS.find(function(s){ return s.id === id; });
+      if(!spell) return;
+      if(C.bardDiscoveries.length >= 2) return;
+      if(!C.bardDiscoveries.includes(id)){ C.bardDiscoveries.push(id); added++; }
+    });
+    state.selected.clear();
+    if(added) showToast('📚 ' + added + ' ' + (added===1?'Scoperta Magica aggiunta':'Scoperte Magiche aggiunte'));
+    fCloseSpellPicker();
+    re();
+    return;
+  }
 
   if(mode === 'spellbook'){
     // Aggiunge al LIBRO degli incantesimi (C.spellbookSpells), non ai preparati
@@ -8927,6 +8966,13 @@ function fSpSchool(s){ _spSchool = s; fRenderSpellPicker(); }
 function fOpenSpellPickerSecrets(){
   _spSourceMode = 'secrets';
   C._spellPickerTarget = 'spell';
+  _spActiveLevel = 'tutti';
+  _spSchool = 'tutte';
+  fOpenSpellPicker();
+}
+function fOpenSpellPickerDiscoveries(){
+  _spSourceMode = 'discoveries';
+  C._spellPickerTarget = 'discoveries';
   _spActiveLevel = 'tutti';
   _spSchool = 'tutte';
   fOpenSpellPicker();
@@ -9139,6 +9185,16 @@ function fRSpellsSection(){
     <button onclick="fOpenSpellPickerSecrets()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 10px;cursor:pointer">+ ${isIt?'Aggiungi da altra lista':'Add from other list'}</button>
   </div>` : '';
 
+  // ── Scoperte Magiche — Collegio della Sapienza (Lv.6) ──────────────────
+  const discN = Array.isArray(C.bardDiscoveries) ? C.bardDiscoveries.length : 0;
+  const bardDiscoveriesBar = (C.cls==='bard'&&C.subclass==='sapienza'&&lv>=6) ? `<div style="margin:8px 0;padding:7px 10px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:3px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+    <span style="font-size:11px;color:var(--gold2)">📚 ${isIt?'Scoperte Magiche (Sapienza, Lv.6)':'Magical Discoveries (Lore, Lv.6)'} — <strong style="color:var(--gold)">${discN}/2</strong> ${isIt?'sempre preparati':'always prepared'}</span>
+    <span style="display:flex;gap:5px">
+      <button onclick="fOpenSpellPickerDiscoveries()" ${discN>=2?'disabled':''} style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 10px;cursor:${discN>=2?'not-allowed':'pointer'};opacity:${discN>=2?.45:1}">+ ${isIt?'Scegli':'Choose'}</button>
+      ${discN>0?`<button onclick="C.bardDiscoveries=[];re()" style="background:none;border:1px solid rgba(200,164,90,.25);border-radius:3px;color:var(--vdim);font-size:11px;padding:4px 8px;cursor:pointer" title="${isIt?'Azzera':'Reset'}">↩</button>`:''}
+    </span>
+  </div>` : '';
+
   return `<div class="box">
     <div class="box-title">✨ ${isIt?'Incantesimi':'Spells'}</div>
     ${statBar}
@@ -9146,6 +9202,7 @@ function fRSpellsSection(){
     ${fRSpellSlotsBlock(C.cls,lv,isIt)}
     ${fRWarlockBlock()}
     ${bardSecretsBar}
+    ${bardDiscoveriesBar}
     ${bookSection}
     <div style="margin-top:${bookSection?'4px':'14px'};padding-top:12px;border-top:1px solid var(--border)">
       ${cantripSection}
@@ -9691,6 +9748,7 @@ function fSelCl(id){
   C.cls=id; C.subclass=null; C.classSkills=[];
   C.preparedSpells=[]; C._spellTab='always';
   C.weaponMasteries=[]; C.expertiseSkills=[];
+  C.bardDiscoveries=[];
   // Se si usa la Serie standard, applica l'assegnazione consigliata per la classe
   // scelta (PHB 2024, "Serie standard per classe"). Con gli altri metodi
   // (Acquisto Punti, Tiro Dadi, Libero) i punteggi scelti dall'utente restano intatti.
