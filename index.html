@@ -3219,6 +3219,29 @@ function fSuggestTrait(){
 
 const FSN=["STR","DEX","CON","INT","WIS","CHA"];
 const FSA_VALS=[15,14,13,12,10,8];
+// ── Serie standard per classe (PHB 2024 it, "Serie standard per classe", pag.38) ──
+// Assegnazione consigliata dei sei valori standard (15,14,13,12,10,8) per classe.
+// Ordine colonne: For., Des., Cos., Int., Sag., Car.
+const FSA_BY_CLASS={
+  barbarian:{STR:15,DEX:13,CON:14,INT:10,WIS:12,CHA:8},
+  bard:     {STR:8, DEX:14,CON:12,INT:13,WIS:10,CHA:15},
+  cleric:   {STR:14,DEX:8, CON:13,INT:10,WIS:15,CHA:12},
+  druid:    {STR:8, DEX:12,CON:14,INT:13,WIS:15,CHA:10},
+  fighter:  {STR:15,DEX:14,CON:13,INT:8, WIS:10,CHA:12},
+  rogue:    {STR:12,DEX:15,CON:13,INT:14,WIS:10,CHA:8},
+  wizard:   {STR:8, DEX:12,CON:13,INT:15,WIS:14,CHA:10},
+  monk:     {STR:12,DEX:15,CON:13,INT:10,WIS:14,CHA:8},
+  paladin:  {STR:15,DEX:10,CON:13,INT:8, WIS:12,CHA:14},
+  ranger:   {STR:12,DEX:15,CON:13,INT:8, WIS:14,CHA:10},
+  sorcerer: {STR:10,DEX:13,CON:14,INT:8, WIS:12,CHA:15},
+  warlock:  {STR:8, DEX:14,CON:13,INT:12,WIS:10,CHA:15},
+};
+// Restituisce l'assegnazione standard consigliata per la classe corrente;
+// fallback all'ordine canonico se la classe non è (ancora) scelta.
+function fStdArrayFor(clsId){
+  const t=FSA_BY_CLASS[clsId];
+  return t?{...t}:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8};
+}
 const FSI={STR:"Forza",DEX:"Destrezza",CON:"Costituzione",INT:"Intelligenza",WIS:"Saggezza",CHA:"Carisma"};
 const FSE={STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
 const FSKL=[
@@ -5022,8 +5045,8 @@ let screen="home",step=0;
 const FNSTEPS=13;
 let C={
   name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
-  stats:{STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8},
-  statMethod:"pointbuy",pointsLeft:27,
+  stats:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8},
+  statMethod:"standardarray",pointsLeft:27,
   level:1,feats:[],featNotes:"",humanFeat:null,
   trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
   spells:[], // legacy (non più usato per la UI)
@@ -5244,8 +5267,8 @@ function nuovoPersonaggio(){
   // Resetta il personaggio e avvia la creazione guidata
   C={
     name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
-    stats:{STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8},
-    statMethod:"pointbuy",pointsLeft:27,
+    stats:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8},
+    statMethod:"standardarray",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
     spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
@@ -9668,14 +9691,11 @@ function fSelCl(id){
   C.cls=id; C.subclass=null; C.classSkills=[];
   C.preparedSpells=[]; C._spellTab='always';
   C.weaponMasteries=[]; C.expertiseSkills=[];
-  // Imposta automaticamente le caratteristiche in base alla classe
-  const pri = CLASS_PRIMARY_STATS[id];
-  if(pri){
-    const vals = {STR:10,DEX:10,CON:10,INT:10,WIS:10,CHA:10};
-    vals[pri[0]] = 18;
-    vals[pri[1]] = 16;
-    vals[pri[2]] = 14;
-    C.stats = vals;
+  // Se si usa la Serie standard, applica l'assegnazione consigliata per la classe
+  // scelta (PHB 2024, "Serie standard per classe"). Con gli altri metodi
+  // (Acquisto Punti, Tiro Dadi, Libero) i punteggi scelti dall'utente restano intatti.
+  if((C.statMethod||'standardarray')==='standardarray'){
+    C.stats = fStdArrayFor(id);
   }
   re();
 }
@@ -9744,10 +9764,12 @@ function fSetM(s,v){C.stats[s]=Math.max(1,Math.min(30,parseInt(v)||1));}
 function fSetMeth(m){
   C.statMethod=m;
   if(m==='pointbuy'){C.stats={STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8};}
-  if(m==='standardarray'){C.stats={STR:0,DEX:0,CON:0,INT:0,WIS:0,CHA:0};}
+  if(m==='standardarray'){C.stats=fStdArrayFor(C.cls);}
   if(m==='roll') fRollAll();
   re();
 }
+// Ripristina la Serie standard consigliata per la classe corrente
+function fResetStdArray(){C.stats=fStdArrayFor(C.cls);re();}
 
 // Nome casuale
 function fRandomName(){
@@ -10496,7 +10518,7 @@ function fRS5(){
       ${[{id:"pointbuy",it:"Acquisto Punti",en:"Point Buy"},{id:"standardarray",it:"Array Standard",en:"Standard Array"},{id:"roll",it:"4d6 Scarta 1",en:"4d6 Drop Lowest"},{id:"manual",it:"Libero",en:"Manual"}].map(m=>`<button class="btn sm ${C.statMethod===m.id?"primary":""}" onclick="fSetMeth('${m.id}')">${lang==="it"?m.it:m.en}</button>`).join("")}
     </div>
     ${C.statMethod==="pointbuy"?`<div style="color:var(--muted);font-size:13px;margin-bottom:12px">${ft("Punti rimanenti:","Points remaining:")} <span style="color:var(--gold);font-size:20px">${27-spent}</span>/27</div>`:""}
-    ${C.statMethod==="standardarray"?`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;border-left:2px solid var(--border2);padding-left:10px">${ft("Assegna: 15, 14, 13, 12, 10, 8 alle caratteristiche.","Assign: 15, 14, 13, 12, 10, 8 to ability scores.")} ${FSN.every(s=>C.stats[s]>0)?'<span style="color:#5a8a5a">✓ '+ft("Tutti assegnati","All assigned")+"</span>":""}</div>`:""}
+    ${C.statMethod==="standardarray"?`<div style="font-size:12px;color:var(--muted);margin-bottom:12px;border-left:2px solid var(--border2);padding-left:10px">${ft("Valori 15, 14, 13, 12, 10, 8. L'assegnazione iniziale è quella consigliata dal manuale per la tua classe (Serie standard per classe); puoi riassegnarli liberamente.","Values 15, 14, 13, 12, 10, 8. The initial layout is the book's recommended one for your class (Standard Array by class); you can reassign freely.")} ${C.cls?`<button class="btn sm" style="margin-left:6px" onclick="fResetStdArray()">↩ ${ft("Assegnazione consigliata","Recommended layout")}</button>`:""} ${FSN.every(s=>C.stats[s]>0)?'<span style="color:#5a8a5a">✓ '+ft("Tutti assegnati","All assigned")+"</span>":""}</div>`:""}
     ${C.statMethod==="roll"?`<div style="margin-bottom:12px"><button class="btn sm" onclick="fRollAll()">🎲 ${ft("Rilancia tutto","Re-roll all")}</button></div>`:""}
     ${fRBgStatBonusBlock()}
     <div class="g-stats">
