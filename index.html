@@ -3613,7 +3613,7 @@ function fSuperiorityDiceTotal(lv){if(lv>=15)return 6;if(lv>=7)return 5;if(lv>=3
 function fSuperiorityDiceType(lv){if(lv>=18)return'd12';if(lv>=10)return'd10';return'd8';}
 // PHB 2024: manovre note — 3 a Lv.3, +2 a Lv.7, +2 a Lv.10, +2 a Lv.15 = max 9
 function fManeuverMax(lv){if(lv>=15)return 9;if(lv>=10)return 7;if(lv>=7)return 5;return 3;}
-function fMaxKi(lv){return lv;}
+function fMaxKi(lv){return lv<2?0:lv;}
 // PHB 2024: Incanalare Divinità — Lv.2→2, Lv.6→3, Lv.18→4 (chierico)
 // Paladino: Lv.3→2, Lv.11→3
 function fMaxChannelDiv(lv){
@@ -3626,7 +3626,7 @@ function fMaxChannelDiv(lv){
   if(lv>=11) return 3;
   return 2;
 }
-function fMaxSorcPoints(lv){return lv;}
+function fMaxSorcPoints(lv){return lv<2?0:lv;}
 // PHB 2024: Forma Selvatica — 2 usi base, scala con il livello
 function fMaxWildShape(lv){if(lv>=17)return 4;if(lv>=6)return 3;return 2;}
 
@@ -4293,6 +4293,13 @@ function fRClassBlock(){
 
   // ── MONACO
   if(cl==='monk'){
+    // ── DIFESA SENZA ARMATURA (Lv.1): 10 + mod.DES + mod.SAG ──
+    var monkAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('WIS'));
+    html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+    html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
+    html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+monkAC+'</span>';
+    html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.SAG (senza armatura n\u00e9 scudo)</span>';
+    html+='</div></div>';
     if(lv>=2){
     var kiMax=fMaxKi(lv),kiUsed=(C.ki&&C.ki.used)||0;
     html+='<div style="'+boxS+'">';
@@ -4313,6 +4320,15 @@ function fRClassBlock(){
     html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">\uD83C\uDFB5 '+(isIt?'Ispirazione':'Bardic Insp.')+' ('+bDie+')</span>'+fDots(bUsed,bMax,'fUseBardicInsp','fRestoreBardicInsp','#f39c12')+'<span style="font-size:10px;color:var(--vdim)">'+(bMax-bUsed)+'/'+bMax+'</span></div></div>';
     // Info recupero IB
     html+='<div style="font-size:10px;color:var(--vdim);margin-top:3px">Usi: mod. CAR (min 1) · '+(lv>=5?'rec. riposo breve o lungo':'rec. riposo lungo')+'</div>';
+    // ── Collegio della Danza: Difesa senza Armatura (Lv.3) — 10 + mod.DES + mod.CAR ──
+    if(sc==='danza'&&lv>=3){
+      var danzaAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('CHA'));
+      html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
+      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+danzaAC+'</span>';
+      html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.CAR (Scarto Smagliante, senza armatura n\u00e9 scudo)</span>';
+      html+='</div></div>';
+    }
     // Fonte di Ispirazione Lv.5: spendi slot → recupera 1 IB
     if(lv>=5){
       html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">⚡ Fonte di Ispirazione (Lv.5): spendi 1 slot incantesimo → recupera 1 uso IB (nessuna azione)</div>';
@@ -4507,10 +4523,19 @@ function fRClassBlock(){
 
   // ── STREGONE
   if(cl==='sorcerer'){
+    // ── Stregoneria Draconica: Resilienza Draconica (Lv.3) — CA 10 + mod.DES + mod.CAR ──
+    if(sc==='draconic'&&lv>=3){
+      var dracAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('CHA'));
+      html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
+      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
+      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+dracAC+'</span>';
+      html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.CAR (Resilienza Draconica, senza armatura)</span>';
+      html+='</div></div>';
+    }
     var spMax2=lv>=2?fMaxSorcPoints(lv):0,spUsed2=(C.sorcPoints&&C.sorcPoints.used)||0;
     // Punti Stregoneria
     html+='<div style="'+boxS+'">';
-    html+='<div style="'+rowS+'"><span style="'+lblS+'">⭐ '+(isIt?'Punti Stregoneria':'Sorc. Points')+'</span>'+fDots(spUsed2,spMax2,'fUseSorcPoint','fRestoreSorcPoint','#8e44ad')+'<span style="font-size:10px;color:var(--vdim)">'+(spMax2-spUsed2)+'/'+spMax2+'</span></div>';
+    if(lv>=2) html+='<div style="'+rowS+'"><span style="'+lblS+'">⭐ '+(isIt?'Punti Stregoneria':'Sorc. Points')+'</span>'+fDots(spUsed2,spMax2,'fUseSorcPoint','fRestoreSorcPoint','#8e44ad')+'<span style="font-size:10px;color:var(--vdim)">'+(spMax2-spUsed2)+'/'+spMax2+'</span></div>';
     // Stregoneria Innata (2 usi/riposo lungo)
     if(!C.innateUsed)C.innateUsed=0;
     html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">';
@@ -4520,6 +4545,7 @@ function fRClassBlock(){
     html+='</div>';
     html+='</div>';
     // Conversione slot ↔ punti
+    if(lv>=2){
     html+='<div style="'+boxS+'">';
     html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">♻️ Converti Slot ↔ Punti</div>';
     html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">Slot → Punti (costo = livello slot):</div>';
@@ -4541,6 +4567,7 @@ function fRClassBlock(){
       html+='<div style="margin-top:6px;padding:5px 8px;border-radius:3px;font-size:11px;text-align:center;'+(C._sorcMsg.err?'background:rgba(180,60,60,.15);border:1px solid rgba(180,60,60,.35);color:#e07070':'background:rgba(60,160,100,.12);border:1px solid rgba(60,180,100,.3);color:#7add9a')+'">'+(C._sorcMsg.err?'⚠ ':'✓ ')+C._sorcMsg.text+'</div>';
     }
     html+='</div>';
+    }
     // Metamagia
     if(lv>=2){
       var metaOpts=['Celato','Distante','Esteso','Intensificato','Mirato','Potenziato','Preciso','Raddoppiato','Rapido','Trasmutato'];
@@ -4995,7 +5022,7 @@ let screen="home",step=0;
 const FNSTEPS=13;
 let C={
   name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
-  stats:{STR:18,DEX:18,CON:18,INT:18,WIS:18,CHA:18},
+  stats:{STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8},
   statMethod:"pointbuy",pointsLeft:27,
   level:1,feats:[],featNotes:"",humanFeat:null,
   trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
@@ -5143,8 +5170,8 @@ function fCanNext(){
     if(C.cls==='druid'  && C.subclass==='terra' && (C.level||1)>=3 && !C.circleTerrainType) return false;
     return true;
   }
-  // Step 4: Padronanza Armi (auto-skip se non applicabile)
-  if(step===4){
+  // Step 5: Padronanza Armi & Maestria (auto-skip se non applicabile)
+  if(step===5){
     const cl=fgCl(); const lv=C.level||1;
     const mc=fMasteryCount(C.cls,lv);
     const ec=cl?cl.expertiseCount||0:0;
@@ -5163,8 +5190,8 @@ function fCanNext(){
     if(wizSch&&!C.wizardScholarSkill) return false;
     return true;
   }
-  // Step 5: Background
-  if(step===5){
+  // Step 4: Background
+  if(step===4){
     if(!C.bg) return false;
     const bg = fgBg();
     if(bg){
@@ -5206,7 +5233,7 @@ function fCanNext(){
 function re(){
   const app=document.getElementById("char-app");
   if(!app)return;
-  if(screen==="guided"&&step>=FNSTEPS-1){screen='sheet';}
+  if(screen==="guided"&&step>=FNSTEPS){screen='sheet';} // oltre l'ultimo step (12) → scheda
   if(screen==="home")app.innerHTML=fRHome();
   else if(screen==="guided")app.innerHTML=fRGuided();
   else if(screen==="sheet")app.innerHTML=fRSheet();
@@ -5217,7 +5244,7 @@ function nuovoPersonaggio(){
   // Resetta il personaggio e avvia la creazione guidata
   C={
     name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
-    stats:{STR:18,DEX:18,CON:18,INT:18,WIS:18,CHA:18},
+    stats:{STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8},
     statMethod:"pointbuy",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
@@ -5325,8 +5352,8 @@ function fRGuided(){
     ft("Livello","Starting Level"),                // step 1  · fRS1
     ft("Classe","Class"),                          // step 2  · fRS0cl
     ft("Sottoclasse","Subclass"),                  // step 3  · fRS0sc
-    ft("Competenze & Padronanza","Proficiencies & Mastery"), // step 4 · fRS2
-    ft("Background","Background"),                  // step 5  · fRS3
+    ft("Background","Background"),                  // step 4  · fRS3
+    ft("Competenze & Padronanza","Proficiencies & Mastery"), // step 5 · fRS2
     ft("Specie","Species"),                        // step 6  · fRS6
     ft("Allineamento","Alignment"),                // step 7  · fRS7
     ft("Caratteristiche","Ability Scores"),        // step 8  · fRS5
@@ -5343,8 +5370,8 @@ function fRGuided(){
     ${step===1?fRS1():""}
     ${step===2?fRS0cl():""}
     ${step===3?fRS0sc():""}
-    ${step===4?fRS2():""}
-    ${step===5?fRS3():""}
+    ${step===4?fRS3():""}
+    ${step===5?fRS2():""}
     ${step===6?fRS6():""}
     ${step===7?fRS7():""}
     ${step===8?fRS5():""}
@@ -6024,8 +6051,8 @@ function fRS2(){
   const hasAnything = mc>0 || ec>0 || ec2>0 || scSkCount>0 || scToolCount>0 || wizSch || autoSk.length>0 || autoProf.weaponExtra;
 
   if(!hasAnything){
-    // Skip step automatically — passa direttamente al Background (step 5)
-    if(step===4){ step=5; re(); return ''; }
+    // Skip step automatically — passa direttamente alla Specie (step 6)
+    if(step===5){ step=6; re(); return ''; }
     return '';
   }
 
@@ -6037,9 +6064,12 @@ function fRS2(){
 
   const bgSk=fgBg()?fgBg().skillsEn.split(' and ').map(s=>s.trim()):[];
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
+  // Pool effettivo per la Maestria (Expertise): tutte le abilità in cui il personaggio
+  // è competente, incluse quelle da background (con eventuali sostituzioni) e sottoclasse.
+  const expPool=fGetAllSkillProfs();
 
   const armorWeaponSummary = cl ? `<div class="panel" style="margin-bottom:12px">
-    <div class="sec-title">🛡️ ${isIt?'5 · Competenze di Classe':'5 · Class Proficiencies'}</div>
+    <div class="sec-title">🛡️ ${isIt?'6 · Competenze di Classe':'6 · Class Proficiencies'}</div>
     <div class="sheet-row" style="padding:8px 0;border-bottom:1px solid var(--border)">
       <span style="color:var(--muted);font-size:12px">${isIt?'Armature':'Armor'}</span>
       <span style="color:var(--gold);font-size:13px">${isIt?cl.armorIt:cl.armorEn}</span>
@@ -6109,7 +6139,7 @@ function fRS2(){
   // ── EXPERTISE section
   
   // ── EXPERTISE section (base: Bardo Lv.1, Ladro Lv.1, Ranger Lv.2)
-  if(ec>0 && allProfs.length>0){
+  if(ec>0 && expPool.length>0){
     const ecLbl=C.cls==='ranger'?(isIt?'Maestria nelle Abilità — Lv.2 (Esploratore Esperto)':'Skill Expertise — Lv.2 (Seasoned Wanderer)'):
                 C.cls==='bard'  ?(isIt?'Maestria nelle Abilità — Lv.1 (Maestria)':'Skill Expertise — Lv.1 (Expertise)'):
                 C.cls==='rogue' ?(isIt?'Maestria nelle Abilità — Lv.1 (Maestria)':'Skill Expertise — Lv.1 (Expertise)'):
@@ -6122,7 +6152,7 @@ function fRS2(){
       </div>
       <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${expChosen.length}/${ec}</div>
       <div class="ga">`;
-    FSKL.filter(sk=>allProfs.includes(sk.en)).forEach(sk=>{
+    FSKL.filter(sk=>expPool.includes(sk.en)).forEach(sk=>{
       const sel=expChosen.includes(sk.en);
       const mod=fSkillMod(sk.en,sk.s);
       const modStr=(mod>=0?'+':'')+mod;
@@ -6142,7 +6172,7 @@ function fRS2(){
   }
 
   // ── EXPERTISE EXTRA (Bardo Lv.9, Ladro Lv.6)
-  if(ec2>0 && allProfs.length>0){
+  if(ec2>0 && expPool.length>0){
     const lbl=C.cls==='bard'||C.cls==='ranger'?isIt?'Maestria nelle Abilità (Lv.9)':'Skill Expertise (Lv.9)':
                              isIt?'Maestria nelle Abilità (Lv.6)':'Skill Expertise (Lv.6)';
     html+=`<div class="panel">
@@ -6153,7 +6183,7 @@ function fRS2(){
       </div>
       <div style="font-size:11px;color:var(--gold2);margin-bottom:8px">${isIt?'Selezionate':'Selected'}: ${exp2Chosen.length}/${ec2}</div>
       <div class="ga">`;
-    FSKL.filter(sk=>allProfs.includes(sk.en)&&!expChosen.includes(sk.en)).forEach(sk=>{
+    FSKL.filter(sk=>expPool.includes(sk.en)&&!expChosen.includes(sk.en)).forEach(sk=>{
       const sel=exp2Chosen.includes(sk.en);
       const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
       const expModStr=(expMod>=0?'+':'')+expMod;
@@ -6881,7 +6911,7 @@ function fRS3(){
   const bg=fgBg();
   return`
   <div>
-    <div class="sec-title">📜 ${ft("6 · Background","6 · Background")}</div>
+    <div class="sec-title">📜 ${ft("5 · Background","5 · Background")}</div>
     
     <div class="ga-sm" style="margin-bottom:12px">
       ${BACKGROUNDS.map(b=>{
@@ -7469,8 +7499,13 @@ function fRSkillOverlapPicker(type, original, sources){
     ...(C.speciesSkills||[]).map(sk=>(C.spSkillReplacements||{})[sk]||sk),
     ...(C.featSkills||[]).map(f=>f.skill||f),
   ]);
-  allProfs.delete(original);          // escludi l'originale (è quella che stiamo sostituendo)
-  if(currentRep) allProfs.delete(currentRep);  // escludi l'attuale scelta
+  // NB: NON rimuovere 'original' dal set: è l'abilità sovrapposta, già posseduta
+  // da un'altra fonte (classe/specie/background), quindi deve restare esclusa.
+  // Questo slot contribuisce al pool con UNA sola abilità: la sostituzione corrente
+  // (se scelta) oppure l'originale. Liberiamo solo la scelta corrente, così resta
+  // ri-selezionabile (toggle); l'originale e le scelte fatte per altre sovrapposizioni
+  // restano escluse. Così sono selezionabili solo abilità realmente nuove (PHB 2024).
+  if(currentRep) allProfs.delete(currentRep);  // libera solo l'attuale scelta (toggle)
 
   const availableSkills = FSKL.filter(sk => !allProfs.has(sk.en));
   const sourceLabel = sources.join(' + ');
@@ -9560,8 +9595,8 @@ function fGoBack(){
   if(step===0){screen='home';}
   else{
     step--;
-    // Skip step 4 (Padronanza) backward se non c'è nulla da scegliere
-    if(step===4){
+    // Skip step 5 (Padronanza/Maestria) backward se non c'è nulla da scegliere
+    if(step===5){
       const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
       const mc=fMasteryCount(C.cls,lv);
       const ec=cl?cl.expertiseCount||0:0;
@@ -9571,7 +9606,7 @@ function fGoBack(){
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
       const scTool2=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool2===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=3;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool2===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=4;
     }
   }
   re();
@@ -9579,8 +9614,8 @@ function fGoBack(){
 function fGoNext(){
   if(step<FNSTEPS-1){
     step++;
-    // Skip step 4 (Padronanza) se non c'è nulla da scegliere
-    if(step===4){
+    // Skip step 5 (Padronanza/Maestria) se non c'è nulla da scegliere
+    if(step===5){
       const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
       const mc=fMasteryCount(C.cls,lv);
       const ec=cl?cl.expertiseCount||0:0;
@@ -9590,10 +9625,11 @@ function fGoNext(){
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
       const scTool3=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool3===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=5;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool3===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=6;
     }
-    if(step>=FNSTEPS-1){screen='sheet';}
+    // NB: nessun salto alla scheda qui — raggiunto l'ultimo step (12·Equipaggiamento) lo si mostra.
   } else {
+    // Gia' sull'ultimo step: il pulsante "Vedi Scheda" porta alla scheda finale.
     screen='sheet';
   }
   re();
@@ -9707,7 +9743,7 @@ function fAdjM(s,d){C.stats[s]=Math.max(1,Math.min(30,C.stats[s]+d));re();}
 function fSetM(s,v){C.stats[s]=Math.max(1,Math.min(30,parseInt(v)||1));}
 function fSetMeth(m){
   C.statMethod=m;
-  if(m==='pointbuy'){C.stats={STR:18,DEX:18,CON:18,INT:18,WIS:18,CHA:18};}
+  if(m==='pointbuy'){C.stats={STR:8,DEX:8,CON:8,INT:8,WIS:8,CHA:8};}
   if(m==='standardarray'){C.stats={STR:0,DEX:0,CON:0,INT:0,WIS:0,CHA:0};}
   if(m==='roll') fRollAll();
   re();
@@ -10780,9 +10816,22 @@ function fEquipArmorRef(){
 
 function fRS11(cl){
   const eq=cl?FEQUIP[cl.id]:null;
+  const bg=fgBg();
+  const bgTools=bg?((lang==="it"?bg.toolsIt:bg.toolsEn)||"").trim():"";
+  const hasTools=bgTools && bgTools!=="—";
+  // Strumenti concessi dai TALENTI (Abile, Lavoro Manuale, Musicista). Esclude lo
+  // strumento da sottoclasse del Maestro di Battaglia (uid 'mb-studioso').
+  const featToolNames=(C.featTools||[])
+    .filter(t=>(t.uid||"")!=="mb-studioso")
+    .map(t=>t.tool||t)
+    .map(id=>{const tt=ALL_TOOLS.find(x=>x.id===id||x.en===id||x.it===id);return tt?(lang==="it"?tt.it:tt.en):id;})
+    .filter(Boolean);
   return`<div>
     <div class="sec-title">🎒 ${ft("13 · Equipaggiamento","13 · Equipment")}</div>
-    ${cl&&eq?`<div class="box"><div class="box-title">${cl.icon} ${lang==="it"?cl.it:cl.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${lang==="it"?eq.it:eq.en}</div></div>`:""}
+    <div style="text-align:center;font-size:11px;color:var(--vdim);margin:-4px 0 10px;font-style:italic">${ft("Equipaggiamento iniziale di classe · strumenti dell'origine (PHB 2024)","Class starting equipment · origin tools (PHB 2024)")}</div>
+    ${cl&&eq?`<div class="box"><div class="box-title">${cl.icon} ${ft("Classe","Class")}: ${lang==="it"?cl.it:cl.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${lang==="it"?eq.it:eq.en}</div></div>`:`<div class="box"><div class="box-title">⚔️ ${ft("Classe","Class")}</div><div style="color:var(--muted);font-size:12px">${ft("Seleziona una classe per vedere l'equipaggiamento.","Select a class to see its equipment.")}</div></div>`}
+    ${bg?`<div class="box"><div class="box-title">${bg.icon} ${ft("Origine","Origin")}: ${lang==="it"?bg.it:bg.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${ft("Strumenti","Tools")}: ${hasTools?bgTools:ft("nessuno","none")}</div></div>`:`<div class="box"><div class="box-title">🎭 ${ft("Origine","Origin")}</div><div style="color:var(--muted);font-size:12px">${ft("Seleziona un'origine per vedere gli strumenti.","Select an origin to see its tools.")}</div></div>`}
+    ${featToolNames.length?`<div class="box"><div class="box-title">✨ ${ft("Strumenti da talenti","Tools from Feats")}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${featToolNames.join(', ')}</div></div>`:""}
     <div class="box"><div class="box-title">${ft("Note","Notes")}</div><textarea rows="3" placeholder="${ft("Oggetti aggiuntivi...","Additional items...")}" oninput="C.equipNotes=this.value">${C.equipNotes||""}</textarea></div>
   </div>`;
 }
