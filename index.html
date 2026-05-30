@@ -3373,18 +3373,17 @@ function fGetSpellSlots(clsId,lv){
   return null;
 }
 function fRSpellSlotsBlock(clsId,lv,isIt){
-  const ss=fGetSpellSlots(clsId,lv);if(!ss)return"";
   const lbl=isIt?"Slot Incantesimo":"Spell Slots";
   const _slotTarget = fIsKnownCaster() ? 'known' : 'prepared';
   const addBtn=`<button class="slot-add-btn" onclick="fOpenSpellPickerFor('${_slotTarget}')">＋ ${isIt?'Aggiungi':'Add'}</button>`;
   const resetBtn=`<button onclick="fResetSlots()" style="font-size:9px;background:none;border:1px solid var(--border2);color:var(--dim);padding:2px 8px;border-radius:3px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.06em;margin-left:6px">${isIt?'RIPRISTINA':'RESET'}</button>`;
-  
+
   // Inizializza stato slot usati
   if(!C.slotsUsed) C.slotsUsed = {};
   for(let i=1;i<=9;i++) if(C.slotsUsed[i]===undefined) C.slotsUsed[i]=0;
   if(C.warlockSlotsUsed===undefined) C.warlockSlotsUsed=0;
-  
-  // Render caselle slot per un livello
+
+  // Render caselle slot per un livello (slot normali)
   function renderCells(slotLv, max, used){
     let cells = '';
     for(let i=0;i<max;i++){
@@ -3393,19 +3392,56 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
     }
     return cells;
   }
-  
-  if(ss.type==="pact"){
-    const slv=ss.slotLv;
-    const max=ss.slots[0];
-    const used=C.warlockSlotsUsed||0;
+  // Righe degli slot normali a partire da un array [s1..s9]
+  function renderNormalRows(slotsArr){
+    let rows='';
+    slotsArr.forEach((max,i)=>{
+      if(max<=0) return;
+      const slotLv=i+1;
+      const used=C.slotsUsed[slotLv]||0;
+      rows+=`<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+        <span style="font-size:10px;color:var(--muted);font-family:'Comfortaa',sans-serif;letter-spacing:.08em;width:26px">${slotLv}°</span>
+        <div style="display:flex;flex-wrap:wrap;flex:1;align-items:center">${renderCells(slotLv,max,used)}</div>
+        <span style="font-size:10px;color:var(--vdim);min-width:30px;text-align:right">${used}/${max}</span>
+      </div>`;
+    });
+    return rows;
+  }
+  // Blocco Magia del Patto (Warlock)
+  function renderPactBlock(pact){
+    const slv=pact.slotLv, max=pact.slots[0], used=C.warlockSlotsUsed||0;
     let cells='';
     for(let i=0;i<max;i++){
       const isUsed=i<used;
       cells+=`<span onclick="fToggleWarlockSlot(${i})" style="display:inline-block;width:22px;height:22px;line-height:20px;text-align:center;border:1.5px solid var(--gold);border-radius:3px;margin:0 4px 0 0;cursor:pointer;font-size:14px;color:${isUsed?'var(--vdim)':'var(--gold)'};background:${isUsed?'transparent':'rgba(200,164,90,.2)'};user-select:none">${isUsed?'◇':'◆'}</span>`;
     }
+    return `<div style="font-size:11px;color:var(--muted);margin:8px 0 6px">${isIt?"Magia del Patto — Slot di":"Pact Magic — Slot Lv."} ${slv}° <span style="color:var(--vdim)">(${used}/${max})</span></div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center">${cells}</div>`;
+  }
+
+  // ── MULTICLASSE (§1.7-1.8): slot normali combinati + Magia del Patto separata ──
+  if(fIsMulticlass() && (fNumNormalCasterClasses()>0 || fHasPactMagic())){
+    const mc=fGetMulticlassSlots();
+    let inner='';
+    const hint=`<div style="font-size:10px;color:var(--vdim);margin-bottom:8px">${isIt?'Tocca un quadrato per usare/recuperare uno slot':'Tap a square to use/recover a slot'}</div>`;
+    if(mc.normal && mc.normal.some(s=>s>0)){
+      inner += hint + renderNormalRows(mc.normal);
+    }
+    if(mc.pact){
+      inner += renderPactBlock(mc.pact);
+    }
+    if(!inner) return "";
+    return `<div class="box"><div class="box-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px">
+      <span>✨ ${lbl}</span><span>${addBtn}${resetBtn}</span>
+    </div>${inner}</div>`;
+  }
+
+  // ── MONOCLASSE: comportamento originale ──
+  const ss=fGetSpellSlots(clsId,lv);if(!ss)return"";
+
+  if(ss.type==="pact"){
     return`<div class="box"><div class="box-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px"><span>✨ ${lbl}</span><span>${addBtn}${resetBtn}</span></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${isIt?"Magia del Patto — Slot di":"Pact Magic — Slot Lv."} ${slv}° <span style="color:var(--vdim)">(${used}/${max})</span></div>
-      <div style="display:flex;flex-wrap:wrap;align-items:center">${cells}</div>
+      ${renderPactBlock(ss)}
     </div>`;
   }
   
@@ -3431,9 +3467,15 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
 function fToggleSlot(slotLv, idx){
   if(!C.slotsUsed) C.slotsUsed={};
   if(C.slotsUsed[slotLv]===undefined) C.slotsUsed[slotLv]=0;
-  const ss=fGetSpellSlots(C.cls,C.level);
-  if(!ss||ss.type==='pact')return;
-  const max=ss.slots[slotLv-1]||0;
+  let max=0;
+  if(fIsMulticlass() && (fNumNormalCasterClasses()>0 || fHasPactMagic())){
+    const mc=fGetMulticlassSlots();
+    max=(mc.normal && mc.normal[slotLv-1])||0;
+  }else{
+    const ss=fGetSpellSlots(C.cls,C.level);
+    if(!ss||ss.type==='pact')return;
+    max=ss.slots[slotLv-1]||0;
+  }
   // Se idx è già consumato (idx < used), recupera fino a idx; altrimenti usa fino a idx+1
   if(idx < C.slotsUsed[slotLv]){
     C.slotsUsed[slotLv]=idx;
@@ -3447,9 +3489,16 @@ function fToggleSlot(slotLv, idx){
 
 function fToggleWarlockSlot(idx){
   if(C.warlockSlotsUsed===undefined) C.warlockSlotsUsed=0;
-  const ss=fGetSpellSlots(C.cls,C.level);
-  if(!ss||ss.type!=='pact')return;
-  const max=ss.slots[0];
+  let max=0;
+  if(fIsMulticlass()){
+    const wl=fClassLevel('warlock');
+    if(wl<=0)return;
+    max=FFPACT_SLOTS[Math.min(wl,20)-1][0];
+  }else{
+    const ss=fGetSpellSlots(C.cls,C.level);
+    if(!ss||ss.type!=='pact')return;
+    max=ss.slots[0];
+  }
   if(idx < C.warlockSlotsUsed){
     C.warlockSlotsUsed=idx;
   } else {
@@ -3658,14 +3707,17 @@ function fUseZealotDei(){if(!C.zealotDivinePool)C.zealotDivinePool={used:0};var 
 function fRestoreZealotDei(){if(C.zealotDivinePool&&C.zealotDivinePool.used>0)C.zealotDivinePool.used--;re();}
 
 function fShortRest(){
-  if(C.cls==='warlock')C.warlockSlotsUsed=0;
-  if(C.cls==='sorcerer'&&(C.level||1)>=5&&C.sorcPoints){C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-Math.floor((C.level||1)/2));}
-  if(C.cls==='barbarian')C.rageImplacableCD=10;
-  if(C.cls==='fighter'){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
-  if(C.cls==='monk'){C.ki={used:0};}
-  if(C.cls==='cleric'||C.cls==='paladin'){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;C.bagliorUsed=0;C.warPriestUsed=0;}
-  if(C.cls==='druid'&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
-  if(C.cls==='bard'&&(C.level||1)>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
+  // STEP 6: nel multiclasse il reset per-classe deve basarsi sulle classi POSSEDUTE,
+  // non solo sulla primaria. fCL(id) = livello in quella classe (0 se assente).
+  const fCL = (id)=> (typeof fClassLevel==='function') ? fClassLevel(id) : (C.cls===id ? (C.level||1) : 0);
+  if(fCL('warlock')>0)C.warlockSlotsUsed=0;
+  if(fCL('sorcerer')>0&&fCL('sorcerer')>=5&&C.sorcPoints){C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-Math.floor(fCL('sorcerer')/2));}
+  if(fCL('barbarian')>0)C.rageImplacableCD=10;
+  if(fCL('fighter')>0){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
+  if(fCL('monk')>0){C.ki={used:0};}
+  if(fCL('cleric')>0||fCL('paladin')>0){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;C.bagliorUsed=0;C.warPriestUsed=0;}
+  if(fCL('druid')>0&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
+  if(fCL('bard')>0&&fCL('bard')>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
   re();
 }
 function fLongRest(){
@@ -3705,27 +3757,27 @@ function fDots(used,max,useFn,restFn,color){
   s+='</div>';
   return s;
 }
-function fUseRage(){if(!C.rage)C.rage={used:0};if(C.rage.used<fMaxRage(C.level))C.rage.used++;re();}
+function fUseRage(){if(!C.rage)C.rage={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('barbarian')>0)?fClassLevel('barbarian'):(C.level||1);if(C.rage.used<fMaxRage(lv))C.rage.used++;re();}
 function fRestoreRage(){if(C.rage&&C.rage.used>0)C.rage.used--;re();}
 function fUseSecondWind(){if(!C.secondWind)C.secondWind={used:0};if(C.secondWind.used<fMaxSecondWind(C.level))C.secondWind.used++;re();}
 function fRestoreSecondWind(){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used--;re();}
 function fUseActionSurge(){if(!C.actionSurge)C.actionSurge={used:0};if(C.actionSurge.used<fMaxActionSurge(C.level))C.actionSurge.used++;re();}
 function fRestoreActionSurge(){if(C.actionSurge&&C.actionSurge.used>0)C.actionSurge.used--;re();}
-function fUseSupDie(){if(!C.superiorityDice)C.superiorityDice={used:0};var tot=fSuperiorityDiceTotal(C.level);if(C.superiorityDice.used<tot)C.superiorityDice.used++;re();}
+function fUseSupDie(){if(!C.superiorityDice)C.superiorityDice={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('fighter')>0)?fClassLevel('fighter'):(C.level||1);var tot=fSuperiorityDiceTotal(lv);if(C.superiorityDice.used<tot)C.superiorityDice.used++;re();}
 function fRestoreSupDie(){if(C.superiorityDice&&C.superiorityDice.used>0)C.superiorityDice.used--;re();}
 function fUsePsiDie(){if(!C.psiDice)C.psiDice={used:0};var tot=C.level>=17?12:C.level>=13?10:C.level>=11?8:C.level>=9?8:C.level>=5?6:4;if(C.psiDice.used<tot)C.psiDice.used++;re();}
 function fRestorePsiDie(){if(C.psiDice&&C.psiDice.used>0)C.psiDice.used--;re();}
 function fUseEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};C.eldritchKnightSpells[slv]=(C.eldritchKnightSpells[slv]||0)+1;re();}
 function fRestoreEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};if((C.eldritchKnightSpells[slv]||0)>0)C.eldritchKnightSpells[slv]--;re();}
-function fUseKi(){if(!C.ki)C.ki={used:0};if(C.ki.used<fMaxKi(C.level))C.ki.used++;re();}
+function fUseKi(){if(!C.ki)C.ki={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('monk')>0)?fClassLevel('monk'):(C.level||1);if(C.ki.used<fMaxKi(lv))C.ki.used++;re();}
 function fRestoreKi(){if(C.ki&&C.ki.used>0)C.ki.used--;re();}
 function fUseBardicInsp(){if(!C.bardicInsp)C.bardicInsp={used:0};var bMax=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.bardicInsp.used<bMax)C.bardicInsp.used++;re();}
 function fRestoreBardicInsp(){if(C.bardicInsp&&C.bardicInsp.used>0)C.bardicInsp.used--;re();}
-function fUseChannelDiv(){if(!C.channelDiv)C.channelDiv={used:0};if(C.channelDiv.used<fMaxChannelDiv(C.level))C.channelDiv.used++;re();}
+function fUseChannelDiv(){if(!C.channelDiv)C.channelDiv={used:0};var lv=(typeof fClassLevel==='function')?(fClassLevel('cleric')||fClassLevel('paladin')||C.level||1):(C.level||1);if(C.channelDiv.used<fMaxChannelDiv(lv))C.channelDiv.used++;re();}
 function fRestoreChannelDiv(){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;re();}
-function fUseWildShape(){if(C.wildShapeUsed<fMaxWildShape(C.level))C.wildShapeUsed++;re();}
+function fUseWildShape(){var lv=(typeof fClassLevel==='function'&&fClassLevel('druid')>0)?fClassLevel('druid'):(C.level||1);if(C.wildShapeUsed<fMaxWildShape(lv))C.wildShapeUsed++;re();}
 function fRestoreWildShape(){if(C.wildShapeUsed>0)C.wildShapeUsed--;re();}
-function fUseSorcPoint(){if(!C.sorcPoints)C.sorcPoints={used:0};if(C.sorcPoints.used<fMaxSorcPoints(C.level))C.sorcPoints.used++;re();}
+function fUseSorcPoint(){if(!C.sorcPoints)C.sorcPoints={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('sorcerer')>0)?fClassLevel('sorcerer'):(C.level||1);if(C.sorcPoints.used<fMaxSorcPoints(lv))C.sorcPoints.used++;re();}
 function fRestoreSorcPoint(){if(C.sorcPoints&&C.sorcPoints.used>0)C.sorcPoints.used--;re();}
 function fUseNemesis(){if(!C.nemesisMark)C.nemesisMark={used:0};var nm=C.level>=17?6:C.level>=13?5:C.level>=9?4:C.level>=5?3:2;if(C.nemesisMark.used<nm)C.nemesisMark.used++;re();}
 function fRestoreNemesis(){if(C.nemesisMark&&C.nemesisMark.used>0)C.nemesisMark.used--;re();}
@@ -3804,7 +3856,9 @@ function fResetPresage(){
 function fRClassBlock(){
   var cl=C.cls;if(!cl||cl==='warlock')return'';
   var isIt=lang==='it';
-  var lv=C.level||1;
+  // MULTICLASSE (§1.7): le risorse di classe (Ira, Ki, Forma Selvatica, ecc.) si
+  // basano sul livello della SINGOLA classe, non sul livello totale del personaggio.
+  var lv=(typeof fClassLevel==='function' && fClassLevel(cl)>0)?fClassLevel(cl):(C.level||1);
   var sc=C.subclass||'';
   var boxS='background:rgba(0,0,0,.25);border:1px solid rgba(200,164,90,.25);border-radius:3px;padding:10px 12px;margin-bottom:6px';
   var rowS='display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px';
@@ -5048,6 +5102,7 @@ let screen="home",step=0;
 const FNSTEPS=13;
 let C={
   name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
+  classes:[{cls:null,level:1,subclass:null}], // MULTICLASSE: fonte di verità. cls/level/subclass sono derivati.
   stats:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8},
   statMethod:"standardarray",pointsLeft:27,
   level:1,feats:[],featNotes:"",humanFeat:null,
@@ -5131,6 +5186,8 @@ let C={
   armor:null,                       // Equipaggiamento: armatura indossata (nome .en) o null
   shield:false,                     // Equipaggiamento: scudo equipaggiato
   acMisc:0,                         // Equipaggiamento: bonus CA vari (Difensore, anelli, ecc.)
+  acDefenseStyle:false,             // Talento Stile Difesa: +1 CA se indossi un'armatura
+  acMediumMaster:false,             // Talento Maestro Armature Medie: cap DES medie +3 (se DES>=16)
   conditions:[],                    // Condizioni attive (id dalla costante CONDITIONS)
 };
 
@@ -5142,18 +5199,67 @@ const fcmod=v=>Math.floor((v-10)/2);
 const fmStr=v=>{const m=fcmod(v);return(m>=0?"+":"")+m};
 const fpb=lv=>Math.ceil(lv/4)+1;
 function fMaxHP(cls,con,lv){
-  if(!cls)return 8;
-  const die=parseInt(cls.hd.replace("d",""));
-  const cm=fcmod(con);const avg=Math.floor(die/2)+1;
-  let total = Math.max(1,die+cm)+(lv-1)*Math.max(1,avg+cm);
-  // Bonus dai talenti (es. Robusto: +2 PF per livello)
+  const cm=fcmod(con);
+  fEnsureClasses();
+  const list = C.classes.filter(c=>c.cls);
+  let total = 0;
+  if(list.length){
+    // MULTICLASSE (PHB §1.3): il 1° livello pieno (massimo del dado) viene SOLO
+    // dalla classe iniziale (C.classes[0]); ogni altro livello — incluse le altre
+    // classi — dà PF come ai livelli successivi al 1° (media del dado).
+    // Il modificatore di COS si applica a OGNI Dado Vita (per livello totale).
+    list.forEach((c,idx)=>{
+      const cd = CLASSES.find(x=>x.id===c.cls);
+      const die = cd ? parseInt(cd.hd.replace('d','')) : 8;
+      const avg = Math.floor(die/2)+1;
+      const clvl = parseInt(c.level)||0;
+      if(idx===0){
+        // classe iniziale: 1° livello pieno + (clvl-1) a media
+        total += Math.max(1, die+cm);
+        total += Math.max(0, clvl-1) * Math.max(1, avg+cm);
+      }else{
+        // classi acquisite: tutti i livelli a media
+        total += clvl * Math.max(1, avg+cm);
+      }
+    });
+  }else{
+    // Fallback monoclasse legacy (firma originale)
+    if(!cls) return 8;
+    const die=parseInt(cls.hd.replace('d',''));
+    const avg=Math.floor(die/2)+1;
+    const L=lv||1;
+    total = Math.max(1,die+cm)+(L-1)*Math.max(1,avg+cm);
+  }
+  // Bonus dai talenti (es. Robusto: +2 PF per livello) — sul livello totale
+  const totLv = fTotalLevel();
   (C.feats || []).forEach(f => {
     const meta = FEAT_METADATA[f.id || f];
     if(meta && meta.hpBonus && meta.hpBonus.perLevel){
-      total += meta.hpBonus.perLevel * lv;
+      total += meta.hpBonus.perLevel * totLv;
     }
   });
   return total;
+}
+// Pool di Dadi Vita per tipo (PHB §1.3): dadi dello stesso tipo si sommano,
+// quelli di tipo diverso restano separati. Es. Chierico 5/Paladino 5 → 5d8 + 5d10.
+function fClassHitDicePools(){
+  fEnsureClasses();
+  const pools = {}; // { d8: 5, d10: 5 }
+  C.classes.filter(c=>c.cls).forEach(c=>{
+    const cd = CLASSES.find(x=>x.id===c.cls);
+    if(!cd) return;
+    const die = cd.hd; // es. "d8"
+    pools[die] = (pools[die]||0) + (parseInt(c.level)||0);
+  });
+  return pools;
+}
+// Stringa leggibile dei Dadi Vita: "5d8 + 5d10" oppure "5d10".
+function fHitDiceDisplay(){
+  const pools = fClassHitDicePools();
+  const keys = Object.keys(pools).sort(); // d10 < d12 < d6 < d8 alfabetico → riordino per valore
+  keys.sort((a,b)=>parseInt(a.replace('d',''))-parseInt(b.replace('d','')));
+  const parts = keys.map(k=>pools[k]+k);
+  return parts.length ? parts.join(' + ') : '—';
 }
 const fgSp=()=>SPECIES.find(s=>s.id===C.species);
 const fgCl=()=>CLASSES.find(c=>c.id===C.cls);
@@ -5276,6 +5382,7 @@ function nuovoPersonaggio(){
   // Resetta il personaggio e avvia la creazione guidata
   C={
     name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
+    classes:[{cls:null,level:1,subclass:null}], // MULTICLASSE: fonte di verità
     stats:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8},
     statMethod:"standardarray",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
@@ -5299,6 +5406,281 @@ function nuovoPersonaggio(){
   screen="guided";
   step=0;
   re();
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MULTICLASSE — Step 0: modello dati, derivati, migrazione (PHB 2024 pagg.44-45)
+// C.classes[] è la FONTE DI VERITÀ. C.cls / C.level / C.subclass sono DERIVATI
+// (rispettivamente: classe primaria, livello totale, sottoclasse primaria)
+// e vanno ricalcolati con fSyncClassDerived() a ogni modifica delle classi.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Tipo di incantatore ai fini del livello combinato da incantatore (PHB §1.7):
+//  full = pieno (bardo, chierico, druido, stregone, mago)
+//  half = metà (paladino, ranger) → conta metà arrotondata per ECCESSO
+//  third = un terzo (guerriero/ladro con sottoclasse incantatrice) → per DIFETTO
+const FFULL_CASTER_CLASSES=["bard","cleric","druid","wizard","sorcerer"];
+const FFHALF_CASTER_CLASSES=["paladin","ranger"];
+// Sottoclassi terzo-incantatore di guerriero/ladro (Cavaliere Mistico / Mistificatore Arcano)
+const FFTHIRD_CASTER_SUBCLASSES=["eldritch-knight","cavaliere-mistico","arcane-trickster","mistificatore-arcano","arcane"];
+
+// Garantisce che C.classes esista e sia coerente (migrazione schede legacy).
+function fEnsureClasses(){
+  if(!Array.isArray(C.classes)||C.classes.length===0){
+    // Schede salvate prima del multiclasse: costruisci da cls/level/subclass
+    C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+  }
+  // Igienizza ogni voce
+  C.classes=C.classes.map(c=>({
+    cls: c.cls||null,
+    level: Math.max(1, parseInt(c.level)||1),
+    subclass: c.subclass||null
+  })).filter(c=>true);
+  return C.classes;
+}
+
+// Ricalcola i derivati retro-compatibili da C.classes[]. Chiamare dopo ogni
+// modifica a classe/livello/sottoclasse.
+function fSyncClassDerived(){
+  fEnsureClasses();
+  const primary=C.classes[0]||{cls:null,level:1,subclass:null};
+  C.cls=primary.cls;
+  C.subclass=primary.subclass;
+  C.level=C.classes.reduce((tot,c)=>tot+(parseInt(c.level)||0),0)||1;
+  return C;
+}
+
+// Livello totale del personaggio (= somma dei livelli di classe = C.level).
+function fTotalLevel(){
+  fEnsureClasses();
+  return C.classes.reduce((tot,c)=>tot+(parseInt(c.level)||0),0)||1;
+}
+
+// Livello in una specifica classe (per risorse/privilegi che NON usano il totale).
+function fClassLevel(clsId){
+  if(!clsId)return 0;
+  fEnsureClasses();
+  const e=C.classes.find(c=>c.cls===clsId);
+  return e?(parseInt(e.level)||0):0;
+}
+
+// Vero se il personaggio possiede più di una classe.
+function fIsMulticlass(){
+  fEnsureClasses();
+  return C.classes.filter(c=>c.cls).length>1;
+}
+
+// Livello COMBINATO da incantatore per la tabella Incantatore Multiclasse (§1.7):
+//  pieni interi + metà(↑) dei semi + terzo(↓) dei terzo-incantatori.
+function fCasterLevel(){
+  fEnsureClasses();
+  let full=0, half=0, third=0;
+  C.classes.forEach(c=>{
+    if(!c.cls)return;
+    const lv=parseInt(c.level)||0;
+    if(FFULL_CASTER_CLASSES.includes(c.cls)) full+=lv;
+    else if(FFHALF_CASTER_CLASSES.includes(c.cls)) half+=lv;
+    else if((c.cls==="fighter"||c.cls==="rogue") && FFTHIRD_CASTER_SUBCLASSES.includes(c.subclass)) third+=lv;
+  });
+  // Warlock NON entra nella tabella (Magia del Patto separata, §1.7).
+  return full + Math.ceil(half/2) + Math.floor(third/3);
+}
+
+// Numero di classi che contribuiscono agli SLOT NORMALI (esclude Warlock, incluso
+// solo se la sua sottoclasse è incantatrice — non esistono in PHB, quindi mai).
+// Serve per decidere se applicare la tabella Incantatore Multiclasse (§1.7): la si
+// applica solo quando il personaggio combina due o più classi che lanciano incantesimi.
+function fNumNormalCasterClasses(){
+  fEnsureClasses();
+  let n=0;
+  C.classes.forEach(c=>{
+    if(!c.cls)return;
+    if(FFULL_CASTER_CLASSES.includes(c.cls)) n++;
+    else if(FFHALF_CASTER_CLASSES.includes(c.cls)) n++;
+    else if((c.cls==="fighter"||c.cls==="rogue") && FFTHIRD_CASTER_SUBCLASSES.includes(c.subclass)) n++;
+  });
+  return n;
+}
+
+// Vero se il warlock contribuisce con Magia del Patto.
+function fHasPactMagic(){
+  return fClassLevel("warlock")>0;
+}
+
+// Slot da incantatore per un personaggio MULTICLASSE (§1.7-1.8).
+// Ritorna { normal: [s1..s9] | null, pact: {slots, slotLv} | null }.
+//  - normal: dalla tabella combinata FFULL_SLOTS indicizzata su fCasterLevel().
+//  - pact:   Magia del Patto separata, da FFPACT_SLOTS sul livello di Warlock.
+function fGetMulticlassSlots(){
+  fEnsureClasses();
+  let normal=null, pact=null;
+  const cl=fCasterLevel();
+  if(cl>0){
+    const row=FFULL_SLOTS[Math.min(cl,20)-1];
+    if(row) normal=row.slice(0,9);
+  }
+  const wl=fClassLevel("warlock");
+  if(wl>0){
+    const p=FFPACT_SLOTS[Math.min(wl,20)-1];
+    if(p) pact={slots:[p[0]],slotLv:p[1]};
+  }
+  return {normal:normal, pact:pact};
+}
+
+// Prerequisiti di caratteristica per il multiclasse (PHB §1.1, pag. 44).
+// Ogni voce è un array di caratteristiche richieste ≥13; un sotto-array indica
+// un'alternativa "oppure" (Guerriero: FOR o DES). Più voci di primo livello
+// indicano un "e" (Paladino: FOR e CAR; Monaco/Ranger: DES e SAG).
+const FMULTICLASS_PREREQ = {
+  barbarian: [["STR"]],
+  bard:      [["CHA"]],
+  cleric:    [["WIS"]],
+  druid:     [["WIS"]],
+  fighter:   [["STR","DEX"]],          // FOR oppure DES
+  rogue:     [["DEX"]],
+  wizard:    [["INT"]],
+  monk:      [["DEX"],["WIS"]],         // DES e SAG
+  paladin:   [["STR"],["CHA"]],         // FOR e CAR
+  ranger:    [["DEX"],["WIS"]],         // DES e SAG
+  sorcerer:  [["CHA"]],
+  warlock:   [["CHA"]]
+};
+const FSTAT_LABEL_IT = {STR:"Forza",DEX:"Destrezza",CON:"Costituzione",INT:"Intelligenza",WIS:"Saggezza",CHA:"Carisma"};
+const FSTAT_LABEL_EN = {STR:"Strength",DEX:"Dexterity",CON:"Constitution",INT:"Intelligence",WIS:"Wisdom",CHA:"Charisma"};
+
+// Verifica i prerequisiti di multiclasse (§1.1). Regola opzionale del manuale:
+// il DM può ignorarli, quindi l'app AVVISA ma NON blocca.
+// Per acquisire una nuova classe servono i prerequisiti SIA della nuova classe
+// SIA di tutte le classi già possedute. Ritorna:
+//   { ok:bool, missing:[{cls, groups:[["STR","DEX"],...]}], message:string }
+function fMeetsMulticlassPrereq(newClsId){
+  fEnsureClasses();
+  const isIt = (typeof lang==='undefined') || lang==='it';
+  const LBL = isIt?FSTAT_LABEL_IT:FSTAT_LABEL_EN;
+  // Insieme di classi da verificare: quelle già possedute + l'eventuale nuova.
+  const ids = C.classes.filter(c=>c.cls).map(c=>c.cls);
+  if(newClsId && !ids.includes(newClsId)) ids.push(newClsId);
+  // Con una sola classe non c'è prerequisito di multiclasse da applicare.
+  if(ids.length<2) return {ok:true, missing:[], message:''};
+
+  const statVal = s => (typeof fTotalStat==='function') ? fTotalStat(s) : (C.stats?.[s]||0);
+  const missing = [];
+  ids.forEach(id=>{
+    const req = FMULTICLASS_PREREQ[id];
+    if(!req) return;
+    const unmetGroups = req.filter(group => !group.some(st => statVal(st) >= 13));
+    if(unmetGroups.length){
+      const cd = (typeof CLASSES!=='undefined') ? CLASSES.find(x=>x.id===id) : null;
+      missing.push({cls:id, clsName: cd?(isIt?cd.it:cd.en):id, groups:unmetGroups});
+    }
+  });
+
+  if(!missing.length) return {ok:true, missing:[], message:''};
+
+  // Messaggio leggibile: "Per Druido serve Saggezza ≥13. Per Paladino servono Forza ≥13 e Carisma ≥13."
+  const parts = missing.map(m=>{
+    const reqTxt = m.groups.map(g => g.map(s=>LBL[s]).join(isIt?' o ':' or ')+' ≥13').join(isIt?' e ':' and ');
+    return (isIt?`${m.clsName}: serve ${reqTxt}`:`${m.clsName}: needs ${reqTxt}`);
+  });
+  const head = isIt
+    ? 'Prerequisiti di multiclasse non soddisfatti (regola opzionale: il DM può ignorarli).'
+    : 'Multiclass prerequisites not met (optional rule: the DM may waive them).';
+  return {ok:false, missing:missing, message: head+' '+parts.join(' · ')};
+}
+
+// ── STEP 5 — Competenze parziali da multiclasse (PHB 2024 §1.5, cap.2) ──────
+// Entrando in una classe COME MULTICLASSE (cioè non come classe iniziale) si
+// riceve solo un SOTTOINSIEME delle competenze di partenza di quella classe.
+// Dati letti direttamente dalle sezioni "Come Personaggio Multiclasse" del
+// Capitolo 3 (file 4_Classi_1.pdf / 5_Classi_2.pdf).
+//
+// Per ogni classe:
+//   armorIt/armorEn  → competenze in armature/scudi concesse (stringa, '' se nessuna)
+//   weaponIt/weaponEn→ competenze in armi concesse (stringa, '' se nessuna)
+//   skillIt/skillEn  → eventuale abilità a scelta concessa (stringa descrittiva, '' se nessuna)
+//   toolIt/toolEn    → eventuale strumento concesso (stringa, '' se nessuno)
+// NB: NON si ricevono i Tiri Salvezza, né il set completo di abilità/armi della
+// classe iniziale. Mago, Monaco e Stregone non concedono alcuna competenza
+// (solo il Dado Vita, già gestito altrove).
+const FMULTICLASS_PROFS = {
+  barbarian: { armorIt:'Scudi',                  armorEn:'Shields',              weaponIt:'Armi da guerra', weaponEn:'Martial weapons', skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  bard:      { armorIt:'Armature leggere',       armorEn:'Light armor',          weaponIt:'',               weaponEn:'',                skillIt:'1 abilità a scelta', skillEn:'1 skill of your choice', toolIt:'1 strumento musicale a scelta', toolEn:'1 musical instrument of your choice' },
+  cleric:    { armorIt:'Armature leggere, medie, scudi', armorEn:'Light & medium armor, shields', weaponIt:'', weaponEn:'',          skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  druid:     { armorIt:'Armature leggere, scudi',armorEn:'Light armor, shields', weaponIt:'',               weaponEn:'',                skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  fighter:   { armorIt:'Armature leggere, medie, scudi', armorEn:'Light & medium armor, shields', weaponIt:'Armi da guerra', weaponEn:'Martial weapons', skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  monk:      { armorIt:'',                        armorEn:'',                     weaponIt:'',               weaponEn:'',                skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  paladin:   { armorIt:'Armature leggere, medie, scudi', armorEn:'Light & medium armor, shields', weaponIt:'Armi da guerra', weaponEn:'Martial weapons', skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  ranger:    { armorIt:'Armature leggere, scudi',armorEn:'Light armor, shields', weaponIt:'Armi da guerra', weaponEn:'Martial weapons', skillIt:'1 abilità a scelta (lista del ranger)', skillEn:'1 skill from the ranger list', toolIt:'', toolEn:'' },
+  rogue:     { armorIt:'Armature leggere',       armorEn:'Light armor',          weaponIt:'',               weaponEn:'',                skillIt:'1 abilità a scelta (lista del ladro)', skillEn:'1 skill from the rogue list', toolIt:'Arnesi da scasso', toolEn:"Thieves' tools" },
+  sorcerer:  { armorIt:'',                        armorEn:'',                     weaponIt:'',               weaponEn:'',                skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  warlock:   { armorIt:'Armature leggere',       armorEn:'Light armor',          weaponIt:'',               weaponEn:'',                skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+  wizard:    { armorIt:'',                        armorEn:'',                     weaponIt:'',               weaponEn:'',                skillIt:'', skillEn:'', toolIt:'', toolEn:'' },
+};
+
+// STEP 6 — Casi speciali del multiclasse (PHB 2024 §1.6, cap.2 pag.44).
+// Attacco Extra NON è cumulativo tra classi: se ottenuto da più classi, restano
+// comunque 2 attacchi (salvo privilegi specifici come Due Attacchi Extra del
+// Guerriero). Questo helper conta da quante classi possedute proverrebbe.
+// Classi che concedono Attacco Extra a livello 5: Barbaro, Guerriero, Monaco,
+// Paladino, Ranger.
+const FEXTRA_ATTACK_CLASSES = ['barbarian','fighter','monk','paladin','ranger'];
+function fExtraAttackSources(isIt){
+  if(isIt===undefined) isIt = (typeof lang!=='undefined' && lang==='it');
+  fEnsureClasses();
+  const sources = [];
+  FEXTRA_ATTACK_CLASSES.forEach(id=>{
+    const lv = (typeof fClassLevel==='function') ? fClassLevel(id) : (C.cls===id?(C.level||1):0);
+    if(lv>=5){
+      const cd = (typeof CLASSES!=='undefined') ? CLASSES.find(x=>x.id===id) : null;
+      sources.push(cd ? (isIt?cd.it:cd.en) : id);
+    }
+  });
+  return sources;
+}
+
+// Aggrega le competenze parziali concesse dalle classi SECONDARIE (indice > 0 in C.classes). La classe iniziale (indice 0) usa il set completo, già
+// mostrato altrove, quindi è esclusa qui.
+// Ritorna un array di { cls, clsName, armor, weapon, skill, tool } (campi
+// valorizzati solo se non vuoti), uno per ogni classe secondaria con dati.
+function fGetMulticlassExtraProfs(isIt){
+  if(isIt===undefined) isIt = (typeof lang!=='undefined' && lang==='it');
+  fEnsureClasses();
+  const out = [];
+  // salta l'indice 0 (classe iniziale): solo le classi aggiunte via multiclasse
+  C.classes.slice(1).forEach(c=>{
+    if(!c.cls) return;
+    const p = FMULTICLASS_PROFS[c.cls];
+    if(!p) return;
+    const cd = (typeof CLASSES!=='undefined') ? CLASSES.find(x=>x.id===c.cls) : null;
+    const entry = {
+      cls: c.cls,
+      clsName: cd ? (isIt?cd.it:cd.en) : c.cls,
+      armor:  isIt?p.armorIt :p.armorEn,
+      weapon: isIt?p.weaponIt:p.weaponEn,
+      skill:  isIt?p.skillIt :p.skillEn,
+      tool:   isIt?p.toolIt  :p.toolEn,
+    };
+    out.push(entry);
+  });
+  return out;
+}
+
+// Stringa descrittiva delle classi per scheda/stampa.
+// Monoclasse: "Guerriero (Campione)". Multiclasse: "Guerriero 3 (Campione) / Ladro 2".
+function fClassDisplay(isIt){
+  if(isIt===undefined) isIt = (typeof lang!=='undefined' && lang==='it');
+  fEnsureClasses();
+  const parts = C.classes.filter(c=>c.cls).map(c=>{
+    const cd = CLASSES.find(x=>x.id===c.cls);
+    if(!cd) return null;
+    const nm = isIt ? cd.it : cd.en;
+    const sc = cd.subclasses && cd.subclasses.find(s=>s.id===c.subclass);
+    const scNm = sc ? ` (${isIt?sc.it:sc.en})` : '';
+    // Mostra il livello per classe solo se multiclasse
+    const lvTxt = fIsMulticlass() ? ` ${c.level}` : '';
+    return nm + lvTxt + scNm;
+  }).filter(Boolean);
+  return parts.length ? parts.join(' / ') : '—';
 }
 
 function fUpdLang(){
@@ -5632,7 +6014,7 @@ function fRS0sc(){
 
   // Griglia sottoclassi
   html += `<div class="g2" style="gap:7px;margin-bottom:14px">
-    ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:10px" onclick="C.subclass='${sc.id}';re()">
+    ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:10px" onclick="fSelSubclass('${sc.id}')">
       <div style="font-size:13px;font-weight:600;color:${C.subclass===sc.id?"var(--gold)":"var(--text)"};margin-bottom:3px">${isIt?sc.it:sc.en}</div>
     </div>`).join("")}
   </div>`;
@@ -5692,6 +6074,10 @@ function fRS0sc(){
 
     html += `</div>`; // fine panel
   }
+
+  // Pannello multiclasse: SEMPRE visibile nello step Sottoclasse (non più annidato
+  // nel dettaglio della sottoclasse, così è accessibile anche senza sottoclasse).
+  if(typeof fRMulticlassPanel==='function') html += fRMulticlassPanel();
 
   html += `</div>`;
   return html;
@@ -5867,7 +6253,7 @@ function fRS0(cl){
       <div style="margin-bottom:14px"><div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">${ft("Capacità Chiave","Key Feature")}</div><div style="font-size:12px;color:var(--gold)">${lang==="it"?cl.featIt:cl.featEn}</div></div>
       <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${ft("Sottoclasse","Subclass")}</div>
       <div class="g2" style="gap:6px">
-        ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:9px" onclick="C.subclass='${sc.id}';re()">
+        ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:9px" onclick="fSelSubclass('${sc.id}')">
           <div style="font-size:12px;font-weight:600;color:${C.subclass===sc.id?"var(--gold)":"var(--text)"}">${lang==="it"?sc.it:sc.en}</div>
         </div>`).join("")}
       </div>
@@ -6116,8 +6502,39 @@ function fRS2(){
   const expPoolBase = expPool.filter(s=>!bardLoreBonusSk.includes(s)); // primo blocco (Lv.2)
   const expPoolFull = expPool;                                          // secondo blocco (Lv.9)
 
+  // STEP 5: competenze parziali concesse dalle classi secondarie (multiclasse)
+  const mcExtraProfs = (typeof fGetMulticlassExtraProfs==='function') ? fGetMulticlassExtraProfs(isIt) : [];
+  const primaryLabel = (mcExtraProfs.length>0)
+    ? (isIt?`Classe iniziale — ${cl?cl.it:''}`:`Starting class — ${cl?cl.en:''}`)
+    : (isIt?'6 · Competenze di Classe':'6 · Class Proficiencies');
+
+  // Riga compatta "etichetta : valore" per il blocco multiclasse
+  const mcRow = (label, val) => val ? `<div class="sheet-row" style="padding:5px 0">
+      <span style="color:var(--muted);font-size:11px">${label}</span>
+      <span style="color:var(--gold2);font-size:12px">${val}</span>
+    </div>` : '';
+
+  const mcProfsBlock = mcExtraProfs.length>0 ? mcExtraProfs.map(e=>{
+    const rows = mcRow(isIt?'Armature':'Armor', e.armor)
+               + mcRow(isIt?'Armi':'Weapons', e.weapon)
+               + mcRow(isIt?'Abilità':'Skill', e.skill)
+               + mcRow(isIt?'Strumenti':'Tools', e.tool);
+    const body = rows || `<div style="font-size:11px;color:var(--vdim);font-style:italic;padding:5px 0">${isIt?'Nessuna competenza aggiuntiva (solo Dado Vita).':'No extra proficiencies (Hit Die only).'}</div>`;
+    return `<div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">
+      <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:2px">+ ${e.clsName} <span style="font-size:9px;color:var(--vdim);font-weight:400">(${isIt?'da multiclasse':'multiclass'})</span></div>
+      ${body}
+    </div>`;
+  }).join('') : '';
+
+  // STEP 6: avviso Attacco Extra non cumulativo (se proviene da 2+ classi)
+  const eaSources = (typeof fExtraAttackSources==='function') ? fExtraAttackSources(isIt) : [];
+  const extraAttackWarn = eaSources.length>=2 ? `<div style="margin-top:10px;padding:8px 10px;background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:4px">
+      <div style="font-size:11px;color:var(--gold);font-weight:600;margin-bottom:3px">⚔️ ${isIt?'Attacco Extra non cumulativo':'Extra Attack does not stack'}</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.4">${isIt?`Possiedi Attacco Extra da più classi (${eaSources.join(', ')}), ma i privilegi <strong>non si sommano</strong>: effettui comunque <strong>2 attacchi</strong> con l'azione Attacco, salvo un privilegio specifico (es. Due Attacchi Extra del Guerriero). PHB 2024, cap.2.`:`You have Extra Attack from multiple classes (${eaSources.join(', ')}), but it <strong>does not stack</strong>: you still make <strong>2 attacks</strong> with the Attack action, unless a specific feature says otherwise (e.g. the Fighter's Two Extra Attacks). PHB 2024, ch.2.`}</div>
+    </div>` : '';
+
   const armorWeaponSummary = cl ? `<div class="panel" style="margin-bottom:12px">
-    <div class="sec-title">🛡️ ${isIt?'6 · Competenze di Classe':'6 · Class Proficiencies'}</div>
+    <div class="sec-title">🛡️ ${primaryLabel}</div>
     <div class="sheet-row" style="padding:8px 0;border-bottom:1px solid var(--border)">
       <span style="color:var(--muted);font-size:12px">${isIt?'Armature':'Armor'}</span>
       <span style="color:var(--gold);font-size:13px">${isIt?cl.armorIt:cl.armorEn}</span>
@@ -6130,6 +6547,9 @@ function fRS2(){
       <span style="color:var(--muted);font-size:12px">${isIt?'Strumenti':'Tools'}</span>
       <span style="color:var(--gold);font-size:13px">${isIt?cl.toolsIt:cl.toolsEn}</span>
     </div>`:''}
+    ${mcProfsBlock}
+    ${mcExtraProfs.length>0?`<div style="font-size:9px;color:var(--vdim);font-style:italic;margin-top:8px;line-height:1.4">${isIt?'Le classi aggiunte via multiclasse concedono solo un sottoinsieme delle competenze di partenza (PHB 2024, cap.2). Tiri Salvezza e set completo di abilità/armi restano alla sola classe iniziale.':'Classes added via multiclassing grant only a subset of starting proficiencies (PHB 2024, ch.2). Saving throws and the full skill/weapon set remain with the starting class only.'}</div>`:''}
+    ${extraAttackWarn}
   </div>` : '';
   let html=armorWeaponSummary+`<div class="fade-in">
     <div class="summary-bar" style="text-align:center">
@@ -6434,6 +6854,20 @@ function fLoadJSON(evt){
       var loaded=JSON.parse(e.target.result);
       if(!loaded.cls&&!loaded.name) throw new Error('File non valido');
       Object.assign(C, loaded);
+      // STEP 10 — Compatibilità legacy: se la scheda caricata NON ha il campo
+      // classes (salvata prima del multiclasse), ricostruiscilo dai suoi campi
+      // cls/level/subclass. Necessario perché Object.assign non sovrascrive
+      // C.classes con 'undefined', lasciando residui del personaggio precedente.
+      if(!Array.isArray(loaded.classes) || loaded.classes.length===0){
+        C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+      }
+      fSyncClassDerived(); // MULTICLASSE: migra schede legacy e ricalcola i derivati
+      // Valida le sottoclassi di OGNI classe: rimuovi quelle incoerenti (es. residui)
+      C.classes.forEach(c=>{
+        const cd = CLASSES.find(x=>x.id===c.cls);
+        if(cd && c.subclass && !(cd.subclasses||[]).some(sc=>sc.id===c.subclass)) c.subclass=null;
+      });
+      fSyncClassDerived(); // ri-sincronizza dopo la pulizia delle sottoclassi
       // Valida la sottoclasse: deve appartenere alla classe caricata (evita residui incoerenti, es. sottoclasse Bardo su Guerriero)
       if(C.cls){
         const clData = CLASSES.find(c => c.id === C.cls);
@@ -6610,16 +7044,30 @@ function fBuildPrintSheet(){
   };
 
   // Spell slots grid
-  const ss=fGetSpellSlots(C.cls,C.level);
+  // STEP 9: nel multiclasse usa gli slot COMBINATI (tabella Incantatore Multiclasse,
+  // Step 3) invece di quelli della sola classe primaria.
+  const isMCprint = (typeof fIsMulticlass==='function') && fIsMulticlass();
+  let mcSlots = null, ss = null;
+  if(isMCprint && typeof fGetMulticlassSlots==='function'){
+    mcSlots = fGetMulticlassSlots(); // {normal:[9], pact:{slots,slotLv}|null}
+  } else {
+    ss = fGetSpellSlots(C.cls,C.level);
+  }
   const slotGrid=Array.from({length:9},(_,i)=>{
     let max=0;
-    if(ss&&ss.type!=='pact'&&ss.slots)max=ss.slots[i]||0;
+    if(mcSlots){ max = (mcSlots.normal && mcSlots.normal[i]) || 0; }
+    else if(ss&&ss.type!=='pact'&&ss.slots){ max=ss.slots[i]||0; }
     const dots=max>0?Array(max).fill('◇').join(' '):'—';
     return`<div class="pslot"><div class="pslv">${i+1}°</div><div class="psld">${dots}</div></div>`;
   }).join('');
 
   // Pact slots note
-  const pactNote=ss&&ss.type==='pact'?`<div style="font-size:5.5pt;color:#555;margin-top:1mm;">Slot del patto Lv.${ss.slotLv}: ${Array(ss.slots[0]||0).fill('◇').join(' ')}</div>`:'';
+  let pactNote='';
+  if(mcSlots && mcSlots.pact){
+    pactNote=`<div style="font-size:5.5pt;color:#555;margin-top:1mm;">Slot del patto Lv.${mcSlots.pact.slotLv}: ${Array(mcSlots.pact.slots[0]||0).fill('◇').join(' ')}</div>`;
+  } else if(ss&&ss.type==='pact'){
+    pactNote=`<div style="font-size:5.5pt;color:#555;margin-top:1mm;">Slot del patto Lv.${ss.slotLv}: ${Array(ss.slots[0]||0).fill('◇').join(' ')}</div>`;
+  }
 
   // Spells table rows
   const allIds=C.preparedSpells||[];
@@ -6655,8 +7103,8 @@ function fBuildPrintSheet(){
   const equipTxt=C.equipNotes||(cl?cl.equipIt||'':'');
   const langTxt=fGetLanguagesList();
   const bgName=bg?bg.it:'—';
-  const clName=cl?cl.it:'—';
-  const scName=sc?` (${sc.it})`:'';
+  const clName=fClassDisplay(true);
+  const scName='';
   const spName=sp?sp.it:'—';
   const srName=sr?` (${sr.it})`:'';
   const alText=al?al.it:'—';
@@ -6754,7 +7202,7 @@ function fBuildPrintSheet(){
       <div class="pv">${hpMax}</div>
       <div class="ps2">Max &nbsp;·&nbsp; Attuali &nbsp;·&nbsp; Temp</div>
     </div>
-    <div class="pcbx"><div class="pl">Dadi Vita</div><div class="pv">${C.level}${cl?cl.hd:'d8'}</div></div>
+    <div class="pcbx"><div class="pl">Dadi Vita</div><div class="pv">${fHitDiceDisplay()}</div></div>
     <div class="pcbx">
       <div class="pl">TS contro Morte</div>
       <div style="font-size:7pt;line-height:1.6;margin-top:1mm">Successi: ◇ ◇ ◇<br>Fallimenti: ◇ ◇ ◇</div>
@@ -6913,6 +7361,20 @@ ${(function(){
       ${pactNote}
     </div>
   </div>
+  ${(function(){
+    // STEP 9: nel multiclasse, riepilogo per classe (caratteristica, CD, preparati) in stampa.
+    if(!isMCprint || typeof fGetSpellcastingByClass!=='function') return '';
+    const byc = fGetSpellcastingByClass(true);
+    if(byc.length<2) return '';
+    return `<div style="margin-bottom:2mm">
+      <div class="pst">Incantesimi per Classe (Multiclasse)</div>
+      <table class="pspt"><thead><tr>
+        <th style="width:28%">Classe</th><th class="tc">Carat.</th><th class="tc">CD</th><th class="tc">Att.</th><th class="tc">Trucch.</th><th class="tc">Prep./Con.</th>
+      </tr></thead><tbody>
+      ${byc.map(e=>`<tr><td>${e.clsName}${e.isPrimary?' (iniziale)':''}</td><td class="tc">${e.statLabel}</td><td class="tc">${e.saveDC}</td><td class="tc">${e.atkBonus>=0?'+':''}${e.atkBonus}</td><td class="tc">${e.maxCantrips||'—'}</td><td class="tc">${e.maxSpells}</td></tr>`).join('')}
+      </tbody></table>
+    </div>`;
+  })()}
 
   <div style="display:grid;grid-template-columns:1fr 44mm;gap:3mm">
     <div>
@@ -6965,6 +7427,7 @@ ${(function(){
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
+fSyncClassDerived(); // MULTICLASSE: garantisce C.classes coerente all'avvio
 re();
 setupPillGroups();
 populateClassSelect();
@@ -7651,37 +8114,54 @@ function fShowTT(e,stat){
 function fRClassFeatures(){
   const cl = fgCl();
   if(!cl) return '';
-  const features = CLASS_FEATURES[C.cls];
-  if(!features || !features.length) return '';
   const isIt  = lang === 'it';
-  const lv    = C.level;
+  if(typeof fEnsureClasses==='function') fEnsureClasses();
 
-  // Filtra per livello
-  const unlocked = features.filter(f => f.lv <= lv);
-  if(!unlocked.length) return '';
+  // STEP 9: nel multiclasse mostra le facoltà di OGNI classe, filtrate sul
+  // livello di QUELLA classe (non sul totale). Monoclasse: comportamento identico a prima.
+  const isMC = (typeof fIsMulticlass==='function') && fIsMulticlass();
+  const classList = isMC ? (C.classes||[]).filter(c=>c.cls) : [{cls:C.cls, level:C.level}];
 
-  // Prossima facoltà
-  const next = features.find(f => f.lv > lv);
+  const blocks = classList.map(entry=>{
+    const cd = CLASSES.find(x=>x.id===entry.cls);
+    const features = CLASS_FEATURES[entry.cls];
+    if(!cd || !features || !features.length) return '';
+    const clsLv = parseInt(entry.level)||0;
+    const unlocked = features.filter(f => f.lv <= clsLv);
+    if(!unlocked.length) return '';
+    const next = features.find(f => f.lv > clsLv);
 
-  const rows = unlocked.map(f => `
-    <div style="margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.05)">
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
-        <span style="font-family:'Comfortaa', sans-serif;font-size:9px;color:var(--gold);background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.25);border-radius:2px;padding:1px 5px;white-space:nowrap">Lv.${f.lv}</span>
-        <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt ? f.it : (f.en||f.it)}</span>
-      </div>
-      <div style="font-size:11px;color:var(--muted);line-height:1.6">${fLocalizeStatAbbr(f.desc)}</div>
-    </div>`).join('');
+    const rows = unlocked.map(f => `
+      <div style="margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid rgba(255,255,255,.05)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap">
+          <span style="font-family:'Comfortaa', sans-serif;font-size:9px;color:var(--gold);background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.25);border-radius:2px;padding:1px 5px;white-space:nowrap">Lv.${f.lv}</span>
+          <span style="font-size:12px;font-weight:600;color:var(--text)">${isIt ? f.it : (f.en||f.it)}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.6">${fLocalizeStatAbbr(f.desc)}</div>
+      </div>`).join('');
 
-  const nextRow = next ? `
-    <div style="padding:7px 9px;background:rgba(90,90,90,.07);border:1px dashed rgba(200,164,90,.18);border-radius:3px;opacity:.6;margin-top:4px">
-      <span style="font-size:9px;color:var(--vdim)">⬤ ${isIt?'Prossima al':'Next at'} Lv.${next.lv}: </span>
-      <span style="font-size:11px;font-weight:600;color:var(--dim)">${isIt?next.it:(next.en||next.it)}</span>
-    </div>` : '';
+    const nextRow = next ? `
+      <div style="padding:7px 9px;background:rgba(90,90,90,.07);border:1px dashed rgba(200,164,90,.18);border-radius:3px;opacity:.6;margin-top:4px">
+        <span style="font-size:9px;color:var(--vdim)">⬤ ${isIt?'Prossima al':'Next at'} Lv.${next.lv}: </span>
+        <span style="font-size:11px;font-weight:600;color:var(--dim)">${isIt?next.it:(next.en||next.it)}</span>
+      </div>` : '';
+
+    // In multiclasse, intestazione per ogni classe col proprio livello
+    const header = isMC
+      ? `<div style="font-size:11px;color:var(--gold2);font-weight:600;margin:4px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--border)">${cd.icon} ${isIt?cd.it:cd.en} · Lv.${clsLv}</div>`
+      : '';
+    return header + rows + nextRow;
+  }).filter(Boolean).join(isMC ? '<div style="height:10px"></div>' : '');
+
+  if(!blocks) return '';
+
+  const title = isMC
+    ? (isIt?'Facoltà di Classe (Multiclasse)':'Class Features (Multiclass)')
+    : (isIt?'Facoltà di Classe — '+cl.it:'Class Features — '+(cl.en||cl.it));
 
   return `<div class="box">
-    <div class="box-title">${cl.icon} ${isIt?'Facoltà di Classe — '+cl.it:'Class Features — '+(cl.en||cl.it)}</div>
-    ${rows}
-    ${nextRow}
+    <div class="box-title">${cl.icon} ${title}</div>
+    ${blocks}
   </div>`;
 }
 
@@ -8032,9 +8512,16 @@ function fRSheet(){
   const allBonuses=fGetAllStatBonuses();
   const saveProfs=fGetClassSaveProfs();
   const bgSkillProfs=fGetAllSkillProfs();
-  const sub=[sp?(isIt?sp.it:sp.en):null,sr?`(${isIt?sr.it:sr.en})`:null,
-    cl?(isIt?cl.it:cl.en):null,sc?`(${isIt?sc.it:sc.en})`:null,
-    `Lv.${C.level}`,al?(isIt?al.it:al.en):null].filter(Boolean).join(' · ');
+  // STEP 9: nell'intestazione usa la stringa multiclasse completa (Guerriero 3 (Campione) / Ladro 2).
+  // In monoclasse resta il formato originale (classe · sottoclasse · Lv.X).
+  const isMC = (typeof fIsMulticlass==='function') && fIsMulticlass();
+  const clsPart = isMC
+    ? [fClassDisplay(isIt)]
+    : [cl?(isIt?cl.it:cl.en):null, sc?`(${isIt?sc.it:sc.en})`:null, `Lv.${C.level}`];
+  const sub=[sp?(isIt?sp.it:sp.en):null, sr?`(${isIt?sr.it:sr.en})`:null,
+    ...clsPart,
+    isMC?`Lv.${C.level} tot.`:null,
+    al?(isIt?al.it:al.en):null].filter(Boolean).join(' · ');
 
   return`<div class="fade-in">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
@@ -8055,6 +8542,15 @@ function fRSheet(){
         <div style="color:var(--muted);font-size:12px;margin-top:3px">${sub}</div>
         ${bg?`<div style="font-size:10px;color:var(--dim);margin-top:2px">Background: ${isIt?bg.it:bg.en}</div>`:''}
       </div>
+      ${(function(){
+        if(!fIsMulticlass()) return '';
+        const pr=fMeetsMulticlassPrereq();
+        if(pr.ok) return '';
+        return `<div style="margin:0 0 16px;padding:9px 12px;background:rgba(200,140,40,.10);border:1px solid rgba(200,140,40,.45);border-left:3px solid #c88c28;border-radius:4px">
+          <div style="font-size:10px;letter-spacing:1px;color:#e0a850;text-transform:uppercase;margin-bottom:3px">⚠ ${isIt?'Avviso multiclasse':'Multiclass notice'}</div>
+          <div style="font-size:11px;color:var(--muted);line-height:1.5">${pr.message}</div>
+        </div>`;
+      })()}
 
       <div class="g2" style="gap:14px;margin-bottom:16px">
         <div>
@@ -8076,7 +8572,7 @@ function fRSheet(){
         </div>
         <div>
           <div class="box-title">${ft('Combattimento','Combat')}</div>
-          ${[[ft('CA','AC'),fCharacterAC().value],[ft('Competenza','Prof.'),'+'+fpb(C.level)],[ft('Iniziativa','Initiative'),fmStr(fTotalStat('DEX'))],[ft('Perc. Passiva','Passive Perc.'),10+fcmod(fTotalStat('WIS'))],[ft('Velocità','Speed'),sp?sp.speed:'9m'],[ft('Dado Vita','Hit Die'),cl?.hd||'—']].map(([l,v])=>`<div class="sheet-row"><span style="color:var(--muted)">${l}</span><span style="color:var(--gold);font-weight:600">${v}</span></div>`).join('')}
+          ${[[ft('CA','AC'),fCharacterAC().value],[ft('Competenza','Prof.'),'+'+fpb(C.level)],[ft('Iniziativa','Initiative'),fmStr(fTotalStat('DEX'))],[ft('Perc. Passiva','Passive Perc.'),10+fcmod(fTotalStat('WIS'))],[ft('Velocità','Speed'),sp?sp.speed:'9m'],[ft('Dado Vita','Hit Die'),fIsMulticlass()?fHitDiceDisplay():(cl?.hd||'—')]].map(([l,v])=>`<div class="sheet-row"><span style="color:var(--muted)">${l}</span><span style="color:var(--gold);font-weight:600">${v}</span></div>`).join('')}
           ${fRHPBox(hpV)}
           ${fRExhaustionBox()}
           ${fRConditionsBox()}
@@ -8578,8 +9074,8 @@ const CAST_STAT_MAP = {
 
 // Sottoclassi che abilitano il casting
 const SUBCLASS_CASTER_IDS = {
-  fighter: ['cavaliere-mistico'],
-  rogue:   ['arcane'],
+  fighter: ['cavaliere-mistico','eldritch-knight'],
+  rogue:   ['arcane','arcane-trickster','mistificatore-arcano'],
   monk:    ['shadow','elements'],
 };
 
@@ -8627,7 +9123,16 @@ function fHasSpellcasting(){
   const lv = C.level || 1;
   const full = ['bard','cleric','druid','paladin','ranger','sorcerer','warlock','wizard'];
   if(full.includes(C.cls)) return true;
-  return SUBCLASS_CASTER_IDS[C.cls]?.includes(C.subclass) || false;
+  if(SUBCLASS_CASTER_IDS[C.cls]?.includes(C.subclass)) return true;
+  // Multiclasse: incantatore se UNA QUALSIASI classe lancia incantesimi
+  if(fIsMulticlass()){
+    return C.classes.some(c=>{
+      if(!c.cls) return false;
+      if(full.includes(c.cls)) return true;
+      return SUBCLASS_CASTER_IDS[c.cls]?.includes(c.subclass) || false;
+    });
+  }
+  return false;
 }
 // fIsKnownCaster e fIsPreparedCaster definite sopra (riga ~6885)
 
@@ -8643,6 +9148,87 @@ function fGetMaxSpells(){
 }
 
 function fGetCastingStat(){ return CAST_STAT_MAP[C.cls] || 'INT'; }
+
+// ─── STEP 7 — Preparazione incantesimi separata per classe (PHB 2024 §1.6) ──
+// Nel multiclasse, ogni classe incantatrice determina i propri incantesimi
+// preparati/conosciuti SEPARATAMENTE, come se fosse un personaggio monoclasse
+// di quel livello (PHB 2024, cap.2 pag.45). La caratteristica da incantatore
+// è quella della classe a cui l'incantesimo è associato; il bonus di competenza
+// dipende invece dal livello TOTALE (già gestito da fpb).
+//
+// Classi incantatrici "piene/parziali" che preparano/conoscono incantesimi.
+// Le sottoclassi caster (Cavaliere Mistico, Mistificatore Arcano) usano il
+// terzo del livello e una tabella dedicata: qui le includiamo solo se attive.
+function fIsSpellcastingClass(clsId, subclass){
+  const full = ['bard','cleric','druid','paladin','ranger','sorcerer','warlock','wizard'];
+  if(full.includes(clsId)) return true;
+  if(SUBCLASS_CASTER_IDS[clsId]?.includes(subclass)) return true;
+  return false;
+}
+
+// Livello effettivo di incantatore per il conteggio dei preparati di QUELLA classe.
+// Le sottoclassi a 1/3 (Cavaliere Mistico/Mistificatore Arcano) contano il terzo
+// del livello di classe (arrotondato per difetto, min 1 una volta sbloccate al Lv.3).
+function fClassCasterEffLevel(clsId, clsLv, subclass){
+  const full = ['bard','cleric','druid','paladin','ranger','sorcerer','warlock','wizard'];
+  if(full.includes(clsId)) return clsLv;
+  if(SUBCLASS_CASTER_IDS[clsId]?.includes(subclass)) return Math.max(0, Math.floor(clsLv/3));
+  return 0;
+}
+
+// Numero di incantesimi preparati/conosciuti per UNA specifica classe, in base
+// al suo livello di classe (non al totale). Usa la tabella PHB 2024.
+function fClassMaxSpells(clsId, clsLv, subclass){
+  const eff = fClassCasterEffLevel(clsId, clsLv, subclass);
+  if(eff<=0) return 0;
+  // sottoclassi a 1/3: tabella mago ridotta non disponibile → usa colonna 1/3 semplice
+  if(!SPELLS_KNOWN_TABLE[clsId]){
+    // Cavaliere Mistico / Mistificatore Arcano: preparati ~ tabella ridotta (3,4,4,5,6,...)
+    const TER = [3,4,4,5,6,6,7,7,8,8,9,9,10,11,11,12,13,13];
+    return TER[Math.min(eff,18)-1] || 0;
+  }
+  return SPELLS_KNOWN_TABLE[clsId]?.[Math.min(clsLv,20)-1] || 0;
+}
+
+// Trucchetti per UNA specifica classe in base al suo livello.
+function fClassMaxCantrips(clsId, clsLv){
+  const t = CANTRIPS_TABLE[clsId];
+  if(!t) return 0;
+  return t[Math.min(clsLv,20)-1] || 0;
+}
+
+// Restituisce, per ogni classe incantatrice posseduta, un riepilogo:
+// { cls, clsName, stat, statLabel, mod, saveDC, atkBonus, maxSpells, maxCantrips,
+//   known (bool), isPrimary (bool) }. Il bonus di competenza è sul livello totale.
+function fGetSpellcastingByClass(isIt){
+  if(isIt===undefined) isIt = (typeof lang!=='undefined' && lang==='it');
+  fEnsureClasses();
+  const totalLv = (typeof fTotalLevel==='function') ? fTotalLevel() : (C.level||1);
+  const pb = fpb(totalLv);
+  const STAT_LBL = isIt
+    ? {STR:'FOR',DEX:'DES',CON:'COS',INT:'INT',WIS:'SAG',CHA:'CAR'}
+    : {STR:'STR',DEX:'DEX',CON:'CON',INT:'INT',WIS:'WIS',CHA:'CHA'};
+  const out = [];
+  C.classes.forEach((c,idx)=>{
+    if(!c.cls) return;
+    if(!fIsSpellcastingClass(c.cls, c.subclass)) return;
+    const clsLv = parseInt(c.level)||0;
+    const stat = CAST_STAT_MAP[c.cls] || 'INT';
+    const mod = fcmod(fTotalStat(stat));
+    const cd = (typeof CLASSES!=='undefined') ? CLASSES.find(x=>x.id===c.cls) : null;
+    out.push({
+      cls: c.cls,
+      clsName: cd ? (isIt?cd.it:cd.en) : c.cls,
+      stat, statLabel: STAT_LBL[stat],
+      mod, saveDC: 8+pb+mod, atkBonus: pb+mod,
+      maxSpells: fClassMaxSpells(c.cls, clsLv, c.subclass),
+      maxCantrips: fClassMaxCantrips(c.cls, clsLv),
+      known: (c.cls==='warlock'||c.cls==='sorcerer'),
+      isPrimary: idx===0,
+    });
+  });
+  return out;
+}
 
 function fGetAlwaysPrepared(){
   const result = [];
@@ -9224,6 +9810,22 @@ function fRSpellsSection(){
     <span><span style="color:var(--gold2)">CD </span><span style="color:var(--gold);font-weight:700">${saveDC}</span></span>
   </div>`;
 
+  // ── STEP 7: riepilogo incantesimi separato per classe (solo multiclasse) ──
+  const scByClass = (typeof fGetSpellcastingByClass==='function') ? fGetSpellcastingByClass(isIt) : [];
+  const multiCasterBar = scByClass.length>=2 ? `<div style="margin-bottom:12px;padding:10px 12px;background:rgba(155,89,182,.06);border:1px solid rgba(155,89,182,.3);border-radius:4px">
+    <div style="font-size:10px;letter-spacing:1.2px;color:#b07fd0;font-family:'Comfortaa',sans-serif;margin-bottom:8px">🔮 ${isIt?'INCANTESIMI PER CLASSE':'SPELLCASTING BY CLASS'}</div>
+    ${scByClass.map(e=>`<div style="padding:6px 0;border-top:1px solid rgba(255,255,255,.05)">
+      <div style="font-size:11px;color:var(--gold);font-weight:600;margin-bottom:3px">${e.clsName} <span style="font-size:9px;color:var(--vdim);font-weight:400">(${e.statLabel}${e.isPrimary?(isIt?' · iniziale':' · starting'):''})</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--muted)">
+        <span>${isIt?'CD':'DC'} <strong style="color:var(--gold2)">${e.saveDC}</strong></span>
+        <span>${isIt?'Att.':'Atk'} <strong style="color:var(--gold2)">${e.atkBonus>=0?'+':''}${e.atkBonus}</strong></span>
+        ${e.maxCantrips>0?`<span>${isIt?'Trucchetti':'Cantrips'} <strong style="color:var(--gold2)">${e.maxCantrips}</strong></span>`:''}
+        <span>${e.known?(isIt?'Conosciuti':'Known'):(isIt?'Preparati':'Prepared')} <strong style="color:var(--gold2)">${e.maxSpells}</strong></span>
+      </div>
+    </div>`).join('')}
+    <div style="font-size:9px;color:var(--vdim);font-style:italic;margin-top:8px;line-height:1.4">${isIt?'Ogni classe prepara/conosce i propri incantesimi separatamente, come monoclasse a quel livello (PHB 2024, cap.2). La caratteristica e la CD seguono la classe; il bonus di competenza usa il livello totale. Gli slot combinati restano quelli sopra.':'Each class prepares/knows its own spells separately, as a single-class character of that level (PHB 2024, ch.2). The ability and DC follow each class; proficiency bonus uses total level. Combined slots are shown above.'}</div>
+  </div>` : '';
+
   // ── LIBRO DEGLI INCANTESIMI (solo Mago) ─────────────────────────────────
   const bookSection = hasBook ? (function(){
     const sb = C.spellbookSpells || [];
@@ -9333,6 +9935,7 @@ function fRSpellsSection(){
   return `<div class="box">
     <div class="box-title">✨ ${isIt?'Incantesimi':'Spells'}</div>
     ${statBar}
+    ${multiCasterBar}
     ${_cBan}
     ${fRSpellSlotsBlock(C.cls,lv,isIt)}
     ${fRWarlockBlock()}
@@ -9884,12 +10487,24 @@ function fSelCl(id){
   C.preparedSpells=[]; C._spellTab='always';
   C.weaponMasteries=[]; C.expertiseSkills=[];
   C.bardDiscoveries=[];
+  // MULTICLASSE: la guidata edita la classe primaria → rifletti su C.classes[0]
+  fEnsureClasses();
+  C.classes[0]={cls:id, level:C.classes[0]?.level||C.level||1, subclass:null};
+  fSyncClassDerived();
   // Se si usa la Serie standard, applica l'assegnazione consigliata per la classe
   // scelta (PHB 2024, "Serie standard per classe"). Con gli altri metodi
   // (Acquisto Punti, Tiro Dadi, Libero) i punteggi scelti dall'utente restano intatti.
   if((C.statMethod||'standardarray')==='standardarray'){
     C.stats = fStdArrayFor(id);
   }
+  re();
+}
+// MULTICLASSE: selezione sottoclasse della classe primaria (guidata) con sync
+function fSelSubclass(scId){
+  C.subclass=scId;
+  fEnsureClasses();
+  C.classes[0].subclass=scId;
+  fSyncClassDerived();
   re();
 }
 function fSelBg(id){
@@ -9923,10 +10538,150 @@ function fSelBg(id){
 
 // Livello
 function fSetLv(lv){
-  C.level=lv;
-  const sl=fFeatSlots(C.cls,lv);
+  // MULTICLASSE: in creazione guidata si modifica il livello della classe primaria.
+  // Quando esistono più classi, il livello totale è la somma e va gestito dalla UI
+  // multiclasse (Step 8): qui agiamo sulla voce primaria.
+  fEnsureClasses();
+  if(C.classes.length<=1){
+    C.classes[0].level=lv;
+  }else{
+    // più classi: applica la differenza alla classe primaria mantenendo le altre
+    const others=C.classes.slice(1).reduce((t,c)=>t+(parseInt(c.level)||0),0);
+    C.classes[0].level=Math.max(1, lv-others);
+  }
+  fSyncClassDerived();
+  const sl=fFeatSlots(C.cls,C.level);
   if(C.feats.length>sl) C.feats=C.feats.slice(0,sl);
   re();
+}
+
+// ─── STEP 8 — Gestione classi multiclasse (aggiungi/rimuovi/livello/sottoclasse) ──
+// Le classi secondarie vivono in C.classes[1..]. La classe iniziale C.classes[0]
+// resta gestita dalla creazione guidata. fSyncClassDerived() ricalcola i derivati.
+function fAddClass(id){
+  fEnsureClasses();
+  if(!id) return;
+  // evita duplicati: una classe può comparire una sola volta
+  if(C.classes.some(c=>c.cls===id)){
+    if(typeof showToast==='function') showToast(lang==='it'?'Classe già presente':'Class already added');
+    return;
+  }
+  C.classes.push({cls:id, level:1, subclass:null});
+  fSyncClassDerived();
+  re();
+}
+function fRemoveClass(idx){
+  fEnsureClasses();
+  // non si può rimuovere la classe iniziale (indice 0)
+  if(idx<=0 || idx>=C.classes.length) return;
+  C.classes.splice(idx,1);
+  fSyncClassDerived();
+  re();
+}
+function fSetSecondaryClassLevel(idx, lv){
+  fEnsureClasses();
+  if(idx<=0 || idx>=C.classes.length) return;
+  lv=parseInt(lv)||1;
+  // il livello di una singola classe va da 1 a 20; il totale è limitato a 20
+  lv=Math.max(1, Math.min(20, lv));
+  const othersTotal = C.classes.reduce((t,c,i)=> i===idx ? t : t+(parseInt(c.level)||0), 0);
+  if(othersTotal+lv>20) lv = Math.max(1, 20-othersTotal);
+  C.classes[idx].level=lv;
+  fSyncClassDerived();
+  re();
+}
+function fSetSecondaryClassSubclass(idx, scId){
+  fEnsureClasses();
+  if(idx<=0 || idx>=C.classes.length) return;
+  C.classes[idx].subclass = scId || null;
+  fSyncClassDerived();
+  re();
+}
+
+// Rendering del pannello multiclasse (compare nella sezione Classe della guidata).
+function fRMulticlassPanel(){
+  fEnsureClasses();
+  const isIt = lang==='it';
+  const primary = C.classes[0];
+  if(!primary || !primary.cls) return ''; // serve prima una classe iniziale
+  const totalLv = (typeof fTotalLevel==='function') ? fTotalLevel() : (C.level||1);
+
+  let h = `<div class="panel" style="margin-top:14px;border:1px solid rgba(155,89,182,.3)">
+    <div class="sec-title" style="color:#b07fd0">⚔️ ${isIt?'Multiclasse':'Multiclassing'}</div>
+    <div style="font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.4">${isIt?`Livello totale: <strong style="color:var(--gold)">${totalLv}</strong> · Bonus competenza: <strong style="color:var(--gold)">+${fpb(totalLv)}</strong>. Il costo in PE e il bonus di competenza usano il livello totale; i privilegi seguono il livello di ciascuna classe.`:`Total level: <strong style="color:var(--gold)">${totalLv}</strong> · Proficiency bonus: <strong style="color:var(--gold)">+${fpb(totalLv)}</strong>. XP cost and proficiency use total level; features follow each class's level.`}</div>`;
+
+  // Elenco classi: la prima è l'iniziale (non rimovibile), le altre sono secondarie.
+  C.classes.forEach((c,idx)=>{
+    if(!c.cls) return;
+    const cd = CLASSES.find(x=>x.id===c.cls);
+    if(!cd) return;
+    const isPrimary = idx===0;
+    const scList = cd.subclasses||[];
+    const scSel = c.subclass||'';
+    h += `<div style="padding:8px 10px;margin-bottom:8px;background:rgba(13,10,6,.5);border:1px solid var(--border);border-radius:4px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:18px">${cd.icon}</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:var(--gold)">${isIt?cd.it:cd.en} <span style="font-size:9px;color:var(--vdim);font-weight:400">${isPrimary?(isIt?'· iniziale':'· starting'):''}</span></div>
+            <div style="font-size:9px;color:var(--dim)">${isIt?'Dado Vita':'Hit Die'} ${cd.hd}</div>
+          </div>
+        </div>
+        ${isPrimary
+          ? `<span style="font-size:9px;color:var(--vdim);font-style:italic">${isIt?'gestita nella guidata':'edited in wizard'}</span>`
+          : `<button onclick="fRemoveClass(${idx})" style="background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:3px 8px;cursor:pointer">✕ ${isIt?'Rimuovi':'Remove'}</button>`}
+      </div>`;
+
+    // Controllo livello (solo per le classi secondarie; la primaria usa il livello della guidata)
+    if(!isPrimary){
+      h += `<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <span style="font-size:10px;color:var(--muted)">${isIt?'Livello':'Level'}</span>
+        <button onclick="fSetSecondaryClassLevel(${idx}, ${(parseInt(c.level)||1)-1})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">−</button>
+        <span style="font-size:13px;color:var(--gold);font-weight:700;min-width:20px;text-align:center">${parseInt(c.level)||1}</span>
+        <button onclick="fSetSecondaryClassLevel(${idx}, ${(parseInt(c.level)||1)+1})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">+</button>
+      </div>`;
+    }
+
+    // Selettore sottoclasse (per entrambe, se la classe ha sottoclassi)
+    if(scList.length){
+      h += `<div style="margin-top:8px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px">${isIt?'Sottoclasse':'Subclass'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+        ${scList.map(s=>{
+          const sel = scSel===s.id;
+          const fn = isPrimary ? `fSelSubclass('${s.id}')` : `fSetSecondaryClassSubclass(${idx},'${s.id}')`;
+          return `<span onclick="${fn}" style="cursor:pointer;font-size:10px;padding:3px 8px;border-radius:3px;border:1px solid ${sel?'var(--gold)':'var(--border2)'};color:${sel?'var(--gold)':'var(--muted)'};background:${sel?'rgba(200,164,90,.15)':'transparent'}">${isIt?s.it:s.en}</span>`;
+        }).join('')}
+        </div>
+      </div>`;
+    }
+    h += `</div>`;
+  });
+
+  // Selettore "aggiungi classe": elenco delle classi non ancora possedute
+  const owned = C.classes.map(c=>c.cls);
+  const addable = CLASSES.filter(c=>!owned.includes(c.id));
+  if(addable.length){
+    h += `<div style="margin-top:6px">
+      <div style="font-size:10px;color:var(--muted);margin-bottom:5px">${isIt?'+ Aggiungi una classe':'+ Add a class'}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px">
+      ${addable.map(c=>`<span onclick="fAddClass('${c.id}')" style="cursor:pointer;font-size:10px;padding:4px 9px;border-radius:3px;border:1px dashed var(--border2);color:var(--muted);background:transparent">${c.icon} ${isIt?c.it:c.en}</span>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Avviso prerequisiti in tempo reale (riusa fMeetsMulticlassPrereq dello Step 4)
+  if(typeof fMeetsMulticlassPrereq==='function'){
+    const pr = fMeetsMulticlassPrereq();
+    if(!pr.ok){
+      h += `<div style="margin-top:10px;padding:8px 10px;background:rgba(230,160,30,.08);border:1px solid rgba(230,160,30,.4);border-radius:4px">
+        <div style="font-size:11px;color:#e0a020;line-height:1.4">⚠️ ${pr.message}</div>
+      </div>`;
+    }
+  }
+
+  h += `</div>`;
+  return h;
 }
 
 // Statistiche — Point Buy
@@ -10289,6 +11044,9 @@ Regole:
       preparedSpells:   [],
       _spellPickerTarget: 'spell',
     });
+    // MULTICLASSE: l'AI genera monoclasse → ricostruisci C.classes dai derivati
+    C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+    fSyncClassDerived();
 
     setStatus(ft('Personaggio pronto!', 'Character ready!'), 100);
     setTimeout(() => {
@@ -10368,6 +11126,9 @@ Regole:
         feats: [], spells: [], cantrips: [], spellsPrepared: [], preparedSpells: [],
         _spellPickerTarget: 'spell',
       });
+      // MULTICLASSE: l'AI genera monoclasse → ricostruisci C.classes dai derivati
+      C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+      fSyncClassDerived();
       setStatus(ft('Personaggio pronto!','Character ready!'), 100);
       setTimeout(() => { resetUI(); screen = 'sheet'; re(); }, 400);
     }
@@ -10632,10 +11393,14 @@ function fFmtArmorCA(a, isIt){
   return a.ca+' + '+(isIt?'DES':'DEX')+(a.dexMax!=null?(' ('+(isIt?'max ':'max ')+a.dexMax+')'):'');
 }
 // Calcola la CA totale fornita da un'armatura dato il modificatore di DES
-function fArmorACValue(a, dexMod){
+function fArmorACValue(a, dexMod, dexCapOverride){
   if(!a || a.cat==='scudo') return null;
   let ca = a.ca;
-  if(a.dex) ca += (a.dexMax!=null ? Math.min(dexMod, a.dexMax) : dexMod);
+  if(a.dex){
+    let cap = a.dexMax;
+    if(dexCapOverride!=null && cap!=null) cap = dexCapOverride; // Maestro Armature Medie
+    ca += (cap!=null ? Math.min(dexMod, cap) : dexMod);
+  }
   return ca;
 }
 // Calcola la CA totale del personaggio: armatura indossata + scudo + bonus vari,
@@ -10647,24 +11412,36 @@ function fCharacterAC(){
   const shieldBon = C.shield ? 2 : 0;
   const armor = C.armor ? ARMORS.find(a=>a.en===C.armor||a.it===C.armor) : null;
   let base, src;
+  let featBon = 0; const featNotes = [];
   if(armor && armor.cat!=='scudo'){
-    base = fArmorACValue(armor, dex);
+    // Maestro Armature Medie: con armatura media e DES>=16, cap DES +3 invece di +2
+    let cap = null;
+    if(C.acMediumMaster && armor.cat==='media' && fTotalStat('DEX')>=16){ cap = 3; featNotes.push(isIt?'Mae. Arm. Medie':'Med. Armor Master'); }
+    base = fArmorACValue(armor, dex, cap);
     src = isIt?armor.it:armor.en;
-  } else if(C.cls==='barbarian'){
+    // Stile Difesa: +1 CA se indossi una qualsiasi armatura
+    if(C.acDefenseStyle){ featBon += 1; featNotes.push(isIt?'Difesa +1':'Defense +1'); }
+  } else if((typeof fClassLevel==='function'?fClassLevel('barbarian'):(C.cls==='barbarian'?(C.level||1):0))>0){
+    // STEP 6: Difesa Senza Armatura del Barbaro vale se Barbaro è in QUALSIASI classe.
+    // PHB 2024 (cap.2): con più metodi di CA se ne usa SOLO UNO. Barbaro ha priorità
+    // perché tipicamente offre la CA più alta (usa COS). Lo scudo è compatibile.
     base = 10 + dex + fcmod(fTotalStat('CON'));
     src = isIt?'Senza armatura (Barbaro)':'Unarmored (Barbarian)';
-  } else if(C.cls==='monk' && !C.shield){
+  } else if((typeof fClassLevel==='function'?fClassLevel('monk'):(C.cls==='monk'?(C.level||1):0))>0 && !C.shield){
+    // STEP 6: Difesa Senza Armatura del Monaco (richiede assenza di scudo, regola del Monaco).
     base = 10 + dex + fcmod(fTotalStat('WIS'));
     src = isIt?'Senza armatura (Monaco)':'Unarmored (Monk)';
   } else {
     base = 10 + dex;
     src = isIt?'Senza armatura':'Unarmored';
   }
-  return { value: base + shieldBon + misc, base, shield: shieldBon, misc, src };
+  return { value: base + shieldBon + misc + featBon, base, shield: shieldBon, misc, feat: featBon, featNotes: featNotes, src };
 }
 function fSetArmor(v){ C.armor = v || null; re(); }
 function fToggleShield(){ C.shield = !C.shield; re(); }
 function fSetAcMisc(v){ C.acMisc = parseInt(v)||0; re(); }
+function fToggleDefenseStyle(){ C.acDefenseStyle = !C.acDefenseStyle; re(); }
+function fToggleMediumMaster(){ C.acMediumMaster = !C.acMediumMaster; re(); }
 
 // Helper: restituisce le armi disponibili per padronanza in base alla classe
 // PHB 2024: le armi da fuoco (Pistola, Moschetto, Cerbottana) sono armi da guerra a distanza
@@ -11082,6 +11859,7 @@ function fEquipACSelector(){
   const parts=[ac.src+' = '+ac.base];
   if(ac.shield) parts.push((isIt?'scudo':'shield')+' +2');
   if(ac.misc) parts.push((isIt?'varie':'misc')+' '+(ac.misc>0?'+':'')+ac.misc);
+  if(ac.feat) parts.push((isIt?'talenti':'feats')+' +'+ac.feat);
   const note = isIt
     ? 'Il bonus vari copre lo stile Difensore, anelli di protezione, ecc. La Difesa senza armatura di Barbaro e Monaco \u00e8 applicata automaticamente quando non indossi un\u2019armatura.'
     : 'Misc bonus covers the Defense style, ring of protection, etc. Barbarian/Monk Unarmored Defense applies automatically when no armor is worn.';
@@ -11095,6 +11873,8 @@ function fEquipACSelector(){
     + '<select onchange="fSetArmor(this.value)" style="width:100%;padding:7px;background:#1a1208;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px">'+opts+'</select>'
     + '<div style="display:flex;align-items:center;gap:18px;margin-top:10px;flex-wrap:wrap">'
     +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.shield?'checked':'')+' onchange="fToggleShield()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Scudo (+2)':'Shield (+2)')+'</label>'
+    +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.acDefenseStyle?'checked':'')+' onchange="fToggleDefenseStyle()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Stile Difesa (+1)':'Defense style (+1)')+'</label>'
+    +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.acMediumMaster?'checked':'')+' onchange="fToggleMediumMaster()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Mae. Armature Medie (cap DES +3)':'Medium Armor Master')+'</label>'
     +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)">'+(isIt?'Bonus vari':'Misc bonus')+': <input type="number" value="'+(parseInt(C.acMisc)||0)+'" onchange="fSetAcMisc(this.value)" style="width:52px;padding:4px;background:#1a1208;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:center"></label>'
     + '</div>'
     + '<div style="font-size:9px;color:var(--vdim);margin-top:6px">'+note+'</div>'
