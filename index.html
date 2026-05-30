@@ -10882,25 +10882,65 @@ const LG_CLASS_IT = {
 
 // ── Parser di parole chiave dal prompt utente ───────────────────────────
 // Riconosce specie, classe e "ruolo" (tank/healer/caster/melee/ranged/stealth)
+// Parole chiave classe (it/en + sinonimi), condivise tra i parser
+const LG_CLASS_KEYWORDS = {
+  barbarian:['barbaro','barbarian','furia','rage'],
+  bard:['bardo','bard','musico','menestrello'],
+  cleric:['chierico','cleric','prete','sacerdote'],
+  druid:['druido','druid','natura','druidic'],
+  fighter:['guerriero','fighter','combattente','soldato armato'],
+  monk:['monaco','monk','arti marziali','martial artist'],
+  paladin:['paladino','paladin','crociato','giuramento'],
+  ranger:['ranger','esploratore','cacciatore di taglie','arciere esplorat'],
+  rogue:['ladro','rogue','furfante','assassino','furtiv'],
+  sorcerer:['stregone','sorcerer','innat'],
+  warlock:['warlock','occultista','patto'],
+  wizard:['mago','wizard','arcano','incantatore arcano']
+};
+
+// Riconosce un MULTICLASSE nel prompt: coppie "classe + livello" in ordine
+// sparso, es. "chierico 15, mago 3 e ladro 2" → [{cls:'cleric',level:15},…].
+// La prima classe trovata diventa la primaria (C.classes[0]).
+// Restituisce [] se non trova almeno una coppia classe+numero esplicita.
+function lgParseMulticlass(prompt){
+  const t = (prompt||'').toLowerCase();
+  const found = []; // {cls, level, pos}
+  for(const [id,kws] of Object.entries(LG_CLASS_KEYWORDS)){
+    for(const kw of kws){
+      let idx = 0;
+      while((idx = t.indexOf(kw, idx)) !== -1){
+        // cerca un numero (livello) vicino alla parola: entro ~12 char dopo o prima
+        const after = t.slice(idx, idx + kw.length + 12);
+        const before = t.slice(Math.max(0, idx - 8), idx);
+        let m = after.match(/(?:liv(?:ello)?\.?\s*)?(\d{1,2})/) || before.match(/(\d{1,2})\s*$/);
+        if(m){
+          const lv = parseInt(m[1]);
+          if(lv>=1 && lv<=20 && !found.some(f=>f.cls===id)){
+            found.push({ cls:id, level:lv, pos:idx });
+          }
+        }
+        idx += kw.length;
+      }
+    }
+  }
+  if(found.length < 2) return []; // multiclasse = almeno 2 classi con livello
+  // somma livelli ≤ 20 (regola PHB); se sfora, tronca proporzionalmente l'ultimo
+  found.sort((a,b)=>a.pos-b.pos);
+  let tot = 0; const out = [];
+  for(const f of found){
+    if(tot + f.level > 20){ const room = 20 - tot; if(room>0){ out.push({cls:f.cls, level:room, subclass:null}); tot=20; } break; }
+    out.push({ cls:f.cls, level:f.level, subclass:null });
+    tot += f.level;
+  }
+  return out;
+}
+
 function lgParsePrompt(prompt){
   const t = (prompt||'').toLowerCase();
   const res = { species:null, cls:null, role:null };
 
   // Classe: cerca it/en di ogni classe + sinonimi comuni
-  const clsKeywords = {
-    barbarian:['barbaro','barbarian','furia','rage'],
-    bard:['bardo','bard','musico','menestrello'],
-    cleric:['chierico','cleric','prete','sacerdote'],
-    druid:['druido','druid','natura','druidic'],
-    fighter:['guerriero','fighter','combattente','soldato armato'],
-    monk:['monaco','monk','arti marziali','martial artist'],
-    paladin:['paladino','paladin','crociato','giuramento'],
-    ranger:['ranger','esploratore','cacciatore di taglie','arciere esplorat'],
-    rogue:['ladro','rogue','furfante','assassino','furtiv'],
-    sorcerer:['stregone','sorcerer','innat'],
-    warlock:['warlock','occultista','patto'],
-    wizard:['mago','wizard','arcano','incantatore arcano']
-  };
+  const clsKeywords = LG_CLASS_KEYWORDS;
   for(const [id,kws] of Object.entries(clsKeywords)){
     if(kws.some(k=>t.includes(k))){ res.cls = id; break; }
   }
@@ -11097,8 +11137,12 @@ const LG_EQUIP = {
 function fGenerateLocal(prompt){
   const parsed = lgParsePrompt(prompt);
 
-  // 1) Classe
-  const clsId = parsed.cls || lgPickClass(parsed.role);
+  // 0) MULTICLASSE: se il prompt elenca più classi con livello, registrale.
+  //    La classe primaria (prima citata) guida abilità/incantesimi/mastery base.
+  const mc = lgParseMulticlass(prompt);
+
+  // 1) Classe primaria
+  const clsId = mc.length ? mc[0].cls : (parsed.cls || lgPickClass(parsed.role));
   const clObj = CLASSES.find(c=>c.id===clsId);
 
   // 2) Specie + sottospecie
@@ -11112,7 +11156,8 @@ function fGenerateLocal(prompt){
   // 4) Background + allineamento + livello
   const bgObj = lgRand(BACKGROUNDS);
   const alignment = lgRand(ALIGNMENTS).id;
-  const level = 1;  // generazione al Lv.1 (coerente con il default dell'app)
+  // Livello della CLASSE PRIMARIA: dal multiclasse se presente, altrimenti 1.
+  const level = mc.length ? mc[0].level : 1;
 
   // 5) Caratteristiche, abilità, lingue
   const stats = lgStats(clsId);
@@ -11126,16 +11171,30 @@ function fGenerateLocal(prompt){
   // 7) Warlock pact + invocazioni
   const wl = lgWarlock(clsId, level);
 
-  // 8) Incantesimi
+  // 8) Incantesimi (sulla classe primaria e suo livello)
   const sp = lgSpells(clsId, level);
 
   // 9) Tratti narrativi di base
   const narr = lgNarrative();
 
+  // 10) Costruisci l'elenco classi[]: multiclasse o singola.
+  //     Assegna a ogni classe una sottoclasse casuale valida (la primaria usa
+  //     quella già scelta sopra).
+  let classes;
+  if(mc.length){
+    classes = mc.map((e,i)=>{
+      const co = CLASSES.find(c=>c.id===e.cls);
+      const sc = co?.subclasses?.length ? lgRand(co.subclasses).id : null;
+      return { cls:e.cls, level:e.level, subclass: i===0 ? subclass : sc };
+    });
+  } else {
+    classes = [{ cls:clsId, level, subclass }];
+  }
+
   return {
     name: 'Avventuriero',
     species: spId, subrace,
-    cls: clsId, subclass,
+    cls: clsId, subclass, classes,
     bg: bgObj.id, alignment, level,
     stats, statMethod:'standardarray',
     classSkills,
@@ -11221,8 +11280,20 @@ function fApplyGeneratedChar(char){
     }];
   }
 
-  // — MULTICLASSE: ricostruisci la fonte di verità dai derivati —
-  C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+  // — MULTICLASSE: usa char.classes[] se valido, altrimenti classe singola —
+  if(Array.isArray(char.classes) && char.classes.length){
+    C.classes = char.classes
+      .filter(e=>e && CLASSES.some(c=>c.id===e.cls))
+      .map(e=>{
+        const co = CLASSES.find(c=>c.id===e.cls);
+        const validSub = co?.subclasses?.some(sc=>sc.id===e.subclass) ? e.subclass
+                       : (co?.subclasses?.[0]?.id || null);
+        return { cls:e.cls, level:Math.max(1,Math.min(20,parseInt(e.level)||1)), subclass:validSub };
+      });
+    if(!C.classes.length) C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+  } else {
+    C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+  }
   fSyncClassDerived();
 }
 
@@ -11286,7 +11357,21 @@ function fDoAI(){
       if(Array.isArray(ai.classSkills) && ai.classSkills.length) merged.classSkills = ai.classSkills;
       // Narrativa: l'AI vince sempre (è il suo punto di forza).
       ['name','trait','ideal','bond','flaw','backstory'].forEach(k=>{ if(ai[k]) merged[k]=ai[k]; });
-      // Se la classe AI ≠ base, rigenera i passi dipendenti dalla classe in locale.
+      // MULTICLASSE: se l'utente l'ha richiesto esplicitamente (la base locale
+      // l'ha già parsato), quella richiesta ha PRIORITÀ. Altrimenti accetta
+      // l'array classes[] dell'AI se valido.
+      const userAskedMC = Array.isArray(baseChar.classes) && baseChar.classes.length>1;
+      if(userAskedMC){
+        merged.classes = baseChar.classes;       // rispetta la richiesta dell'utente
+        merged.cls = baseChar.cls; merged.subclass = baseChar.subclass; merged.level = baseChar.level;
+      } else if(Array.isArray(ai.classes) && ai.classes.filter(e=>e&&CLASSES.some(c=>c.id===e.cls)).length>1){
+        merged.classes = ai.classes;
+        merged.cls = ai.classes[0].cls;          // primaria = prima voce
+      } else {
+        // singola classe: allinea classes[] alla classe finale scelta
+        merged.classes = [{ cls:merged.cls, level:merged.level, subclass:merged.subclass }];
+      }
+      // Se la classe PRIMARIA AI ≠ base, rigenera i passi dipendenti dalla classe in locale.
       if(merged.cls !== baseChar.cls){
         const reroll = fGenerateLocal(merged.cls + ' ' + merged.species);
         ['weaponMasteries','fightingStyle','pactBoon','warlockInvocations','cantrips','preparedSpells','equipNotes']
@@ -11335,6 +11420,12 @@ ${subclassLines}
 - alignment: ${alignIds}
 - level: intero 1-20
 
+MULTICLASSE (PHB 2024): se l'utente indica PIÙ classi con livelli (es. "chierico 15, mago 3, ladro 2"),
+fornisci un array "classes" con una voce per classe: {"cls":"id","level":N,"subclass":"id_o_null"}.
+La somma dei livelli non deve superare 20. La PRIMA voce è la classe primaria.
+In tal caso "cls", "subclass" e "level" devono corrispondere alla classe PRIMARIA (la prima dell'array).
+Se l'utente indica UNA sola classe, ometti "classes" oppure mettici un solo elemento.
+
 REGOLE STATISTICHE — Array Standard PHB 2024 (obbligatorio):
 Assegna esattamente i 6 valori [15,14,13,12,10,8] alle 6 caratteristiche STR/DEX/CON/INT/WIS/CHA.
 Non aggiungere bonus razziali (li applica il codice). Non usare altri valori.
@@ -11376,6 +11467,7 @@ Formato JSON richiesto:
   "bg": "id_background",
   "alignment": "codice_allineamento",
   "level": 1,
+  "classes": [{ "cls":"id_classe", "level":1, "subclass":"id_sottoclasse_o_null" }],
   "stats": { "STR":15, "DEX":13, "CON":14, "INT":10, "WIS":12, "CHA":8 },
   "classSkills": ["Skill1EN","Skill2EN"],
   "trait": "Tratto di personalità in italiano (1-2 frasi)",
@@ -11436,7 +11528,7 @@ Regole:
   //    applica comunque la base locale completa (fallbackLocal).
   setStatus(ft('Connessione AI gratuita…','Connecting to free AI…'), 15);
   const seed = Math.floor(Math.random()*99999);
-  const shortSys = encodeURIComponent('Reply ONLY with a valid JSON object (no markdown). Fields: name,species,cls,subclass,bg,alignment,level,stats{STR,DEX,CON,INT,WIS,CHA},trait,ideal,bond,flaw,backstory,subrace. Use IDs from user message.');
+  const shortSys = encodeURIComponent('Reply ONLY with a valid JSON object (no markdown). Fields: name,species,cls,subclass,bg,alignment,level,classes,stats{STR,DEX,CON,INT,WIS,CHA},trait,ideal,bond,flaw,backstory,subrace. Use IDs from user message. If the user lists MULTIPLE classes with levels (e.g. "cleric 15, wizard 3"), provide classes:[{cls,level,subclass}] with total level <=20; the first entry is primary and cls/level/subclass must match it.');
   const shortUserPart = prompt ? ('Crea un personaggio D&D 5e 2024 con questa descrizione: "'+prompt+'". ') : 'Crea un personaggio D&D 5e 2024 originale e interessante. ';
   const shortIdPart = 'Species: '+SPECIES.map(s=>s.id).join(',')+'. Classes: '+CLASSES.map(c=>c.id).join(',')+'. Backgrounds: '+BACKGROUNDS.map(b=>b.id).join(',')+'. Alignments: '+ALIGNMENTS.map(a=>a.id).join(',')+'.';
   const shortMsg = encodeURIComponent((shortUserPart+shortIdPart).slice(0,1000));
