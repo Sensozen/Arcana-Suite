@@ -10590,6 +10590,18 @@ function fSetSecondaryClassLevel(idx, lv){
   fSyncClassDerived();
   re();
 }
+// Helper a singolo argomento per i pulsanti +/- (l'onclick non deve contenere
+// espressioni calcolate: il nuovo livello si deriva qui dallo stato corrente).
+function fIncSecondaryLevel(idx){
+  fEnsureClasses();
+  if(idx<=0 || idx>=C.classes.length) return;
+  fSetSecondaryClassLevel(idx, (parseInt(C.classes[idx].level)||1)+1);
+}
+function fDecSecondaryLevel(idx){
+  fEnsureClasses();
+  if(idx<=0 || idx>=C.classes.length) return;
+  fSetSecondaryClassLevel(idx, (parseInt(C.classes[idx].level)||1)-1);
+}
 function fSetSecondaryClassSubclass(idx, scId){
   fEnsureClasses();
   if(idx<=0 || idx>=C.classes.length) return;
@@ -10636,9 +10648,9 @@ function fRMulticlassPanel(){
     if(!isPrimary){
       h += `<div style="display:flex;align-items:center;gap:8px;margin-top:8px">
         <span style="font-size:10px;color:var(--muted)">${isIt?'Livello':'Level'}</span>
-        <button onclick="fSetSecondaryClassLevel(${idx}, ${(parseInt(c.level)||1)-1})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">−</button>
+        <button onclick="fDecSecondaryLevel(${idx})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">−</button>
         <span style="font-size:13px;color:var(--gold);font-weight:700;min-width:20px;text-align:center">${parseInt(c.level)||1}</span>
-        <button onclick="fSetSecondaryClassLevel(${idx}, ${(parseInt(c.level)||1)+1})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">+</button>
+        <button onclick="fIncSecondaryLevel(${idx})" style="width:24px;height:24px;border:1px solid var(--border2);background:transparent;color:var(--gold);border-radius:3px;cursor:pointer">+</button>
       </div>`;
     }
 
