@@ -6387,8 +6387,9 @@ function fRS1(){
         ${Array.from({length:20},(_,i)=>i+1).map(lv=>{
           const isASI=asiLevels.includes(lv);
           const isTierStart=[5,11,17].includes(lv);
-          return`<div class="lv-cell ${C.level===lv?"sel":""}" onclick="fSetLv(${lv})" style="position:relative">
-            <div style="font-size:13px;font-weight:700;color:${C.level===lv?"var(--gold)":"var(--text)"}">${lv}</div>
+          const lvPrimaria=(C.classes&&C.classes[0]?parseInt(C.classes[0].level):C.level)||C.level;
+          return`<div class="lv-cell ${lvPrimaria===lv?"sel":""}" onclick="fSetLv(${lv})" style="position:relative">
+            <div style="font-size:13px;font-weight:700;color:${lvPrimaria===lv?"var(--gold)":"var(--text)"}">${lv}</div>
             ${isASI?`<div style="font-size:5px;color:var(--gold2);line-height:1">ASI</div>`:""}
             ${isTierStart?`<div style="font-size:5px;color:var(--green);line-height:1">T${[5,11,17].indexOf(lv)+2}</div>`:""}
           </div>`;
@@ -10538,17 +10539,15 @@ function fSelBg(id){
 
 // Livello
 function fSetLv(lv){
-  // MULTICLASSE: in creazione guidata si modifica il livello della classe primaria.
-  // Quando esistono più classi, il livello totale è la somma e va gestito dalla UI
-  // multiclasse (Step 8): qui agiamo sulla voce primaria.
+  // Imposta il livello della CLASSE PRIMARIA (C.classes[0]). Il numero rappresenta
+  // sempre il livello di quella classe, coerentemente col pannello multiclasse che
+  // gestisce le secondarie. Il livello totale (somma) non può superare 20.
   fEnsureClasses();
-  if(C.classes.length<=1){
-    C.classes[0].level=lv;
-  }else{
-    // più classi: applica la differenza alla classe primaria mantenendo le altre
-    const others=C.classes.slice(1).reduce((t,c)=>t+(parseInt(c.level)||0),0);
-    C.classes[0].level=Math.max(1, lv-others);
-  }
+  lv = parseInt(lv)||1;
+  // spazio disponibile per la primaria = 20 - somma delle altre classi
+  const others = C.classes.slice(1).reduce((t,c)=>t+(parseInt(c.level)||0),0);
+  lv = Math.max(1, Math.min(lv, 20 - others));
+  C.classes[0].level = lv;
   fSyncClassDerived();
   const sl=fFeatSlots(C.cls,C.level);
   if(C.feats.length>sl) C.feats=C.feats.slice(0,sl);
