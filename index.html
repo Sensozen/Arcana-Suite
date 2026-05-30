@@ -10566,6 +10566,12 @@ function fAddClass(id){
     if(typeof showToast==='function') showToast(lang==='it'?'Classe già presente':'Class already added');
     return;
   }
+  // il livello totale non può superare 20: serve almeno 1 livello libero per la nuova classe
+  const totale = C.classes.reduce((t,c)=>t+(parseInt(c.level)||0),0);
+  if(totale >= 20){
+    if(typeof showToast==='function') showToast(lang==='it'?'Livello totale già a 20: riduci una classe prima di aggiungerne un\'altra':'Total level already 20');
+    return;
+  }
   C.classes.push({cls:id, level:1, subclass:null});
   fSyncClassDerived();
   re();
@@ -10585,7 +10591,11 @@ function fSetSecondaryClassLevel(idx, lv){
   // il livello di una singola classe va da 1 a 20; il totale è limitato a 20
   lv=Math.max(1, Math.min(20, lv));
   const othersTotal = C.classes.reduce((t,c,i)=> i===idx ? t : t+(parseInt(c.level)||0), 0);
-  if(othersTotal+lv>20) lv = Math.max(1, 20-othersTotal);
+  // Spazio disponibile nel totale (20 - somma delle altre classi). Se è < 1 non c'è
+  // posto per questa classe: la si tiene al minimo possibile senza mai sforare 20.
+  const spazio = 20 - othersTotal;
+  if(lv > spazio) lv = spazio;
+  if(lv < 1) lv = 1; // una classe non può avere meno di 1 livello (caso limite gestito da fAddClass)
   C.classes[idx].level=lv;
   fSyncClassDerived();
   re();
