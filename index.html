@@ -3719,6 +3719,7 @@ function fShortRest(){
   if(fCL('cleric')>0||fCL('paladin')>0){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;C.bagliorUsed=0;C.warPriestUsed=0;}
   if(fCL('druid')>0&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
   if(fCL('bard')>0&&fCL('bard')>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
+  if(fCL('bard')>0){C.unbreakableMajesty={used:0};} // Sapienza Lv.14: 1/riposo breve o lungo
   re();
 }
 function fLongRest(){
@@ -3726,6 +3727,7 @@ function fLongRest(){
   C.rage={used:0};C.secondWind={used:0};C.actionSurge={used:0};
   C.superiorityDice={used:0};C.psiDice={used:0};C.ki={used:0};
   C.bardicInsp={used:0};C.channelDiv={used:0};
+  C.charmMagic={used:0};C.cloakMajesty={used:0};C.unbreakableMajesty={used:0}; // Bardo Fascino/Sapienza
   C.wildShapeUsed=0;C.starDartUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
   C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
   C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;
@@ -3782,6 +3784,13 @@ function fUseSorcPoint(){if(!C.sorcPoints)C.sorcPoints={used:0};var lv=(typeof f
 function fRestoreSorcPoint(){if(C.sorcPoints&&C.sorcPoints.used>0)C.sorcPoints.used--;re();}
 function fUseNemesis(){if(!C.nemesisMark)C.nemesisMark={used:0};var nm=C.level>=17?6:C.level>=13?5:C.level>=9?4:C.level>=5?3:2;if(C.nemesisMark.used<nm)C.nemesisMark.used++;re();}
 function fRestoreNemesis(){if(C.nemesisMark&&C.nemesisMark.used>0)C.nemesisMark.used--;re();}
+// Bardo Collegio del Fascino / Sapienza — tracker uso/recupero (1 uso ciascuno)
+function fUseCharmMagic(){if(!C.charmMagic)C.charmMagic={used:0};if(C.charmMagic.used<1)C.charmMagic.used++;re();}
+function fRestoreCharmMagic(){if(C.charmMagic&&C.charmMagic.used>0)C.charmMagic.used--;re();}
+function fUseCloakMajesty(){if(!C.cloakMajesty)C.cloakMajesty={used:0};if(C.cloakMajesty.used<1)C.cloakMajesty.used++;re();}
+function fRestoreCloakMajesty(){if(C.cloakMajesty&&C.cloakMajesty.used>0)C.cloakMajesty.used--;re();}
+function fUseUnbreakableMajesty(){if(!C.unbreakableMajesty)C.unbreakableMajesty={used:0};if(C.unbreakableMajesty.used<1)C.unbreakableMajesty.used++;re();}
+function fRestoreUnbreakableMajesty(){if(C.unbreakableMajesty&&C.unbreakableMajesty.used>0)C.unbreakableMajesty.used--;re();}
 
 function fSetBrutalStrike(v){C.brutalStrike=v||null;re();}
 function fSetDivOrder(v){C.divOrder=v||null;re();}
@@ -4142,7 +4151,9 @@ function fRClassBlock(){
         }
       }
 
-      // ── CUORE SELVAGGIO — nessun riquadro interattivo; le facoltà sono nella progressione livelli ──
+      // ── CUORE SELVAGGIO — gli aspetti (Aquila/Lupo/Orso, Gufo/Pantera/Salmone,
+      //    Falco/Leone/Sfondamento) sono scelte dinamiche che cambiano in gioco momento
+      //    per momento: restano descritti nella progressione livelli, non tracciati qui. ──
 
       // ── ZELOTA ──────────────────────────────────────────────────────────────
       if(sc==='zelota'){
@@ -4423,6 +4434,60 @@ function fRClassBlock(){
     }
     if(lv>=10){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">📚 Segreti Magici (Lv.10+)</div>'+'<div style="font-size:10px;color:var(--muted)">Ogni level-up in cui i preparati aumentano: scegli da lista Chierico, Druido o Mago (valgono come da Bardo).</div></div>';}
     if(sc==='sapienza'&&lv>=6){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2)">📚 Sapienza: Scoperte Magiche (Lv.6)</div>'+'<div style="font-size:10px;color:var(--muted)">Apprende 2 incantesimi da lista chierico, druido o mago (trucchetto o livello con slot).</div></div>';}
+
+    // ===== Collegio della DANZA: privilegi descrittivi =====
+    if(sc==='danza'){
+      if(lv>=3){
+        html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">💃 Scarto Smagliante (Lv.3)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Senza armatura né scudo: Virtuoso della danza (vantaggio prove CAR Intrattenere legate alla danza) · Colpi scattanti (spendendo 1 IB in azione/bonus/reazione → colpo senz\'armi) · Danno bardico (usa DES; danni = dado IB + mod.DES contundenti, il dado non si consuma).</div></div>';
+      }
+      if(lv>=6){
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🏃 Movimento Ispiratore (Lv.6): reazione + 1 IB quando un nemico finisce il turno a 1,5 m → muoviti fino a metà velocità; poi un alleato entro 9 m può muoversi fino a metà velocità. Nessun attacco di opportunità.</div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">⚡ Scarto Coordinato (Lv.6): tirando iniziativa, spendi 1 IB → tu e ogni alleato entro 9 m che ti vede/sente ottiene un bonus all\'iniziativa pari al risultato del dado.</div>';
+      }
+      if(lv>=14){
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🌀 Elusione Trainante (Lv.14): a un TS su DES per dimezzare → nessun danno se superi, metà se fallisci. Condivisibile con una creatura entro 1,5 m che effettua lo stesso TS.</div>';
+      }
+    }
+
+    // ===== Collegio del FASCINO: tracker + descrittivi =====
+    if(sc==='fascino'){
+      if(lv>=3){
+        var cmUsed=(C.charmMagic&&C.charmMagic.used)||0;
+        html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">✨ Magia Ammaliante (Lv.3)</span>'+fDots(cmUsed,1,'fUseCharmMagic','fRestoreCharmMagic','#c39bd3')+'<span style="font-size:10px;color:var(--vdim)">'+(1-cmUsed)+'/1</span></div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:3px"><em>Charme su persone</em> e <em>immagine speculare</em> sempre preparati. Dopo un incantesimo di ammaliamento/illusione con slot: una creatura entro 18 m → TS su SAG o affascinata/spaventata (scelta) 1 min.</div>';
+        html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: 1/riposo lungo · oppure spendendo 1 uso di Ispirazione Bardica (nessuna azione)</div></div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🎶 Manto di Ispirazione (Lv.3): azione bonus + 1 IB → fino a mod.CAR creature entro 18 m (min 1) ricevono PF temp pari al doppio del dado IB e possono usare la reazione per muoversi (no attacchi di opportunità).</div>';
+      }
+      if(lv>=6){
+        var clmUsed=(C.cloakMajesty&&C.cloakMajesty.used)||0;
+        html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">👑 Manto di Maestosità (Lv.6)</span>'+fDots(clmUsed,1,'fUseCloakMajesty','fRestoreCloakMajesty','#c39bd3')+'<span style="font-size:10px;color:var(--vdim)">'+(1-clmUsed)+'/1</span></div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:3px"><em>Comando</em> sempre preparato. Azione bonus: lancia <em>comando</em> senza slot e assumi sembianze ultraterrene 1 min (conc.); durante puoi rilanciare <em>comando</em> come azione bonus senza slot. Le creature affascinate falliscono automaticamente il TS contro questo comando.</div>';
+        html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: 1/riposo lungo · oppure consumando uno slot di 3° livello o superiore (nessuna azione)</div></div>';
+      }
+    }
+
+    // ===== Collegio della SAPIENZA: Maestosità Invitta (Lv.14) =====
+    if(sc==='sapienza'&&lv>=14){
+      var umUsed=(C.unbreakableMajesty&&C.unbreakableMajesty.used)||0;
+      html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">👑 Maestosità Invitta (Lv.14)</span>'+fDots(umUsed,1,'fUseUnbreakableMajesty','fRestoreUnbreakableMajesty','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(1-umUsed)+'/1</span></div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Azione bonus: presenza maestosa 1 min. Chi ti colpisce per la prima volta in un turno → TS su CAR (CD incantesimi) o l\'attacco fallisce e l\'attaccante indietreggia atterrito.</div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: 1/riposo breve o lungo</div></div>';
+    }
+
+    // ===== Collegio del VALORE: privilegi descrittivi =====
+    if(sc==='valore'){
+      if(lv>=3){
+        html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚔️ Collegio del Valore (Lv.3)</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Addestramento Marziale: competenza armi da guerra, armature medie e scudi; puoi usare un\'arma semplice/da guerra come focus. · Ispirazione in Combattimento: chi ha un dado IB può usarlo per Attacco (+ai danni) o Difesa (+CA con reazione).</div></div>';
+      }
+      if(lv>=6){
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">⚔️ Attacco Extra (Lv.6): attacchi due volte con l\'azione di Attacco; puoi sostituire un attacco con un trucchetto (tempo di lancio 1 azione).</div>';
+      }
+      if(lv>=14){
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🪄 Magia da Combattimento (Lv.14): dopo aver lanciato un incantesimo (tempo di lancio 1 azione), puoi effettuare un attacco con arma come azione bonus.</div>';
+      }
+    }
   }
 
   // ── CHIERICO
@@ -4922,18 +4987,55 @@ function fRClassBlock(){
     }
 
     // ── LV.18: MAESTRIA NEGLI INCANTESIMI ─────────────────────────────────
+    // PHB 2024 pag.113: scegli 1 incantesimo di 1° e 1 di 2° livello (tempo di lancio
+    // "1 azione") dal libro: puoi lanciarli al loro livello base a volontà senza slot.
+    // A ogni riposo lungo puoi cambiarli.
     if(lv>=18){
+      const book = (C.spellbookSpells||[]).map(b=>SPELLS.find(s=>s.nome.toLowerCase()===b.nome.toLowerCase())).filter(Boolean);
+      const elig = (liv)=> book.filter(s=>s.livello===liv && /azione/i.test(s.tempoLancio||'') && !/bonus|reazione/i.test(s.tempoLancio||''))
+                               .sort((a,b)=>a.nome.localeCompare(b.nome));
+      const opt1 = elig(1), opt2 = elig(2);
+      const mkSel = (level, cur, opts)=>{
+        const o = opts.map(s=>`<option value="${s.id}" ${cur===s.id?'selected':''}>${s.nome}</option>`).join('');
+        return `<select onchange="C.wizardSpellMastery${level}=(this.value?parseInt(this.value):null);re()" style="width:100%;padding:6px 8px;background:rgba(13,10,6,.9);border:1px solid var(--gold2);border-radius:4px;color:var(--gold);font-size:11px;margin-top:3px">
+          <option value="">${isIt?`— scegli un incantesimo di ${level}° —`:`— choose a level ${level} spell —`}</option>${o}
+        </select>`;
+      };
       html+='<div style="'+boxS+';border-color:rgba(200,164,90,.5)">';
-      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">✨ Maestria negli Incantesimi (Lv.18)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">1 incantesimo 1° e 1 incantesimo 2° a scelta: puoi lanciarli al loro livello base a volontà senza slot · riposo lungo: cambia le scelte</div>';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">✨ '+(isIt?'Maestria negli Incantesimi (Lv.18)':'Spell Mastery (Lv.18)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-bottom:6px">'+(isIt?'Scegli 1 incantesimo di 1° e 1 di 2° livello (azione) dal tuo libro: li lanci al loro livello base a volontà, senza slot. Cambiabili a ogni riposo lungo.':'Choose one level 1 and one level 2 spell (action) from your book: cast them at base level at will, without slots. Swap at each long rest.')+'</div>';
+      if(opt1.length===0 && opt2.length===0){
+        html+='<div style="font-size:10px;color:var(--vdim);font-style:italic">'+(isIt?'Nessun incantesimo idoneo nel libro. Aggiungi incantesimi di 1° e 2° livello con tempo di lancio "1 azione".':'No eligible spells in your book yet.')+'</div>';
+      } else {
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">'+(isIt?'1° livello':'Level 1')+'</div>'+mkSel(1, C.wizardSpellMastery1, opt1);
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:6px">'+(isIt?'2° livello':'Level 2')+'</div>'+mkSel(2, C.wizardSpellMastery2, opt2);
+      }
       html+='</div>';
     }
 
     // ── LV.20: INCANTESIMI PERSONALI ─────────────────────────────────────
+    // PHB 2024 pag.113: scegli 2 incantesimi di 3° livello dal libro, sempre preparati.
+    // Puoi lanciare ciascuno 1× al 3° livello senza slot (recupero: riposo breve o lungo).
     if(lv>=20){
+      const known3 = (C.spellbookSpells||[]).map(b=>SPELLS.find(s=>s.nome.toLowerCase()===b.nome.toLowerCase()))
+                                   .filter(s=>s&&s.livello===3)
+                                   .sort((a,b)=>a.nome.localeCompare(b.nome));
+      const chosen = C.wizardSignatureSpells||[];
       html+='<div style="'+boxS+';border-color:rgba(200,164,90,.7)">';
-      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">👑 Incantesimi Personali (Lv.20)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">2 incantesimi di 3° livello dal libro, sempre preparati · lancia ciascuno 1× al 3° livello senza slot (recupero: riposo breve o lungo) · a livello superiore: spendi uno slot</div>';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">👑 '+(isIt?'Incantesimi Personali (Lv.20)':'Signature Spells (Lv.20)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-bottom:6px">'+(isIt?'Scegli 2 incantesimi di 3° livello dal tuo libro: sempre preparati. Lanci ciascuno 1× al 3° livello senza slot (recupero a riposo breve o lungo); a livello superiore spendi uno slot.':'Choose 2 level 3 spells from your book: always prepared. Cast each once at level 3 without a slot (recharge on a short or long rest).')+'</div>';
+      html+='<div style="font-size:11px;color:var(--gold2);margin-bottom:6px">'+(isIt?'Selezionati':'Selected')+`: ${chosen.length}/2</div>`;
+      if(known3.length===0){
+        html+='<div style="font-size:10px;color:var(--vdim);font-style:italic">'+(isIt?'Nessun incantesimo di 3° livello nel libro.':'No level 3 spells in your book yet.')+'</div>';
+      } else {
+        html+='<div style="display:flex;flex-direction:column;gap:3px">';
+        known3.forEach(s=>{
+          const sel=chosen.includes(s.id);
+          const dis = !sel && chosen.length>=2;
+          html+=`<div onclick="fToggleSignatureSpell(${s.id})" style="cursor:${dis?'not-allowed':'pointer'};opacity:${dis?'.4':'1'};padding:5px 8px;border-radius:4px;background:${sel?'rgba(200,164,90,.18)':'rgba(255,255,255,.03)'};border:1px solid ${sel?'var(--gold)':'var(--border2)'};font-size:11px;color:${sel?'var(--gold)':'var(--text)'}">${sel?'●':'○'} ${s.nome}</div>`;
+        });
+        html+='</div>';
+      }
       html+='</div>';
     }
   }
@@ -5119,6 +5221,9 @@ let C={
   subclassSkills:[], // abilità da sottoclasse (Bardo Sapienza +3, ecc.)
   bardDiscoveries:[], // Bardo Sapienza Lv.6: Scoperte Magiche (max 2, sempre preparati)
   wizardScholarSkill:null, // Mago Studioso Lv.2: maestria in 1 abilità specifica
+  wizardSpellMastery1:null, // Mago Maestria negli Incantesimi Lv.18: incantesimo 1° liv (a volontà)
+  wizardSpellMastery2:null, // Mago Maestria negli Incantesimi Lv.18: incantesimo 2° liv (a volontà)
+  wizardSignatureSpells:[], // Mago Incantesimi Personali Lv.20: 2 incantesimi 3° liv (sempre preparati, 1×/riposo gratis)
   monkMercyTool:false, // Monaco Misericordia: borsa da erborista (automatica)
   featChoices:{}, // scelte specifiche dei talenti (es: {"resiliente_uid":{stats:['CHA']}})
   featSkills:[], // competenze abilità ottenute da talenti (es. Abile)
@@ -5406,7 +5511,7 @@ function nuovoPersonaggio(){
     statMethod:"standardarray",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],bardDiscoveries:[],wizardScholarSkill:null,monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],bardDiscoveries:[],wizardScholarSkill:null,wizardSpellMastery1:null,wizardSpellMastery2:null,wizardSignatureSpells:[],monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -6827,6 +6932,25 @@ function fToggleMastery(wEn, wIt, max){
   else if(C.weaponMasteries.length<max){ C.weaponMasteries.push(wEn); }
   re();
 }
+// Mago Incantesimi Personali (Lv.20): seleziona/deseleziona uno dei 2 incantesimi di 3° liv.
+function fToggleSignatureSpell(spellId){
+  if(!Array.isArray(C.wizardSignatureSpells)) C.wizardSignatureSpells=[];
+  const i=C.wizardSignatureSpells.indexOf(spellId);
+  if(i>=0){ C.wizardSignatureSpells.splice(i,1); }
+  else if(C.wizardSignatureSpells.length<2){ C.wizardSignatureSpells.push(spellId); }
+  re();
+}
+
+// Rimuove le scelte dei privilegi Mago L18/L20 che non sono (più) nel libro degli incantesimi.
+function fSanitizeWizardSpellFeatures(){
+  const bookNames = new Set((C.spellbookSpells||[]).map(b=>b.nome.toLowerCase()));
+  const inBook = (id)=>{ const s=SPELLS.find(x=>x.id===id); return s && bookNames.has(s.nome.toLowerCase()); };
+  if(C.wizardSpellMastery1 && !inBook(C.wizardSpellMastery1)) C.wizardSpellMastery1=null;
+  if(C.wizardSpellMastery2 && !inBook(C.wizardSpellMastery2)) C.wizardSpellMastery2=null;
+  if(Array.isArray(C.wizardSignatureSpells))
+    C.wizardSignatureSpells = C.wizardSignatureSpells.filter(id=>inBook(id));
+}
+
 function fToggleExpertise(skillEn, max){
   if(!C.expertiseSkills) C.expertiseSkills=[];
   const idx=C.expertiseSkills.indexOf(skillEn);
@@ -8800,8 +8924,8 @@ ${C.backstory?`<div class="box"><div class="box-title">📜 ${ft('Storia','Backs
           ${FSKL.map(sk=>{
             const isProficient=bgSkillProfs.some(p=>p.trim()===sk.en);
             const isExpert=fHasExpertise(sk.en);
-            const baseM=fcmod(fTotalStat(sk.s));
-            const finalM=isExpert?baseM+fpb(C.level)*2:isProficient?baseM+fpb(C.level):baseM;
+            const finalM=fSkillMod(sk.en, sk.s);  // include competenza/maestria + Taumaturgo + Factotum
+            const hasFactotum=!isProficient && !isExpert && (typeof fFactotumBonus==='function') && fFactotumBonus()>0;
             return`<div class="sk-row">
               <span style="color:${isExpert?'var(--gold)':isProficient?'var(--green)':'var(--vdim)'};font-size:9px">${isExpert?'●●':isProficient?'●':'○'}</span>
               <span style="flex:1;color:${isProficient?'var(--text)':'var(--muted)'};font-weight:${isProficient?'600':'400'}">
@@ -8815,7 +8939,7 @@ ${C.backstory?`<div class="box"><div class="box-title">📜 ${ft('Storia','Backs
                   if(isSp2)srcs.push('Sp.');
                   if(srcs.length)return`<span style="font-size:8px;color:var(--gold2);margin-left:3px">${srcs.join('+')}</span>`;
                   return'';
-                })()}
+                })()}${hasFactotum?`<span style="font-size:8px;color:#6aa0d0;margin-left:3px" title="${isIt?'Factotum (½ comp.)':'Jack of All Trades (½ prof.)'}">ƒ</span>`:''}
               </span>
               <span style="color:var(--vdim);font-size:9px">${sk.s}</span>
               <span style="color:${isProficient?'var(--green)':'var(--text)'};min-width:28px;text-align:right;font-weight:${isProficient?'700':'400'}">${(finalM>=0?'+':'')+finalM}${isProficient?' ✦':''}</span>
@@ -9709,6 +9833,7 @@ function fSpAdd(){
     });
     state.selected.clear();
     if(added) showToast('✦ ' + added + ' aggiunt' + (added===1?'o':'i') + ' al Libro');
+    if(typeof fSanitizeWizardSpellFeatures==='function') fSanitizeWizardSpellFeatures();
   } else {
     // Aggiunge ai preparati/conosciuti normali (wizardprepare, class, secrets)
     addSelectedSpells();
@@ -12081,6 +12206,14 @@ function fTaumaturgBonus(skillEn){
   if(!C.taumaturgoBonusSkill || C.taumaturgoBonusSkill!==skillEn) return 0;
   return Math.max(1, fcmod(fTotalStat('WIS')));
 }
+// Factotum (Bardo, Lv.2 — PHB 2024 pag. 60): aggiunge metà del bonus di competenza
+// (arrotondato per difetto) alle prove di caratteristica che NON usano già la competenza,
+// cioè alle abilità in cui il personaggio NON è competente. Non si applica a tiri per
+// colpire né a tiri salvezza. Richiede almeno il Lv.2 da Bardo (vale anche in multiclasse).
+function fFactotumBonus(){
+  if(fClassLevel('bard') < 2) return 0;
+  return Math.floor(fpb(C.level) / 2);
+}
 function fHasExpertise(skillEn){
   if((C.expertiseSkills||[]).includes(skillEn)) return true;
   if((C.expertiseSkills2||[]).includes(skillEn)) return true;
@@ -12101,7 +12234,8 @@ function fSkillMod(skillEn, statKey){
   const taumBonus=fTaumaturgBonus(skillEn);
   if(isExp) return base+pb*2+taumBonus;
   if(isProf) return base+pb+taumBonus;
-  return base+taumBonus;
+  // Abilità NON competente: si applica il Factotum del Bardo (metà PB, ↓), se presente.
+  return base+taumBonus+fFactotumBonus();
 }
 
 // ═══════════════════════════════════════
