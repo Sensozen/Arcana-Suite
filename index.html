@@ -2374,10 +2374,11 @@ const FEAT_CLASS_DATA = {
   fightingStyle: ['fighter','paladin','ranger'],
   // Bardo del Valore ottiene lo Stile — gestito separatamente via sottoclasse
   fightingStyleSubclass: { bard: ['valore'] },
-  // Competenza armature
-  armorHeavy:  ['cleric','fighter','paladin'],
-  armorMedium: ['barbarian','bard','cleric','druid','fighter','paladin','ranger','warlock'],
-  armorLight:  ['barbarian','bard','cleric','druid','fighter','monk','paladin','ranger','rogue','warlock'],
+  // Competenza armature — PHB 2024 IT (verificato sui tratti di classe)
+  // Monaco/Mago/Stregone: nessuna armatura. Bardo/Ladro/Warlock: solo leggere, niente scudi.
+  armorHeavy:  ['fighter','paladin'],                                   // Guerriero, Paladino (Chierico NON ha pesanti nel 2024 base)
+  armorMedium: ['barbarian','cleric','druid','fighter','paladin','ranger'],
+  armorLight:  ['barbarian','bard','cleric','druid','fighter','paladin','ranger','rogue','warlock'],
   shield:      ['barbarian','cleric','druid','fighter','paladin','ranger'],
 };
 
@@ -5267,11 +5268,29 @@ const fgBg=()=>BACKGROUNDS.find(b=>b.id===C.bg);
 const fgSr=()=>{const sp=fgSp();return sp?.subraces?.find(r=>r.id===C.subrace)};
 const fgAl=()=>ALIGNMENTS.find(a=>a.id===C.alignment);
 const fgSc=()=>{const cl=fgCl();return cl?.subclasses?.find(s=>s.id===C.subclass)};
+// Livelli ASI per una singola classe (PHB 2024): guerriero e ladro hanno extra.
+function fAsiLevelsForClass(clsId){
+  if(clsId==="fighter") return [4,6,8,12,14,16,19];
+  if(clsId==="rogue")   return [4,8,10,12,16,19];
+  return [4,8,12,16,19];
+}
 function fFeatSlots(cls,lv){
-  // PHB 2024: nessun ASI al Lv.1, slot solo ai livelli indicati
-  const f=[4,6,8,12,14,16,19],r=[4,8,10,12,16,19],b=[4,8,12,16,19];
-  const arr=cls==="fighter"?f:cls==="rogue"?r:b;
-  let n=0; arr.forEach(l=>{if(l<=lv)n++;});
+  // PHB 2024: nessun ASI al Lv.1, slot solo ai livelli indicati.
+  // MULTICLASSE: gli ASI si contano PER CLASSE (un chierico 15 ha 3 ASI a
+  // 4/8/12; un mago 3 ne ha 0). Quando questa funzione è chiamata "globalmente"
+  // (classe primaria + livello totale) e il personaggio ha più classi, somma
+  // gli slot di ciascuna classe da C.classes.
+  let n=0;
+  const isGlobalCall = (typeof C!=='undefined') && Array.isArray(C.classes)
+    && C.classes.length>1 && cls===C.cls && lv===C.level;
+  if(isGlobalCall){
+    C.classes.forEach(e=>{
+      const clv=parseInt(e.level)||0;
+      fAsiLevelsForClass(e.cls).forEach(l=>{ if(l<=clv) n++; });
+    });
+  } else {
+    fAsiLevelsForClass(cls).forEach(l=>{ if(l<=lv) n++; });
+  }
   // Umano (Versatile) ottiene +1 talento di Origini gratuito al Lv.1
   const sp=fgSp();
   if(sp && sp.versatileFeat) n++;
@@ -5308,8 +5327,36 @@ function fCanNext(){
     if(C.cls==='druid'  && C.subclass==='terra' && (C.level||1)>=3 && !C.circleTerrainType) return false;
     return true;
   }
-  // Step 5: Padronanza Armi & Maestria (auto-skip se non applicabile)
+  // Step 5: Specie + Sottospecie + overlap resolution (ora PRIMA della Maestria)
   if(step===5){
+    if(!C.species) return false;
+    const sp=fgSp();
+    if(sp?.subraces&&!C.subrace) return false;
+    const spSkData=SPECIES_SKILLS[C.species];
+    if(spSkData&&(C.speciesSkills||[]).length<spSkData.count) return false;
+    const chosen2 = C.speciesSkills || [];
+    const clsProfs2 = C.classSkills || [];
+    const bgProfs2  = fGetBgSkillProfs();
+    const spOverlaps = chosen2.filter(sk => clsProfs2.includes(sk) || bgProfs2.includes(sk));
+    const spReps = C.spSkillReplacements || {};
+    if(spOverlaps.some(sk => !spReps[sk])) return false;
+    return true;
+  }
+  // Step 4: Background
+  if(step===4){
+    if(!C.bg) return false;
+    const bg = fgBg();
+    if(bg){
+      const bgSkEn = bg.skillsEn.split(' and ').map(s=>s.trim()).filter(Boolean);
+      const clsProfs = C.classSkills || [];
+      const overlaps = bgSkEn.filter(sk => clsProfs.includes(sk));
+      const reps = C.bgSkillReplacements || {};
+      if(overlaps.some(sk => !reps[sk])) return false;
+    }
+    return true;
+  }
+  // Step 6: Padronanza Armi & Maestria (ora DOPO la Specie; auto-skip se non applicabile)
+  if(step===6){
     const cl=fgCl(); const lv=C.level||1;
     const mc=fMasteryCount(C.cls,lv);
     const ec=fBaseExpertiseCount(C.cls,lv);
@@ -5326,34 +5373,6 @@ function fCanNext(){
     if(scSkCount>0&&(C.subclassSkills||[]).length<scSkCount) return false;
     if(scToolCount>0&&(C.featTools||[]).filter(t=>t.uid==='mb-studioso').length<scToolCount) return false;
     if(wizSch&&!C.wizardScholarSkill) return false;
-    return true;
-  }
-  // Step 4: Background
-  if(step===4){
-    if(!C.bg) return false;
-    const bg = fgBg();
-    if(bg){
-      const bgSkEn = bg.skillsEn.split(' and ').map(s=>s.trim()).filter(Boolean);
-      const clsProfs = C.classSkills || [];
-      const overlaps = bgSkEn.filter(sk => clsProfs.includes(sk));
-      const reps = C.bgSkillReplacements || {};
-      if(overlaps.some(sk => !reps[sk])) return false;
-    }
-    return true;
-  }
-  // Step 6: Specie + Sottospecie + overlap resolution
-  if(step===6){
-    if(!C.species) return false;
-    const sp=fgSp();
-    if(sp?.subraces&&!C.subrace) return false;
-    const spSkData=SPECIES_SKILLS[C.species];
-    if(spSkData&&(C.speciesSkills||[]).length<spSkData.count) return false;
-    const chosen2 = C.speciesSkills || [];
-    const clsProfs2 = C.classSkills || [];
-    const bgProfs2  = fGetBgSkillProfs();
-    const spOverlaps = chosen2.filter(sk => clsProfs2.includes(sk) || bgProfs2.includes(sk));
-    const spReps = C.spSkillReplacements || {};
-    if(spOverlaps.some(sk => !spReps[sk])) return false;
     return true;
   }
   // Step 7: Allineamento
@@ -5769,8 +5788,8 @@ function fRGuided(){
     ft("Classe","Class"),                          // step 2  · fRS0cl
     ft("Sottoclasse","Subclass"),                  // step 3  · fRS0sc
     ft("Background","Background"),                  // step 4  · fRS3
-    ft("Competenze & Padronanza","Proficiencies & Mastery"), // step 5 · fRS2
-    ft("Specie","Species"),                        // step 6  · fRS6
+    ft("Specie","Species"),                        // step 5  · fRS6
+    ft("Competenze & Padronanza","Proficiencies & Mastery"), // step 6 · fRS2
     ft("Allineamento","Alignment"),                // step 7  · fRS7
     ft("Caratteristiche","Ability Scores"),        // step 8  · fRS5
     ft("Lingue","Languages"),                      // step 9  · fRS8
@@ -5787,8 +5806,8 @@ function fRGuided(){
     ${step===2?fRS0cl():""}
     ${step===3?fRS0sc():""}
     ${step===4?fRS3():""}
-    ${step===5?fRS2():""}
-    ${step===6?fRS6():""}
+    ${step===5?fRS6():""}
+    ${step===6?fRS2():""}
     ${step===7?fRS7():""}
     ${step===8?fRS5():""}
     ${step===9?fRS8():""}
@@ -6482,8 +6501,9 @@ function fRS2(){
   const hasAnything = mc>0 || ec>0 || ec2>0 || scSkCount>0 || scToolCount>0 || wizSch || autoSk.length>0 || autoProf.weaponExtra;
 
   if(!hasAnything){
-    // Skip step automatically — passa direttamente alla Specie (step 6)
-    if(step===5){ step=6; re(); return ''; }
+    // Skip step automatically — la Maestria ora è lo step 6; se non c'è nulla da
+    // scegliere si passa direttamente all'Allineamento (step 7).
+    if(step===6){ step=7; re(); return ''; }
     return '';
   }
 
@@ -6498,12 +6518,18 @@ function fRS2(){
   // Pool effettivo per la Maestria (Expertise): tutte le abilità in cui il personaggio
   // è competente, incluse quelle da background (con eventuali sostituzioni) e sottoclasse.
   const expPool=fGetAllSkillProfs();
-  // PHB 2024 — Bardo: la Maestria del Lv.2 (primo blocco) precede cronologicamente le
-  // Competenze Bonus del Collegio della Sapienza (Lv.3), quindi NON può cadere su di esse.
-  // La Maestria del Lv.9 (secondo blocco) le include invece normalmente.
-  const bardLoreBonusSk = (C.cls==='bard' && C.subclass==='sapienza') ? (C.subclassSkills||[]) : [];
-  const expPoolBase = expPool.filter(s=>!bardLoreBonusSk.includes(s)); // primo blocco (Lv.2)
-  const expPoolFull = expPool;                                          // secondo blocco (Lv.9)
+  // PHB 2024 — La Maestria del Lv.2 del Bardo (primo blocco) si ottiene PRIMA della
+  // sottoclasse (Lv.3): può cadere solo su abilità in cui si è già competenti grazie a
+  // CLASSE, SPECIE o BACKGROUND (+ talenti pre-Lv.3), MAI sulle Competenze Bonus del
+  // Collegio della Sapienza. La Maestria del Lv.9 (secondo blocco) le include normalmente.
+  // Costruiamo il pool base ESPLICITAMENTE dalle fonti, invece di sottrarre subclassSkills:
+  // così un'abilità che proviene anche da classe/bg/specie resta correttamente eleggibile
+  // al Lv.2 anche se è stata pure scelta come Competenza Bonus della Sapienza.
+  const expPoolBase = fGetPreSubclassSkillProfs();           // primo blocco (Lv.2)
+  const expPoolFull = expPool;                                // secondo blocco (Lv.9)
+  // Abilità esclusive della Sapienza (per la nota informativa nello step)
+  const bardLoreBonusSk = (C.cls==='bard' && C.subclass==='sapienza')
+    ? (C.subclassSkills||[]).filter(s=>!expPoolBase.includes(s)) : [];
 
   // STEP 5: competenze parziali concesse dalle classi secondarie (multiclasse)
   const mcExtraProfs = (typeof fGetMulticlassExtraProfs==='function') ? fGetMulticlassExtraProfs(isIt) : [];
@@ -6810,9 +6836,12 @@ function fToggleSubclassSkill(skillEn, max){
   if(idx>=0){ C.subclassSkills.splice(idx,1); }
   else if(C.subclassSkills.length<max){ C.subclassSkills.push(skillEn); }
   // Bardo Sapienza: le Competenze Bonus (Lv.3) non possono fungere da Maestria del Lv.2
-  // (primo blocco). Se una è finita lì, la rimuovo per mantenere la conformità al PHB 2024.
+  // (primo blocco) SE provengono esclusivamente dalla Sapienza. Se invece l'abilità è
+  // posseduta anche da classe/specie/background, la scelta del Lv.2 resta valida.
   if(C.cls==='bard' && C.subclass==='sapienza' && Array.isArray(C.expertiseSkills)){
-    C.expertiseSkills = C.expertiseSkills.filter(s=>!(C.subclassSkills||[]).includes(s));
+    const preSub = (typeof fGetPreSubclassSkillProfs==='function') ? fGetPreSubclassSkillProfs() : [];
+    const loreOnly = (C.subclassSkills||[]).filter(s=>!preSub.includes(s));
+    C.expertiseSkills = C.expertiseSkills.filter(s=>!loreOnly.includes(s));
   }
   re();
 }
@@ -6841,13 +6870,26 @@ function closeExport(){
   document.body.style.overflow='';
 }
 function fSaveJSON(){
-  var name=(C.name||'personaggio').replace(/\s+/g,'_').toLowerCase();
-  var data=JSON.stringify(C,null,2);
-  var blob=new Blob([data],{type:'application/json'});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement('a');
-  a.href=url; a.download=name+'_arcana.json'; a.click();
-  URL.revokeObjectURL(url);
+  try{
+    var name=(C.name||'personaggio').replace(/\s+/g,'_').toLowerCase();
+    var data=JSON.stringify(C,null,2);
+    var blob=new Blob([data],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download=name+'_arcana.json';
+    a.style.display='none';
+    document.body.appendChild(a);   // alcuni browser richiedono l'elemento nel DOM
+    a.click();
+    // Rimuovi l'elemento e revoca l'URL DOPO che il download è partito,
+    // altrimenti revocare subito può annullarlo silenziosamente.
+    setTimeout(function(){
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1500);
+  }catch(err){
+    alert('Salvataggio non riuscito: '+(err&&err.message?err.message:err));
+  }
 }
 function fLoadJSON(evt){
   var file=evt.target.files[0]; if(!file) return;
@@ -7212,6 +7254,7 @@ function fBuildPrintSheet(){
     </div>
     <div class="pcbx"><div class="pl">Percezione Passiva</div><div class="pv">${passPerc}</div></div>
   </div>
+  ${(function(){var w=(typeof fArmorComplianceCheck==='function')?fArmorComplianceCheck():null;if(!w)return '';var dgr=w.level==='danger';return '<div style="font-size:6.5pt;line-height:1.5;margin:-1mm 0 2mm;padding:1mm 2mm;border:1px solid '+(dgr?'#a33':'#a83')+';border-radius:2px;background:'+(dgr?'#fbeaea':'#fcf3e0')+';color:'+(dgr?'#7a1010':'#6a4a00')+'">'+w.lines.map(function(l){return '<div>'+l+'</div>';}).join('')+'</div>';})()}
 
   <div style="display:flex;align-items:center;gap:1.5mm;font-size:6pt;margin:-1mm 0 2mm;padding:1mm 2mm;border:1px solid #666;border-radius:2px;background:#fafafa">
     <span style="text-transform:uppercase;letter-spacing:0.4px;color:#555;font-weight:bold">Indebolimento</span>
@@ -8094,6 +8137,44 @@ function fGetAllSkillProfs(){
 
 // [fGetAllSkillProfs removed duplicate - fixed]
 
+// Competenze nelle abilità provenienti SOLO dalle fonti disponibili PRIMA della
+// sottoclasse (Lv.3): classe, specie, background e talenti. Esclude le abilità
+// concesse dalla sottoclasse (es. Competenze Bonus del Collegio della Sapienza, Lv.3).
+// Serve alla Maestria del Lv.2 del Bardo, che cronologicamente precede la sottoclasse.
+function fGetPreSubclassSkillProfs(){
+  const bg   = fGetBgSkillProfs();
+  const cls  = (C.classSkills || []);
+  const sp   = fGetSpSkillProfs();
+  const feat = (C.featSkills || []).map(f=>f.skill||f);
+  const featListSk = (C.feats||[]).flatMap(f=>{
+    const ch=(C.featChoices||{})[f.uid]||{};
+    return ch.skillFromList ? [ch.skillFromList] : [];
+  });
+  const allSkProf = (C.feats||[]).some(f=>{
+    const m=FEAT_METADATA[f.id]; return m?.grants?.allSkillsProf;
+  }) ? FSKL.map(s=>s.en) : [];
+  // NB: esclusi di proposito subclassSkills e fSubclassAutoSkills (sono di sottoclasse,
+  // Lv.3+). La Conoscenza Primordiale del Barbaro è di CLASSE (Lv.3) ma riguarda il
+  // Barbaro, non il Bardo; resta comunque irrilevante qui perché il Barbaro non ha Maestria.
+  return [...new Set([...bg, ...cls, ...sp, ...feat, ...featListSk, ...allSkProf])];
+}
+
+// Rimuove dalle scelte di Maestria le abilità che non sono (più) competenze valide,
+// per coerenza quando cambiano specie/background dopo aver scelto la Maestria.
+// PHB 2024 — Maestria del Lv.2 (primo blocco): solo abilità pre-sottoclasse (classe/specie/bg).
+//            Maestria del Lv.9 (secondo blocco): qualsiasi competenza, incluse quelle di sottoclasse.
+function fSanitizeExpertise(){
+  const preSub = fGetPreSubclassSkillProfs();
+  const allSk  = fGetAllSkillProfs();
+  if(Array.isArray(C.expertiseSkills)){
+    C.expertiseSkills = C.expertiseSkills.filter(s=>preSub.includes(s));
+  }
+  if(Array.isArray(C.expertiseSkills2)){
+    // Il secondo blocco può cadere su qualsiasi competenza, ma non sulle già scelte al Lv.2
+    C.expertiseSkills2 = C.expertiseSkills2.filter(s=>allSk.includes(s) && !(C.expertiseSkills||[]).includes(s));
+  }
+}
+
 function fShowTT(e,stat){
   e.stopPropagation();
   const existing=document.getElementById("tt-overlay");
@@ -8528,7 +8609,7 @@ function fRSheet(){
 
   return`<div class="fade-in">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-      <button class="btn" onclick="screen='guided';step=6;re()">← ${ft('Modifica','Edit')}</button>
+      <button class="btn" onclick="screen='guided';step=5;re()">← ${ft('Modifica','Edit')}</button>
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="switchTab('grimorio')" style="border-color:rgba(200,164,90,.4);font-size:13px">📜 ${ft('Apri Grimorio','Open Grimoire')}</button>
         <button class="btn primary" onclick="fOpenExport()">📄 ${ft('Esporta','Export')}</button>
@@ -9937,6 +10018,7 @@ function fRSpellsSection(){
 
   return `<div class="box">
     <div class="box-title">✨ ${isIt?'Incantesimi':'Spells'}</div>
+    ${(function(){var w=(typeof fArmorComplianceCheck==='function')?fArmorComplianceCheck():null;if(!w||!w.noSpellcasting)return '';var msg=isIt?'Non puoi lanciare incantesimi: indossi unarmatura senza competenza (PHB 2024, pag. 219). Togli larmatura o ottieni la competenza per lanciare.'.replace('unarmatura','un\u2019armatura').replace('larmatura','l\u2019armatura'):'You cannot cast spells: you are wearing armor without proficiency (PHB 2024, p. 219). Remove the armor or gain proficiency to cast.';return '<div style="margin:6px 0 10px;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.45;background:#3a1212;border:1px solid #a33;color:#ffb3b3">\u26A0\uFE0F '+msg+'</div>';})()}
     ${statBar}
     ${multiCasterBar}
     ${_cBan}
@@ -10416,8 +10498,8 @@ function fGoBack(){
   if(step===0){screen='home';}
   else{
     step--;
-    // Skip step 5 (Padronanza/Maestria) backward se non c'è nulla da scegliere
-    if(step===5){
+    // Skip step 6 (Padronanza/Maestria) backward se non c'è nulla da scegliere → step 5 (Specie)
+    if(step===6){
       const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
       const mc=fMasteryCount(C.cls,lv);
       const ec=fBaseExpertiseCount(C.cls,lv);
@@ -10427,7 +10509,7 @@ function fGoBack(){
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
       const scTool2=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool2===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=4;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool2===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=5;
     }
   }
   re();
@@ -10435,8 +10517,8 @@ function fGoBack(){
 function fGoNext(){
   if(step<FNSTEPS-1){
     step++;
-    // Skip step 5 (Padronanza/Maestria) se non c'è nulla da scegliere
-    if(step===5){
+    // Skip step 6 (Padronanza/Maestria) se non c'è nulla da scegliere → step 7 (Allineamento)
+    if(step===6){
       const cl=fgCl(); const lv=C.level||1; const sc=C.subclass||'';
       const mc=fMasteryCount(C.cls,lv);
       const ec=fBaseExpertiseCount(C.cls,lv);
@@ -10446,7 +10528,7 @@ function fGoNext(){
       const autoSk=fSubclassAutoSkills(C.cls,sc,lv);
       const autoP=fSubclassGrantsProfs(C.cls,sc);
       const scTool3=(C.cls==='fighter'&&sc==='maestro-battaglia'&&lv>=3)?1:0;
-      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool3===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=6;
+      if(mc===0&&ec===0&&ec2===0&&scSk===0&&scTool3===0&&!wizSch&&autoSk.length===0&&!autoP.weaponExtra) step=7;
     }
     // NB: nessun salto alla scheda qui — raggiunto l'ultimo step (12·Equipaggiamento) lo si mostra.
   } else {
@@ -10466,6 +10548,7 @@ function fUpdNext(){
 function fSelSp(id){
   C.species=C.species===id?null:id;
   C.subrace=null;C.speciesSkills=[];
+  if(typeof fSanitizeExpertise==='function') fSanitizeExpertise();
   re();
 }
 function fSelSr(id){C.subrace=id;re();}
@@ -10536,6 +10619,7 @@ function fSelBg(id){
     const bgFeatUid = newBg.featId + '_bg';
     C.feats.push({id: newBg.featId, uid: bgFeatUid, nameIt: featIt, nameEn: featEn, fromBg: true, cat: 'origin'});
   }
+  if(typeof fSanitizeExpertise==='function') fSanitizeExpertise();
   re();
 }
 
@@ -11131,6 +11215,68 @@ const LG_EQUIP = {
   wizard:'Bastone, libro degli incantesimi, focus arcano, kit da studioso.'
 };
 
+// ── Talenti da ASI: conteggio PER-CLASSE + mix talento/+2 caratteristica ──
+// Livelli ASI per classe: riusa fAsiLevelsForClass (fonte unica di verità).
+function lgAsiLevelsFor(clsId){
+  return (typeof fAsiLevelsForClass==='function')
+    ? fAsiLevelsForClass(clsId)
+    : (clsId==='fighter'?[4,6,8,12,14,16,19]:clsId==='rogue'?[4,8,10,12,16,19]:[4,8,12,16,19]);
+}
+// Talenti generali "sicuri": prerequisito solo Lv.4 (nessun requisito di
+// caratteristica/armatura/incantesimo non garantito). Filtrati da FEAT_METADATA.
+function lgSafeGeneralFeats(){
+  if(typeof FEAT_METADATA==='undefined') return [];
+  return Object.entries(FEAT_METADATA)
+    .filter(([id,m])=> m.cat==='general' && m.prereq==='lv4' && id!=='aumento-caratteristica')
+    .map(([id])=>id);
+}
+// Trova nome it/en di un talento dalla tabella FFEATS_DATA.
+function lgFeatNames(featId){
+  if(typeof FFEATS_DATA!=='undefined'){
+    for(const grp of FFEATS_DATA){
+      const f=(grp.feats||[]).find(x=>x.id===featId);
+      if(f) return { it:f.it, en:f.en };
+    }
+  }
+  return { it:featId, en:featId };
+}
+// Genera i talenti da ASI per un personaggio (anche multiclasse). Restituisce
+// { feats:[...], featChoices:{...} } già nel formato usato da C.
+// stats serve a scegliere le caratteristiche da aumentare (le più alte).
+function lgPickFeats(classes, stats){
+  const feats = [];
+  const featChoices = {};
+  const safeGeneral = lgSafeGeneralFeats();
+  const sKeys = ['STR','DEX','CON','INT','WIS','CHA'];
+  const byHigh = sKeys.slice().sort((a,b)=>(stats[b]||10)-(stats[a]||10));
+
+  let nUid = 0;
+  const newUid = (id)=> id+'_gen_'+(Date.now())+'_'+(nUid++)+'_'+Math.floor(Math.random()*1000);
+
+  (classes||[]).forEach(entry=>{
+    const lv = parseInt(entry.level)||0;
+    const slots = lgAsiLevelsFor(entry.cls).filter(l=>l<=lv).length;
+    for(let i=0;i<slots;i++){
+      const useFeat = safeGeneral.length && Math.random()<0.5;
+      if(useFeat){
+        const id = lgRand(safeGeneral);
+        const uid = newUid(id);
+        const nm = lgFeatNames(id);
+        feats.push({ id, uid, name:nm.it, nameIt:nm.it, nameEn:nm.en });
+      } else {
+        const id = 'aumento-caratteristica';
+        const uid = newUid(id);
+        const nm = lgFeatNames(id);
+        const targetStat = byHigh.find(s=>(stats[s]||10) < 20) || byHigh[0];
+        feats.push({ id, uid, name:nm.it, nameIt:nm.it, nameEn:nm.en });
+        featChoices[uid] = { asiMode:'plus2', stats:[targetStat] };
+      }
+    }
+  });
+
+  return { feats, featChoices };
+}
+
 // ════════════════════════════════════════════════════════════════════════
 // FUNZIONE PRINCIPALE: genera un personaggio COMPLETO e lo applica a C.
 // ════════════════════════════════════════════════════════════════════════
@@ -11295,9 +11441,17 @@ function fApplyGeneratedChar(char){
     C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
   }
   fSyncClassDerived();
-}
 
-// ── Entry point: GENERAZIONE LOCALE (sempre disponibile, no rete) ────────
+  // — Talenti da ASI (mix talento/+2 caratteristica), conteggio PER-CLASSE —
+  // Si aggiungono al talento di background già presente in C.feats.
+  try {
+    const asi = lgPickFeats(C.classes, C.stats);
+    if(asi.feats.length){
+      C.feats = (C.feats||[]).concat(asi.feats);
+      C.featChoices = Object.assign({}, C.featChoices||{}, asi.featChoices);
+    }
+  } catch(e){ console.warn('lgPickFeats:', e && e.message); }
+}
 function fGenLocal(){
   const prompt = (document.getElementById('ai-prompt')?.value || '').trim();
   const btn = document.getElementById('local-gen-btn');
@@ -11755,7 +11909,8 @@ function fCharacterAC(){
   const isIt = lang==='it';
   const dex = fcmod(fTotalStat('DEX'));
   const misc = parseInt(C.acMisc)||0;
-  const shieldBon = C.shield ? 2 : 0;
+  // Scudo: +2 alla CA SOLO se il personaggio ha competenza negli scudi (PHB 2024 pag. 219).
+  const shieldBon = (C.shield && !fShieldWithoutProf()) ? 2 : 0;
   const armor = C.armor ? ARMORS.find(a=>a.en===C.armor||a.it===C.armor) : null;
   let base, src;
   let featBon = 0; const featNotes = [];
@@ -11783,6 +11938,94 @@ function fCharacterAC(){
   }
   return { value: base + shieldBon + misc + featBon, base, shield: shieldBon, misc, feat: featBon, featNotes: featNotes, src };
 }
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPETENZA ARMATURE / SCUDO — PHB 2024 IT (cap. 6, pag. 219)
+//  • Armatura (leggera/media/pesante) SENZA competenza: svantaggio a TUTTE le
+//    prove con d20 di Forza/Destrezza + NON puoi lanciare incantesimi.
+//  • Scudo SENZA competenza: nessuna penalità, ma NON ottieni il +2 alla CA.
+//  Competenza = classi del personaggio (anche multiclasse) + talenti Corazze.
+//  Talento "Corazze Leggere" concede ANCHE la competenza negli scudi.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Competenze armatura effettive: unione di tutte le classi in C.classes[] +
+// grant di sottoclasse/ordine (Chierico Protettore, Druido Custode, Bardo del Valore) + talenti.
+function fEffectiveArmorProf(){
+  fEnsureClasses();
+  const out = { light:false, medium:false, heavy:false, shield:false };
+  C.classes.filter(c=>c.cls).forEach(c=>{
+    if(FEAT_CLASS_DATA.armorLight.includes(c.cls))  out.light  = true;
+    if(FEAT_CLASS_DATA.armorMedium.includes(c.cls)) out.medium = true;
+    if(FEAT_CLASS_DATA.armorHeavy.includes(c.cls))  out.heavy  = true;
+    if(FEAT_CLASS_DATA.shield.includes(c.cls))      out.shield = true;
+    // Grant automatici dalla sottoclasse/ordine divino (PHB 2024):
+    //  Chierico Protettore e Druido Custode → tutte le armature + scudi;
+    //  Bardo del Valore → armature medie + scudi.
+    if(typeof fSubclassGrantsProfs==='function'){
+      const g = fSubclassGrantsProfs(c.cls, c.subclass) || {};
+      (g.armorExtra||[]).forEach(a=>{
+        const s=(''+a).toLowerCase();
+        if(s.includes('legger')) out.light=true;
+        if(s.includes('medi'))   out.medium=true;
+        if(s.includes('pesant')){ out.heavy=true; out.medium=true; out.light=true; } // pesanti implica le minori
+        if(s.includes('scud'))   out.shield=true;
+      });
+    }
+  });
+  const feats = C.feats || [];
+  if(feats.some(f=>f && f.id==='corazze-leggere')){ out.light = true; out.shield = true; }
+  if(feats.some(f=>f && f.id==='corazze-medie')){   out.medium = true; }
+  if(feats.some(f=>f && f.id==='corazze-pesanti')){ out.heavy  = true; }
+  return out;
+}
+
+// Vero se il personaggio impugna uno scudo SENZA averne la competenza
+// (in tal caso il +2 alla CA NON va applicato).
+function fShieldWithoutProf(){
+  if(!C.shield) return false;
+  return !fEffectiveArmorProf().shield;
+}
+
+// Vero se il personaggio indossa un'armatura SENZA competenza per la sua categoria
+// (in tal caso: svantaggio FOR/DES con d20 + impossibilità di lanciare incantesimi).
+function fArmorWithoutProf(){
+  if(!C.armor) return false;
+  const armor = ARMORS.find(a=>a.en===C.armor||a.it===C.armor);
+  if(!armor || armor.cat==='scudo') return false;
+  const prof = fEffectiveArmorProf();
+  if(armor.cat==='leggera') return !prof.light;
+  if(armor.cat==='media')   return !prof.medium;
+  if(armor.cat==='pesante') return !prof.heavy;
+  return false;
+}
+
+// Diagnostica completa per la UI. Ritorna null se tutto è regolare, altrimenti
+// { level, lines:[...], noSpellcasting, disadvStrDex, noShieldBonus }.
+function fArmorComplianceCheck(){
+  const isIt = lang==='it';
+  const lines = [];
+  let noSpellcasting=false, disadvStrDex=false, noShieldBonus=false;
+
+  if(fArmorWithoutProf()){
+    const armor = ARMORS.find(a=>a.en===C.armor||a.it===C.armor);
+    const catIt = {leggera:'leggera',media:'media',pesante:'pesante'}[armor.cat]||armor.cat;
+    const catEn = {leggera:'light',media:'medium',pesante:'heavy'}[armor.cat]||armor.cat;
+    disadvStrDex = true; noSpellcasting = true;
+    lines.push(isIt
+      ? `⚠️ Indossi un'armatura ${catIt} (${armor.it}) senza competenza: subisci `
+        + `svantaggio a tutte le prove con d20 di Forza e Destrezza e NON puoi lanciare incantesimi.`
+      : `⚠️ You are wearing ${catEn} armor (${armor.en}) without proficiency: you have `
+        + `disadvantage on all Strength and Dexterity d20 checks and you CANNOT cast spells.`);
+  }
+  if(fShieldWithoutProf()){
+    noShieldBonus = true;
+    lines.push(isIt
+      ? `ⓘ Impugni uno scudo senza competenza: NON ottieni il bonus di +2 alla CA (nessun'altra penalità).`
+      : `ⓘ You are wielding a shield without proficiency: you do NOT gain the +2 AC bonus (no other penalty).`);
+  }
+  if(!lines.length) return null;
+  return { level: noSpellcasting?'danger':'warning', lines, noSpellcasting, disadvStrDex, noShieldBonus };
+}
+
 function fSetArmor(v){ C.armor = v || null; re(); }
 function fToggleShield(){ C.shield = !C.shield; re(); }
 function fSetAcMisc(v){ C.acMisc = parseInt(v)||0; re(); }
@@ -12224,7 +12467,21 @@ function fEquipACSelector(){
     +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)">'+(isIt?'Bonus vari':'Misc bonus')+': <input type="number" value="'+(parseInt(C.acMisc)||0)+'" onchange="fSetAcMisc(this.value)" style="width:52px;padding:4px;background:#1a1208;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:center"></label>'
     + '</div>'
     + '<div style="font-size:9px;color:var(--vdim);margin-top:6px">'+note+'</div>'
+    + fArmorComplianceBanner()
     + '</div>';
+}
+
+// Banner di avviso (sotto il box CA) quando armatura/scudo sono usati senza competenza.
+function fArmorComplianceBanner(){
+  const w = fArmorComplianceCheck();
+  if(!w) return '';
+  const isDanger = w.level==='danger';
+  const bg = isDanger ? '#3a1212' : '#3a2e12';
+  const bd = isDanger ? '#a33'    : '#a83';
+  const fg = isDanger ? '#ffb3b3' : '#ffe0a3';
+  const body = w.lines.map(l=>'<div style="margin:2px 0">'+l+'</div>').join('');
+  return '<div style="margin-top:8px;padding:8px 10px;border-radius:6px;font-size:11px;line-height:1.45;'
+       + 'background:'+bg+';border:1px solid '+bd+';color:'+fg+'">'+body+'</div>';
 }
 
 function fRS11(cl){
