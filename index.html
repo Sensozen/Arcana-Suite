@@ -6670,10 +6670,14 @@ function fRS2(){
   }
 
   // ── EXPERTISE EXTRA (Bardo Lv.9, Ladro Lv.6)
+  // Per il Bardo della Sapienza, le Competenze Bonus (Lv.3) devono comparire PRIMA della
+  // Maestria del Lv.9 (ordine di livello crescente). Accumuliamo quindi questo blocco in
+  // una variabile e lo appendiamo DOPO il blocco Sapienza più sotto.
+  let htmlExpertise2 = '';
   if(ec2>0 && expPoolFull.length>0){
     const lbl=C.cls==='bard'||C.cls==='ranger'?isIt?'Maestria nelle Abilità (Lv.9)':'Skill Expertise (Lv.9)':
                              isIt?'Maestria nelle Abilità (Lv.6)':'Skill Expertise (Lv.6)';
-    html+=`<div class="panel">
+    htmlExpertise2+=`<div class="panel">
       <div class="sec-title">⭐⭐ ${lbl}</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">
         ${isIt?`Scegli altre <strong style="color:var(--gold)">${ec2}</strong> abilità su cui ottenere la maestria.`:
@@ -6685,7 +6689,7 @@ function fRS2(){
       const sel=exp2Chosen.includes(sk.en);
       const expMod=fcmod(fTotalStat(sk.s))+fpb(C.level)*2;
       const expModStr=(expMod>=0?'+':'')+expMod;
-      html+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise2('${sk.en}',${ec2})" style="padding:6px 8px">
+      htmlExpertise2+=`<div class="card ${sel?'sel':''}" onclick="fToggleExpertise2('${sk.en}',${ec2})" style="padding:6px 8px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:11px;font-weight:600;color:${sel?'var(--gold)':'var(--text)'}">${isIt?sk.it:sk.en}</span>
           <span style="font-size:10px;color:var(--muted)">${fSA(sk.s)}</span>
@@ -6695,8 +6699,11 @@ function fRS2(){
         </div>
       </div>`;
     });
-    html+='</div></div>';
+    htmlExpertise2+='</div></div>';
   }
+  // Per le classi NON Bardo-Sapienza, l'ordine resta invariato: appendiamo subito.
+  let expertise2Pending = (C.cls==='bard' && sc==='sapienza' && htmlExpertise2!=='');
+  if(!(C.cls==='bard' && sc==='sapienza')) html+=htmlExpertise2;
 
   // ── MAGO STUDIOSO (Lv.2): maestria in 1 abilità specifica
   if(wizSch){
@@ -6756,9 +6763,13 @@ function fRS2(){
       </div>`;
     });
     html+='</div></div>';
+    // Bardo Sapienza: la Maestria del Lv.9 (accumulata sopra) va DOPO le Competenze
+    // Bonus del Lv.3, per rispettare l'ordine di livello crescente.
+    if(C.cls==='bard' && sc==='sapienza'){ html+=htmlExpertise2; expertise2Pending=false; }
   }
-
-  // ── MAESTRO DI BATTAGLIA: Studioso di Guerra — 1 strumento artigiano + 1 abilità
+  // Rete di sicurezza: se il blocco Sapienza non è stato renderizzato ma la Maestria
+  // Lv.9 era in attesa, appendila comunque per non perderla.
+  if(expertise2Pending){ html+=htmlExpertise2; expertise2Pending=false; }
   if(scToolCount>0){
     const mbTools=(C.featTools||[]).filter(t=>t.uid==='mb-studioso').map(t=>t.tool||t);
     html+=`<div class="panel">
