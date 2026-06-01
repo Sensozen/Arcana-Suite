@@ -1747,7 +1747,7 @@ fighter: [
 // ──────────────────────────────────────────────────────────────────
 monk: [
   { lv:1,  it:"Arti Marziali",
-    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DEX invece di STR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-10), 1d10 (Lv.11-16), 1d12 (Lv.17-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
+    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DEX invece di STR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-9), 1d10 (Lv.10-15), 1d12 (Lv.16-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
   { lv:1,  it:"Difesa Senza Armatura",
     desc:"Senza armatura e scudo: CA = 10 + mod. DES + mod. SAG." },
   { lv:2,  it:"Concentrazione da Monaco",
@@ -1922,21 +1922,21 @@ rogue: [
 // ──────────────────────────────────────────────────────────────────
 sorcerer: [
   { lv:1,  it:"Incantesimi",
-    desc:"Caratteristica da incantatore: Carisma. Conosce 4 trucchetti (5 al Lv.4, 6 al Lv.10). Conosce incantesimi in numero fisso (vedi tabella). Non prepara ogni giorno; può sostituire 1 incantesimo ogni level-up." },
+    desc:"Caratteristica da incantatore: Carisma. Focus: focus arcano. Conosce 4 trucchetti (5 al Lv.4, 6 al Lv.10), sostituibili 1 a ogni level-up. Prepara incantesimi dalla tabella (Lv.1→2, Lv.2→4, Lv.3→6 ... Lv.20→22) e può cambiare gli incantesimi preparati dopo un riposo lungo. Slot recuperati con riposo lungo." },
   { lv:1,  it:"Stregoneria Innata",
     desc:"Come azione bonus, scatena la Stregoneria Innata per 1 minuto. Durante questo periodo: la CD dei suoi TS sugli incantesimi aumenta di 1; ha vantaggio ai tiri per colpire degli incantesimi. Usi: 2; recupero: riposo lungo." },
-  { lv:2,  it:"Origine Stregonesca",
-    desc:"Sceglie l'Origine Stregonesca (Draconica, Magia Selvaggia, Meccanica, Aberrante). Le facoltà si ottengono ai Lv.3, 6, 14, 18." },
   { lv:2,  it:"Punti Stregoneria",
-    desc:"Parte con 2 Punti Stregoneria e ne ottiene altri ai livelli superiori (max = livello da stregone). Recupero: riposo lungo. Creare slot: 1°→2PS, 2°→3PS, 3°→5PS, 4°→6PS, 5°→7PS (max 5°). Convertire slot: Lv.1=2PS, Lv.2=3PS, Lv.3=5PS, Lv.4=6PS, Lv.5=7PS." },
+    desc:"La Fonte di Magia (Lv.2) gli dà i Punti Stregoneria: ne ha un numero pari al livello da stregone (al Lv.1 nessuno; 2 al Lv.2). Recupero: riposo lungo. Convertire slot in punti (nessuna azione): consuma 1 slot → punti pari al livello dello slot. Creare slot (azione bonus): 1°=2PS, 2°=3PS, 3°=5PS, 4°=6PS, 5°=7PS (max 5°)." },
   { lv:2,  it:"Metamagia",
     desc:"Sceglie 2 opzioni di Metamagia ai Lv.2, 10, 17 (può sostituirne 1 a ogni level-up). Opzioni PHB 2024: Celato (1PS: senza V/S/M), Distante (1PS: raddoppia gittata o 9m se contatto), Esteso (1PS: raddoppia durata fino a 24h; vantaggio TS concentrazione), Intensificato (2PS: svantaggio al TS di un bersaglio), Mirato (1PS: ritira d20 se fallisce tiro per colpire), Potenziato (1PS: ritira fino a mod.CAR dadi danno), Preciso (1PS: fino a mod.CAR creature superano auto il TS), Raddoppiato (1PS: upcast di 1 livello per inc. bersaglio singolo), Rapido (2PS: lancia inc. 1 azione come azione bonus), Trasmutato (1PS: cambia tipo danno tra acido/freddo/fulmine/fuoco/tuono/veleno)." },
+  { lv:3,  it:"Sottoclasse dello Stregone",
+    desc:"Sceglie la sottoclasse (Draconica, Magia Selvaggia, Meccanica, Aberrante/Psionica). Ottiene gli Incantesimi sempre preparati. Le facoltà si ottengono ai Lv.3, 6, 14, 18." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
     desc:"Aumenta una caratteristica di 2, o due di 1 (max 20), oppure ottieni un talento. Disponibile anche ai Lv.8, 12, 16." },
   { lv:5,  it:"Ripristino Stregonesco",
     desc:"Quando completa un riposo breve, recupera punti stregoneria pari alla metà del suo livello da stregone (arrotondato per difetto). 1/riposo lungo." },
   { lv:7,  it:"Stregoneria Incarnata",
-    desc:"Riceve un beneficio fisico legato alla sua Origine Stregonesca (vedi voce della Origine al Lv.7)." },
+    desc:"Se ha consumato tutti gli utilizzi di Stregoneria Innata, come azione bonus può spendere 2 punti stregoneria per riattivarla. Inoltre, mentre Stregoneria Innata è attiva, può usare fino a due opzioni di Metamagia su ogni incantesimo lanciato." },
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
   { lv:20, it:"Apoteosi Arcana",
@@ -1970,7 +1970,7 @@ warlock: [
   { lv:19, it:"Dono Epico",
     desc:"Ottiene un Dono Epico (vedi capitolo 5)." },
   { lv:20, it:"Maestro dell'Occulto",
-    desc:"Come azione bonus, recupera tutti gli slot incantesimo spesi. Recupero: riposo lungo." },
+    desc:"Quando usa il privilegio Scaltrezza Magica, recupera tutti gli slot incantesimo spesi della Magia del Patto (invece di solo metà)." },
 ],
 
 // ──────────────────────────────────────────────────────────────────
@@ -2203,16 +2203,16 @@ const SUBCLASS_FEATURES = {
 "vengeance": [
   { lv:3,  it:"Voto di Inimicizia", desc:"Quando effettua l'azione di Attacco: consuma 1 uso di Incanalare Divinità per pronunciare un voto contro una creatura visibile entro 9 m. Ottiene vantaggio ai tiri per colpire contro di essa per 1 minuto, o finché non usa di nuovo questo privilegio. Trasferibile se la creatura scende a 0 PF (nessuna azione)." },
   { lv:7,  it:"Vendetta Implacabile", desc:"Quando colpisce con un OA, può ridurre la velocità del bersaglio a 0 fino alla fine del turno. Come parte della stessa reazione, può muoversi fino alla metà della velocità senza OA." },
-  { lv:15, it:"Anima Vendicativa", desc:"Reazione: quando una creatura sotto Voto di Inimicizia mette a segno o manca un colpo contro di lui, può effettuare un attacco in mischia contro di essa se si trova a portata." },
+  { lv:15, it:"Anima Vendicativa", desc:"Reazione: subito dopo che una creatura sotto Voto di Inimicizia mette a segno o manca un colpo con un tiro per colpire (contro qualsiasi bersaglio), può effettuare un attacco in mischia contro di essa se si trova a portata." },
   { lv:20, it:"Angelo Vendicatore", desc:"Azione bonus: ottiene benefici per 10 minuti. Aura di terrore (nemici all'inizio del turno nell'aura effettuano TS su SAG o sono spaventati per 1 minuto o finché non subiscono danni), Volo (ali eteree, velocità 18 m + fluttuazione), Vantaggio su attacchi contro creature spaventate. 1/riposo lungo (recuperabile con slot 5°)." },
 ],
 
 // ══ RANGER ═══════════════════════════════════════════════════════
 "hunter": [
-  { lv:3,  it:"Preda del Cacciatore", desc:"Sceglie una delle seguenti opzioni (può sostituire dopo un riposo breve o lungo): Devastatore dell'orda (una volta per turno, dopo aver attaccato, può attaccare un'altra creatura diversa adiacente con la stessa arma), Sterminatore di colossi (quando colpisce una creatura con l'arma, infligge 1d8 danni aggiuntivi se alla creatura mancano PF)." },
+  { lv:3,  it:"Preda del Cacciatore", desc:"Sceglie una delle seguenti opzioni (può sostituire dopo un riposo breve o lungo): Devastatore dell'orda (una volta per turno, dopo aver attaccato, può attaccare un'altra creatura diversa adiacente con la stessa arma), Sterminatore di colossi (quando colpisce una creatura con l'arma, infligge 1d8 danni aggiuntivi se alla creatura mancano PF; solo una volta per turno)." },
   { lv:3,  it:"Sapienza del Cacciatore", desc:"Se una creatura porta il marchio del cacciatore, conosce le sue immunità, resistenze e vulnerabilità." },
   { lv:7,  it:"Tattiche Difensive", desc:"Sceglie una delle seguenti opzioni (può sostituire dopo riposo): Difesa dal multiattacco (chi colpisce il ranger ha svantaggio agli altri tiri per colpire contro di lui nel turno), Sfuggire all'orda (gli OA contro di lui hanno svantaggio)." },
-  { lv:11, it:"Preda del Cacciatore Superiore", desc:"Una volta per turno, quando infligge danni a una creatura con il marchio del cacciatore, può anche infliggere danni a un'altra creatura nel raggio visivo a 9 m dalla prima." },
+  { lv:11, it:"Preda del Cacciatore Superiore", desc:"Una volta per turno, quando infligge danni a una creatura con il marchio del cacciatore, può infliggere i danni aggiuntivi dell'incantesimo (marchio) anche a un'altra creatura nel suo campo visivo entro 9 m dalla prima." },
   { lv:15, it:"Difesa del Cacciatore Superiore", desc:"Quando subisce danni, può usare una reazione per ottenere resistenza a quel tipo di danno e ad altri dello stesso tipo fino alla fine del turno." },
 ],
 "beast": [
@@ -2278,11 +2278,11 @@ const SUBCLASS_FEATURES = {
   { lv:18, it:"Implosione Distorcente", desc:"Azione di Magia: si teletrasporta in qualsiasi spazio libero entro 36 m visibile. Le creature entro 9 m dallo spazio abbandonato effettuano TS su FOR (CD incantesimi): subiscono 3d10 danni da forza e vengono spinte verso lo spazio abbandonato. Successo: metà danni. 1/riposo lungo (ignorabile spendendo 5 PS)." },
 ],
 "draconic": [
-  { lv:3,  it:"Incantesimi Draconici", desc:"Alcuni incantesimi (vedi tabella Incantesimi Draconici per il tipo di drago scelto) sono sempre preparati." },
+  { lv:3,  it:"Incantesimi Draconici", desc:"Incantesimi sempre preparati: Lv.3 alterare se stesso, globo cromatico, comando, soffio del drago · Lv.5 paura, volare · Lv.7 occhio arcano, charme sui mostri · Lv.9 conoscenza delle leggende, richiama drago." },
   { lv:3,  it:"Resilienza Draconica", desc:"I PF massimi aumentano di 3 e di 1 per ogni livello successivo. Alcune parti del corpo si ricoprono di scaglie: senza armatura la CA base = 10+DES+CAR." },
   { lv:6,  it:"Affinità Elementale", desc:"Grazie alla discendenza draconica, sceglie un tipo di danno tra quelli della lista. Ottiene resistenza a quel tipo. Quando lancia un incantesimo che infligge quel tipo, aggiunge mod. CAR ai danni di un tiro per il danno." },
   { lv:14, it:"Ali di Drago", desc:"Azione bonus: fa apparire ali draconiche per 1 ora. Velocità di volo = velocità. 1/riposo lungo (ignorabile spendendo 3 PS)." },
-  { lv:18, it:"Seguace Draconico", desc:"Può lanciare evoca drago senza componente materiale. Può anche lanciarlo una volta senza consumare uno slot incantesimo; recupera l'abilità dopo un riposo lungo. Ogni volta che lo lancia, può modificarlo affinché non richieda concentrazione (durata 1 minuto)." },
+  { lv:18, it:"Seguace Draconico", desc:"Può lanciare richiama drago senza componente materiale. Può anche lanciarlo una volta senza consumare uno slot incantesimo; recupera l'abilità dopo un riposo lungo. Ogni volta che lo lancia, può modificarlo affinché non richieda concentrazione (durata 1 minuto)." },
 ],
 "wild": [
   { lv:3,  it:"Impulso di Magia Selvaggia", desc:"Una volta per turno, dopo aver lanciato un incantesimo da stregone con slot, può tirare 1d20. Con 20 tira sulla tabella Impulsi di Magia Selvaggia (effetto magico caotico)." },
@@ -2319,7 +2319,7 @@ const SUBCLASS_FEATURES = {
   { lv:6,  it:"Guerriero Chiaroveggente", desc:"Quando forma un legame telepatico con una creatura, può costringerla (TS su SAG, CD incantesimi) a svantaggio ai tiri per colpire contro di lui. Lui ha vantaggio contro quella creatura per tutta la durata. 1/riposo breve o lungo (ignorabile spendendo uno slot della Magia del Patto)." },
   { lv:10, it:"Scudo del Pensiero", desc:"I pensieri non possono essere letti telepaticamente. Resistenza ai danni psichici: quando una creatura gli infligge danni psichici, subisce la stessa quantità." },
   { lv:10, it:"Sortilegio Occulto", desc:"L'incantesimo sortilegio è sempre preparato. Quando lo lancia e sceglie una caratteristica, il bersaglio ha svantaggio ai TS su quella caratteristica per la durata dell'incantesimo." },
-  { lv:14, it:"Creare Servitore", desc:"Quando lancia evoca aberrazione, può farlo senza concentrazione (durata 1 minuto): la creatura ottiene PF temporanei = livello da warlock + mod. CAR. Ogni volta che l'aberrazione colpisce una creatura sotto sortilegio, infligge danni psichici aggiuntivi pari al bonus dell'incantesimo." },
+  { lv:14, it:"Creare Servitore", desc:"Quando lancia richiama aberrazione, può farlo senza concentrazione (durata 1 minuto): la creatura ottiene PF temporanei = livello da warlock + mod. CAR. Ogni volta che l'aberrazione colpisce una creatura sotto sortilegio, infligge danni psichici aggiuntivi pari al bonus dell'incantesimo." },
 ],
 "fiend": [
   { lv:3,  it:"Benedizione dell'Oscuro", desc:"Quando fa scendere una creatura a 0 PF, ottiene PF temporanei = mod. CAR + livello da warlock (min 1). Funziona anche se una creatura entro 3 m è ridotta a 0 PF da qualcun altro." },
@@ -3533,9 +3533,9 @@ const WARLOCK_INVOCATIONS = [
   { id:'patto-tomo',        it:'Patto del Tomo',          en:'Pact of the Tome',   isPact:true,
     prereqLv:1, desc:'Libro delle Ombre: 3 trucchetti extra da qualsiasi lista + 2 incantesimi di 1° livello con descrittore Rituale da qualsiasi classe. Gli incantesimi del tomo sono sempre preparati e il warlock può usare il libro come focus.' },
   { id:'visioni-velate',    it:'Visioni Velate',          en:'Veiled Vision',
-    prereqLv:1, desc:'Lancia immagine silenziosa senza slot.' },
+    prereqLv:2, desc:'Lancia immagine silenziosa senza slot.' },
   { id:'vista-diavolo',     it:'Vista del Diavolo',       en:'Devil\'s Sight',
-    prereqLv:1, desc:'Vedi normalmente nella luce fioca e nell\'oscurità (magica e non) entro 36 m.' },
+    prereqLv:2, desc:'Vedi normalmente nella luce fioca e nell\'oscurità (magica e non) entro 36 m.' },
   // ── PREREQ Lv.2 ───────────────────────────────────────────────────────
   { id:'balzo-ultraterreno',it:'Balzo Ultraterreno',      en:'Otherworldly Leap',
     prereqLv:2, desc:'Lancia salto su te stesso senza slot.' },
@@ -3592,13 +3592,14 @@ const WARLOCK_INVOCATIONS = [
 
 // Numero suppliche per livello PHB 2024
 function fGetWarlockInvocationCount(lv){
-  if(lv>=18) return 10;
-  if(lv>=15) return 9;
-  if(lv>=12) return 8;
+  // PHB 2024 p.166 colonna Suppliche Occulte:
+  // 1(L1) · 3(L2-4) · 5(L5-6) · 6(L7-8) · 7(L9-10) · 8(L11-13) · 9(L14-16) · 10(L17-20)
+  if(lv>=17) return 10;
+  if(lv>=14) return 9;
+  if(lv>=11) return 8;
   if(lv>=9)  return 7;
   if(lv>=7)  return 6;
   if(lv>=5)  return 5;
-  if(lv>=3)  return 4;
   if(lv>=2)  return 3;
   return 1;
 }
@@ -3714,26 +3715,29 @@ function fShortRest(){
   if(fCL('warlock')>0)C.warlockSlotsUsed=0;
   if(fCL('sorcerer')>0&&fCL('sorcerer')>=5&&C.sorcPoints){C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-Math.floor(fCL('sorcerer')/2));}
   if(fCL('barbarian')>0)C.rageImplacableCD=10;
-  if(fCL('fighter')>0){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);}
+  if(fCL('fighter')>0){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used=Math.max(0,C.secondWind.used-1);C.actionSurge={used:0};C.superiorityDice={used:0};}
+  if(fCL('fighter')>0||fCL('rogue')>0){C.psiDice={used:0};} // Energia Psionica: riposo breve o lungo
+  if(fCL('rogue')>0){C.luckyStrike={used:0};} // Colpo di Fortuna (Lv.20): riposo breve o lungo
   if(fCL('monk')>0){C.ki={used:0};}
   if(fCL('cleric')>0||fCL('paladin')>0){if(C.channelDiv&&C.channelDiv.used>0)C.channelDiv.used--;C.bagliorUsed=0;C.warPriestUsed=0;}
   if(fCL('druid')>0&&C.wildShapeUsed>0)C.wildShapeUsed=Math.max(0,C.wildShapeUsed-1);
   if(fCL('bard')>0&&fCL('bard')>=5){if(!C.bardicInsp)C.bardicInsp={used:0};C.bardicInsp.used=0;}
   if(fCL('bard')>0){C.unbreakableMajesty={used:0};} // Sapienza Lv.14: 1/riposo breve o lungo
+  if(fCL('wizard')>0){C.thirdEyeUsed=false;C.phantomDoppUsed=false;} // Terzo Occhio / Sosia Illusorio: 1/riposo breve o lungo
   re();
 }
 function fLongRest(){
   C.warlockSlotsUsed=0;
-  C.rage={used:0};C.secondWind={used:0};C.actionSurge={used:0};
+  C.rage={used:0};C.secondWind={used:0};C.actionSurge={used:0};C.indomitable={used:0};
   C.superiorityDice={used:0};C.psiDice={used:0};C.ki={used:0};
   C.bardicInsp={used:0};C.channelDiv={used:0};
   C.charmMagic={used:0};C.cloakMajesty={used:0};C.unbreakableMajesty={used:0}; // Bardo Fascino/Sapienza
-  C.wildShapeUsed=0;C.starDartUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
+  C.wildShapeUsed=0;C.starDartUsed=0;C.moonStepUsed=0;C.cosmicOmenUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
   C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
-  C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;
+  C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;C.coronaLuceUsed=0;C.bagliorUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
   C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
-  C.spettralCreatUsed=false;C.phantomDoppUsed=false;C.overchargeUsed=0;
+  C.spettralCreatUsed=false;C.phantomDoppUsed=false;C.overchargeUsed=0;C.luckyStrike={used:0};
   C.clockworkEquil={used:0};C.divIntUsed=false;
   if(C.palLayHands)C.palLayHands.cur=C.palLayHands.max;
   C.concentratingSpell=null;
@@ -3766,6 +3770,9 @@ function fUseSecondWind(){if(!C.secondWind)C.secondWind={used:0};if(C.secondWind
 function fRestoreSecondWind(){if(C.secondWind&&C.secondWind.used>0)C.secondWind.used--;re();}
 function fUseActionSurge(){if(!C.actionSurge)C.actionSurge={used:0};if(C.actionSurge.used<fMaxActionSurge(C.level))C.actionSurge.used++;re();}
 function fRestoreActionSurge(){if(C.actionSurge&&C.actionSurge.used>0)C.actionSurge.used--;re();}
+function fMaxIndomitable(lv){if(lv>=17)return 3;if(lv>=13)return 2;if(lv>=9)return 1;return 0;}
+function fUseIndomitable(){if(!C.indomitable)C.indomitable={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('fighter')>0)?fClassLevel('fighter'):(C.level||1);if(C.indomitable.used<fMaxIndomitable(lv))C.indomitable.used++;re();}
+function fRestoreIndomitable(){if(C.indomitable&&C.indomitable.used>0)C.indomitable.used--;re();}
 function fUseSupDie(){if(!C.superiorityDice)C.superiorityDice={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('fighter')>0)?fClassLevel('fighter'):(C.level||1);var tot=fSuperiorityDiceTotal(lv);if(C.superiorityDice.used<tot)C.superiorityDice.used++;re();}
 function fRestoreSupDie(){if(C.superiorityDice&&C.superiorityDice.used>0)C.superiorityDice.used--;re();}
 function fUsePsiDie(){if(!C.psiDice)C.psiDice={used:0};var tot=C.level>=17?12:C.level>=13?10:C.level>=11?8:C.level>=9?8:C.level>=5?6:4;if(C.psiDice.used<tot)C.psiDice.used++;re();}
@@ -4231,8 +4238,24 @@ function fRClassBlock(){
     var asMax=fMaxActionSurge(lv),asUsed=(C.actionSurge&&C.actionSurge.used)||0;
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">💪 '+(isIt?'Rec. Energie':'Second Wind')+'</span>'+fDots(swUsed,swMax,'fUseSecondWind','fRestoreSecondWind','var(--green)')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax-swUsed)+'/'+swMax+'</span></div>';
-    html+='<div style="'+rowS+'"><span style="'+lblS+'">\u26a1 '+(isIt?'Az. Impetuosa':'Action Surge')+'</span>'+fDots(asUsed,asMax,'fUseActionSurge','fRestoreActionSurge','#4a8fff')+'</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">1d10 + livello PF (az. bonus) · recupero: 1/riposo breve, tutti/lungo</div>';
+    html+='<div style="'+rowS+'"><span style="'+lblS+'">\u26a1 '+(isIt?'Az. Impetuosa':'Action Surge')+'</span>'+fDots(asUsed,asMax,'fUseActionSurge','fRestoreActionSurge','#4a8fff')+'<span style="font-size:10px;color:var(--vdim)">'+(asMax-asUsed)+'/'+asMax+'</span></div>';
+    // Indomabile (Lv.9): tracker usi = 1/2/3 a L9/13/17, recupero riposo lungo
+    if(lv>=9){
+      var indMax=fMaxIndomitable(lv),indUsed=(C.indomitable&&C.indomitable.used)||0;
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">🛡️ '+(isIt?'Indomabile':'Indomitable')+'</span>'+fDots(indUsed,indMax,'fUseIndomitable','fRestoreIndomitable','#e67e22')+'<span style="font-size:10px;color:var(--vdim)">'+(indMax-indUsed)+'/'+indMax+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Ripeti un TS fallito con +livello · recupero: riposo lungo</div>';
+    }
     html+='</div>';
+    // Privilegi base descrittivi
+    if(lv>=2){
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎯 Privilegi marziali</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Mente Tattica (Lv.2): se fallisci una prova di caratteristica, spendi 1 uso di Rec. Energie per +1d10 (se fallisce ancora, l\'uso non si consuma).</div>';
+      if(lv>=5)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Spostamento Tattico (Lv.5): quando usi Rec. Energie come az. bonus, muoviti fino a metà velocità senza attacchi di opportunità.</div>';
+      if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Signore delle Tattiche (Lv.9): un attacco con padronanza può usare spinta, prosciugamento o rallentamento.</div>';
+      if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Attacchi Studiati (Lv.13): se manchi un attacco, vantaggio al prossimo tiro per colpire contro quella creatura (fino a fine turno successivo).</div>';
+      html+='</div>';
+    }
     if(sc==='maestro-battaglia'){
       var dTot=fSuperiorityDiceTotal(lv),dUsed=(C.superiorityDice&&C.superiorityDice.used)||0;
       var dType=fSuperiorityDiceType(lv);
@@ -4253,7 +4276,7 @@ function fRClassBlock(){
         html+='<div style="'+boxS+'">';
         html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">📚 Studioso di Guerra (Lv.3)</div>';
         html+='<div style="font-size:10px;color:var(--muted)">Competenza in 1 strumento da artigiano + 1 abilità del guerriero (selezionate nel wizard)</div>';
-        if(lv>=7) html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Conosci il tuo Nemico (Lv.7): az. bonus — rivela caratteristiche di una creatura (1/riposo lungo o spendendo 1 dado)</div>';
+        if(lv>=7) html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Conosci il tuo Nemico (Lv.7): az. bonus — rivela immunità, resistenze e vulnerabilità di una creatura entro 9 m (1/riposo lungo, o spendendo 1 dado di superiorità)</div>';
         html+='</div>';
       }
 
@@ -4313,14 +4336,23 @@ function fRClassBlock(){
       }
       html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Caratteristica: INT · Recupero: riposo lungo</div>';
       html+='</div>';
+      // Privilegi non-incantesimo del Cavaliere Mistico
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">⚔️ Cavaliere Mistico — privilegi</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Arma Vincolata: rituale di 1 ora (in riposo breve) vincola un\'arma; non puoi essere disarmato e la evochi come az. bonus dallo stesso piano. Max 2 armi vincolate.</div>';
+      if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.7 Magia da Guerra: nell\'azione di Attacco puoi sostituire un attacco con il lancio di un trucchetto da mago (tempo di lancio 1 azione).</div>';
+      if(lv>=10)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.10 Colpo Mistico: quando colpisci con un\'arma, il bersaglio ha svantaggio al prossimo TS contro un tuo incantesimo (entro fine turno successivo).</div>';
+      if(lv>=15)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.15 Carica Arcana: quando usi Azione Impetuosa, teletrasporto fino a 9 m (prima o dopo l\'azione aggiuntiva).</div>';
+      if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.18 Magia da Guerra Migliorata: nell\'azione di Attacco puoi sostituire due attacchi con il lancio di un incantesimo da mago di 1°-2° livello (tempo di lancio 1 azione).</div>';
+      html+='</div>';
     }
-    if(sc==='campione'&&lv>=7){
+    if(sc==='campione'){
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🏆 Campione — feature attive</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Lv.3: Critico 19-20 · Lv.7: +1 stile combattimento</div>';
-      if(lv>=10) html+='<div style="font-size:10px;color:var(--muted)">Lv.10: Ispirazione Eroica (1/turno)</div>';
-      if(lv>=15) html+='<div style="font-size:10px;color:var(--muted)">Lv.15: Critico 18-20</div>';
-      if(lv>=18) html+='<div style="font-size:10px;color:var(--muted)">Lv.18: Sopravvissuto — 5+COS PF/turno se sanguinante</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🏆 Campione — privilegi attivi</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Atleta Straordinario: vantaggio all\'iniziativa e alle prove di FOR (Atletica); dopo un critico puoi muoverti fino a metà velocità senza attacchi di opportunità.</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.3 Critico Migliorato: i tiri per colpire con armi/colpi senz\'armi fanno critico con <strong style="color:var(--gold)">19-20</strong>'+(lv>=15?' → <strong style="color:var(--gold)">18-20</strong> (Lv.15 Critico Superiore)':'')+'.</div>';
+      if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.7 Stile di Combattimento Aggiuntivo: un altro Talento Stile di Combattimento.</div>';
+      if(lv>=10)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.10 Guerriero Eroico: ottieni Ispirazione Eroica all\'inizio del turno se ne sei privo (in combattimento).</div>';
+      if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.18 Sopravvissuto: se sanguinante con ≥1 PF, recuperi 5 + mod.COS PF a inizio turno; vantaggio ai TS contro morte (18-20 = 20).</div>';
       html+='</div>';
     }
     if(sc==='guerriero-psionico'){
@@ -4346,6 +4378,27 @@ function fRClassBlock(){
       html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">💀 Colpi Infidi (Lv.14): Atterramento 6d6 · Confusione 2d6 · Rabbuio 3d6</div>';
     }
     html+='</div>';
+
+    // Privilegi base del Ladro
+    if(lv>=3){
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎭 Privilegi del Ladro</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Azione Scaltra (Lv.2): Scatto, Disimpegno o Nascondersi come az. bonus. · Mira Ferma (Lv.3): az. bonus → vantaggio al prossimo tiro per colpire del turno (solo se non ti sei mosso; velocità ridotta a 0 fino a fine turno).</div>';
+      if(lv>=5)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Schivata Prodigiosa (Lv.5): reazione → dimezzi i danni di un attacco da un attaccante visibile.</div>';
+      if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Dote Affidabile (Lv.7): le prove con abilità/strumenti in cui hai competenza trattano un d20 ≤9 come 10. · Elusione (Lv.7): TS su DES per dimezzare → nessun danno se superi, metà se fallisci.</div>';
+      if(lv>=15)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Mente Sfuggente (Lv.15): competenza nei TS su SAG e CAR.</div>';
+      if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Inafferrabile (Lv.18): nessun tiro per colpire può avere vantaggio contro di te (se non sei incapacitato).</div>';
+      html+='</div>';
+    }
+
+    // Colpo di Fortuna (Lv.20) — tracker 1/riposo breve o lungo
+    if(lv>=20){
+      if(!C.luckyStrike)C.luckyStrike={used:0};
+      var lsUsed=C.luckyStrike.used||0;
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🍀 Colpo di Fortuna (Lv.20)</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">Fallimento → 20</span>'+fDots(lsUsed,1,'if(!C.luckyStrike)C.luckyStrike={used:0};if(C.luckyStrike.used<1)C.luckyStrike.used++;re()','if(C.luckyStrike&&C.luckyStrike.used>0)C.luckyStrike.used--;re()','#2ecc71')+'<span style="font-size:10px;color:var(--vdim)">'+(1-lsUsed)+'/1</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Trasforma un tiro con d20 fallito in un 20 · recupero: riposo breve o lungo</div>';
+      html+='</div>';
+    }
 
     // Mistificatore Arcano: slot incantesimo
     if(sc==='arcane' && lv>=3){
@@ -4378,6 +4431,29 @@ function fRClassBlock(){
       html+='<div style="'+rowS+'">'+fDots(psiUsedR,psiLvR,'fUsePsiDie','fRestorePsiDie','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(psiLvR-psiUsedR)+'/'+psiLvR+'</span></div>';
       html+='<div style="font-size:9px;color:var(--muted);margin-top:4px">1 dado recuperato/riposo breve · tutti/riposo lungo</div>';
       if(lv>=13)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Velo Psichico (Lv.13): 1/riposo lungo</div>';
+      html+='</div>';
+    }
+
+    // Assassino
+    if(sc==='assassin' && lv>=3){
+      var assCD=8+fpb(lv)+fcmod(fTotalStat('DEX'));
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🗡️ Assassino</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Arnesi dell\'Assassino: competenza in trucchi per camuffamento e sostanze da avvelenatore.</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.3 Assassinare: vantaggio all\'iniziativa; nel 1° turno di combattimento, vantaggio ai tiri per colpire contro creature che non hanno ancora agito; se l\'Attacco Furtivo colpisce nel round, +danni pari al livello da ladro.</div>';
+      if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.9 Maestro Infiltrato: imitazione sopraffina (dopo 1 ora di studio); Mira in movimento (la velocità non scende a 0 con Mira Ferma).</div>';
+      if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.13 Avvelenare Armi: l\'opzione veleno del Colpo Astuto infligge +2d6 da veleno se il bersaglio fallisce; ignora la resistenza.</div>';
+      if(lv>=17)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.17 Colpo di Morte: Attacco Furtivo al 1° round → TS COS (CD <strong style="color:var(--gold)">'+assCD+'</strong>) o subisce il doppio dei danni.</div>';
+      html+='</div>';
+    }
+
+    // Furfante
+    if(sc==='thief' && lv>=3){
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🪝 Furfante</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Lavoro al Secondo Piano: Saltatore (usa mod.DES per i salti) · Scalatore (velocità di scalata = velocità).</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.3 Mani Veloci: az. bonus → Rapidità di Mano (scassinare/disattivare trappola/borseggiare) oppure Usare un oggetto (azione di Utilizzo/Magia per un oggetto magico).</div>';
+      if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.9 Furtività Suprema: opzione Colpo Astuto «Attacco nascosto» (1d6): se invisibile per Nascondersi, l\'attacco non rompe l\'invisibilità se chiudi il turno a 3/4 di copertura o copertura totale.</div>';
+      if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.13 Usare Oggetto Magico: cariche (su 1d6, con 6 non consumi la carica); pergamene (usi qualsiasi pergamena con INT; trucchetto/1° senza prova, altrimenti CD 10+livello); sintonia fino a 4 oggetti magici.</div>';
+      if(lv>=17)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.17 Riflessi da Furfante: due turni nel 1° round (il secondo a iniziativa −10).</div>';
       html+='</div>';
     }
   }
@@ -4537,6 +4613,32 @@ function fRClassBlock(){
       html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. Bonus Attacco</span>'+fDots(C.warPriestUsed,swMax2,'C.warPriestUsed=Math.min('+(swMax2)+',C.warPriestUsed+1);re()','if(C.warPriestUsed>0)C.warPriestUsed--;re()','#e74c3c')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax2-C.warPriestUsed)+'/'+swMax2+'</span></div>';
       html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Recupero: riposo breve o lungo · usi = mod. SAG (min 1)</div>';
       html+='</div>';
+      // Benedizione del Dio della Guerra (Lv.6) — descrittivo
+      if(lv>=6){
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🙏 Benedizione del Dio della Guerra (Lv.6): spendi 1 uso di Incanalare Divinità per lanciare <em>scudo della fede</em> o <em>arma spirituale</em> senza slot e senza concentrazione (dura 1 min; termina se rilanci o sei incapacitato/morto).</div>';
+      }
+      // Avatar della Battaglia (Lv.17) — descrittivo
+      if(lv>=17){
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:2px">🛡️ Avatar della Battaglia (Lv.17): resistenza ai danni contundenti, perforanti e taglienti.</div>';
+      }
+    }
+    // Preservare Vita (Dominio della Vita Lv.3) — pool PF = 5 × livello chierico
+    if(sc==='vita'){
+      var preserveHP=lv*5;
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">💖 Preservare Vita (Lv.3)</div>';
+      html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="'+lblS+'">Pool PF</span><span style="font-size:16px;font-weight:900;color:var(--gold)">'+preserveHP+' PF</span><span style="font-size:9px;color:var(--muted)">(5 × livello chierico)</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Azione di Magia + 1 uso Incanalare Divinità: distribuisci tra creature sanguinanti entro 9 m (incluso te), fino a metà dei PF massimi di ciascuna.</div>';
+      // Guaritore Benedetto (Lv.6) — descrittivo
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Lv.6 Guaritore Benedetto: quando curi un\'altra creatura con uno slot, recuperi PF = 2 + livello slot.</div>';
+      // Guarigione Suprema (Lv.17) — descrittivo
+      if(lv>=17)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.17 Guarigione Suprema: i dadi di guarigione (incantesimi/Incanalare Divinità) usano sempre il valore massimo.</div>';
+      html+='</div>';
+    }
+    // Benedizione dell'Ingannatore (Dominio dell'Inganno Lv.3) — descrittivo + privilegi superiori
+    if(sc==='inganno'){
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🃏 Benedizione dell\'Ingannatore (Lv.3): azione di Magia — tu o una creatura consenziente entro 9 m ottiene vantaggio alle prove di DES (Furtività). Dura fino al riposo lungo o finché non la riusi.</div>';
+      if(lv>=6)html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">↔️ Trasposizione dell\'Ingannatore (Lv.6): quando crei o muovi l\'illusione di Invocare Duplicato, puoi teletrasportarti scambiando posto con essa.</div>';
+      if(lv>=17)html+='<div style="font-size:10px;color:var(--gold2);margin-top:2px">✨ Duplicato Migliorato (Lv.17): diversivo condiviso (tu e alleati avete vantaggio sui tiri vs creature entro 1,5 m dall\'illusione); illusione curativa (quando termina, tu o creatura entro 1,5 m recupera PF = livello chierico).</div>';
     }
     // Intervento Divino (Lv.10+)
     if(lv>=10){
@@ -4564,6 +4666,15 @@ function fRClassBlock(){
       html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Svantaggio al tiro avversario · usi = mod. SAG (min 1) · recupero: '+(lv>=6?'riposo breve o lungo':'riposo lungo')+'</div>';
       if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6: +2d6+SAG PF temp al bersaglio dell\'attacco</div>';
       html+='</div>';
+      // Corona di Luce (Lv.17) — tracker usi = mod.SAG, recupero riposo lungo
+      if(lv>=17){
+        var clMax=Math.max(1,fcmod(fTotalStat('WIS')));
+        if(C.coronaLuceUsed===undefined)C.coronaLuceUsed=0;
+        html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">☀️ Corona di Luce (Lv.17)</div>';
+        html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. di Magia</span>'+fDots(C.coronaLuceUsed,clMax,'C.coronaLuceUsed=Math.min('+clMax+',C.coronaLuceUsed+1);re()','if(C.coronaLuceUsed>0)C.coronaLuceUsed--;re()','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(clMax-C.coronaLuceUsed)+'/'+clMax+'</span></div>';
+        html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Aura luce solare 1 min: intensa 18 m + fioca 9 m. Nemici nella luce intensa: svantaggio ai TS vs Fulgore dell\'Alba e incantesimi fuoco/radiosi. Usi = mod. SAG (min 1) · recupero: riposo lungo</div>';
+        html+='</div>';
+      }
     }
   }
 
@@ -4643,6 +4754,39 @@ function fRClassBlock(){
     // Arcidruido (Lv.20)
     if(lv>=20) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🌿 Arcidruido (Lv.20): Forma Selvatica sempreverde · Mago della natura · Corpo senza tempo</div>';
 
+    // Circolo della Luna: Forme del Circolo (CA e PF temp potenziati)
+    if(sc==='luna'){
+      var moonCA=15+fcmod(fTotalStat('WIS'));
+      var moonGS=Math.floor(lv/3);
+      var moonTempHP=lv*3;
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🌙 Forme del Circolo (Lv.3)</div>';
+      html+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="font-size:11px;color:var(--muted)">CA in Forma Selvatica: <strong style="color:var(--gold)">'+moonCA+'</strong> <span style="font-size:9px">(15 + mod.SAG, se più alta)</span></span></div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">GS max forma: <strong style="color:var(--gold)">'+moonGS+'</strong> (livello ÷ 3) · PF temp: <strong style="color:var(--gold)">'+moonTempHP+'</strong> (3 × livello)</div>';
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Lv.6 Forme Migliorate: attacchi possono infliggere danni radiosi (a scelta); aggiungi mod.SAG ai TS su COS.</div>';
+      if(lv>=14)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.14 Forma Lunare: Passo Chiardiluna trasporta anche una creatura entro 3 m; 1×/turno +2d10 radiosi in Forma Selvatica.</div>';
+      html+='</div>';
+      // Passo Chiardiluna (Lv.10) — tracker usi = mod.SAG
+      if(lv>=10){
+        var moonStepMax=Math.max(1,fcmod(fTotalStat('WIS')));
+        if(!C.moonStepUsed)C.moonStepUsed=0;
+        html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🌕 Passo Chiardiluna (Lv.10)</div>';
+        html+='<div style="'+rowS+'"><span style="'+lblS+'">Az. Bonus</span>'+fDots(C.moonStepUsed,moonStepMax,'C.moonStepUsed=Math.min('+moonStepMax+',C.moonStepUsed+1);re()','if(C.moonStepUsed>0)C.moonStepUsed--;re()','#5dade2')+'<span style="font-size:10px;color:var(--vdim)">'+(moonStepMax-C.moonStepUsed)+'/'+moonStepMax+'</span></div>';
+        html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Teletrasporto 9 m + vantaggio tiri colpire fino a fine turno · usi = mod. SAG (min 1) · recupero: riposo lungo (o spendi 1 slot 2°+ per 1 uso)</div>';
+        html+='</div>';
+      }
+    }
+    // Circolo del Mare: Furia dei Mari (usa Forma Selvatica)
+    if(sc==='mare'){
+      var seaDice=Math.max(1,fcmod(fTotalStat('WIS')));
+      var seaRadius=lv>=6?'4,5':'1,5';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🌊 Furia dei Mari (Lv.3)</div>';
+      html+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span style="'+lblS+'">Danno</span><span style="font-size:16px;font-weight:900;color:var(--gold)">'+seaDice+'d6</span><span style="font-size:9px;color:var(--muted)">freddo (mod.SAG d6, min 1)</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Az. bonus + 1 uso Forma Selvatica: emanazione brezza (r. '+seaRadius+' m, 10 min). Nei turni: az. bonus → creatura nell\'emanazione TS COS o danni freddo (+spinta 4,5 m se Grande o inferiore).</div>';
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Lv.6 Affinità Acquatica: raggio emanazione +3 m; velocità di nuoto = velocità.</div>';
+      if(lv>=10)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.10 Nato dalla Tempesta: mentre Furia è attiva, resistenza a freddo/fulmine/tuono + velocità di volo = velocità.</div>';
+      if(lv>=14)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.14 Dono Oceanico: puoi generare l\'emanazione attorno a una creatura entro 18 m (usa CD e mod.SAG del druido); o attorno a te E a una creatura spendendo 2 usi.</div>';
+      html+='</div>';
+    }
     // Circolo della Terra: tipo terreno
     if(sc==='terra'){
       var tTypes=[{id:'arida',it:'Arida',r:'Fuoco'},{id:'polare',it:'Polare',r:'Freddo'},{id:'temperata',it:'Temperata',r:'Fulmine'},{id:'tropicale',it:'Tropicale',r:'Veleno'}];
@@ -4660,8 +4804,25 @@ function fRClassBlock(){
       html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">⭐ Carta Celeste — Dardo Tracciante</div>';
       html+='<div style="'+rowS+'"><span style="'+lblS+'">Senza slot</span>'+fDots(C.starDartUsed,starMax,'C.starDartUsed=Math.min('+starMax+',C.starDartUsed+1);re()','if(C.starDartUsed>0)C.starDartUsed--;re()','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(starMax-C.starDartUsed)+'/'+starMax+'</span></div>';
       html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Usi = mod. SAG (min 1) · recupero: riposo lungo</div>';
-      if(lv>=6) html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.6 Profezia Cosmica: dado presagio (+/-) 1×/riposo lungo per creatura entro 9 m</div>';
       html+='</div>';
+      // Forma Siderale (Lv.3): le 3 costellazioni
+      var sidDie=lv>=10?'2d8':'1d8';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">✨ Forma Siderale (Lv.3) — az. bonus + 1 uso Forma Selvatica, 10 min</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">🏹 <strong>Arciere</strong>: az. bonus → freccia luminosa entro 18 m, <strong style="color:var(--gold)">'+sidDie+'</strong>+mod.SAG radiosi.</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🏆 <strong>Calice</strong>: quando curi con uno slot, tu o creatura entro 9 m recupera <strong style="color:var(--gold)">'+sidDie+'</strong>+mod.SAG PF.</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🐉 <strong>Drago</strong>: prove SAG/INT e TS COS concentrazione, un risultato ≤9 al d20 conta come 10'+(lv>=10?'; velocità di volo 6 m con fluttuazione':'')+'.</div>';
+      if(lv>=10)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Lv.10 Costellazioni Scintillanti: dadi Arciere/Calice → 2d8; puoi cambiare costellazione a inizio turno.</div>';
+      if(lv>=14)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.14 Manto di Stelle: in Forma Siderale, resistenza a contundenti/perforanti/taglienti.</div>';
+      html+='</div>';
+      // Profezia Cosmica (Lv.6) — tracker reazione = mod.SAG
+      if(lv>=6){
+        var cosmicMax=Math.max(1,fcmod(fTotalStat('WIS')));
+        if(!C.cosmicOmenUsed)C.cosmicOmenUsed=0;
+        html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🔮 Profezia Cosmica (Lv.6)</div>';
+        html+='<div style="'+rowS+'"><span style="'+lblS+'">Reazione (±1d6)</span>'+fDots(C.cosmicOmenUsed,cosmicMax,'C.cosmicOmenUsed=Math.min('+cosmicMax+',C.cosmicOmenUsed+1);re()','if(C.cosmicOmenUsed>0)C.cosmicOmenUsed--;re()','#9b59b6')+'<span style="font-size:10px;color:var(--vdim)">'+(cosmicMax-C.cosmicOmenUsed)+'/'+cosmicMax+'</span></div>';
+        html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Presagio a fine riposo lungo: Ventura (pari) → +1d6 / Sventura (dispari) → −1d6 a prova d20 di creatura entro 9 m · usi = mod. SAG (min 1) · recupero: riposo lungo</div>';
+        html+='</div>';
+      }
     }
     html+='</div>';
   }
@@ -4726,30 +4887,27 @@ function fRClassBlock(){
       });
       html+='</div></div>';
     }
-    // Antenato Draconico (sottoclasse Draconica, Lv.3)
-    if(sc==='draconic'){
-      var dragTypes=[
-        {id:'nero',it:'Nero',dam:'Acido'},{id:'oro',it:'Oro',dam:'Fuoco'},
-        {id:'argento',it:'Argento',dam:'Freddo'},{id:'blu',it:'Blu',dam:'Fulmine'},
-        {id:'bianco',it:'Bianco',dam:'Freddo'},{id:'verde',it:'Verde',dam:'Veleno'},
-        {id:'rosso',it:'Rosso',dam:'Fuoco'},{id:'bronzo',it:'Bronzo',dam:'Fulmine'},
-        {id:'rame',it:'Rame',dam:'Acido'},{id:'ottone',it:'Ottone',dam:'Fuoco'}
+    // Affinità Elementale (sottoclasse Draconica, Lv.6) — scelta del tipo di danno
+    if(sc==='draconic'&&lv>=6){
+      var elemTypes=[
+        {id:'acido',it:'Acido'},{id:'freddo',it:'Freddo'},
+        {id:'fulmine',it:'Fulmine'},{id:'fuoco',it:'Fuoco'},
+        {id:'veleno',it:'Veleno'}
       ];
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🐉 Antenato Draconico</div>';
-      if(!C.draconicAncestor){
-        html+='<select onchange="C.draconicAncestor=this.value;re()" style="width:100%;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:5px">';
-        html+='<option value="">— scegli tipo drago —</option>';
-        dragTypes.forEach(function(d){html+='<option value="'+d.id+'">Drago '+d.it+' ('+d.dam+')</option>';});
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🐉 Affinità Elementale (Lv.6)</div>';
+      if(!C.draconicAffinity){
+        html+='<select onchange="C.draconicAffinity=this.value;re()" style="width:100%;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:5px">';
+        html+='<option value="">— scegli tipo di danno —</option>';
+        elemTypes.forEach(function(d){html+='<option value="'+d.id+'">'+d.it+'</option>';});
         html+='</select>';
       } else {
-        var cur=dragTypes.find(function(d){return d.id===C.draconicAncestor;});
+        var curEl=elemTypes.find(function(d){return d.id===C.draconicAffinity;});
         html+='<div style="display:flex;align-items:center;justify-content:space-between">';
-        html+='<span style="color:var(--gold)">🐉 Drago '+(cur?cur.it:C.draconicAncestor)+'</span>';
-        if(cur)html+='<span style="font-size:10px;color:var(--muted)">Danno: '+cur.dam+'</span>';
-        html+='<span onclick="C.draconicAncestor=null;re()" style="cursor:pointer;color:var(--vdim);font-size:10px">✕ cambia</span>';
+        html+='<span style="color:var(--gold)">Affinità: '+(curEl?curEl.it:C.draconicAffinity)+'</span>';
+        html+='<span onclick="C.draconicAffinity=null;re()" style="cursor:pointer;color:var(--vdim);font-size:10px">✕ cambia</span>';
         html+='</div>';
-        html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resist. '+( cur?cur.dam:'—')+' · CA=10+DES+CAR (senza armatura)</div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resistenza '+(curEl?curEl.it:'—')+' · +mod.CAR ai danni degli incantesimi di quel tipo</div>';
       }
       html+='</div>';
     }
@@ -4935,11 +5093,10 @@ function fRClassBlock(){
       // ── INVOCATORE (Evocatore) ──────────────────────────────────────────
       if(sc==='evocation'){
         html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">✨ Trucchetto Potente (Lv.3)</div>';
-        html+='<div style="font-size:10px;color:var(--muted)">Trucchetto manca il bersaglio → subisce comunque metà dei danni (se applicabili)</div></div>';
+        html+='<div style="font-size:10px;color:var(--muted)">Trucchetto che manca il tiro per colpire o di cui il bersaglio supera il TS → subisce comunque metà dei danni (nessun effetto aggiuntivo)</div></div>';
         if(lv>=6){
-          var sculptN=Math.max(1,1+Math.floor(0)); // = 1 + livello spell (dinamico)
           html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">🌀 Plasmare Incantesimi (Lv.6)</div>';
-          html+='<div style="font-size:10px;color:var(--muted)">Lanci Invocazione che colpisce campo visivo: scegli N creature = 1+livello slot → superano auto TS, no danni (o metà in caso normale)</div></div>';
+          html+='<div style="font-size:10px;color:var(--muted)">Lanci un\'Invocazione che colpisce più creature nel campo visivo: scegli un numero di creature = 1 + livello dell\'incantesimo → superano automaticamente il TS e non subiscono danni in caso di successo</div></div>';
         }
         if(lv>=10){
           html+='<div style="font-size:10px;color:var(--muted)">💥 Invocazione Potente (Lv.10): +'+intMod+' ai danni delle Invocazioni</div>';
@@ -5284,7 +5441,7 @@ let C={
   nemesisMark:{ used:0 },           // Ranger: Nemico Prescelto usati
   sorcPoints:{ used:0 },            // Stregone: punti stregoneria usati
   metamagicChoices:[],              // Stregone: opzioni Metamagia scelte
-  draconicAncestor:null,            // Stregone Draconico: tipo drago
+  draconicAffinity:null,            // Stregone Draconico: tipo danno (Affinità Elementale L6)
   innateUsed:0,                     // Stregone: Stregoneria Innata usate
   divinatorPresage:[null,null],     // Mago Divinatore: valori presagio
   spellbookSpells:[],               // Mago: incantesimi nel libro
@@ -5524,7 +5681,7 @@ function nuovoPersonaggio(){
     divOrder:null,blessedStrikes:null,taumaturgoBonusSkill:null,
     wildShapeUsed:0,wildForms:[],primordialOrder:null,elementalFury:null,circleTerrainType:null,starDartUsed:0,
     nemesisMark:{used:0},
-    sorcPoints:{used:0},metamagicChoices:[],draconicAncestor:null,innateUsed:0,
+    sorcPoints:{used:0},metamagicChoices:[],draconicAffinity:null,innateUsed:0,
     divinatorPresage:[null,null],spellbookSpells:[],beastCompanion:null,
   };
   screen="guided";
@@ -6319,15 +6476,15 @@ function fRSubclassChoicesWizard(cls, sc, lv, isIt){
     }
   }
 
-  // ── STREGONE: Antenato Draconico ─────────────────────────────────────
-  if(cls==='sorcerer'&&sc==='draconic'){
-    var dragTypes=[{id:'nero',it:'Nero (Acido)'},{id:'oro',it:'Oro (Fuoco)'},{id:'argento',it:'Argento (Freddo)'},{id:'blu',it:'Blu (Fulmine)'},{id:'bianco',it:'Bianco (Freddo)'},{id:'verde',it:'Verde (Veleno)'},{id:'rosso',it:'Rosso (Fuoco)'},{id:'bronzo',it:'Bronzo (Fulmine)'},{id:'rame',it:'Rame (Acido)'},{id:'ottone',it:'Ottone (Fuoco)'}];
+  // ── STREGONE: Affinità Elementale (Draconica, Lv.6) ──────────────────
+  if(cls==='sorcerer'&&sc==='draconic'&&lv>=6){
+    var elemTypes2=[{id:'acido',it:'Acido'},{id:'freddo',it:'Freddo'},{id:'fulmine',it:'Fulmine'},{id:'fuoco',it:'Fuoco'},{id:'veleno',it:'Veleno'}];
     html += '<div style="'+boxS+'">';
-    html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🐉 Antenato Draconico</div>';
+    html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🐉 Affinità Elementale (Lv.6)</div>';
     html += '<div style="display:flex;flex-wrap:wrap;gap:5px">';
-    dragTypes.forEach(function(d){html+=selBtn(d.it,C.draconicAncestor===d.id,'C.draconicAncestor=\''+d.id+'\';re()');});
+    elemTypes2.forEach(function(d){html+=selBtn(d.it,C.draconicAffinity===d.id,'C.draconicAffinity=\''+d.id+'\';re()');});
     html += '</div>';
-    if(C.draconicAncestor){html+='<div style="font-size:10px;color:var(--muted);margin-top:5px">CA = 10+DES+CAR senza armatura · Resistenza al tipo di danno scelto</div>';}
+    if(C.draconicAffinity){html+='<div style="font-size:10px;color:var(--muted);margin-top:5px">Resistenza al tipo scelto · +mod.CAR ai danni degli incantesimi di quel tipo</div>';}
     html += '</div>';
   }
 
@@ -7145,7 +7302,7 @@ function fBuildClassResourcesPrint(){
     if(lv>=2) lines.push('PUNTI STREGONERIA: '+fMaxSorcPoints(lv)+'/riposo lungo'+circ(fMaxSorcPoints(lv)));
     lines.push('STREGONERIA INNATA: 2 usi/riposo lungo'+circ(2));
     if(C.metamagicChoices&&C.metamagicChoices.length) lines.push('Metamagia: '+(C.metamagicChoices.join(', ')));
-    if(C.draconicAncestor) lines.push('Antenato: '+C.draconicAncestor);
+    if(C.draconicAffinity) lines.push('Affinità Elementale: '+C.draconicAffinity);
   }
   if(cl==='warlock'){
     var ws=fGetSpellSlots('warlock',lv);
@@ -9011,8 +9168,8 @@ function fRSubclassPreview(clsId, scId, lv){
 
 // ── Tabelle PHB 2024 per classe ──────────────────────────────────────────
 const SPELL_CLASS_DATA = {
-  //  type: 'known'    = conosce lista fissa (Bardo, Stregone, Warlock)
-  //  type: 'prepared' = prepara dopo riposo lungo (Chierico, Druido, Mago, Paladino, Ranger)
+  //  type: 'known'    = (PHB 2024: nessuno; tutti preparano)
+  //  type: 'prepared' = prepara dopo riposo lungo (Chierico, Druido, Mago, Paladino, Ranger, Stregone)
   //  type: 'none'     = nessun incantesimo (Barbaro, Guerriero base, Monaco base, Ladro base)
   //
   //  cantrips[lv-1]  = trucchetti massimi a quel livello
@@ -9020,9 +9177,9 @@ const SPELL_CLASS_DATA = {
   //  formula         = formula per 'prepared' (dipende da stat+livello)
 
   bard: {
-    type:'known', stat:'CHA',
+    type:'prepared', stat:'CHA', formula:'table',
     cantrips:[2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
-    spells:  [4,5,6,7,8,9,10,11,12,14,15,15,16,18,19,19,20,22,22,22],
+    // Incantesimi preparati: vedi SPELLS_KNOWN_TABLE.bard (tabella PHB 2024 p.60)
   },
   cleric: {
     type:'prepared', stat:'WIS', formula:'level+stat',
@@ -9044,14 +9201,14 @@ const SPELL_CLASS_DATA = {
     spells:  [2,3,4,5,6,6,7,7,9,9,10,10,11,11,12,12,14,14,15,15],
   },
   sorcerer: {
-    type:'known', stat:'CHA',
+    type:'prepared', stat:'CHA', formula:'table',
     cantrips:[4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6],
-    spells:  [2,4,6,7,9,10,11,12,14,15,15,15,16,16,17,17,18,18,19,20],
+    // Incantesimi preparati: vedi SPELLS_KNOWN_TABLE.sorcerer (tabella PHB 2024 p.152)
   },
   warlock: {
-    type:'known', stat:'CHA',
+    type:'prepared', stat:'CHA', formula:'table',
     cantrips:[2,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
-    spells:  [2,3,4,5,6,7,8,9,10,10,11,11,12,12,13,13,14,14,15,15],
+    // Incantesimi preparati: vedi SPELLS_KNOWN_TABLE.warlock (tabella PHB 2024 p.166)
   },
   wizard: {
     type:'prepared', stat:'INT', formula:'level+stat',
@@ -9179,7 +9336,7 @@ const ALWAYS_PREPARED_SUBCLASS = {
   },
   warlock: {
     celestial: {
-      3: ["Aiuto", "Cura ferite", "Ristorare inferiore", "Luce", "Fiamma sacra"],
+      3: ["Aiuto", "Cura ferite", "Dardo tracciante", "Ristorare inferiore", "Luce", "Fiamma sacra"],
       5: ["Luce diurna", "Rinascita"],
       7: ["Guardiano della fede", "Muro di fuoco"],
       9: ["Ristorare superiore", "Richiama celestiale"],
@@ -9200,7 +9357,7 @@ const ALWAYS_PREPARED_SUBCLASS = {
       3: ["Mani brucianti", "Comando", "Raggio rovente", "Suggestione"],
       5: ["Palla di fuoco", "Nube maleodorante"],
       7: ["Scudo di fuoco", "Muro di fuoco"],
-      9: ["Imprigionare", "Piaga degli insetti"],
+      9: ["Costrizione", "Piaga degli insetti"],
     },
   },
   sorcerer: {
@@ -9305,8 +9462,11 @@ const SUBCLASS_CASTER_IDS = {
 // Solo il Mago ha un libro degli incantesimi
 function fHasSpellbook(){ return C.cls === 'wizard'; }
 
-// Caster che hanno lista "conosciuta" (permanente, non si prepara ogni giorno)
-function fIsKnownCaster(){ return C.cls === 'warlock' || C.cls === 'sorcerer'; }
+// Caster a lista "conosciuta" permanente: nel PHB 2024 NON esistono più.
+// Tutte le classi incantatrici (incluso il Warlock, p.165 "Incantesimi preparati",
+// e lo Stregone) preparano gli incantesimi e possono cambiarli dopo un riposo.
+// La funzione resta per compatibilità con i punti che la richiamano.
+function fIsKnownCaster(){ return false; }
 
 // Mago: incantesimi preparati dalla tabella PHB 2024 (NON INT+Lv)
 function fWizardMaxPrepared(){
@@ -9956,7 +10116,7 @@ function fRSpellsSection(){
   const castBonus   = fpb(lv)+castMod;
   const saveDC      = 8+fpb(lv)+castMod;
   const hasBook     = fHasSpellbook();      // solo mago
-  const isKnown     = fIsKnownCaster();     // warlock, sorcerer
+  const isKnown     = fIsKnownCaster();     // PHB 2024: sempre false (tutti preparano)
   const formula     = fPreparedFormula();   // formula testuale
 
   if(!C.preparedSpells) C.preparedSpells=[];
