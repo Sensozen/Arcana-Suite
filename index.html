@@ -1361,6 +1361,7 @@ function applyFilters(){
 function filterSpells(){
   const f=state.filters;
   return SPELLS.filter(s=>{
+    if(!fSrdAllowed('spells', s.id)) return false;
     if(f.search && !s.nome.toLowerCase().includes(f.search) && !(s.descrizione||'').toLowerCase().includes(f.search)) return false;
     if(f.livello!=='tutti' && String(s.livello)!==f.livello) return false;
     if(f.scuola!=='tutte' && s.scuola!==f.scuola) return false;
@@ -1747,7 +1748,7 @@ fighter: [
 // ──────────────────────────────────────────────────────────────────
 monk: [
   { lv:1,  it:"Arti Marziali",
-    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DEX invece di STR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-9), 1d10 (Lv.10-15), 1d12 (Lv.16-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
+    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DEX invece di STR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-10), 1d10 (Lv.11-16), 1d12 (Lv.17-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
   { lv:1,  it:"Difesa Senza Armatura",
     desc:"Senza armatura e scudo: CA = 10 + mod. DES + mod. SAG." },
   { lv:2,  it:"Concentrazione da Monaco",
@@ -2942,6 +2943,19 @@ const SPECIES=[
   {id:"tiefling",it:"Tiefling",en:"Tiefling",icon:"😈",size:"Media o Piccola",speed:"9m",langs:"Comune",langsEn:"Common",bonuses:["—"],bonusesEn:["—"],traits:"Presenza Ultraterrena, Retaggio Immondo, Scurovisione 18m",traitsEn:"Otherworldly Presence, Fiendish Legacy, Darkvision 18m",subraces:[{id:"infernale",it:"Infernale",en:"Infernal",icon:"🔥",bonuses:["—"],bonusesEn:["—"],features:[{it:"Lv.1: Res. Fuoco + Dardo di Fuoco",en:"Lv.1: Fire Resistance + Fire Bolt",desc:"Resistenza fuoco. Trucchetto Dardo di fuoco.",descEn:"Fire resistance. Fire Bolt cantrip."},{it:"Lv.3: Intimidire Infernale",en:"Lv.3: Hellish Rebuke",desc:"1/riposo lungo.",descEn:"1/long rest."},{it:"Lv.5: Oscurità",en:"Lv.5: Darkness",desc:"1/riposo lungo.",descEn:"1/long rest."}]},{id:"abissale",it:"Abissale",en:"Abyssal",icon:"🌀",bonuses:["—"],bonusesEn:["—"],features:[{it:"Lv.1: Res. Veleno + Spruzzo Velenoso",en:"Lv.1: Poison Resistance + Poison Spray",desc:"Resistenza veleno. Trucchetto Spruzzo velenoso.",descEn:"Poison resistance. Poison Spray cantrip."},{it:"Lv.3: Raggio di Infermità",en:"Lv.3: Ray of Sickness",desc:"1/riposo lungo.",descEn:"1/long rest."},{it:"Lv.5: Blocca Persone",en:"Lv.5: Hold Person",desc:"1/riposo lungo.",descEn:"1/long rest."}]},{id:"ctonio",it:"Ctonio",en:"Chthonic",icon:"💀",bonuses:["—"],bonusesEn:["—"],features:[{it:"Lv.1: Res. Necrotica + Tocco Gelido",en:"Lv.1: Necrotic Resistance + Chill Touch",desc:"Resistenza necrotica. Trucchetto Tocco gelido.",descEn:"Necrotic resistance. Chill Touch cantrip."},{it:"Lv.3: Vita Falsata",en:"Lv.3: False Life",desc:"1/riposo lungo.",descEn:"1/long rest."},{it:"Lv.5: Raggio di Affaticamento",en:"Lv.5: Ray of Enfeeblement",desc:"1/riposo lungo.",descEn:"1/long rest."}]}],features:[{it:"Presenza Ultraterrena",en:"Otherworldly Presence",desc:"Conosci Taumaturgia.",descEn:"Know Thaumaturgy."},{it:"Retaggio Immondo",en:"Fiendish Legacy",desc:"Scegli Abissale, Ctonio o Infernale. Resistenza + trucchetto Lv.1, incantesimi Lv.3 e 5.",descEn:"Choose Abyssal, Chthonic, or Infernal. Resistance + cantrip Lv.1, spells Lv.3 and 5."},{it:"Scurovisione",en:"Darkvision",desc:"Scurovisione 18 m.",descEn:"Darkvision 60 ft."}]},
   {id:"umano",it:"Umano",en:"Human",icon:"👤",size:"Media o Piccola",speed:"9m",langs:"Comune",langsEn:"Common",extraLangs:1,versatileFeat:true,bonuses:["—"],bonusesEn:["—"],traits:"Intraprendente, Pluriabilità, Versatile",traitsEn:"Resourceful, Skillful, Versatile",features:[{it:"Intraprendente",en:"Resourceful",desc:"Ottieni Ispirazione eroica ad ogni riposo lungo.",descEn:"Gain Heroic Inspiration after every long rest."},{it:"Pluriabilità",en:"Skillful",desc:"Competenza in un\'abilità a scelta.",descEn:"Proficiency in one skill of your choice."},{it:"Versatile",en:"Versatile",desc:"Ottieni un talento delle origini a scelta.",descEn:"Gain an Origin feat of your choice."}]}
 ];
+
+// REGISTRO SRD 5.2.1 — id PHB-only per categoria; tutto il resto e' SRD.
+// feats: id allineati a FFEATS_DATA_V2 (il picker).
+const SRD_PHB_ONLY = {
+  spells: [8,16,19,22,24,25,37,39,45,52,77,78,88,91,96,106,118,119,120,122,123,134,139,140,141,172,184,199,201,208,219,224,232,240,248,252,255,264,265,266,268,271,273,279,281,288,289,290,291,293,294,295,296,300,303,309,314,317,322,323,330,336,337,348,366,367,380,385],
+  subclasses: ["albero-mondo","cuore-selvaggio","zelota","danza","fascino","valore","luce","inganno","guerra","luna","mare","stelle","maestro-battaglia","cavaliere-mistico","guerriero-psionico","abjuration","divination","illusion","shadow","elements","mercy","ancients","vengeance","glory","beast","gloom","fey","assassin","arcane","soul","wild","clockwork","aberrant","archfey","great","celestial"],
+  species: ["aasimar"],
+  backgrounds: ["artigiano","ciarlatano","contadino","eremita","guardia","guida","intrattenitore","marinaio","mercante","nobile","scriba","viandante"],
+  feats: ["fortunato","guaritore","lavoro-manuale","lottatore-taverna","musicista","robusto","atleta","attore","bisturi-battaglia","carica","combattente-due-armi","duellante-difensivo","esperto-balestre","maestro-armi-possenti","maestro-armi","maestro-scudi","maestro-armi-asta","sentinella","sterminatore-maghi","stile-penetrante","martello-vivente","tiratore-scelto","appostato","combattente-sella","competenza-armi-guerra","adepto-elementale","cecchino-magico","contaminazione-fatata","contaminazione-oscura","incantatore-guerra","incantatore-rituale","telecinesi","telepatia","abilita-impeccabile","corazze-leggere","corazze-medie","corazze-pesanti","maestro-armature-medie","maestro-armature-pesanti","resiliente","tenace","osservatore","mente-acuta","condottiero-ispiratore","rapidita","cuoco","maestria-veleni","st-duellare","st-intercettazione","st-protezione","st-cieca","st-disarmato","st-lancio","dono-abilita","dono-recupero","dono-resistenza","dono-tempra","dono-velocita"]
+};
+function fIsSRD(cat, id){ const l=SRD_PHB_ONLY[cat]; return !l || !l.includes(id); }
+var SRD_BUILD_MODE = (typeof window!=='undefined' && window.SRD_BUILD_MODE) ? window.SRD_BUILD_MODE : 'full';
+function fSrdAllowed(cat, id){ return SRD_BUILD_MODE !== 'srd' || fIsSRD(cat, id); }
 
 const CLASSES=[
   {id:"barbarian",it:"Barbaro",en:"Barbarian",icon:"⚔️",hd:"d12",savesIt:"FOR, COS",savesEn:"STR, CON",armorIt:"Leggera, Media, Scudi",armorEn:"Light, Medium, Shields",weaponsIt:"Armi semplici e da guerra",weaponsEn:"Simple and martial weapons",toolsIt:"—",toolsEn:"—",masteryCount:2,expertiseCount:0,skillsIt:"Scegli 2: Addestr. Animali, Atletica, Intimidire, Natura, Percezione, Sopravvivenza",skillsEn:"Choose 2: Animal Handling, Athletics, Intimidation, Nature, Perception, Survival",featIt:"Ira (res. C/P/T, vantaggio FOR); Attacco Extra Lv.5; Recuperare Energie",featEn:"Rage (B/P/S resistance, advantage STR); Extra Attack Lv.5; Second Wind",descIt:"Guerriero feroce alimentato dall\'ira primordiale",descEn:"Fierce warrior fueled by primal rage",subclasses:[{id:"berserker",it:"Cammino del Berserker",en:"Path of the Berserker"},{id:"albero-mondo",it:"Cammino dell\'Albero del Mondo",en:"Path of the World Tree"},{id:"cuore-selvaggio",it:"Cammino del Cuore Selvaggio",en:"Path of the Wild Heart"},{id:"zelota",it:"Cammino dello Zelota",en:"Path of the Zealot"}]},
@@ -6297,7 +6311,7 @@ function fRS0sc(){
 
   // Griglia sottoclassi
   html += `<div class="g2" style="gap:7px;margin-bottom:14px">
-    ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:10px" onclick="fSelSubclass('${sc.id}')">
+    ${cl.subclasses.filter(sc=>fSrdAllowed('subclasses',sc.id)).map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:10px" onclick="fSelSubclass('${sc.id}')">
       <div style="font-size:13px;font-weight:600;color:${C.subclass===sc.id?"var(--gold)":"var(--text)"};margin-bottom:3px">${isIt?sc.it:sc.en}</div>
     </div>`).join("")}
   </div>`;
@@ -6536,7 +6550,7 @@ function fRS0(cl){
       <div style="margin-bottom:14px"><div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">${ft("Capacità Chiave","Key Feature")}</div><div style="font-size:12px;color:var(--gold)">${lang==="it"?cl.featIt:cl.featEn}</div></div>
       <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">${ft("Sottoclasse","Subclass")}</div>
       <div class="g2" style="gap:6px">
-        ${cl.subclasses.map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:9px" onclick="fSelSubclass('${sc.id}')">
+        ${cl.subclasses.filter(sc=>fSrdAllowed('subclasses',sc.id)).map(sc=>`<div class="card ${C.subclass===sc.id?"sel":""}" style="padding:9px" onclick="fSelSubclass('${sc.id}')">
           <div style="font-size:12px;font-weight:600;color:${C.subclass===sc.id?"var(--gold)":"var(--text)"}">${lang==="it"?sc.it:sc.en}</div>
         </div>`).join("")}
       </div>
@@ -7777,7 +7791,7 @@ function fRS3(){
     <div class="sec-title">📜 ${ft("5 · Background","5 · Background")}</div>
     
     <div class="ga-sm" style="margin-bottom:12px">
-      ${BACKGROUNDS.map(b=>{
+      ${BACKGROUNDS.filter(b=>fSrdAllowed('backgrounds',b.id)).map(b=>{
         const isSel = C.bg===b.id;
         const stats = (lang==="it"?b.statsIt:b.statsEn).split(",").map(s=>s.trim());
         const statBadges = stats.map(s=>`<span style="font-size:8px;padding:1px 4px;border-radius:2px;background:rgba(255,255,255,.05);color:var(--muted);letter-spacing:.3px">${s}</span>`).join(" ");
@@ -7945,6 +7959,7 @@ function fRS4(){
   function renderCat(catData){
     const hint = isIt ? catData.hint_it : catData.hint_en;
     const catTitle = isIt ? catData.it : catData.en;
+    const _srdFeats = catData.feats.filter(f=>fSrdAllowed('feats', f.id));
 
     // Doni Epici: se ne è già stato preso uno, blocca gli altri visivamente
     const epicTaken = catData.cat === 'epic'
@@ -7952,15 +7967,15 @@ function fRS4(){
       : [];
 
     // Dividi: disponibili / bloccati da prereq
-    const available = catData.feats.filter(f => {
+    const available = _srdFeats.filter(f => {
       const { r, isBg } = evalFeat(f);
       return r.ok && !isBg;
     });
-    const locked = catData.feats.filter(f => {
+    const locked = _srdFeats.filter(f => {
       const { r, isBg } = evalFeat(f);
       return !r.ok && !isBg;
     });
-    const bgFeats = catData.feats.filter(f => evalFeat(f).isBg);
+    const bgFeats = _srdFeats.filter(f => evalFeat(f).isBg);
 
     // Se tutti bloccati (es. fighting style per classi non idonee), collassa la sezione
     const allLocked = available.length === 0 && bgFeats.length === 0;
@@ -9768,6 +9783,7 @@ function fRenderSpellPicker(){
 
   // Filtra per classe e per tipo (trucchetto vs livellato)
   let filtered = SPELLS.filter(s => {
+    if(!fSrdAllowed('spells', s.id)) return false;
     const lvMatch = isCtrip ? s.livello === 0 : s.livello > 0;
     if(!lvMatch) return false;
     // Filtro scuola
@@ -12461,7 +12477,7 @@ function fRS6(){
 
     <div style="color:var(--muted);font-size:13px;margin-bottom:10px">${ft("Specie","Species")}</div>
     <div class="ga-sm" style="margin-bottom:14px">
-      ${SPECIES.map(s=>`<div class="card ${C.species===s.id?"sel":""}" onclick="fSelSp('${s.id}')">
+      ${SPECIES.filter(s=>fSrdAllowed('species',s.id)).map(s=>`<div class="card ${C.species===s.id?"sel":""}" onclick="fSelSp('${s.id}')">
         <div style="font-size:18px;margin-bottom:3px">${s.icon}</div>
         <div style="font-size:12px;font-weight:600;color:${C.species===s.id?"var(--gold)":"var(--text)"}">${lang==="it"?s.it:s.en}</div>
       </div>`).join("")}
