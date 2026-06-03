@@ -2866,7 +2866,7 @@ const FEAT_METADATA = {
   'duellante-difensivo':     { cat:'general', prereq:'lv4,DEX_13', statBonus:{any:'DEX', val:1}, max:20 },
   'esperto-balestre':        { cat:'general', prereq:'lv4,DEX_13', statBonus:{any:'DEX', val:1}, max:20 },
   'incantatore-guerra':      { cat:'general', prereq:'lv4,spellcasting', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
-  'incantatore-rituale':     { cat:'general', prereq:'lv4,INT_WIS_CHA_13', statBonus:{any:'INT_WIS_CHA', val:1}, max:20 },
+  'incantatore-rituale':     { cat:'general', prereq:'lv4,INT_WIS_CHA_13', statBonus:{any:'INT_WIS_CHA', val:1}, max:20, ritualSpells:'choice' },
   'lottatore':               { cat:'general', prereq:'lv4,STR_DEX_13', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'maestria-veleni':         { cat:'general', prereq:'lv4', statBonus:{any:'INT_DEX', val:1}, max:20 },
   'maestro-armi':            { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
@@ -2910,7 +2910,7 @@ const FEAT_METADATA = {
   'dono-fato':               { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-offensiva':          { cat:'epic', prereq:'lv19', statBonus:{any:'STR_DEX', val:1}, max:30 },
   'dono-recupero':           { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
-  'dono-resistenza':         { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-resistenza':         { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30, energyResist:2 },
   'dono-richiamo':           { cat:'epic', prereq:'lv19', statBonus:{any:'INT_WIS_CHA', val:1}, max:30 },
   'dono-ombra':              { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-tempra':             { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
@@ -8110,7 +8110,7 @@ function fRS4(){
           || meta.grants?.tools || meta.grants?.spellList
           || meta.grants?.skillFromList || meta.grants?.expertise
           || meta.grants?.damageType || meta.grants?.spell1Schools
-          || meta.grants?.allSkillsProf || meta.spellList);
+          || meta.grants?.allSkillsProf || meta.spellList || meta.ritualSpells || meta.energyResist);
       }
       const featsWithChoices = (C.feats||[]).filter(f=>{
         const _m = FEAT_METADATA[f.id];
@@ -10487,6 +10487,32 @@ function fSetFeatIMSpell1(uid, nome){
   C.featChoices[uid].imSpell1 = (C.featChoices[uid].imSpell1===nome) ? null : nome;
   re();
 }
+// ─── Setter: incantesimi rituali (Incantatore Rituale) — max = bonus competenza ──
+function fSetFeatRitualSpell(uid, nome){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  const max = profBonus(C.level||1);
+  const arr = Array.isArray(C.featChoices[uid].ritualSpells) ? C.featChoices[uid].ritualSpells.slice() : [];
+  const i = arr.indexOf(nome);
+  if(i>=0){ arr.splice(i,1); }
+  else if(arr.length < max){ arr.push(nome); }
+  C.featChoices[uid].ritualSpells = arr;
+  re();
+}
+// ─── Setter: resistenze energetiche (Dono della Resistenza all'Energia) — max 2 ──
+function fSetFeatEnergyResist(uid, typeId){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  const feat = (C.feats||[]).find(function(f){ return f.uid===uid; });
+  const meta = feat ? FEAT_METADATA[feat.id] : null;
+  const max = (meta && meta.energyResist) ? meta.energyResist : 2;
+  const arr = Array.isArray(C.featChoices[uid].energyResist) ? C.featChoices[uid].energyResist.slice() : [];
+  const i = arr.indexOf(typeId);
+  if(i>=0){ arr.splice(i,1); }
+  else if(arr.length < max){ arr.push(typeId); }
+  C.featChoices[uid].energyResist = arr;
+  re();
+}
 function fSetAsiMode(uid, mode){
   if(!C.featChoices) C.featChoices = {};
   if(!C.featChoices[uid]) C.featChoices[uid] = {};
@@ -10919,6 +10945,46 @@ function fRFeatChoices(feat){
         + lvl1Pool.map(sp=>pill(chosenSpell1===sp.nome, sp.nome, "fSetFeatIMSpell1('"+feat.uid+"','"+fHtmlEsc(sp.nome)+"')", false)).join('')
         + '</div>';
     }
+    html += '</div>';
+  }
+
+  // ── Picker incantesimi rituali (Incantatore Rituale) — N = bonus competenza ──
+  if(meta.ritualSpells === 'choice'){
+    const chosen = Array.isArray(C.featChoices?.[feat.uid]?.ritualSpells) ? C.featChoices[feat.uid].ritualSpells : [];
+    const nMax = profBonus(C.level||1);
+    const pool = (typeof SPELLS !== 'undefined' ? SPELLS : [])
+      .filter(sp=>sp.livello===1 && sp.rituale===true)
+      .sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
+    html += '<div style="margin-top:6px;padding:6px 8px;background:rgba(100,180,200,.07);border-left:2px solid #3498db;border-radius:2px">';
+    html += '<div style="font-size:10px;color:#3498db;margin-bottom:4px">📜 '+(isIt?'Incantesimi rituali di 1°':'1st-level ritual spells')+' ('+chosen.length+'/'+nMax+') <span style="font-size:9px;opacity:.7">'+(isIt?'= bonus competenza':'= proficiency bonus')+'</span></div>';
+    html += '<div style="max-height:120px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:2px">'
+      + pool.map(sp=>{
+          const sel = chosen.indexOf(sp.nome)>=0;
+          const dis = !sel && chosen.length>=nMax;
+          return '<span onclick="'+(dis?'':fHtmlEsc("fSetFeatRitualSpell('"+feat.uid+"','"+sp.nome+"')"))+'" style="font-size:10px;padding:2px 6px;border:1px solid '+(sel?'#3498db':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(52,152,219,.2)':'transparent')+';color:'+(sel?'#3498db':dis?'var(--vdim)':'var(--muted)')+';border-radius:2px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'">'+sp.nome+'</span>';
+        }).join('')
+      + '</div>';
+    html += '</div>';
+  }
+
+  // ── Picker resistenze energetiche (Dono della Resistenza all'Energia) — 2 tipi ──
+  if(meta.energyResist){
+    const chosen = Array.isArray(C.featChoices?.[feat.uid]?.energyResist) ? C.featChoices[feat.uid].energyResist : [];
+    const nMax = meta.energyResist;
+    const types = [
+      {id:'acid',it:'Acido',en:'Acid'},{id:'cold',it:'Freddo',en:'Cold'},{id:'lightning',it:'Fulmine',en:'Lightning'},
+      {id:'fire',it:'Fuoco',en:'Fire'},{id:'necrotic',it:'Necrotico',en:'Necrotic'},{id:'psychic',it:'Psichico',en:'Psychic'},
+      {id:'radiant',it:'Radioso',en:'Radiant'},{id:'thunder',it:'Tuono',en:'Thunder'},{id:'poison',it:'Veleno',en:'Poison'}
+    ];
+    html += '<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">';
+    html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🛡️ '+(isIt?'Resistenze energetiche':'Damage resistances')+' ('+chosen.length+'/'+nMax+') <span style="font-size:9px;opacity:.7">'+(isIt?'modificabili a ogni riposo lungo':'changeable each long rest')+'</span></div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:3px">'
+      + types.map(t=>{
+          const sel = chosen.indexOf(t.id)>=0;
+          const dis = !sel && chosen.length>=nMax;
+          return '<span onclick="'+(dis?'':"fSetFeatEnergyResist('"+feat.uid+"','"+t.id+"')")+'" style="font-size:10px;padding:2px 8px;border:1px solid '+(sel?'var(--gold)':dis?'var(--vdim)':'var(--border2)')+';background:'+(sel?'rgba(200,164,90,.2)':'transparent')+';color:'+(sel?'var(--gold)':dis?'var(--vdim)':'var(--text)')+';border-radius:3px;cursor:'+(dis?'not-allowed':'pointer')+';opacity:'+(dis?.4:1)+'">'+(isIt?t.it:t.en)+'</span>';
+        }).join('')
+      + '</div>';
     html += '</div>';
   }
 
