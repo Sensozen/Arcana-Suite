@@ -2302,19 +2302,21 @@ const SUBCLASS_FEATURES = {
 
 // ══ WARLOCK ══════════════════════════════════════════════════════
 "celestial": [
+  { lv:3,  it:"Incantesimi Celestiali", desc:"Sempre preparati: Lv.3 luce, fiamma sacra, aiuto, cura ferite, dardo tracciante, ristorare inferiore · Lv.5 luce diurna, rinascita · Lv.7 guardiano della fede, muro di fuoco · Lv.9 richiama celestiale, ristorare superiore." },
   { lv:3,  it:"Luce Curatrice", desc:"Riserva di d6 = 1 + livello da warlock. Azione bonus: consuma fino a mod. CAR (min 1) dadi e guarisce una creatura entro 18 m (incluso sé stesso) pari al totale. Recupero: riposo lungo." },
   { lv:6,  it:"Anima Radiosa", desc:"Resistenza ai danni radiosi. Una volta per turno, quando un incantesimo infligge danni radiosi o da fuoco, può aggiungere mod. CAR ai danni di un bersaglio." },
   { lv:10, it:"Resilienza Celestiale", desc:"Ogni volta che usa Scaltrezza Magica o completa un riposo breve o lungo, ottiene PF temporanei pari al livello da warlock + mod. CAR. Può poi scegliere fino a cinque creature visibili entro 18 m e far ottenere a ognuna PF temporanei pari alla metà del suo livello da warlock + il proprio modificatore di Carisma." },
   { lv:14, it:"Vendetta Incandescente", desc:"Reazione: quando lui o un alleato entro 18 m sta per effettuare un tiro salvezza contro morte, può scatenare energia radiosa per salvarlo. I PF della creatura vengono ripristinati a metà dei suoi PF massimi; se era prona, termina quella condizione. Ogni creatura a scelta entro 9 m dalla creatura salvata subisce danni radiosi pari a 2d8 + mod. CAR e diventa accecata fino alla fine del turno in corso. 1/riposo lungo." },
 ],
 "archfey": [
+  { lv:3,  it:"Incantesimi del Signore Fatato", desc:"Sempre preparati: Lv.3 calmare emozioni, luminescenza, passo velato, allucinazione di forza, sonno · Lv.5 crescita vegetale, intermittenza · Lv.7 dominare bestie, invisibilità superiore · Lv.9 dominare persone, sembrare." },
   { lv:3,  it:"Movimenti del Folletto", desc:"Può lanciare passo velato senza slot. Usi = mod. CAR (min 1); recupero: riposo lungo. Ogni volta che lo lancia, può scegliere uno degli effetti aggiuntivi: Movimento provocatorio (creature entro 1,5 m dallo spazio abbandonato TS su SAG o hanno svantaggio), Movimento rinvigorente (lui o una creatura entro 3 m ottiene 1d10 PF temporanei)." },
-  { lv:6,  it:"Fuga Nebbiosa", desc:"Reazione ai danni subiti: lancia passo velato. Aggiunge Movimento evanescente (è invisibile fino all'inizio del prossimo turno o al primo attacco/incantesimo/TS imposto)." },
+  { lv:6,  it:"Fuga Nebbiosa", desc:"Reazione ai danni subiti: lancia passo velato. Aggiunge alle opzioni di Movimenti del Folletto: Movimento evanescente (è invisibile fino all'inizio del prossimo turno o al primo attacco/incantesimo/TS imposto) e Movimento terribile (le creature entro 1,5 m dallo spazio abbandonato o da quello in cui appare, a scelta, TS su SAG o subiscono 2d10 danni psichici)." },
   { lv:10, it:"Difese Seducenti", desc:"Non può essere affascinato. Reazione: quando una creatura lo colpisce con un tiro per colpire, può ridurre i danni subiti della metà (arrotondando per difetto) e costringere l'attaccante a effettuare un TS su SAG (CD incantesimi); se fallisce, subisce danni psichici pari al danno inflitto al warlock. 1/riposo lungo (ignorabile spendendo uno slot della Magia del Patto, nessuna azione)." },
   { lv:14, it:"Magia Ammaliante", desc:"Subito dopo aver lanciato un incantesimo di ammaliamento/illusione con slot, può lanciare passo velato come parte della stessa azione senza slot." },
 ],
 "great": [
-  { lv:3,  it:"Incantesimi del Grande Antico", desc:"Alcuni incantesimi (vedi tabella Incantesimi del Grande Antico) sono sempre preparati." },
+  { lv:3,  it:"Incantesimi del Grande Antico", desc:"Sempre preparati: Lv.3 individuazione dei pensieri, sussurri dissonanti, allucinazione di forza, risata incontenibile di Tasha · Lv.5 chiaroveggenza, fame di Hadar · Lv.7 confusione, evoca aberrazione · Lv.9 modificare memoria, telecinesi." },
   { lv:3,  it:"Incantesimi Psichici", desc:"Quando lancia un incantesimo che infligge danni, può cambiare il tipo in psichico. Quando lancia un incantesimo di ammaliamento o illusione, può farlo senza componenti verbali o somatici." },
   { lv:3,  it:"Mente Risvegliata", desc:"Azione bonus: sceglie una creatura visibile entro 9 m con cui stabilire un legame telepatico. La connessione dura un numero di minuti pari al livello da warlock. Distanza massima durante la connessione: mod. CAR × 1,5 km (min 1,5 km). I due devono parlare mentalmente in una lingua comprensibile a entrambi. Termina se usata per un'altra creatura." },
   { lv:6,  it:"Guerriero Chiaroveggente", desc:"Quando forma un legame telepatico con una creatura, può costringerla (TS su SAG, CD incantesimi) a svantaggio ai tiri per colpire contro di lui. Lui ha vantaggio contro quella creatura per tutta la durata. 1/riposo breve o lungo (ignorabile spendendo uno slot della Magia del Patto)." },
@@ -2324,7 +2326,7 @@ const SUBCLASS_FEATURES = {
 ],
 "fiend": [
   { lv:3,  it:"Benedizione dell'Oscuro", desc:"Quando fa scendere una creatura a 0 PF, ottiene PF temporanei = mod. CAR + livello da warlock (min 1). Funziona anche se una creatura entro 3 m è ridotta a 0 PF da qualcun altro." },
-  { lv:3,  it:"Incantesimi Immondi", desc:"Alcuni incantesimi (vedi tabella Incantesimi Immondi) sono sempre preparati." },
+  { lv:3,  it:"Incantesimi Immondi", desc:"Sempre preparati: Lv.3 mani brucianti, comando, raggio rovente, suggestione · Lv.5 nube maleodorante, palla di fuoco · Lv.7 muro di fuoco, scudo di fuoco · Lv.9 costrizione, piaga degli insetti." },
   { lv:6,  it:"Fortuna dell'Oscuro", desc:"Quando effettua una prova di caratteristica o un TS, può aggiungere 1d10 al tiro dopo averlo visto ma prima che qualsiasi effetto si applichi. Usi = mod. CAR (min 1); recupero: riposo lungo." },
   { lv:10, it:"Resilienza Immonda", desc:"Ogni riposo breve o lungo, sceglie un tipo di danno (tranne forza). Ottiene resistenza a quel tipo finché non sceglie un altro." },
   { lv:14, it:"Scagliare all'Inferno", desc:"Una volta per turno: quando colpisce una creatura con un tiro per colpire, può tentare di trasferirla ai Piani Inferiori. TS su CAR (CD incantesimi): se non è un immondo, scompare per un round (subisce 8d10 danni psichici, è incapacitata). Poi torna nello spazio più vicino. 1/riposo lungo (ignorabile spendendo uno slot della Magia del Patto)." },
@@ -2910,7 +2912,7 @@ const FEAT_METADATA = {
   'dono-recupero':           { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-resistenza':         { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-richiamo':           { cat:'epic', prereq:'lv19', statBonus:{any:'INT_WIS_CHA', val:1}, max:30 },
-  'dono-spirito-notturno':   { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
+  'dono-ombra':              { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-tempra':             { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-teletrasporto':      { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
   'dono-velocita':           { cat:'epic', prereq:'lv19', statBonus:{any:1, val:1}, max:30 },
@@ -3613,10 +3615,10 @@ const WARLOCK_INVOCATIONS = [
 // Numero suppliche per livello PHB 2024
 function fGetWarlockInvocationCount(lv){
   // PHB 2024 p.166 colonna Suppliche Occulte:
-  // 1(L1) · 3(L2-4) · 5(L5-6) · 6(L7-8) · 7(L9-10) · 8(L11-13) · 9(L14-16) · 10(L17-20)
-  if(lv>=17) return 10;
-  if(lv>=14) return 9;
-  if(lv>=11) return 8;
+  // 1(L1) · 3(L2-4) · 5(L5-6) · 6(L7-8) · 7(L9-11) · 8(L12-14) · 9(L15-17) · 10(L18-20)
+  if(lv>=18) return 10;
+  if(lv>=15) return 9;
+  if(lv>=12) return 8;
   if(lv>=9)  return 7;
   if(lv>=7)  return 6;
   if(lv>=5)  return 5;
@@ -5573,9 +5575,8 @@ function fFeatSlots(cls,lv){
   } else {
     fAsiLevelsForClass(cls).forEach(l=>{ if(l<=lv) n++; });
   }
-  // Umano (Versatile) ottiene +1 talento di Origini gratuito al Lv.1
-  const sp=fgSp();
-  if(sp && sp.versatileFeat) n++;
+  // Nota: il talento Versatile dell'Umano è gestito a parte come slot di Origine
+  // gratuito (vedi fSetVersatileFeat) e NON incide sugli slot ASI.
   return n;
 }
 const FPC={8:0,9:1,10:2,11:3,12:4,13:5,14:7,15:9};
@@ -7881,7 +7882,7 @@ function fRS3(){
 }
 function fRS4(){
   const slots   = fFeatSlots(C.cls, C.level);
-  const used    = C.feats.filter(f => !f.fromBg).length;
+  const used    = C.feats.filter(f => !f.fromBg && !f.fromVersatile).length;
   const bg      = fgBg();
   const bgFeat  = bg ? (lang==='it' ? bg.featIt : bg.featEn) : null;
   const isIt    = lang === 'it';
@@ -8049,6 +8050,31 @@ function fRS4(){
       </div>
     </div>` : ''}
 
+    <!-- Talento Versatile (Umano) — solo Origini, gratuito -->
+    ${isHuman ? (()=>{
+      const oriCat = FFEATS_DATA_V2.find(c=>c.cat==='origin');
+      const sel = C.feats.find(f=>f.fromVersatile);
+      const opts = (oriCat?.feats||[])
+        .filter(f=> fSrdAllowed('feats', f.id))
+        .filter(f=> !(bgFeat && (f.it===bgFeat||f.en===bgFeat)));
+      return `<div class="box" style="border-color:rgba(200,164,90,.4);margin-bottom:16px">
+        <div class="box-title" style="color:var(--gold)">🧬 ${ft('Talento Versatile — Umano','Versatile Feat — Human')}</div>
+        <div style="font-size:10px;color:var(--vdim);margin-bottom:8px;font-style:italic">${ft('Tratto Versatile: scegli 1 talento delle Origini. Gratuito, non consuma uno slot ASI.','Versatile trait: choose 1 Origin feat. Free, does not consume an ASI slot.')}</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          ${opts.map(f=>{
+            const isS = sel && sel.id===f.id;
+            const nm = isIt?f.it:f.en; const ds = isIt?f.descIt:f.descEn;
+            const eid=f.id.replace(/'/g,"\\'"), eit=f.it.replace(/'/g,"\\'"), een=f.en.replace(/'/g,"\\'");
+            return `<div onclick="fSetVersatileFeat('${eid}','${eit}','${een}')" style="cursor:pointer;padding:8px 10px;border:1px solid ${isS?'var(--gold)':'rgba(200,164,90,.2)'};background:${isS?'rgba(200,164,90,.12)':'rgba(0,0,0,.15)'};border-radius:3px;display:flex;align-items:flex-start;gap:8px">
+              <span style="color:${isS?'var(--gold)':'var(--vdim)'};font-size:13px;flex-shrink:0">${isS?'◉':'○'}</span>
+              <div><div style="font-size:12px;font-weight:600;color:${isS?'var(--gold)':'var(--text)'}">${nm}</div>
+              <div style="font-size:10px;color:var(--vdim);line-height:1.5">${ds}</div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    })() : ''}
+
     <!-- Slot ASI usati -->
     ${used > 0 ? `<div style="margin-bottom:14px;padding:8px 10px;background:rgba(26,18,8,.6);border:1px solid var(--border2);border-radius:3px">
       <div style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">
@@ -8058,7 +8084,7 @@ function fRS4(){
         ${(()=>{
           // Raggruppa i feat per id mostrando ×N per i ripetibili
           const seen = {};
-          C.feats.forEach((f,i) => { seen[f.id] = seen[f.id] || {f, indices:[]}; seen[f.id].indices.push(i); });
+          C.feats.filter(f => !f.fromBg && !f.fromVersatile).forEach((f,i) => { seen[f.id] = seen[f.id] || {f, indices:[]}; seen[f.id].indices.push(i); });
           return Object.values(seen).map(({f, indices}) => {
             const n = indices.length;
             const name = lang==='it'?(f.nameIt||f.name):(f.nameEn||f.name);
@@ -8074,7 +8100,7 @@ function fRS4(){
 
     <!-- SCELTE TALENTI: stat, abilità, etc. -->
     <!-- TALENTI PER CATEGORIA -->
-    ${FFEATS_DATA_V2.map(cat => renderCat(cat)).join('')}
+    ${FFEATS_DATA_V2.filter(cat => cat.cat !== 'origin').map(cat => renderCat(cat)).join('')}
 
     <!-- SCELTE RICHIESTE DAI TALENTI (dopo la selezione) -->
     ${(()=>{
@@ -8996,7 +9022,8 @@ function fRSheet(){
 
       ${(C.feats.length>0||C.featNotes||bg)?`<div class="box"><div class="box-title">⭐ ${ft('Talenti','Feats')}</div>
         ${bg?`<div style="margin-bottom:6px"><span style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px">BG (${isIt?bg.it:bg.en}): </span><span class="feat-tag">${isIt?bg.featIt:bg.featEn}</span></div>`:''}
-        ${C.feats.length>0?`<div><span style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px">ASI (${C.feats.length}/${fFeatSlots(C.cls,C.level)}): </span>${C.feats.map(f=>`<span class="feat-tag">${isIt?(f.nameIt||f.name):(f.nameEn||f.name)}</span>`).join('')}</div>`:''}
+        ${(()=>{const v=C.feats.find(f=>f.fromVersatile);return v?`<div style="margin-bottom:6px"><span style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px">${ft('Versatile (Origine)','Versatile (Origin)')}: </span><span class="feat-tag">${isIt?(v.nameIt||v.name):(v.nameEn||v.name)}</span></div>`:'';})()}
+        ${(()=>{const asi=C.feats.filter(f=>!f.fromBg&&!f.fromVersatile);return asi.length>0?`<div><span style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px">ASI (${asi.length}/${fFeatSlots(C.cls,C.level)}): </span>${asi.map(f=>`<span class="feat-tag">${isIt?(f.nameIt||f.name):(f.nameEn||f.name)}</span>`).join('')}</div>`:'';})()}
         ${C.featNotes?`<div style="font-size:12px;color:var(--muted);font-style:italic;margin-top:6px">${C.featNotes}</div>`:''}
       </div>`:''}
 
@@ -10360,7 +10387,7 @@ function fFeatCount(id){
 
 // ─── aggiungi una istanza di feat ripetibile ──────────────────────────────
 function fFeatAdd(id, nameIt, nameEn){
-  const nonBgCount = C.feats.filter(f => !f.fromBg).length;
+  const nonBgCount = C.feats.filter(f => !f.fromBg && !f.fromVersatile).length;
   if(nonBgCount >= fFeatSlots(C.cls, C.level)) return;
   // Genera UID per tracciare scelte specifiche di questo talento (utile per ripetibili)
   const uid = id + '_' + Date.now() + '_' + Math.floor(Math.random()*1000);
@@ -10866,6 +10893,20 @@ function fUpdNext(){
 function fSelSp(id){
   C.species=C.species===id?null:id;
   C.subrace=null;C.speciesSkills=[];
+  // Il talento Versatile esiste solo per l'Umano: se la specie cambia, rimuovilo.
+  if(C.species!=='umano' && Array.isArray(C.feats)){
+    C.feats=C.feats.filter(f=>{
+      if(f.fromVersatile){
+        if(f.uid){
+          if(C.featChoices) delete C.featChoices[f.uid];
+          if(C.featSkills)  C.featSkills  = C.featSkills.filter(s=>s.uid!==f.uid);
+          if(C.featTools)   C.featTools   = C.featTools.filter(s=>s.uid!==f.uid);
+        }
+        return false;
+      }
+      return true;
+    });
+  }
   if(typeof fSanitizeExpertise==='function') fSanitizeExpertise();
   re();
 }
@@ -10954,7 +10995,13 @@ function fSetLv(lv){
   C.classes[0].level = lv;
   fSyncClassDerived();
   const sl=fFeatSlots(C.cls,C.level);
-  if(C.feats.length>sl) C.feats=C.feats.slice(0,sl);
+  const asiCount = C.feats.filter(f=>!f.fromBg && !f.fromVersatile).length;
+  if(asiCount>sl){
+    let toRemove = asiCount - sl;
+    for(let i=C.feats.length-1; i>=0 && toRemove>0; i--){
+      if(!C.feats[i].fromBg && !C.feats[i].fromVersatile){ C.feats.splice(i,1); toRemove--; }
+    }
+  }
   re();
 }
 
@@ -11175,10 +11222,31 @@ function fTogFeat(id,nameIt,nameEn){
       if(C.featSkills)  C.featSkills  = C.featSkills.filter(s=>s.uid!==removed.uid);
       if(C.featTools)   C.featTools   = C.featTools.filter(s=>s.uid!==removed.uid);
     }
-  } else if(C.feats.filter(f=>!f.fromBg).length<fFeatSlots(C.cls,C.level)){
+  } else if(C.feats.filter(f=>!f.fromBg && !f.fromVersatile).length<fFeatSlots(C.cls,C.level)){
     // Assegna uid univoco: necessario per isolare le scelte di ogni talento
     const uid=id+'_'+Date.now()+'_'+Math.floor(Math.random()*1000);
     C.feats.push({id,uid,name:lang==="it"?nameIt:nameEn,nameIt,nameEn});
+  }
+  re();
+}
+function fSetVersatileFeat(id,nameIt,nameEn){
+  // Talento Versatile dell'Umano: un solo talento di Origine, gratuito (non ASI).
+  const prev=C.feats.findIndex(f=>f.fromVersatile);
+  let wasSame=false;
+  if(prev>=0){
+    const r=C.feats[prev];
+    if(r.id===id) wasSame=true;
+    if(r.uid){
+      if(C.featChoices) delete C.featChoices[r.uid];
+      if(C.featSkills)  C.featSkills  = C.featSkills.filter(s=>s.uid!==r.uid);
+      if(C.featTools)   C.featTools   = C.featTools.filter(s=>s.uid!==r.uid);
+    }
+    C.feats.splice(prev,1);
+  }
+  // Click sullo stesso talento → deseleziona soltanto
+  if(!wasSame){
+    const uid=id+'_v_'+Date.now()+'_'+Math.floor(Math.random()*1000);
+    C.feats.push({id,uid,name:lang==='it'?nameIt:nameEn,nameIt,nameEn,fromVersatile:true,cat:'origin'});
   }
   re();
 }
@@ -11192,7 +11260,7 @@ function fRmFeat(i){
   }
   re();
 }
-function fAddCust(){const inp=document.getElementById("fcust-f");if(!inp?.value.trim())return;if(C.feats.filter(f=>!f.fromBg).length>=fFeatSlots(C.cls,C.level))return;const v=inp.value.trim();C.feats.push({id:"c"+Date.now(),name:v,nameIt:v,nameEn:v});inp.value="";re();}
+function fAddCust(){const inp=document.getElementById("fcust-f");if(!inp?.value.trim())return;if(C.feats.filter(f=>!f.fromBg && !f.fromVersatile).length>=fFeatSlots(C.cls,C.level))return;const v=inp.value.trim();C.feats.push({id:"c"+Date.now(),name:v,nameIt:v,nameEn:v});inp.value="";re();}
 
 // ═══════════════════════════════════════
 // GENERATORE AI
