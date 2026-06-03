@@ -529,7 +529,7 @@ tr.desc-row td{
   main{padding:1rem}
   /* Header tablet */
   .header-inner{gap:1rem;height:56px}
-  .site-logo span:last-child{display:none} /* nascondi "Suite D&D 5e" */
+  .site-logo span:last-child{display:none} /* nascondi "Suite D&D 5,5E" */
   .tab-btn{padding:.45rem .9rem;font-size:.72rem}
   /* Spell table: nascondi colonne meno critiche */
   .spell-classes{display:none}
@@ -903,7 +903,7 @@ function pwCheck(){
   <div class="header-inner">
     <div class="site-logo">
       <span class="ornament">✦</span> Arcana <span class="ornament">✦</span>
-      <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5e</span>
+      <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5,5E</span>
     </div>
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="scheda">⚔️ Scheda Personaggio</button>
@@ -2992,9 +2992,15 @@ const BACKGROUNDS=[
 ];
 
 const ALIGNMENTS=[
-  {id:"LG",it:"Legale Buono",en:"Lawful Good"},{id:"NG",it:"Neutrale Buono",en:"Neutral Good"},{id:"CG",it:"Caotico Buono",en:"Chaotic Good"},
-  {id:"LN",it:"Legale Neutrale",en:"Lawful Neutral"},{id:"TN",it:"Vero Neutrale",en:"True Neutral"},{id:"CN",it:"Caotico Neutrale",en:"Chaotic Neutral"},
-  {id:"LE",it:"Legale Malvagio",en:"Lawful Evil"},{id:"NE",it:"Neutrale Malvagio",en:"Neutral Evil"},{id:"CE",it:"Caotico Malvagio",en:"Chaotic Evil"}
+  {id:"LG",sigla:"LB",it:"Legale Buono",en:"Lawful Good",srd:"Le creature legali buone agiranno sicuramente nel modo considerato giusto dalla società. Chi combatte le ingiustizie e protegge gli innocenti senza esitazione è probabilmente legale buono."},
+  {id:"NG",sigla:"NB",it:"Neutrale Buono",en:"Neutral Good",srd:"Le creature neutrali buone fanno del loro meglio, agendo secondo le regole ma senza sentirsi vincolate da esse. Una persona gentile che aiuta gli altri in base alle necessità è probabilmente neutrale buona."},
+  {id:"CG",sigla:"CB",it:"Caotico Buono",en:"Chaotic Good",srd:"Le creature caotiche buone agiscono in base ai dettami della loro coscienza, senza curarsi troppo delle aspettative del prossimo. Un ribelle che scaccia gli esattori delle tasse di un crudele barone e usa il denaro rubato per aiutare i poveri è probabilmente caotico buono."},
+  {id:"LN",sigla:"LN",it:"Legale Neutrale",en:"Lawful Neutral",srd:"I personaggi legali neutrali agiscono in base a quanto richiesto dalla legge, dalla tradizione o dai codici personali. Chi segue una condotta di vita disciplinata e non si lascia influenzare né dalle richieste dei bisognosi né dalle tentazioni del male è probabilmente legale neutrale."},
+  {id:"TN",sigla:"N",it:"Neutrale",en:"True Neutral",srd:"I personaggi neutrali puri preferiscono tenersi alla larga dalle questioni morali e non si schierano, facendo ciò che sembra loro la cosa migliore di volta in volta. Chi si annoia con il dibattito morale è probabilmente neutrale."},
+  {id:"CN",sigla:"CN",it:"Caotico Neutrale",en:"Chaotic Neutral",srd:"Le creature caotiche neutrali si lasciano guidare dai loro capricci e antepongono la loro libertà personale a ogni altra cosa. Un furfante che vaga per la terra vivendo di espedienti è probabilmente caotico neutrale."},
+  {id:"LE",sigla:"LM",it:"Legale Malvagio",en:"Lawful Evil",srd:"Le creature legali malvagie si impossessano metodicamente di ciò che vogliono, entro i limiti di un codice di tradizioni, di fedeltà o di ordine. Un aristocratico che sfrutta i cittadini mentre trama per il potere è probabilmente legale malvagio."},
+  {id:"NE",sigla:"NM",it:"Neutrale Malvagio",en:"Neutral Evil",srd:"Neutrale malvagio è l'allineamento di coloro che non si preoccupano dei danni che causano nel perseguire i propri desideri. Un criminale che rapina e uccide a suo piacimento è probabilmente neutrale malvagio."},
+  {id:"CE",sigla:"CM",it:"Caotico Malvagio",en:"Chaotic Evil",srd:"Le creature caotiche malvagie agiscono con violenza arbitraria, spronate dall'odio o dalla sete di sangue. Un cattivo che persegue piani di vendetta e distruzione è probabilmente caotico malvagio."}
 ];
 
 // ══════════════════════════════════════════════════════════════════════
@@ -7458,7 +7464,7 @@ function fBuildPrintSheet(){
   const scName='';
   const spName=sp?sp.it:'—';
   const srName=sr?` (${sr.it})`:'';
-  const alText=al?al.it:'—';
+  const alText=al?(lang==='it'?`${al.it} (${al.sigla})`:`${al.en} (${al.id})`):'—';
   const spSize=sp?sp.size:'Media';
   const spSpeed=sp?sp.speed:'9 m';
 
@@ -12496,11 +12502,15 @@ function fRS7(){
     <div style="color:var(--muted);font-size:13px;margin-bottom:8px">${ft("Allineamento","Alignment")}</div>
     <div class="g3" style="max-width:340px">
       ${ALIGNMENTS.map(a=>`<div class="card ${C.alignment===a.id?"sel":""}" style="padding:7px;text-align:center" onclick="C.alignment='${a.id}';re()">
-        <div style="font-family:'Comfortaa', sans-serif;font-size:10px;color:var(--gold)">${a.id}</div>
+        <div style="font-family:'Comfortaa', sans-serif;font-size:10px;color:var(--gold)">${lang==="it"?a.sigla:a.id}</div>
         <div style="font-size:9px;color:var(--dim);margin-top:1px">${lang==="it"?a.it:a.en}</div>
       </div>`).join("")}
     </div>
-
+    ${(()=>{const al=fgAl();return al?`<div class="panel" style="max-width:340px;margin-top:12px;padding:10px 12px">
+      <div style="font-family:'Comfortaa', sans-serif;font-size:12px;color:var(--gold);margin-bottom:4px">${lang==="it"?al.it:al.en} (${lang==="it"?al.sigla:al.id})</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.5">${al.srd}</div>
+      <div style="font-size:9px;color:var(--vdim);margin-top:6px;font-style:italic">${ft("Fonte: SRD 5.2.1 (CC-BY-4.0)","Source: SRD 5.2.1 (CC-BY-4.0)")}</div>
+    </div>`:''})()}
   </div>`;
 }
 
