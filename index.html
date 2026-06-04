@@ -7391,7 +7391,7 @@ function fBuildClassResourcesPrint(){
     if(lv>=3&&C.pactBoon) lines.push('Patto: '+(C.pactBoon==='catena'?'Catena':C.pactBoon==='lama'?'Lama':C.pactBoon==='tomo'?'Tomo':'Reliquia'));
     var invN=fGetWarlockInvocationCount(lv);
     lines.push('SUPPLICHE: '+invN+' totali');
-    if(C.warlockInvocations&&C.warlockInvocations.length) lines.push((C.warlockInvocations.map(function(i){return i.text;})).join(' · '));
+    if(C.warlockInvocations&&C.warlockInvocations.length) lines.push((C.warlockInvocations.map(function(id){var inv=WARLOCK_INVOCATIONS.find(function(x){return x.id===id;});return inv?inv.it:id;})).join(' · '));
     var arcLvs=fGetWarlockArcanaLevels(lv);
     if(arcLvs.length){
       var arcLine='ARCANA MISTICI: ';
@@ -9921,9 +9921,15 @@ function fCountPreparedForClass(clsId, cantrips){
 // Apri spell picker per tipo: 'cantrip' | 'spell'
 let _spActiveLevel = 'tutti';
 let _spSearch = '';
+// Cap "rigido" del picker: impostati a ogni render, usati da fSpToggle per
+// bloccare la SELEZIONE oltre il limite (trucchetti sempre; incantesimi in
+// modalità classe/prepara-da-libro). Le modalità a pool libero (libro, scoperte,
+// segreti) non li applicano.
+let _spCapMax = 0, _spCapCur = 0, _spCapEnforce = false;
 function fOpenSpellPickerFor(type, startLevel){
   C._spellPickerTarget = type;
   C._spellPickerCls = C.cls;   // MULTICLASSE: parti dalla classe primaria
+  _spSourceMode = 'class';     // picker standard: lista di classe (non libro/segreti)
   if(type==='cantrip'){ _spActiveLevel='0'; }
   else if(startLevel!==undefined){ _spActiveLevel=String(startLevel); }
   else { _spActiveLevel='tutti'; }
@@ -10045,7 +10051,12 @@ function fRenderSpellPicker(){
     } else if(srcMode === 'wizardprepare'){
       var sbIds2=fSpellbookIds(); if(!sbIds2.has(s.id)) return false;
     } else {
-      if(clsId && s.classi && s.classi.length){
+      // MULTICLASSE: il Mago prepara gli incantesimi LIVELLATI dal proprio libro
+      // (il libro è il pool, PHB 2024). I trucchetti restano dalla lista di classe
+      // completa. Le altre classi pescano dalla lista di classe.
+      if(clsId === 'wizard' && !isCtrip && C.spellbookSpells && C.spellbookSpells.length){
+        const sbIdsW = fSpellbookIds(); if(!sbIdsW.has(s.id)) return false;
+      } else if(clsId && s.classi && s.classi.length){
         const hasClass = s.classi.some(cl =>
           cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase() ||
           cl.toLowerCase().includes(clsId.toLowerCase())
@@ -10094,6 +10105,11 @@ function fRenderSpellPicker(){
   const limCur = isCtrip ? curCantrips : curLeveled;
   const limMax = isCtrip ? maxCantripsPk : maxSpellsPk;
   const limFull = limMax>0 && limCur>=limMax;
+  // Cap rigido per la SELEZIONE nel picker (vedi fSpToggle). Attivo solo nelle
+  // modalità a limite reale: classe standard e prepara-da-libro del mago. Le
+  // modalità a pool libero (libro, scoperte, segreti) NON lo applicano.
+  _spCapMax = limMax; _spCapCur = limCur;
+  _spCapEnforce = (limMax>0) && (srcMode==='class' || srcMode==='wizardprepare');
   const limLabel = limMax>0
     ? `<div style="font-size:10px;${limFull?'color:#e0a04a':'color:var(--gold2)'};background:rgba(200,164,90,.08);border:1px solid ${limFull?'rgba(224,160,74,.5)':'rgba(200,164,90,.3)'};border-radius:3px;padding:5px 8px;margin-bottom:8px;font-family:'Comfortaa',sans-serif">${isIt?(isCtrip?'Trucchetti':'Incantesimi preparati'):(isCtrip?'Cantrips':'Prepared spells')}: <strong>${limCur}</strong> / ${limMax}${limFull?` — ${isIt?'limite raggiunto':'limit reached'}`:''}</div>`
     : '';
@@ -10206,6 +10222,15 @@ function fSpSearch(val){
 }
 
 function fSpToggle(id){
+  // Cap rigido: se sto AGGIUNGENDO e il limite della classe è raggiunto, blocca.
+  // La deselezione resta sempre consentita.
+  if(!state.selected.has(id) && _spCapEnforce){
+    const _remaining = Math.max(0, _spCapMax - _spCapCur);
+    if(state.selected.size >= _remaining){
+      if(typeof showToast==='function') showToast(typeof ft==='function'?ft('Limite raggiunto','Limit reached'):'Limite raggiunto');
+      return;
+    }
+  }
   if(state.selected.has(id)) state.selected.delete(id);
   else state.selected.add(id);
   // Aggiorna solo la riga toccata e il footer, senza rebuild completo del DOM
@@ -10477,12 +10502,18 @@ function fRSpellsSection(){
       ? (isIt?`Scegli fino a ${maxSpells} incantesimi da preparare dal libro.`:`Choose up to ${maxSpells} spells to prepare from your spellbook.`)
       : (isIt?`Prepara fino a ${maxSpells} incantesimi dalla lista di classe.`:`Prepare up to ${maxSpells} spells from the class list.`);
 
-  // Funzione per aprire il picker corretto
-  const pickerFn = hasBook
-    ? 'fOpenSpellPickerWizardPrepare()'
-    : isKnown
-      ? "fOpenSpellPickerFor('spell')"
-      : "fOpenSpellPickerFor('spell')";
+  // Funzione per aprire il picker corretto.
+  // MULTICLASSE: usa il picker in modalità classe (col selettore di classe), così
+  // ogni classe pesca dalla propria lista. Il Mago, dentro il picker, prepara
+  // comunque dal libro (gestito dal filtro in fRenderSpellPicker). Monoclasse mago:
+  // picker dedicato "prepara dal libro".
+  const pickerFn = _mcSpells
+    ? "fOpenSpellPickerFor('spell')"
+    : hasBook
+      ? 'fOpenSpellPickerWizardPrepare()'
+      : isKnown
+        ? "fOpenSpellPickerFor('spell')"
+        : "fOpenSpellPickerFor('spell')";
 
   // ── Riga incantesimo ────────────────────────────────────────────────────
   function spellRow(s, always){
