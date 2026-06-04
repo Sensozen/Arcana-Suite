@@ -2418,6 +2418,18 @@ function fCheckPrereqs(feat, char, lang) {
     }
   }
 
+  // Caratteristiche in OR (PHB 2024: es. "Forza o Destrezza 13"). Basta che UNA
+  // soddisfi la soglia (default 13). Usato dai talenti che concedono +1 a una di
+  // due/tre caratteristiche (Atleta, Lottatore, Osservatore, Incantatore Rituale...).
+  if (p.statsOr && p.statsOr.length) {
+    const min = p.statsOrMin || 13;
+    const met = p.statsOr.some(st => fTotalStat(st) >= min);
+    if (!met) {
+      const labels = p.statsOr.map(st => isIt ? FSI[st] : FSE[st]).join(isIt ? ' o ' : ' or ');
+      reasons.push(`${labels} ${min}+`);
+    }
+  }
+
   // Richiede incantesimi
   if (p.spellcasting) {
     const hasSpell = FEAT_CLASS_DATA.spellcasting.includes(char.cls);
@@ -2542,7 +2554,7 @@ const FFEATS_DATA_V2 = [
         descIt:'+2 a una caratteristica oppure +1 a due caratteristiche diverse (nessuna oltre 20). Sempre ripetibile.',
         descEn:'+2 to one ability score or +1 to two different ability scores (max 20 each). Always repeatable.' },
       { id:'atleta', it:'Atleta', en:'Athlete',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). Velocità scalata = velocità normale. Rialzarsi costa solo 1,5 m di movimento. Salto in lungo/alto con solo 1,5 m di rincorsa.',
         descEn:'+1 STR or DEX (max 20). Climbing costs no extra movement. Standing up costs only 5 ft. Running jump needs only 5 ft. of running start.' },
       { id:'attore', it:'Attore', en:'Actor',
@@ -2555,11 +2567,11 @@ const FFEATS_DATA_V2 = [
         descIt:'+1 FOR o DES (max 20). 1/turno con danno tagliente: −3 m di velocità al bersaglio. Con critico tagliente: svantaggio ai tiri per colpire del bersaglio fino al tuo prossimo turno.',
         descEn:'+1 STR or DEX (max 20). Once per turn with slashing damage: −10 ft speed to target. On slashing crit: target has disadvantage on attacks until your next turn.' },
       { id:'carica', it:'Carica', en:'Charger',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). +3 m di velocità quando usi Scatto. Se ti muovi di almeno 3 m in linea retta e colpisci, infliggi 1d8 danni extra o spingi il bersaglio di 3 m.',
         descEn:'+1 STR or DEX (max 20). +10 ft speed on Dash. Moving 10+ ft straight before a hit deals +1d8 damage or pushes target 10 ft.' },
       { id:'combattente-due-armi', it:'Combattente a Due Armi', en:'Dual Wielder',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). Aggiungi il modificatore di caratteristica al danno dell\'attacco extra con arma leggera. Puoi estrarre/rinfoderar due armi invece di una.',
         descEn:'+1 STR or DEX (max 20). Add ability modifier to off-hand weapon damage. Draw/stow two weapons instead of one.' },
       { id:'duellante-difensivo', it:'Duellante Difensivo', en:'Defensive Duelist',
@@ -2571,7 +2583,7 @@ const FFEATS_DATA_V2 = [
         descIt:'+1 DES (max 20). Ignora il requisito di ricarica delle balestre. Nessuno svantaggio a distanza ravvicinata. Combattere con due armi: l\'attacco extra con balestra leggera aggiunge il mod. DES ai danni.',
         descEn:'+1 DEX (max 20). Ignore loading property of crossbows. No disadvantage at close range. Two-Weapon Fighting: off-hand light crossbow adds DEX to damage.' },
       { id:'lottatore', it:'Lottatore', en:'Grappler',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). Colpisci e afferra (1/turno con colpo senz\'armi): infliggi danni OPPURE afferra. Vantaggio agli attacchi contro creature che hai afferrato. Muovi una creatura afferrata senza penalità di velocità.',
         descEn:'+1 STR or DEX (max 20). Strike and Grapple (1/turn): deal damage OR grapple. Advantage on attacks against grappled creatures. Drag grappled creature without speed penalty.' },
       { id:'maestro-armi-possenti', it:'Maestro d\'Armi Possenti', en:'Great Weapon Master',
@@ -2587,11 +2599,11 @@ const FFEATS_DATA_V2 = [
         descIt:'+1 FOR (max 20). Scudo da sfondamento (1/turno dopo Attacco): TS FOR o il bersaglio cade prona/è spinto 1,5 m. Interposizione: reazione per non subire danni da TS DES riuscito.',
         descEn:'+1 STR (max 20). Shield Bash (1/turn after Attack): STR save or target falls prone/pushed 5 ft. Interpose: reaction to take no damage when you pass a DEX save.' },
       { id:'maestro-armi-asta', it:'Maestro delle Armi su Asta', en:'Polearm Master',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). Attacco bonus azione bonus con l\'estremità opposta dell\'asta (1d4 contundenti). Reazione: attacca in mischia quando una creatura entra nella portata della tua arma.',
         descEn:'+1 STR or DEX (max 20). Bonus action attack with butt end of polearm (1d4 bludgeoning). Reaction: opportunity attack when a creature enters your weapon\'s reach.' },
       { id:'sentinella', it:'Sentinella', en:'Sentinel',
-        prereq: { level:4, stats:{STR:13} },
+        prereq: { level:4, statsOr:['STR','DEX'] },
         descIt:'+1 FOR o DES (max 20). Opportunità su Disimpegno. Opportunità contro chi colpisce un altro bersaglio. Quando colpisci con opportunità: velocità della creatura scende a 0 per il resto del turno.',
         descEn:'+1 STR or DEX (max 20). Opportunity attack on Disengage. Opportunity against creatures attacking others. On opportunity hit: target\'s speed drops to 0 for the rest of the turn.' },
       { id:'sterminatore-maghi', it:'Sterminatore di Maghi', en:'Mage Slayer',
@@ -2645,7 +2657,7 @@ const FFEATS_DATA_V2 = [
         descIt:'+1 INT/SAG/CAR (max 20). Vantaggio ai TS COS per concentrazione. Lancio reattivo: usa una reazione per lanciare un incantesimo invece dell\'attacco di opportunità. Componenti somatiche con mani occupate.',
         descEn:'+1 INT/WIS/CHA (max 20). Advantage on concentration CON saves. Reactive Spell: use a reaction to cast a spell as an opportunity attack. Can use somatic components with hands full.' },
       { id:'incantatore-rituale', it:'Incantatore Rituale', en:'Ritual Caster',
-        prereq: { level:4 },
+        prereq: { level:4, statsOr:['INT','WIS','CHA'] },
         descIt:'+1 INT/SAG/CAR (max 20). Conosci bonus-comp incantesimi di 1° con la proprietà Rituale. Sono sempre preparati e lanciabili con qualunque slot. Rituale rapido: 1/riposo lungo, lancia un rituale con tempo normale.',
         descEn:'+1 INT/WIS/CHA (max 20). Know proficiency-bonus 1st-level spells with the Ritual tag. Always prepared; castable with any slot. Quick Ritual: 1/long rest, cast a ritual in normal time.' },
       { id:'telecinesi', it:'Telecinesi', en:'Telekinetic',
@@ -2691,7 +2703,7 @@ const FFEATS_DATA_V2 = [
         descEn:'+1 CON (max 20). Advantage on death saving throws. Deathless Constitution (bonus action): spend a Hit Die to regain HP.' },
       // ── Utilità & Leadership ─────────────────────────
       { id:'osservatore', it:'Osservatore', en:'Observant',
-        prereq: { level:4 },
+        prereq: { level:4, statsOr:['INT','WIS'] },
         descIt:'+1 INT o SAG (max 20). Competenza o Maestria in Intuizione, Investigazione o Percezione. Ricerca rapida: usa Ricerca come azione bonus.',
         descEn:'+1 INT or WIS (max 20). Proficiency or Expertise in Insight, Investigation, or Perception. Quick Search: use Search as a bonus action.' },
       { id:'mente-acuta', it:'Mente Acuta', en:'Keen Mind',
@@ -2699,11 +2711,11 @@ const FFEATS_DATA_V2 = [
         descIt:'+1 INT (max 20). Competenza o Maestria in Arcano, Investigazione, Natura, Religione o Storia. Studio celere: usa l\'azione Studio come azione bonus.',
         descEn:'+1 INT (max 20). Proficiency or Expertise in Arcana, Investigation, Nature, Religion, or History. Quick Study: use Study action as a bonus action.' },
       { id:'condottiero-ispiratore', it:'Condottiero Ispiratore', en:'Inspiring Leader',
-        prereq: { level:4, stats:{CHA:13} },
+        prereq: { level:4, statsOr:['WIS','CHA'] },
         descIt:'+1 SAG o CAR (max 20). Dopo riposo breve/lungo: 10 minuti di discorso inspiratore conferiscono PF temporanei = livello + mod. della caratteristica aumentata a bonus-comp creature entro 9 m.',
         descEn:'+1 WIS or CHA (max 20). After a rest: 10 min speech grants temp HP = level + raised ability mod to proficiency-bonus creatures within 30 ft.' },
       { id:'rapidita', it:'Rapidità', en:'Mobile',
-        prereq: { level:4 },
+        prereq: { level:4, statsOr:['DEX','CON'] },
         descIt:'+1 DES o COS (max 20). +3 m di velocità. Scatto su terreno difficile senza costo extra. Svantaggio agli attacchi di opportunità contro di te dopo aver eseguito il Scatto.',
         descEn:'+1 DEX or CON (max 20). +10 ft speed. Dash ignores difficult terrain extra cost. Disadvantage on opportunity attacks against you after you Dash.' },
       { id:'cuoco', it:'Cuoco', en:'Chef',
@@ -7975,6 +7987,13 @@ function fRS4(){
           const ok  = tot >= v;
           return `<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${ok?'rgba(90,138,90,.18)':'rgba(180,60,60,.18)'};color:${ok?'var(--green)':'#c45a5a'};border:1px solid ${ok?'rgba(90,138,90,.3)':'rgba(180,60,60,.3)'}">${s} ${v}+</span>`;
         }).join(' ')
+      : feat.prereq?.statsOr
+      ? (function(){
+          const arr = feat.prereq.statsOr; const min = feat.prereq.statsOrMin || 13;
+          const ok  = arr.some(s => fTotalStat(s) >= min);
+          const label = arr.join(lang==='it'?' o ':' or ') + ' ' + min + '+';
+          return `<span style="font-size:9px;padding:1px 5px;border-radius:2px;background:${ok?'rgba(90,138,90,.18)':'rgba(180,60,60,.18)'};color:${ok?'var(--green)':'#c45a5a'};border:1px solid ${ok?'rgba(90,138,90,.3)':'rgba(180,60,60,.3)'}">${label}</span>`;
+        })()
       : '';
 
     const lvBadge = feat.prereq?.level
