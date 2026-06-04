@@ -9600,7 +9600,15 @@ const SUBCLASS_CASTER_IDS = {
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Solo il Mago ha un libro degli incantesimi
-function fHasSpellbook(){ return C.cls === 'wizard'; }
+function fHasSpellbook(){
+  if(C.cls === 'wizard') return true;
+  // MULTICLASSE: il libro esiste se UNA QUALSIASI classe posseduta è Mago,
+  // anche quando il Mago non è la classe primaria (es. Chierico/Mago).
+  if(typeof fIsMulticlass==='function' && fIsMulticlass() && Array.isArray(C.classes)){
+    return C.classes.some(c=>c && c.cls==='wizard');
+  }
+  return false;
+}
 
 // Caster a lista "conosciuta" permanente: nel PHB 2024 NON esistono più.
 // Tutte le classi incantatrici (incluso il Warlock, p.165 "Incantesimi preparati",
@@ -10491,9 +10499,11 @@ function fRSpellsSection(){
     : (isIt?'📋 Incantesimi Preparati':'📋 Prepared Spells');
   const addBtnLabel  = isKnown
     ? (isIt?'+ Apprendi':'+ Learn')
-    : hasBook
-      ? (isIt?'+ Prepara dal Libro':'+ Prepare from Book')
-      : (isIt?'+ Prepara':'+ Prepare');
+    : _mcSpells
+      ? (isIt?'+ Prepara':'+ Prepare')
+      : hasBook
+        ? (isIt?'+ Prepara dal Libro':'+ Prepare from Book')
+        : (isIt?'+ Prepara':'+ Prepare');
   const emptyMsg = _mcSpells
     ? (isIt?`Prepara incantesimi per ciascuna classe (vedi i limiti per classe sopra).`:`Prepare spells for each class (see per-class limits above).`)
     : isKnown
