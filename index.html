@@ -1507,15 +1507,24 @@ function updateSelectionBar(){
 }
 function addSelectedSpells(){
   if(!C.preparedSpells) C.preparedSpells=[];
+  if(!C.spellSource) C.spellSource={};
+  // MULTICLASSE: la classe di preparazione attiva nel picker (default: primaria).
+  const selCls = C._spellPickerCls || C.cls;
+  const selLv  = (typeof fClassLevel==='function' ? fClassLevel(selCls) : 0) || C.level || 1;
+  const selSub = ((C.classes||[]).find(c=>c.cls===selCls)||{}).subclass;
   let added=0, blocked=0;
   state.selected.forEach(id=>{
     if(!C.preparedSpells.includes(id)){
       const spell=SPELLS.find(s=>s.id===id);
       const isCtip=spell?.livello===0;
-      const cur=C.preparedSpells.filter(sid=>{const s=SPELLS.find(x=>x.id===sid);return isCtip?s?.livello===0:s?.livello>0;}).length;
-      const max=isCtip?fGetMaxCantrips():fGetMaxSpells();
+      // Conteggio e limite PER LA CLASSE selezionata (SRD: preparazione per classe).
+      const cur=(typeof fCountPreparedForClass==='function') ? fCountPreparedForClass(selCls,isCtip)
+              : C.preparedSpells.filter(sid=>{const s=SPELLS.find(x=>x.id===sid);return isCtip?s?.livello===0:s?.livello>0;}).length;
+      const max=isCtip
+        ? (typeof fClassMaxCantrips==='function' ? fClassMaxCantrips(selCls,selLv) : fGetMaxCantrips())
+        : (typeof fClassMaxSpells==='function' ? fClassMaxSpells(selCls,selLv,selSub) : fGetMaxSpells());
       if(max>0&&cur>=max){ blocked++; return; }
-      C.preparedSpells.push(id); added++;
+      C.preparedSpells.push(id); C.spellSource[id]=selCls; added++;
     }
   });
   state.selected.clear();
@@ -2869,7 +2878,7 @@ const FEAT_METADATA = {
   'incantatore-rituale':     { cat:'general', prereq:'lv4,INT_WIS_CHA_13', statBonus:{any:'INT_WIS_CHA', val:1}, max:20, ritualSpells:'choice' },
   'lottatore':               { cat:'general', prereq:'lv4,STR_DEX_13', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'maestria-veleni':         { cat:'general', prereq:'lv4', statBonus:{any:'INT_DEX', val:1}, max:20 },
-  'maestro-armi':            { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20 },
+  'maestro-armi':            { cat:'general', prereq:'lv4', statBonus:{any:'STR_DEX', val:1}, max:20, weaponMastery:'choice' },
   'maestro-armi-asta':       { cat:'general', prereq:'lv4,STR_DEX_13', statBonus:{any:'STR_DEX', val:1}, max:20 },
   'maestro-armi-possenti':   { cat:'general', prereq:'lv4,STR_13', statBonus:{any:'STR', val:1}, max:20 },
   'maestro-armature-medie':  { cat:'general', prereq:'lv4,armor:medium', statBonus:{any:'STR_DEX', val:1}, max:20 },
@@ -2925,6 +2934,11 @@ function fGetFeatStatChoices(featId){
   if(!meta || !meta.statBonus) return [];
   const sb = meta.statBonus;
   if(sb.stat) return [sb.stat];
+  // Resiliente (PHB 2024): solo una caratteristica in cui NON si ha già competenza nel TS
+  if(featId === 'resiliente'){
+    const have = (typeof fGetClassSaveProfs === 'function') ? fGetClassSaveProfs() : [];
+    return ['STR','DEX','CON','INT','WIS','CHA'].filter(s => have.indexOf(s) < 0);
+  }
   // any === 1 (numero intero) significa "qualsiasi delle 6 statistiche"
   if(sb.any === 1 || sb.any === '1') return ['STR','DEX','CON','INT','WIS','CHA'];
   if(typeof sb.any === 'string') return sb.any.split('_');
@@ -3536,6 +3550,7 @@ function fResetSlots(){
   C.slotsUsed={};
   C.warlockSlotsUsed=0;
   for(let i=1;i<=9;i++) C.slotsUsed[i]=0;
+  C.concentratingSpell = null;   // azzera anche la concentrazione su riposo
   re();
   showToast(lang==='it'?'Slot ripristinati':'Slots restored');
 }
@@ -3859,7 +3874,6 @@ function fToggleMetamagic(m){
   else if(C.metamagicChoices.length<mMax)C.metamagicChoices.push(m);
   re();
 }
-function fResetPresage(){C.divinatorPresage=[null,null];re();}
 
 // ─── Helper F3.5-F3.7 ─────────────────────────────────────────────────────
 function fShowSorcMsg(msg,isErr){
@@ -5393,6 +5407,7 @@ let C={
   classSkills:[], // abilità scelte per la classe
   speciesSkills:[], // abilità scelte per la specie
   preparedSpells:[], // tutti gli incantesimi preparati (trucchetti + livellati)
+  spellSource:{},    // MULTICLASSE: id incantesimo → classe a cui è associato
   languages:[], // lingue conosciute (oltre a Comune)
   weaponMasteries:[], // armi scelte per padronanza d'armi
   expertiseSkills:[], // abilità con doppia competenza (maestria) - Lv.1/2 scelta classe
@@ -5689,7 +5704,7 @@ function nuovoPersonaggio(){
     statMethod:"standardarray",pointsLeft:27,
     level:1,feats:[],featNotes:"",humanFeat:null,
     trait:"",ideal:"",bond:"",flaw:"",backstory:"",equipNotes:"",
-    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],bardDiscoveries:[],wizardScholarSkill:null,wizardSpellMastery1:null,wizardSpellMastery2:null,wizardSignatureSpells:[],monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
+    spells:[],classSkills:[],speciesSkills:[],preparedSpells:[],spellSource:{},weaponMasteries:[],expertiseSkills:[],expertiseSkills2:[],subclassSkills:[],bardDiscoveries:[],wizardScholarSkill:null,wizardSpellMastery1:null,wizardSpellMastery2:null,wizardSignatureSpells:[],monkMercyTool:false,warPriestUsed:0,featChoices:{},featSkills:[],featTools:[],bgSkillReplacements:{},spSkillReplacements:{},
     languages:[],
     _spellTab:'always',
     // ── Warlock specifici ────────────────────────────────────────────────
@@ -5749,6 +5764,20 @@ function fSyncClassDerived(){
   C.cls=primary.cls;
   C.subclass=primary.subclass;
   C.level=C.classes.reduce((tot,c)=>tot+(parseInt(c.level)||0),0)||1;
+  // Incantatore Rituale: i rituali noti = bonus di competenza. Se il livello cala il
+  // bonus può scendere: tronca gli array salvati al nuovo massimo, così scheda e
+  // picker non mostrano mai più scelte del consentito (evita il caso "3/2").
+  if(C.featChoices && typeof FEAT_METADATA!=='undefined' && typeof profBonus==='function'){
+    const ritMax = profBonus(C.level);
+    (C.feats||[]).forEach(function(f){
+      const meta = FEAT_METADATA[f.id];
+      if(!meta || meta.ritualSpells!=='choice') return;
+      const ch = C.featChoices[f.uid||f.id];
+      if(ch && Array.isArray(ch.ritualSpells) && ch.ritualSpells.length>ritMax){
+        ch.ritualSpells = ch.ritualSpells.slice(0, ritMax);
+      }
+    });
+  }
   return C;
 }
 
@@ -6123,18 +6152,6 @@ function fRSummary(sp,cl,bg,sr){
   }
   if(bg)parts.push(`<span class="bonus-tag">${bg.icon} ${lang==="it"?bg.it:bg.en}</span>`);
   return parts.length>1?`<div class="summary-bar" style="margin-bottom:16px">${parts.join(" ")}</div>`:"";
-}
-
-function fRandomName(){
-  const sp=fgSp();const spId=sp?.id||"umano";
-  const pool=FNAMES[spId]||FNAMES.umano;
-  const g=Math.random()<.5?"m":"f";
-  const arr=pool[g]||pool.m;
-  const first=arr[Math.floor(Math.random()*arr.length)];
-  const last=(pool.n&&pool.n.length&&Math.random()<.6)?" "+pool.n[Math.floor(Math.random()*pool.n.length)]:"";
-  C.name=first+last;
-  const inp=document.getElementById("fnm");if(inp)inp.value=C.name;
-  fUpdNext(); // aggiorna il bottone Avanti
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -6794,7 +6811,7 @@ function fRS2(){
   const expChosen = C.expertiseSkills||[];
   const exp2Chosen= C.expertiseSkills2||[];
   const scSkChosen= C.subclassSkills||[];
-  const weapons   = fGetMasteryWeapons(C.cls);
+  const weapons   = (typeof fGetProficientMasteryWeapons==='function') ? fGetProficientMasteryWeapons() : fGetMasteryWeapons(C.cls);
 
   const bgSk=fgBg()?fgBg().skillsEn.split(' and ').map(s=>s.trim()):[];
   const allProfs=[...new Set([...bgSk,...(C.classSkills||[]),...(C.speciesSkills||[])])];
@@ -7355,7 +7372,7 @@ function fBuildPrintSheet(){
   const sp=fgSp(),cl=fgCl(),bg=fgBg(),sr=fgSr(),al=fgAl(),sc=fgSc();
   const hpMax=fMaxHP(cl,fTotalStat('CON'),C.level);
   const pb=fpb(C.level);
-  const saveProfs=fGetClassSaveProfs();
+  const saveProfs=fGetAllSaveProfs();
   // skill profs: bg + class + species
   const bgSk=bg?bg.skillsEn.split(' and ').map(s=>s.trim()):[];
   const skillProfs=[...new Set([...fGetAllSkillProfs()])];
@@ -8110,7 +8127,8 @@ function fRS4(){
           || meta.grants?.tools || meta.grants?.spellList
           || meta.grants?.skillFromList || meta.grants?.expertise
           || meta.grants?.damageType || meta.grants?.spell1Schools
-          || meta.grants?.allSkillsProf || meta.spellList || meta.ritualSpells || meta.energyResist);
+          || meta.grants?.allSkillsProf || meta.spellList || meta.ritualSpells || meta.energyResist
+          || meta.weaponMastery || meta.grants?.saveProf);
       }
       const featsWithChoices = (C.feats||[]).filter(f=>{
         const _m = FEAT_METADATA[f.id];
@@ -8356,6 +8374,22 @@ function fTotalStat(s){
 function fGetClassSaveProfs(){
   const cl=fgCl();if(!cl)return[];
   return cl.savesEn.split(/[,\s]+/).filter(s=>FSN.includes(s));
+}
+// Competenze nei TS concesse dai talenti (es. Resiliente): la/le caratteristica/e scelta/e nel talento
+function fGetFeatSaveProfs(){
+  const out=[];
+  (C.feats||[]).forEach(function(f){
+    const meta=FEAT_METADATA[f.id];
+    if(!meta || !meta.grants || !meta.grants.saveProf) return;
+    const choice=(C.featChoices||{})[f.uid||f.id]||{};
+    const stats=Array.isArray(choice.stats)?choice.stats:[];
+    stats.slice(0, meta.grants.saveProf).forEach(function(s){ if(FSN.includes(s)) out.push(s); });
+  });
+  return out;
+}
+// Competenze nei TS effettive sulla scheda: classe + talenti
+function fGetAllSaveProfs(){
+  return Array.from(new Set(fGetClassSaveProfs().concat(fGetFeatSaveProfs())));
 }
 
 // Abilità: BG (sempre) + Classe (scelte allo step 1) ─────────────────────
@@ -8939,7 +8973,7 @@ function fRSheet(){
   const isIt=lang==='it';
   const hpV=fMaxHP(cl,fTotalStat('CON'),C.level);
   const allBonuses=fGetAllStatBonuses();
-  const saveProfs=fGetClassSaveProfs();
+  const saveProfs=fGetAllSaveProfs();
   const bgSkillProfs=fGetAllSkillProfs();
   // STEP 9: nell'intestazione usa la stringa multiclasse completa (Guerriero 3 (Campione) / Ladro 2).
   // In monoclasse resta il formato originale (classe · sottoclasse · Lv.X).
@@ -9025,6 +9059,7 @@ function fRSheet(){
       ${fRClassFeatures()}
       ${fRSubclassFeatures()}
       ${fRSpellsSection()}
+      ${fRDamageResistances()}
 
       ${(C.feats.length>0||C.featNotes||bg)?`<div class="box"><div class="box-title">⭐ ${ft('Talenti','Feats')}</div>
         ${bg?`<div style="margin-bottom:6px"><span style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px">BG (${isIt?bg.it:bg.en}): </span><span class="feat-tag">${isIt?bg.featIt:bg.featEn}</span></div>`:''}
@@ -9037,7 +9072,7 @@ function fRSheet(){
       ${(C.languages&&C.languages.length>0)?`<div class="box"><div class="box-title">🗣️ ${ft('Lingue','Languages')}</div><div style="font-size:13px;color:var(--text);line-height:1.6">${fGetLanguagesList()}</div></div>`:`<div class="box"><div class="box-title">🗣️ ${ft('Lingue','Languages')}</div><div style="font-size:13px;color:var(--text)">${fGetLanguagesList()}</div></div>`}
       ${(()=>{
         const cl=fgCl();if(!cl)return'';
-        const hasW=(C.weaponMasteries||[]).length>0;
+        const hasW=(C.weaponMasteries||[]).length>0 || (typeof fGetFeatWeaponMasteries==='function' && fGetFeatWeaponMasteries().length>0);
         const hasE=(C.expertiseSkills||[]).length>0;
         const isIt=lang==='it';
         let html='';
@@ -9106,15 +9141,23 @@ function fRSheet(){
                 ${prop?`<div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">${isIt?prop.desc:prop.descEn}</div>`:''}
               </div>`;
             }).join('')}
-            ${(()=>{
-              // Mostra un riepilogo delle proprietà a confronto per tutte le armi scelte
-              const allProps = [...new Set((C.weaponMasteries||[]).map(wEn=>{
-                const w=WEAPONS_MASTERY.find(x=>x.en===wEn);
-                return w?w.prop:null;
-              }).filter(Boolean))];
-              if(allProps.length === 0) return '';
-              return '';
-            })()}
+            ${(typeof fGetFeatWeaponMasteries==='function'?fGetFeatWeaponMasteries():[]).filter(fm=>!(C.weaponMasteries||[]).includes(fm.en)).map(fm=>{
+              const wEn  = fm.en;
+              const w    = WEAPONS_MASTERY.find(x=>x.en===wEn);
+              const prop = w ? MASTERY_PROPS[w.prop] : null;
+              const col  = w ? (propColors[w.prop]||'var(--gold2)') : 'var(--gold2)';
+              const rangeLabel = w ? (isIt ? (w.range==='mischia'?'mischia':'distanza') : w.range) : '';
+              return `<div style="margin-bottom:10px;padding:8px 10px;background:rgba(200,164,90,.04);border:1px solid rgba(200,164,90,.18);border-radius:3px">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                  <span style="color:var(--gold);font-size:13px;font-weight:700">${w?(isIt?w.it:w.en):wEn}</span>
+                  <span style="font-size:9px;color:var(--gold2);background:rgba(200,164,90,.12);border:1px solid rgba(200,164,90,.4);border-radius:8px;padding:1px 6px">${isIt?'Talento':'Feat'}</span>
+                  ${w?`<span style="font-size:9px;color:var(--vdim);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:1px 5px">${w.type==='semplice'?(isIt?'semplice':'simple'):(isIt?'da guerra':'martial')} · ${rangeLabel}</span>`:''}
+                  ${prop?`<span style="font-size:9px;font-weight:700;background:${col}22;border:1px solid ${col}66;border-radius:8px;padding:1px 7px;color:${col};letter-spacing:.04em">${isIt?prop.it:prop.en}</span>`:''}
+                </div>
+                ${(w&&w.dmg)?`<div style="font-size:11px;color:var(--text);margin-top:5px;line-height:1.5">\u2694\ufe0f <strong>${w.dmg}</strong> ${DMG_TYPE[w.dt]?(isIt?DMG_TYPE[w.dt].it:DMG_TYPE[w.dt].en):''}${(w.props&&w.props.length)?' &nbsp;\u00b7&nbsp; '+fFmtWeaponProps(w.props,isIt):''}${w.wt?' &nbsp;\u00b7&nbsp; '+w.wt+' kg':''}${w.cost?' &nbsp;\u00b7&nbsp; '+w.cost:''}</div>`:''}
+                ${prop?`<div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">${isIt?prop.desc:prop.descEn}</div>`:''}
+              </div>`;
+            }).join('')}
           </div>`;
         }
         return html;
@@ -9739,14 +9782,97 @@ function fGetAlwaysPrepared(){
       .forEach(nome=>result.push({nome,fonte:'subclass',reqLv:20}));
   }
 
+  // Incantesimi concessi dai talenti (Iniziato alla Magia, Incantatore Rituale, Contaminazione)
+  // — sempre preparati. Salta quelli già presenti tra i preparati per evitare doppioni.
+  const _prep = new Set(C.preparedSpells || []);
+  fGetFeatSpells().forEach(function(e){
+    const db = SPELLS.find(s=>s.nome.toLowerCase()===e.nome.toLowerCase());
+    if(db && _prep.has(db.id)) return;
+    result.push({nome:e.nome, fonte:'feat'});
+  });
+
   return result;
+}
+
+// Incantesimi concessi dai talenti, raccolti per nome (Iniziato alla Magia, Incantatore Rituale, Contaminazione Fatata/Oscura)
+function fGetFeatSpells(){
+  const out = [];
+  const seen = {};
+  const add = function(nome){
+    if(!nome) return;
+    const k = String(nome).toLowerCase();
+    if(seen[k]) return;
+    seen[k] = 1;
+    out.push({nome:nome, fonte:'feat'});
+  };
+  (C.feats||[]).forEach(function(f){
+    const meta = FEAT_METADATA[f.id];
+    if(!meta) return;
+    const ch = (C.featChoices||{})[f.uid||f.id] || {};
+    // Iniziato alla Magia: 2 trucchetti + 1 incantesimo di 1° scelti
+    if(meta.spellList === 'choice'){
+      (Array.isArray(ch.imCantrips)?ch.imCantrips:[]).forEach(add);
+      add(ch.imSpell1);
+    }
+    // Incantatore Rituale: incantesimi rituali scelti
+    if(meta.ritualSpells === 'choice'){
+      (Array.isArray(ch.ritualSpells)?ch.ritualSpells:[]).forEach(add);
+    }
+    // Contaminazione Fatata/Oscura: incantesimo fisso + incantesimo scelto
+    if(meta.grants && meta.grants.spell1Schools){
+      if(f.id === 'contaminazione-fatata') add('Passo velato');
+      if(f.id === 'contaminazione-oscura') add('Invisibilità');
+      add(ch.spell1);
+    }
+  });
+  return out;
+}
+
+// Blocco standalone per personaggi NON incantatori che hanno incantesimi da talento
+function fRFeatSpellsOnlyBlock(featSpells){
+  const isIt = lang==='it';
+  const rows = featSpells.map(function(e){
+    const db = SPELLS.find(s=>s.nome.toLowerCase()===e.nome.toLowerCase());
+    const metaTxt = db ? ((db.livello===0?(isIt?'Trucchetto':'Cantrip'):db.livello+'°')+(db.scuola?' · '+db.scuola:'')+(db.rituale?' · R':'')) : '';
+    const nameCell = db
+      ? '<span onclick="fShowSpellDetail('+db.id+')" style="flex:1;font-size:12px;color:var(--gold2);font-weight:500;cursor:pointer">'+e.nome+'</span>'
+      : '<span style="flex:1;font-size:12px;color:var(--gold2)">'+e.nome+'</span>';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(200,164,90,.04)">'
+      +'<span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>'
+      + nameCell
+      +'<span style="font-size:9px;color:var(--vdim)">'+metaTxt+'</span>'
+      +(db?'<button onclick="fShowSpellDetail('+db.id+')" style="background:none;border:1px solid rgba(200,164,90,.2);border-radius:3px;cursor:pointer;color:var(--gold2);font-size:9px;padding:1px 5px">i</button>':'')
+      +'</div>';
+  }).join('');
+  return '<div class="box">'
+    +'<div class="box-title">✨ '+(isIt?'Incantesimi da Talenti':'Feat Spells')+'</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-bottom:8px">'+(isIt?'Concessi da talenti, sempre preparati. La caratteristica da incantatore è quella scelta nel talento.':'Granted by feats, always prepared. The spellcasting ability is the one chosen in the feat.')+'</div>'
+    + rows
+    +'</div>';
 }
 
 // Rimuovi incantesimo dalla lista preparati
 function fRemovePreparedSpell(id){
   C.preparedSpells=(C.preparedSpells||[]).filter(x=>x!==id);
+  if(C.spellSource) delete C.spellSource[id];   // libera il tag di classe
   re();
   showToast(ft('Incantesimo rimosso','Spell removed'));
+}
+
+// MULTICLASSE: classe a cui è associato un incantesimo preparato (tag in
+// C.spellSource). Assente → classe primaria (retrocompatibile con schede salvate
+// prima di questa funzione). SRD §Multiclasse: ogni incantesimo è associato a una
+// classe e usa la caratteristica da incantatore di quella classe.
+function fSpellClassOf(id){
+  return (C.spellSource && C.spellSource[id]) || C.cls;
+}
+// Conta gli incantesimi preparati associati a una classe (trucchetti o livellati).
+function fCountPreparedForClass(clsId, cantrips){
+  return (C.preparedSpells||[]).filter(id=>{
+    const s=SPELLS.find(x=>x.id===id); if(!s) return false;
+    if(cantrips ? s.livello!==0 : s.livello<=0) return false;
+    return fSpellClassOf(id)===clsId;
+  }).length;
 }
 
 // Apri spell picker per tipo: 'cantrip' | 'spell'
@@ -9754,10 +9880,20 @@ let _spActiveLevel = 'tutti';
 let _spSearch = '';
 function fOpenSpellPickerFor(type, startLevel){
   C._spellPickerTarget = type;
+  C._spellPickerCls = C.cls;   // MULTICLASSE: parti dalla classe primaria
   if(type==='cantrip'){ _spActiveLevel='0'; }
   else if(startLevel!==undefined){ _spActiveLevel=String(startLevel); }
   else { _spActiveLevel='tutti'; }
   fOpenSpellPicker();
+}
+
+// MULTICLASSE: cambia la "classe di preparazione" nel picker. Azzera la selezione
+// corrente per evitare di trascinare scelte da una classe all'altra.
+function fSpPickCls(clsId){
+  C._spellPickerCls = clsId;
+  if(typeof state!=='undefined' && state.selected) state.selected.clear();
+  _spActiveLevel = 'tutti';
+  fRenderSpellPicker();
 }
 
 
@@ -9794,7 +9930,23 @@ function fRenderSpellPicker(){
   const isIt = lang === 'it';
   const target = C._spellPickerTarget || 'spell';
   const isCtrip = target === 'cantrip';
-  const clsId = C.cls;
+
+  // ── MULTICLASSE: "classe di preparazione" ──────────────────────────────────
+  // Elenco delle classi incantatrici possedute. Con 2+ classi, il picker mostra
+  // un selettore: la classe scelta determina lista incantesimi, cap di livello e
+  // tag di associazione. Modalità speciali (Segreti/Libro/Scoperte) restano sulla
+  // classe primaria. _normalMode = modalità classe standard.
+  const _normalMode = (typeof _spSourceMode === 'undefined') || _spSourceMode === 'class';
+  const _casterCls = (typeof fGetSpellcastingByClass === 'function') ? fGetSpellcastingByClass(isIt) : [];
+  const _mcCaster = _casterCls.length >= 2;
+  let clsId = C.cls;
+  if(_normalMode && C._spellPickerCls && _casterCls.some(c => c.cls === C._spellPickerCls)){
+    clsId = C._spellPickerCls;            // contesto valido scelto dall'utente
+  } else if(_normalMode){
+    // default: classe primaria se incantatrice, altrimenti la prima incantatrice
+    const _def = _casterCls.some(c => c.cls === C.cls) ? C.cls : (_casterCls[0] ? _casterCls[0].cls : C.cls);
+    clsId = _def; C._spellPickerCls = _def;
+  }
 
   // Filtra incantesimi per classe del personaggio
   const clsData = CLASSES.find(c => c.id === clsId);
@@ -9820,11 +9972,20 @@ function fRenderSpellPicker(){
   const scuole = ['tutte',...new Set(SPELLS.map(s=>s.scuola).filter(Boolean).sort())];
   const activeSchool = typeof _spSchool !== 'undefined' ? _spSchool : 'tutte';
 
+  // Livello massimo di incantesimo PREPARABILE dalla classe a cui si riferisce il
+  // picker (in multiclasse la preparazione è PER CLASSE, SRD §Multiclasse): non
+  // offrire incantesimi di livello superiore a quello accessibile dalla classe al
+  // suo livello attuale. fClassLevel(clsId) = livello della SINGOLA classe.
+  const _pickLv = (typeof fClassLevel === 'function') ? (fClassLevel(clsId) || C.level || 1) : (C.level || 1);
+  const _maxSpLv = (typeof fMaxSpellLevel === 'function') ? fMaxSpellLevel(clsId, _pickLv) : 9;
+
   // Filtra per classe e per tipo (trucchetto vs livellato)
   let filtered = SPELLS.filter(s => {
     if(!fSrdAllowed('spells', s.id)) return false;
     const lvMatch = isCtrip ? s.livello === 0 : s.livello > 0;
     if(!lvMatch) return false;
+    // Cap per-classe: niente incantesimi oltre il livello accessibile dalla classe
+    if(!isCtrip && _maxSpLv > 0 && s.livello > _maxSpLv) return false;
     // Filtro scuola
     if(activeSchool !== 'tutte' && s.scuola !== activeSchool) return false;
     // Filtra per classe
@@ -9861,7 +10022,7 @@ function fRenderSpellPicker(){
 
   // Livelli disponibili per i tab
   const levels = isCtrip ? [0] : [...new Set(
-    SPELLS.filter(s => s.livello > 0 && (!clsId || (s.classi||[]).some(cl =>
+    SPELLS.filter(s => s.livello > 0 && (_maxSpLv <= 0 || s.livello <= _maxSpLv) && (!clsId || (s.classi||[]).some(cl =>
       cl.toLowerCase().includes(clsId.toLowerCase()) ||
       cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase()
     ))).map(s => s.livello)
@@ -9873,11 +10034,19 @@ function fRenderSpellPicker(){
   // ── Limite incantesimi preparati / trucchetti (PHB 2024) ──
   // I sempre-preparati (sottoclasse/specie/Scoperte/Parole) NON occupano slot e stanno
   // fuori da C.preparedSpells, quindi il conteggio del limite usa solo le scelte manuali.
+  // MULTICLASSE: in modalità classe il limite è PER LA CLASSE selezionata (SRD: la
+  // preparazione si calcola separatamente per ogni classe sul suo livello).
   const _prep = C.preparedSpells || [];
-  const curCantrips = _prep.filter(id=>{const s=SPELLS.find(x=>x.id===id);return s&&s.livello===0;}).length;
-  const curLeveled  = _prep.filter(id=>{const s=SPELLS.find(x=>x.id===id);return s&&s.livello>0;}).length;
-  const maxCantripsPk = fGetMaxCantrips();
-  const maxSpellsPk   = fGetMaxSpells();
+  const _selClsLv = (typeof fClassLevel === 'function' ? fClassLevel(clsId) : 0) || C.level || 1;
+  const _selSub = ((C.classes||[]).find(c => c.cls === clsId) || {}).subclass;
+  const curCantrips = (_normalMode && typeof fCountPreparedForClass === 'function')
+    ? fCountPreparedForClass(clsId, true)
+    : _prep.filter(id=>{const s=SPELLS.find(x=>x.id===id);return s&&s.livello===0;}).length;
+  const curLeveled  = (_normalMode && typeof fCountPreparedForClass === 'function')
+    ? fCountPreparedForClass(clsId, false)
+    : _prep.filter(id=>{const s=SPELLS.find(x=>x.id===id);return s&&s.livello>0;}).length;
+  const maxCantripsPk = (_normalMode && typeof fClassMaxCantrips === 'function') ? fClassMaxCantrips(clsId, _selClsLv) : fGetMaxCantrips();
+  const maxSpellsPk   = (_normalMode && typeof fClassMaxSpells === 'function') ? fClassMaxSpells(clsId, _selClsLv, _selSub) : fGetMaxSpells();
   // Conteggio pertinente al picker corrente (trucchetti vs incantesimi)
   const limCur = isCtrip ? curCantrips : curLeveled;
   const limMax = isCtrip ? maxCantripsPk : maxSpellsPk;
@@ -9946,6 +10115,16 @@ function fRenderSpellPicker(){
     ? `<div style="font-size:10px;color:#27ae60;background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px">\uD83D\uDCCB Prepara dal Libro \u2014 ${(C.spellbookSpells||[]).length} incantesimi disponibili</div>`
     : '';
 
+  // MULTICLASSE: selettore della classe di preparazione (solo con 2+ incantatrici
+  // e in modalità classe standard). Mostra livello-classe e DC per orientarsi.
+  const clsSelector = (_mcCaster && _normalMode)
+    ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">${_casterCls.map(cc=>{
+        const sel = cc.cls===clsId;
+        return `<button onclick="fSpPickCls('${cc.cls}')" style="font-size:10px;font-family:'Comfortaa',sans-serif;padding:4px 9px;border-radius:3px;cursor:pointer;border:1px solid ${sel?'var(--gold)':'var(--border2)'};background:${sel?'rgba(200,164,90,.2)':'transparent'};color:${sel?'var(--gold)':'var(--dim)'}">${cc.clsName}</button>`;
+      }).join('')}</div>
+      <div style="font-size:9px;color:var(--vdim);margin:-4px 0 8px">${isIt?'Prepari per':'Preparing for'}: <strong style="color:var(--gold2)">${(_casterCls.find(c=>c.cls===clsId)||{}).clsName||''}</strong> · ${isIt?'caratteristica':'ability'} ${(_casterCls.find(c=>c.cls===clsId)||{}).statLabel||''}</div>`
+    : '';
+
   modal.innerHTML = `
     <div class="sp-inner">
       <div class="sp-header">
@@ -9954,7 +10133,7 @@ function fRenderSpellPicker(){
           <button onclick="fCloseSpellPicker()" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0 4px">✕</button>
         </div>
         ${alwaysPrepInList>0?`<div style="font-size:10px;color:var(--gold2);background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.3);border-radius:3px;padding:5px 8px;margin-bottom:8px;font-family:'Comfortaa',sans-serif;letter-spacing:.04em">★ ${alwaysPrepInList} ${isIt?(alwaysPrepInList===1?'incantesimo è già preparato gratuitamente':'incantesimi sono già preparati gratuitamente'):(alwaysPrepInList===1?'spell already prepared free of charge':'spells already prepared free of charge')}</div>`:''}
-        ${srcLabel}${limLabel}${schoolSel}<input class="sp-search" type="text" placeholder="${isIt?'Cerca incantesimo…':'Search spell…'}" value="${_spSearch}" oninput="fSpSearch(this.value)">
+        ${clsSelector}${srcLabel}${limLabel}${schoolSel}<input class="sp-search" type="text" placeholder="${isIt?'Cerca incantesimo…':'Search spell…'}" value="${_spSearch}" oninput="fSpSearch(this.value)">
         ${tabsHtml}
       </div>
       <div class="sp-body">${spellsHtml}</div>
@@ -10149,17 +10328,56 @@ function fOpenSpellPickerWizardPrepare(){
   fOpenSpellPicker();
 }
 
-// ── F4.5: Reset slot su riposo ─────────────────────────────────────────────
-const _origResetSlots = fResetSlots;
-function fResetSlots(){
-  _origResetSlots();
-  C.concentratingSpell = null;
-  re();
+// ── F4.5: Reset slot su riposo (la concentrazione è azzerata in fResetSlots) ──
+
+
+// Armi con proprietà di padronanza concesse dai talenti (Maestro d'Armi)
+function fGetFeatWeaponMasteries(){
+  const out=[]; const seen={};
+  (C.feats||[]).forEach(function(f){
+    const meta=FEAT_METADATA[f.id];
+    if(!meta || meta.weaponMastery!=='choice') return;
+    const ch=(C.featChoices||{})[f.uid||f.id]||{};
+    const wEn=ch.weaponMastery;
+    if(wEn && !seen[wEn]){ seen[wEn]=1; out.push({en:wEn, source:f.nameIt||f.id}); }
+  });
+  return out;
 }
-
-
+// Sorgenti STRUTTURATE di resistenza ai danni (estendibile). Oggi: talenti (Dono della Resistenza all'Energia).
+function fGetDamageResistances(){
+  const out=[]; const seen={};
+  const push=function(type,source){ if(seen[type]) return; seen[type]=1; out.push({type:type,source:source}); };
+  (C.feats||[]).forEach(function(f){
+    const meta=FEAT_METADATA[f.id];
+    if(!meta || !meta.energyResist) return;
+    const ch=(C.featChoices||{})[f.uid||f.id]||{};
+    (Array.isArray(ch.energyResist)?ch.energyResist:[]).forEach(function(t){ push(t, f.nameIt||f.id); });
+  });
+  return out;
+}
+function fRDamageResistances(){
+  const list=fGetDamageResistances();
+  if(!list.length) return '';
+  const isIt=lang==='it';
+  const LBL={
+    acid:{it:'Acido',en:'Acid'},cold:{it:'Freddo',en:'Cold'},lightning:{it:'Fulmine',en:'Lightning'},
+    fire:{it:'Fuoco',en:'Fire'},necrotic:{it:'Necrotico',en:'Necrotic'},psychic:{it:'Psichico',en:'Psychic'},
+    radiant:{it:'Radioso',en:'Radiant'},thunder:{it:'Tuono',en:'Thunder'},poison:{it:'Veleno',en:'Poison'}
+  };
+  const chips=list.map(function(r){
+    const lbl=LBL[r.type]?(isIt?LBL[r.type].it:LBL[r.type].en):r.type;
+    return '<span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;background:rgba(90,138,90,.12);border:1px solid rgba(90,138,90,.4);border-radius:12px;font-size:11px;color:var(--green)">🛡️ '+lbl+' <span style="font-size:9px;color:var(--vdim)">'+r.source+'</span></span>';
+  }).join('');
+  return '<div class="box"><div class="box-title">🛡️ '+(isIt?'Resistenze ai Danni':'Damage Resistances')+'</div>'
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px">'+chips+'</div>'
+    +'<div style="font-size:9px;color:var(--vdim);margin-top:6px;font-style:italic">'+(isIt?'Le resistenze da specie e sottoclasse sono indicate nelle rispettive card.':'Species and subclass resistances are listed in their feature cards.')+'</div>'
+    +'</div>';
+}
 function fRSpellsSection(){
-  if(!fHasSpellcasting()) return '';
+  if(!fHasSpellcasting()){
+    const _fs = (typeof fGetFeatSpells==='function') ? fGetFeatSpells() : [];
+    return _fs.length ? fRFeatSpellsOnlyBlock(_fs) : '';
+  }
 
   const isIt        = lang==='it';
   const lv          = C.level;
@@ -10183,6 +10401,22 @@ function fRSpellsSection(){
   const curS = levSpellsArr.length;
   const cc = (n,m)=>n>=m?'var(--green)':n>0?'var(--gold)':'var(--dim)';
 
+  // ── MULTICLASSE (Stage 2): badge classe+caratteristica per incantesimo e
+  //    raggruppamento della lista per classe. _scMap: clsId → dati da incantatore.
+  const _scForSheet = (typeof fGetSpellcastingByClass==='function') ? fGetSpellcastingByClass(isIt) : [];
+  const _mcSpells = _scForSheet.length >= 2;
+  const _mcHasCantrips = _mcSpells && _scForSheet.some(e=>e.maxCantrips>0);
+  const _clsOrder = _scForSheet.map(e=>e.cls);
+  const _scMap = {};
+  _scForSheet.forEach(e=>{ _scMap[e.cls]={name:e.clsName,statLabel:e.statLabel,saveDC:e.saveDC,atkBonus:e.atkBonus}; });
+  // Badge viola con la caratteristica da incantatore della classe associata.
+  function _spClsBadge(id){
+    if(!_mcSpells) return '';
+    const sc=_scMap[(typeof fSpellClassOf==='function')?fSpellClassOf(id):C.cls];
+    if(!sc) return '';
+    return `<span title="${sc.name} · ${isIt?'CD':'DC'} ${sc.saveDC}" style="font-size:8px;font-family:'Comfortaa',sans-serif;letter-spacing:.05em;color:#b07fd0;background:rgba(155,89,182,.12);border:1px solid rgba(155,89,182,.35);border-radius:3px;padding:1px 5px;flex-shrink:0">${sc.statLabel}</span>`;
+  }
+
   // ── Etichette in base al tipo di caster ─────────────────────────────────
   const sectionLabel = isKnown
     ? (isIt?'⭐ Incantesimi Conosciuti':'⭐ Known Spells')
@@ -10192,7 +10426,9 @@ function fRSpellsSection(){
     : hasBook
       ? (isIt?'+ Prepara dal Libro':'+ Prepare from Book')
       : (isIt?'+ Prepara':'+ Prepare');
-  const emptyMsg = isKnown
+  const emptyMsg = _mcSpells
+    ? (isIt?`Prepara incantesimi per ciascuna classe (vedi i limiti per classe sopra).`:`Prepare spells for each class (see per-class limits above).`)
+    : isKnown
     ? (isIt?`Conosci fino a ${maxSpells} incantesimi.`:`Know up to ${maxSpells} spells.`)
     : hasBook
       ? (isIt?`Scegli fino a ${maxSpells} incantesimi da preparare dal libro.`:`Choose up to ${maxSpells} spells to prepare from your spellbook.`)
@@ -10214,6 +10450,7 @@ function fRSpellsSection(){
       ${always ? '<span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>' : ''}
       <span onclick="fShowSpellDetail(${s.id})" style="flex:1;font-size:12px;color:${always?'var(--gold2)':'var(--text)'};font-weight:${always?'500':'500'};cursor:pointer">${s.nome}${isConc?'<span style="color:var(--gold);font-size:9px;margin-left:4px">◎</span>':''}</span>
       <span style="font-size:9px;color:var(--vdim);font-family:'Comfortaa',sans-serif">${s.scuola}</span>
+      ${always ? '' : _spClsBadge(s.id)}
       ${s.concentrazione?`<span onclick="fSetConcentration(${s.id})" style="color:${isConc?'var(--gold)':'var(--vdim)'};font-size:10px;cursor:pointer" title="${isConc?'Perdi conc.':'Attiva conc.'}">${isConc?'◎':'○'}</span>`:''}
       ${s.rituale?`<span style="color:var(--vdim);font-size:9px">R</span>`:''}
       <button onclick="fShowSpellDetail(${s.id})" style="background:none;border:1px solid rgba(200,164,90,.2);border-radius:3px;cursor:pointer;color:var(--gold2);font-size:9px;padding:1px 5px">i</button>
@@ -10227,7 +10464,7 @@ function fRSpellsSection(){
     return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(200,164,90,.04)">
       <span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>
       <span style="flex:1;font-size:12px;color:var(--gold2);font-weight:500">${e.nome}</span>
-      <span style="font-size:9px;color:var(--gold2);opacity:.6">${e.fonte==='subclass'?isIt?'Sottocl.':'Subcl.':isIt?'Sp.':'Sp.'}</span>
+      <span style="font-size:9px;color:var(--gold2);opacity:.6">${e.fonte==='feat'?(isIt?'Talento':'Feat'):e.fonte==='subclass'?isIt?'Sottocl.':'Subcl.':isIt?'Sp.':'Sp.'}</span>
     </div>`;
   }
 
@@ -10297,21 +10534,21 @@ function fRSpellsSection(){
     const db=SPELLS.find(s=>s.nome.toLowerCase()===a.nome.toLowerCase());
     return db&&db.livello===0;
   });
-  const cantripSection = maxCantrips>0 ? `
+  const cantripSection = (maxCantrips>0 || cantripsAlways.length>0 || _mcHasCantrips) ? `
     <div style="margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div>
           <span style="font-family:'Comfortaa',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">0° ${isIt?'Trucchetti':'Cantrips'}</span>
-          <span style="color:${cc(curC,maxCantrips)};font-size:11px;font-weight:700;margin-left:8px">${curC}/${maxCantrips}</span>
+          ${(maxCantrips>0||_mcHasCantrips)?`<span style="color:${cc(curC,maxCantrips)};font-size:11px;font-weight:700;margin-left:8px">${_mcSpells?curC:`${curC}/${maxCantrips}`}</span>`:''}
         </div>
-        <button class="slot-add-btn" onclick="fOpenSpellPickerFor('cantrip')" ${curC>=maxCantrips?'disabled style="opacity:.4"':''}>＋ ${isIt?'Aggiungi':'Add'}</button>
+        ${(maxCantrips>0||_mcHasCantrips)?`<button class="slot-add-btn" onclick="fOpenSpellPickerFor('cantrip')" ${(!_mcSpells&&curC>=maxCantrips)?'disabled style="opacity:.4"':''}>＋ ${isIt?'Aggiungi':'Add'}</button>`:''}
       </div>
       ${cantripsAlways.length?`<div style="background:rgba(200,164,90,.04);border-left:2px solid var(--gold2);padding:4px 8px;margin-bottom:6px;border-radius:2px">
         <div style="font-size:8px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">★ ${isIt?'Sempre preparati':'Always prepared'}</div>
         ${cantripsAlways.map(alwaysNameRow).join('')}
       </div>`:''}
-      ${cantripsArr.map(s=>spellRow(s,false)).join('')}
-      ${curC===0&&!cantripsAlways.length?`<div style="color:var(--vdim);font-size:11px;font-style:italic">${isIt?'Nessun trucchetto.':'No cantrips.'}</div>`:''}
+      ${(maxCantrips>0||_mcHasCantrips)?cantripsArr.map(s=>spellRow(s,false)).join(''):''}
+      ${(maxCantrips>0||_mcHasCantrips)&&curC===0&&!cantripsAlways.length?`<div style="color:var(--vdim);font-size:11px;font-style:italic">${isIt?'Nessun trucchetto.':'No cantrips.'}</div>`:''}
     </div>` : '';
 
   // ── Incantesimi levellati ───────────────────────────────────────────────
@@ -10323,16 +10560,37 @@ function fRSpellsSection(){
   levSpellsArr.forEach(s=>{(byLv[s.livello]=byLv[s.livello]||[]).push(s);});
   const lvN={1:'1°',2:'2°',3:'3°',4:'4°',5:'5°',6:'6°',7:'7°',8:'8°',9:'9°'};
 
-  const levSection = maxSpells>0 ? `
+  // MULTICLASSE (Stage 2): lista livellati raggruppata per classe, poi per livello.
+  function renderLeveledGrouped(){
+    const byCls={};
+    levSpellsArr.forEach(s=>{ const c=(typeof fSpellClassOf==='function')?fSpellClassOf(s.id):C.cls; (byCls[c]=byCls[c]||[]).push(s); });
+    const keys=Object.keys(byCls).sort((a,b)=>{
+      const ia=_clsOrder.indexOf(a), ib=_clsOrder.indexOf(b);
+      return (ia<0?99:ia)-(ib<0?99:ib);
+    });
+    return keys.map(c=>{
+      const sc=_scMap[c]||{name:c,statLabel:'',saveDC:'',atkBonus:0};
+      const bl={}; byCls[c].forEach(s=>{(bl[s.livello]=bl[s.livello]||[]).push(s);});
+      const inner=Object.keys(bl).sort((a,b)=>+a-+b).map(lvl=>
+        `<div style="margin-bottom:3px"><div style="font-size:8px;color:var(--vdim);text-transform:uppercase;letter-spacing:1px;margin:3px 0 2px">${lvN[lvl]||lvl+'°'}</div>${bl[lvl].map(s=>spellRow(s,false)).join('')}</div>`
+      ).join('');
+      return `<div style="margin-bottom:10px;border:1px solid rgba(155,89,182,.22);border-radius:4px;padding:6px 8px">
+        <div style="font-size:10px;color:#b07fd0;font-family:'Comfortaa',sans-serif;letter-spacing:.05em;margin-bottom:4px">${sc.name} <span style="color:var(--vdim);font-weight:400">· ${sc.statLabel} · ${isIt?'CD':'DC'} ${sc.saveDC} · ${isIt?'Att.':'Atk'} ${sc.atkBonus>=0?'+':''}${sc.atkBonus}</span></div>
+        ${inner}
+      </div>`;
+    }).join('');
+  }
+
+  const levSection = (maxSpells>0 || _mcSpells) ? `
     <div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px">
         <div>
           <span style="font-family:'Comfortaa',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--gold2)">${sectionLabel}</span>
-          <span style="color:${cc(curS,maxSpells)};font-size:11px;font-weight:700;margin-left:8px">${curS}/${maxSpells}</span>
+          <span style="color:${cc(curS,maxSpells)};font-size:11px;font-weight:700;margin-left:8px">${_mcSpells?curS:`${curS}/${maxSpells}`}</span>
           ${alwaysLev.length?`<span style="color:var(--gold2);font-size:10px;margin-left:5px">+${alwaysLev.length}★</span>`:''}
           ${formula?`<div style="font-size:9px;color:var(--vdim);margin-top:2px">${formula}</div>`:''}
         </div>
-        <button class="slot-add-btn" onclick="${pickerFn}" ${curS>=maxSpells&&!hasBook?'disabled style="opacity:.4"':''}>＋ ${addBtnLabel}</button>
+        <button class="slot-add-btn" onclick="${pickerFn}" ${(!_mcSpells&&curS>=maxSpells&&!hasBook)?'disabled style="opacity:.4"':''}>＋ ${addBtnLabel}</button>
       </div>
       ${alwaysLev.length?`<div style="margin-bottom:8px;padding:6px 8px;background:rgba(200,164,90,.05);border:1px solid rgba(200,164,90,.2);border-radius:3px;border-left:2px solid var(--gold2)">
         <div style="font-size:8px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">★ ${isIt?'Sempre preparati — non occupano slot':'Always prepared — no slot used'}</div>
@@ -10340,14 +10598,16 @@ function fRSpellsSection(){
       </div>` : ''}
       ${levSpellsArr.length===0
         ? `<div style="color:var(--vdim);font-size:11px;font-style:italic;padding:4px 0">${emptyMsg}</div>`
-        : Object.keys(byLv).sort((a,b)=>+a-+b).map(lvl=>`
+        : (_mcSpells
+          ? renderLeveledGrouped()
+          : Object.keys(byLv).sort((a,b)=>+a-+b).map(lvl=>`
           <div style="margin-bottom:8px">
             <div style="font-size:9px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:4px;display:flex;justify-content:space-between">
               <span>${lvN[lvl]||lvl+'°'}</span>
               <button class="slot-add-btn" style="font-size:8px;padding:1px 5px" onclick="${pickerFn}">＋</button>
             </div>
             ${byLv[lvl].map(s=>spellRow(s,false)).join('')}
-          </div>`).join('')
+          </div>`).join(''))
       }
     </div>` : '';
 
@@ -10511,6 +10771,13 @@ function fSetFeatEnergyResist(uid, typeId){
   if(i>=0){ arr.splice(i,1); }
   else if(arr.length < max){ arr.push(typeId); }
   C.featChoices[uid].energyResist = arr;
+  re();
+}
+// ─── Setter: arma per padronanza (Maestro d'Armi) — selezione singola ──
+function fSetFeatWeaponMastery(uid, weaponEn){
+  if(!C.featChoices) C.featChoices={};
+  if(!C.featChoices[uid]) C.featChoices[uid]={};
+  C.featChoices[uid].weaponMastery = (C.featChoices[uid].weaponMastery===weaponEn) ? null : weaponEn;
   re();
 }
 function fSetAsiMode(uid, mode){
@@ -10863,17 +11130,18 @@ function fRFeatChoices(feat){
     const schools = meta.grants.spell1Schools;
     const chosen  = (C.featChoices?.[feat.uid]?.spell1) || null;
     // Filtra incantesimi di 1° dalle scuole indicate
-    const schoolMap_it = {Enchantment:'Ammaliamento',Divination:'Divinazione',Illusion:'Illusione',Necromancy:'Negromanzia'};
+    const schoolMap_it = {Enchantment:'Ammaliamento',Divination:'Divinazione',Illusion:'Illusione',Necromancy:'Necromanzia'};
     const schoolNames  = isIt ? schools.map(s=>schoolMap_it[s]||s) : schools;
+    // I campi reali di SPELLS sono italiani: livello / scuola / nome
     const eligible = (typeof SPELLS !== 'undefined' ? SPELLS : [])
-      .filter(sp => sp.level===1 && schools.some(sc=>sp.school===sc || sp.schoolIt===schoolMap_it[sc]))
-      .sort((a,b)=>(isIt?a.nameIt:a.nameEn||a.name||'').localeCompare(isIt?b.nameIt:b.nameEn||b.name||''));
+      .filter(sp => sp.livello===1 && schools.some(sc=>sp.scuola===schoolMap_it[sc]))
+      .sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
     html += `<div style="margin-top:6px;padding:6px 8px;background:rgba(100,180,200,.07);border-left:2px solid #3498db;border-radius:2px">
       <div style="font-size:10px;color:#3498db;margin-bottom:4px">✨ ${isIt?'Incantesimo 1° ('+schoolNames.join('/')+')':'1st-level spell ('+schoolNames.join('/')+')'}</div>
       ${eligible.length > 0
         ? `<div style="max-height:120px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:2px">
           ${eligible.map(sp=>{
-            const name = isIt?(sp.nameIt||sp.name):(sp.nameEn||sp.name);
+            const name = sp.nome;
             const sel  = chosen===name;
             return `<span onclick="fSetFeatSpell1('${feat.uid}','${fHtmlEsc(name)}')"
               style="font-size:10px;padding:2px 6px;border:1px solid ${sel?'#3498db':'var(--border2)'};
@@ -10988,6 +11256,47 @@ function fRFeatChoices(feat){
     html += '</div>';
   }
 
+  // ── Picker arma per padronanza (Maestro d'Armi) — 1 arma semplice o da guerra ──
+  if(meta.weaponMastery === 'choice'){
+    const chosen = (C.featChoices?.[feat.uid]?.weaponMastery) || null;
+    // PHB 2024: la maestria si applica solo a un'arma di cui si possiede GIÀ la competenza.
+    // Pool = armi di cui il personaggio è competente, unione di tutte le classi nel multiclasse (+ sottoclasse).
+    let wlist = (typeof fGetProficientMasteryWeapons==='function')
+      ? fGetProficientMasteryWeapons()
+      : ((typeof fGetMasteryWeapons==='function') ? fGetMasteryWeapons(C.cls) : (typeof WEAPONS_MASTERY !== 'undefined' ? WEAPONS_MASTERY : []));
+    const groups = [
+      {key:'semplice', lbl: isIt?'Semplici':'Simple'},
+      {key:'guerra',   lbl: isIt?'Da guerra':'Martial'}
+    ];
+    html += '<div style="margin-top:6px;padding:6px 8px;background:rgba(200,164,90,.06);border-left:2px solid var(--gold2);border-radius:2px">';
+    html += '<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🗡️ '+(isIt?'Arma per proprietà di padronanza':'Weapon for mastery property')+' <span style="font-size:9px;opacity:.7">'+(isIt?'(cambiabile a ogni riposo lungo)':'(changeable each long rest)')+'</span></div>';
+    html += groups.map(g=>{
+      const items = wlist.filter(w=>w.type===g.key).sort((a,b)=>((isIt?a.it:a.en)||'').localeCompare((isIt?b.it:b.en)||''));
+      if(items.length===0) return '';
+      return '<div style="font-size:9px;color:var(--muted);margin:3px 0 2px">'+g.lbl+'</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:3px">'
+        + items.map(w=>{
+            const sel = chosen===w.en;
+            const lbl = isIt?w.it:w.en;
+            return '<span onclick="fSetFeatWeaponMastery(\''+feat.uid+'\',\''+w.en+'\')" title="'+fHtmlEsc((isIt?'Padronanza':'Mastery')+': '+w.prop)+'" style="font-size:10px;padding:2px 7px;border:1px solid '+(sel?'var(--gold)':'var(--border2)')+';background:'+(sel?'rgba(200,164,90,.2)':'transparent')+';color:'+(sel?'var(--gold)':'var(--text)')+';border-radius:3px;cursor:pointer">'+lbl+'</span>';
+          }).join('')
+        + '</div>';
+    }).join('');
+    html += '</div>';
+  }
+
+  // ── Info: competenza nel TS (Resiliente) — derivata dalla caratteristica scelta ──
+  if(meta.grants?.saveProf){
+    const stats = (C.featChoices?.[feat.uid]?.stats) || [];
+    const lab = isIt ? {STR:'FOR',DEX:'DES',CON:'COS',INT:'INT',WIS:'SAG',CHA:'CAR'}
+                     : {STR:'STR',DEX:'DEX',CON:'CON',INT:'INT',WIS:'WIS',CHA:'CHA'};
+    const txt = stats.length
+      ? '✓ '+(isIt?'Competenza nel TS su':'Save proficiency in')+' <strong>'+(lab[stats[0]]||stats[0])+'</strong>'
+      : (isIt?'Scegli la caratteristica sopra: otterrai competenza nel relativo tiro salvezza.':'Choose the ability above: you gain proficiency in its saving throw.');
+    html += '<div style="margin-top:6px;padding:5px 8px;background:rgba(90,180,90,.07);border-left:2px solid var(--green);border-radius:2px">'
+      + '<div style="font-size:10px;color:var(--green)">'+txt+'</div></div>';
+  }
+
   // ── Info automatico: Dono dell'Abilità — tutte le abilità ─────────────────
   if(meta.grants?.allSkillsProf){
     html += `<div style="margin-top:6px;padding:5px 8px;background:rgba(90,180,90,.07);border-left:2px solid var(--green);border-radius:2px">
@@ -11095,7 +11404,7 @@ const CLASS_PRIMARY_STATS = {
 
 function fSelCl(id){
   C.cls=id; C.subclass=null; C.classSkills=[];
-  C.preparedSpells=[]; C._spellTab='always';
+  C.preparedSpells=[]; C.spellSource={}; C._spellTab='always';
   C.weaponMasteries=[]; C.expertiseSkills=[];
   C.bardDiscoveries=[];
   // MULTICLASSE: la guidata edita la classe primaria → rifletti su C.classes[0]
@@ -11148,6 +11457,30 @@ function fSelBg(id){
   re();
 }
 
+// MULTICLASSE: pota i talenti ASI in eccesso quando il numero di slot cala (es.
+// abbassando il livello di una classe primaria o secondaria). Gli slot ASI si
+// contano PER CLASSE (SRD 5.2.1, "Multiclasse" + privilegio "Aumento dei punteggi
+// di caratteristica", ottenuto a livelli di classe specifici); fFeatSlots(C.cls,
+// C.level) li somma per tutte le classi. Rimuove dalla coda i talenti non di
+// Origine (esclusi fromBg/fromVersatile) e ne ripulisce le scelte associate,
+// coerentemente con gli altri percorsi di rimozione (fTogFeat/fRmFeat/...).
+// Helper condiviso da fSetLv e fSetSecondaryClassLevel per evitare divergenze.
+function fPruneExcessFeats(){
+  const sl = fFeatSlots(C.cls, C.level);
+  let toRemove = C.feats.filter(f=>!f.fromBg && !f.fromVersatile).length - sl;
+  if(toRemove<=0) return;
+  for(let i=C.feats.length-1; i>=0 && toRemove>0; i--){
+    if(!C.feats[i].fromBg && !C.feats[i].fromVersatile){
+      const removed=C.feats[i];
+      if(removed.uid){
+        if(C.featChoices) delete C.featChoices[removed.uid];
+        if(C.featSkills)  C.featSkills  = C.featSkills.filter(s=>s.uid!==removed.uid);
+        if(C.featTools)   C.featTools   = C.featTools.filter(s=>s.uid!==removed.uid);
+      }
+      C.feats.splice(i,1); toRemove--;
+    }
+  }
+}
 // Livello
 function fSetLv(lv){
   // Imposta il livello della CLASSE PRIMARIA (C.classes[0]). Il numero rappresenta
@@ -11160,14 +11493,7 @@ function fSetLv(lv){
   lv = Math.max(1, Math.min(lv, 20 - others));
   C.classes[0].level = lv;
   fSyncClassDerived();
-  const sl=fFeatSlots(C.cls,C.level);
-  const asiCount = C.feats.filter(f=>!f.fromBg && !f.fromVersatile).length;
-  if(asiCount>sl){
-    let toRemove = asiCount - sl;
-    for(let i=C.feats.length-1; i>=0 && toRemove>0; i--){
-      if(!C.feats[i].fromBg && !C.feats[i].fromVersatile){ C.feats.splice(i,1); toRemove--; }
-    }
-  }
+  fPruneExcessFeats();
   re();
 }
 
@@ -11198,6 +11524,7 @@ function fRemoveClass(idx){
   if(idx<=0 || idx>=C.classes.length) return;
   C.classes.splice(idx,1);
   fSyncClassDerived();
+  fPruneExcessFeats();
   re();
 }
 function fSetSecondaryClassLevel(idx, lv){
@@ -11214,6 +11541,7 @@ function fSetSecondaryClassLevel(idx, lv){
   if(lv < 1) lv = 1; // una classe non può avere meno di 1 livello (caso limite gestito da fAddClass)
   C.classes[idx].level=lv;
   fSyncClassDerived();
+  fPruneExcessFeats();
   re();
 }
 // Helper a singolo argomento per i pulsanti +/- (l'onclick non deve contenere
@@ -11323,7 +11651,6 @@ function fRMulticlassPanel(){
 }
 
 // Statistiche — Point Buy
-function fSpentPB(){return Object.values(C.stats).reduce((a,v)=>a+(FPC[v]||0),0);}
 function fAdjPB(s,d){
   const cur=C.stats[s],nxt=cur+d;
   if(nxt<8||nxt>15) return;
@@ -12616,6 +12943,33 @@ function fGetMasteryWeapons(clsId){
   return WEAPONS_MASTERY;
 }
 
+// Armi di cui il personaggio è EFFETTIVAMENTE competente ai fini della padronanza.
+// Monoclasse: competenza piena della classe. Multiclasse (PHB 2024 §1.7): classe iniziale piena
+// + grant di competenza in armi delle classi secondarie come da FMULTICLASS_PROFS (solo Barbaro/
+// Guerriero/Paladino/Ranger concedono "Armi da guerra"). Aggiunge anche le armi da guerra concesse
+// dalla sottoclasse (es. Bardo del Valore, Chierico Protettore, Druido Custode).
+function fGetProficientMasteryWeapons(){
+  if(typeof fEnsureClasses==='function') fEnsureClasses();
+  const active = (C.classes||[]).filter(c=>c && c.cls);
+  const classesList = active.length ? active : [{cls:C.cls}];
+  const primary = classesList[0] ? classesList[0].cls : C.cls;
+  let pool = (typeof fGetMasteryWeapons==='function')
+    ? fGetMasteryWeapons(primary).slice()
+    : (typeof WEAPONS_MASTERY!=='undefined' ? WEAPONS_MASTERY.slice() : []);
+  let full = false;
+  const addAllMartial = function(){ full = true; };
+  // Classi secondarie: aggiungono armi solo se il loro grant multiclasse include le armi da guerra
+  classesList.slice(1).forEach(function(c){
+    const p = (typeof FMULTICLASS_PROFS!=='undefined') ? FMULTICLASS_PROFS[c.cls] : null;
+    if(p && p.weaponEn && /martial|guerra/i.test(p.weaponEn)) addAllMartial();
+  });
+  // Sottoclasse che concede competenza nelle armi da guerra
+  const scProf = (typeof fSubclassGrantsProfs==='function') ? fSubclassGrantsProfs(C.cls, C.subclass||'') : null;
+  if(scProf && scProf.weaponExtra && /guerra|martial/i.test(scProf.weaponExtra)) addAllMartial();
+  if(full && typeof WEAPONS_MASTERY!=='undefined') pool = WEAPONS_MASTERY.slice();
+  return pool;
+}
+
 // Helper: bonus Taumaturgo (mod.SAG min +1) per Arcano o Religione
 function fTaumaturgBonus(skillEn){
   if(C.cls!=='cleric' || C.divOrder!=='taumaturgo') return 0;
@@ -12694,7 +13048,7 @@ function fRS5(){
           `}
           ${bonusBadge}
           ${(()=>{
-            const svProfs=fGetClassSaveProfs();
+            const svProfs=fGetAllSaveProfs();
             const isProf=svProfs.includes(s);
             const svMod=isProf?fcmod(fTotalStat(s))+fpb(C.level):fcmod(fTotalStat(s));
             const svStr=(svMod>=0?'+':'')+svMod;
