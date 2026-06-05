@@ -743,6 +743,14 @@ tr.desc-row td{
 .sk-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #1e1408;font-size:12px}
 .sheet-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #1e1408;font-size:13px}
 .nav{display:flex;justify-content:space-between;margin-top:28px;gap:10px}
+/* Frecce overlay di navigazione per la creazione guidata */
+.guided-arrow{position:fixed;top:50%;transform:translateY(-50%);z-index:120;width:46px;height:64px;display:flex;align-items:center;justify-content:center;font-size:30px;line-height:1;cursor:pointer;color:var(--gold);background:rgba(13,10,6,.78);border:1px solid var(--gold3,#5a3a1a);border-radius:10px;backdrop-filter:blur(3px);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;-webkit-user-select:none;transition:background .2s,opacity .2s,transform .1s}
+.guided-arrow:hover{background:rgba(200,164,90,.18)}
+.guided-arrow:active{transform:translateY(-50%) scale(.92)}
+.guided-arrow.left{left:8px}
+.guided-arrow.right{right:8px}
+.guided-arrow.view-sheet{font-size:24px}
+@media(max-width:640px){.guided-arrow{width:40px;height:56px;font-size:26px;left:4px}.guided-arrow.right{right:4px}}
 .summary-bar{background:rgba(13,10,6,.95);border:1px solid var(--border,#3a2810);border-radius:3px;padding:10px 14px;margin-bottom:16px;font-size:12px}
 .subrace-item{border:1px solid var(--border,#3a2810);border-radius:3px;padding:9px 12px;cursor:pointer;margin-bottom:6px;transition:border-color .2s}
 .subrace-item.sel{border-color:var(--gold);background:rgba(139,90,43,.25)}
@@ -6165,7 +6173,6 @@ function fRGuided(){
     ft("Equipaggiamento","Equipment"),             // step 12 · fRS11
   ];
   return`<div class="fade-in">
-    ${fRDots()}
     <div style="text-align:center;font-size:11px;color:var(--vdim);margin-bottom:14px;font-style:italic">${stepHints[step]||""}</div>
     ${step>0?fRSummary(sp,cl,bg,sr):""}
     ${step===0?fRS9():""}
@@ -6181,12 +6188,8 @@ function fRGuided(){
     ${step===10?fRS4():""}
     ${step===11?fRS10():""}
     ${step===12?fRS11(cl):""}
-    <div class="nav">
-      <button class="btn" onclick="fGoBack()">← ${step===0?ft("Home","Home"):ft("Indietro","Back")}</button>
-      <button class="btn primary" onclick="fGoNext()" ${fCanNext()?"":"disabled"}>
-        ${step===FNSTEPS-1?"📜 "+ft("Vedi Scheda","View Sheet"):ft("Avanti","Next")+" →"}
-      </button>
-    </div>
+    <div class="guided-arrow left" onclick="fGoBack()" role="button" tabindex="0" aria-label="${step===0?ft("Home","Home"):ft("Indietro","Back")}" title="${step===0?ft("Home","Home"):ft("Indietro","Back")}">&#8249;</div>
+    ${fCanNext()?`<div class="guided-arrow right${step===FNSTEPS-1?" view-sheet":""}" onclick="fGoNext()" role="button" tabindex="0" aria-label="${step===FNSTEPS-1?ft("Vedi Scheda","View Sheet"):ft("Avanti","Next")}" title="${step===FNSTEPS-1?ft("Vedi Scheda","View Sheet"):ft("Avanti","Next")}">${step===FNSTEPS-1?"📜":"&#8250;"}</div>`:""}
   </div>`;
 }
 
@@ -11461,11 +11464,54 @@ function fGoNext(){
   re();
 }
 
-// Aggiorna solo il bottone Avanti (senza re-render completo)
+// Mostra/nasconde la freccia destra "Avanti" senza re-render completo
+// (serve agli input testuali, che non devono perdere il focus a ogni tasto)
 function fUpdNext(){
-  const btn=document.querySelector('.btn.primary[onclick="fGoNext()"]');
-  if(btn) btn.disabled=!fCanNext();
+  const left=document.querySelector('.guided-arrow.left');
+  if(!left) return;                       // non siamo nella creazione guidata
+  let right=document.querySelector('.guided-arrow.right');
+  if(fCanNext()){
+    if(!right){
+      const last=(step===FNSTEPS-1);
+      const lbl=last?ft("Vedi Scheda","View Sheet"):ft("Avanti","Next");
+      right=document.createElement('div');
+      right.className='guided-arrow right'+(last?' view-sheet':'');
+      right.setAttribute('onclick','fGoNext()');
+      right.setAttribute('role','button');
+      right.setAttribute('tabindex','0');
+      right.setAttribute('aria-label',lbl);
+      right.setAttribute('title',lbl);
+      right.innerHTML=last?"📜":"&#8250;";
+      left.parentNode.appendChild(right);
+    }
+  } else if(right){
+    right.remove();
+  }
 }
+
+// ── Navigazione gesture (swipe al tocco + trascinamento mouse) nella creazione guidata ──
+// Usa solo i Pointer Events, così touch e mouse sono coperti senza doppi conteggi.
+(function(){
+  let sx=0, sy=0, tracking=false;
+  const THRESH=60, RATIO=1.4;   // px minimi orizzontali · dominanza orizzontale vs verticale
+  function noSwipe(t){ return !!(t&&t.closest&&t.closest('select,input,textarea,.table-wrap,[data-noswipe]')); }
+  document.addEventListener('pointerdown',function(e){
+    if(!e.isPrimary){tracking=false;return;}
+    if(e.pointerType==='mouse'&&e.button!==0){tracking=false;return;}
+    if(typeof screen==='undefined'||screen!=='guided'||noSwipe(e.target)){tracking=false;return;}
+    sx=e.clientX; sy=e.clientY; tracking=true;
+  });
+  document.addEventListener('pointerup',function(e){
+    if(!tracking||!e.isPrimary){tracking=false;return;}
+    tracking=false;
+    if(screen!=='guided') return;
+    const dx=e.clientX-sx, dy=e.clientY-sy;
+    if(Math.abs(dx)<THRESH || Math.abs(dx)<Math.abs(dy)*RATIO) return;
+    if(dx<0){ if(fCanNext()) fGoNext(); }   // swipe verso sinistra → Avanti (se il passo è valido)
+    else { if(step>0) fGoBack(); }          // swipe verso destra → Indietro (a passo 0 non esce)
+  });
+  document.addEventListener('pointercancel',function(){tracking=false;});
+})();
 
 // Selezioni specie / classe / background / allineamento
 function fSelSp(id){
