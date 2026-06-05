@@ -1796,7 +1796,7 @@ fighter: [
 // ──────────────────────────────────────────────────────────────────
 monk: [
   { lv:1,  it:"Arti Marziali",
-    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DEX invece di STR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-10), 1d10 (Lv.11-16), 1d12 (Lv.17-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
+    desc:"Usa DES invece di FOR per tiri per colpire e danno di colpi senz'armi e armi da monaco. Per afferrare o spingere usa DES invece di FOR per la CD del TS. Dado AM: 1d6 (Lv.1-4), 1d8 (Lv.5-10), 1d10 (Lv.11-16), 1d12 (Lv.17-20). Colpo senz'armi bonus: può effettuare un colpo senz'armi come azione bonus (richiede: senz'armi o solo armi da monaco, senza armatura né scudo)." },
   { lv:1,  it:"Difesa Senza Armatura",
     desc:"Senza armatura e scudo: CA = 10 + mod. DES + mod. SAG." },
   { lv:2,  it:"Concentrazione da Monaco",
@@ -1806,7 +1806,7 @@ monk: [
   { lv:2,  it:"Movimento Senza Armatura",
     desc:"Velocità +3 m (senza armatura pesante o scudo). Aumenta con il livello secondo la tabella: +4,5 m (Lv.6), +6 m (Lv.10), +7,5 m (Lv.14), +9 m (Lv.18)." },
   { lv:3,  it:"Devia Attacchi",
-    desc:"Reazione quando viene colpito (danni contundenti/perforanti/taglienti): riduce i danni di 1d10 + mod.DEX + livello monaco. Se ridotti a 0: spende 1 PC per deviare l'attacco verso una creatura nel campo visivo: entro 1,5 m se l'attacco era in mischia, entro 18 m se a distanza. Il bersaglio effettua TS su DES o subisce danni pari a 2 tiri del dado AM + mod.DEX dello stesso tipo." },
+    desc:"Reazione quando viene colpito (danni contundenti/perforanti/taglienti): riduce i danni di 1d10 + mod.DES + livello monaco. Se ridotti a 0: spende 1 PC per deviare l'attacco verso una creatura nel campo visivo: entro 1,5 m se l'attacco era in mischia, entro 18 m se a distanza. Il bersaglio effettua TS su DES o subisce danni pari a 2 tiri del dado AM + mod.DES dello stesso tipo." },
   { lv:3,  it:"Sottoclasse del Monaco",
     desc:"Sceglie la Tradizione Monacale (Mano Aperta, Ombra, Elementi, Misericordia). Le facoltà si ottengono ai Lv.3, 6, 11, 17." },
   { lv:4,  it:"Aumento dei Punteggi di Caratteristica",
@@ -1816,7 +1816,7 @@ monk: [
   { lv:5,  it:"Attacco Extra",
     desc:"Può effettuare due attacchi (invece di uno) quando esegue l'azione Attacco." },
   { lv:5,  it:"Colpo Stordente",
-    desc:"Una volta per turno, quando colpisce con un'arma da monaco o colpo senz'armi: spende 1 PC. Il bersaglio effettua TS su CON (CD = 8 + PB + mod.SAG). Se fallisce: è stordito fino all'inizio del turno successivo del monaco, la sua velocità è dimezzata fino all'inizio del turno successivo, e il prossimo tiro per colpire contro di esso dispone di vantaggio." },
+    desc:"Una volta per turno, quando colpisce con un'arma da monaco o colpo senz'armi: spende 1 PC. Il bersaglio effettua TS su COS (CD = 8 + PB + mod.SAG). Se fallisce: è stordito fino all'inizio del turno successivo del monaco, la sua velocità è dimezzata fino all'inizio del turno successivo, e il prossimo tiro per colpire contro di esso dispone di vantaggio." },
   { lv:6,  it:"Colpi Potenziati",
     desc:"Ogni volta che infligge danni con un colpo senz'armi, il monaco può scegliere di infliggere danni da Forza invece del suo tipo di danno normale." },
   { lv:7,  it:"Elusione",
@@ -2212,7 +2212,7 @@ const SUBCLASS_FEATURES = {
   { lv:3,  it:"Tecnica della Mano Aperta", desc:"Ogni volta che colpisce con un attacco concesso dalla Raffica di Colpi, può imporre uno degli effetti al bersaglio: Disorientamento (non può effettuare OA fino all'inizio del suo turno), Rovesciamento (TS su DES o cade prono), Spinta (TS su FOR o viene spinto fino a 4,5 m)." },
   { lv:6,  it:"Integrità del Corpo", desc:"Azione bonus: tira il dado Arti Marziali e recupera PF = risultato + mod. SAG (min 1). Usi = mod. SAG (min 1); recupero: riposo lungo." },
   { lv:11, it:"Passo Lesto", desc:"Quando effettua un'azione bonus diversa da Passo del Vento, può usare Passo del Vento subito dopo." },
-  { lv:17, it:"Palmo Tremante", desc:"Quando colpisce con colpo senz'armi: spende 4 PC per avviare vibrazioni letali (durano livello monaco giorni). Per porre fine: come azione o rinunciando a un attacco nell'azione Attacco (stessi piano di esistenza). Fine vibrazioni: TS CON → 10d12 danni da forza (fallimento), metà (successo). Il monaco può tenere una sola creatura alla volta." },
+  { lv:17, it:"Palmo Tremante", desc:"Quando colpisce con colpo senz'armi: spende 4 PC per avviare vibrazioni letali (durano livello monaco giorni). Per porre fine: come azione o rinunciando a un attacco nell'azione Attacco (stessi piano di esistenza). Fine vibrazioni: TS COS → 10d12 danni da forza (fallimento), metà (successo). Il monaco può tenere una sola creatura alla volta." },
 ],
 "mercy": [
   { lv:3,  it:"Mano del Dolore", desc:"Una volta per turno: quando colpisce con colpo senz'armi, spende 1 PC per infliggere danni necrotici extra pari a dado AM + mod. SAG." },
@@ -2522,6 +2522,19 @@ function fCheckPrereqs(feat, char, lang) {
     }
   }
 
+  // Stili di Combattimento — niente sovrapposizione classe ↔ talento.
+  // Il privilegio di classe salva lo stile in C.fightingStyle/fightingStyle2
+  // (id es. 'difesa'); il talento corrispondente ha id 'st-difesa'. Se lo stile
+  // è già stato scelto come privilegio di classe, il talento non è selezionabile.
+  if (feat.id && feat.id.indexOf('st-') === 0) {
+    const styleId = feat.id.slice(3);
+    if (char.fightingStyle === styleId || char.fightingStyle2 === styleId) {
+      reasons.push(isIt
+        ? 'Già scelto come Stile di Combattimento di classe'
+        : 'Already chosen as a class Fighting Style');
+    }
+  }
+
   return { ok: reasons.length === 0, reasons };
 }
 
@@ -2667,7 +2680,7 @@ const FFEATS_DATA_V2 = [
         descEn:'+1 DEX (max 20). Blindsense 10 ft. Advantage on DEX (Stealth) while hidden in combat. Missing an attack from hiding doesn\'t reveal you.' },
       { id:'combattente-sella', it:'Combattente in Sella', en:'Mounted Combatant',
         prereq: { level:4 },
-        descIt:'+1 FOR/DES/SAG (max 20). Vantaggio contro creature di taglia inferiore alla tua cavalcatura. Balzo laterale: cavalcatura supera TS DEX senza danni (metà se fallisce). Deviazione: dirigi l\'attacco verso la cavalcatura.',
+        descIt:'+1 FOR/DES/SAG (max 20). Vantaggio contro creature di taglia inferiore alla tua cavalcatura. Balzo laterale: cavalcatura supera TS DES senza danni (metà se fallisce). Deviazione: dirigi l\'attacco verso la cavalcatura.',
         descEn:'+1 STR/DEX/WIS (max 20). Advantage vs creatures smaller than your mount. Evasive Maneuvers: mount passes DEX save with no damage (half on fail). Redirect: direct attack toward your mount.' },
       { id:'competenza-armi-guerra', it:'Competenza nelle Armi da Guerra', en:'Martial Weapon Training',
         prereq: { level:4 },
@@ -3413,7 +3426,7 @@ const FFEATS_DATA=[
     {id:"sentinella",it:"Sentinella",en:"Sentinel",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 FOR o DES. Attacco opportunità anche su Disimpegno. Colpo opportunità: velocità 0."},
     {id:"sterminatore-maghi",it:"Sterminatore di Maghi",en:"Mage Slayer",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 FOR o DES. Colpendo concentrato: svantaggio TS. Reazione: attacco su cast ravvicinato. Scudo mentale 1/riposo."},
     {id:"stile-penetrante",it:"Stile Penetrante",en:"Piercer",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 FOR o DES. Perforante: rilancia 1 dado danno. Critico perforante: +1 dado danno."},
-    {id:"telecinesi",it:"Telecinesi",en:"Telekinetic",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 INT/SAG/CAR. Mano Magica invisibile. Spinta/attira telecinetica (azione bonus, TS STR)."},
+    {id:"telecinesi",it:"Telecinesi",en:"Telekinetic",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 INT/SAG/CAR. Mano Magica invisibile. Spinta/attira telecinetica (azione bonus, TS FOR)."},
     {id:"telepatia",it:"Telepatia",en:"Telepathic",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 INT/SAG/CAR. Comunicazione telepatica. Individuazione dei pensieri 1/riposo lungo."},
     {id:"tenace",it:"Tenace",en:"Tough",prereqIt:"Lv.4+",prereqEn:"Lv.4+",desc:"+1 COS. Vantaggio TS contro morte. Recupero rapido: usa 1 Dado Vita come azione bonus."},
     {id:"tiratore-scelto",it:"Tiratore Scelto",en:"Sharpshooter",prereqIt:"Lv.4+, DES 13+",prereqEn:"Lv.4+, DEX 13+",desc:"+1 DES. Ignora copertura. Nessuno svantaggio a distanza ravvicinata o lunga."},
@@ -3667,7 +3680,7 @@ const WARLOCK_INVOCATIONS = [
   { id:'dono-protettore',   it:'Dono del Protettore',     en:'Gift of the Protectors', prereqInv:'patto-tomo',
     prereqLv:9, desc:'Una volta per riposo lungo, una creatura il cui nome è nel Libro delle Ombre che scende a 0 PF scende invece a 1 PF. Req: Patto del Tomo.' },
   { id:'succhiavita',       it:'Succhiavita',             en:'Lifedrinker', prereqInv:'patto-lama',
-    prereqLv:9, desc:'Quando colpisci con l\'arma del patto: infliggi 1d6 danni necrotici/psichici/radiosi extra; consuma un Dado Vita per recuperare PF = risultato + mod. CON. Req: Patto della Lama.' },
+    prereqLv:9, desc:'Quando colpisci con l\'arma del patto: infliggi 1d6 danni necrotici/psichici/radiosi extra; consuma un Dado Vita per recuperare PF = risultato + mod. COS. Req: Patto della Lama.' },
   // ── PREREQ Lv.12 ──────────────────────────────────────────────────────
   { id:'lama-divoratrice',  it:'Lama Divoratrice',        en:'Devouring Blade', prereqInv:'lama-assetata',
     prereqLv:12, desc:'L\'attacco extra di Lama Assetata diventa due attacchi aggiuntivi (3 totali). Req: Lama Assetata.' },
@@ -5782,6 +5795,7 @@ function fCanNext(){
 function re(){
   const app=document.getElementById("char-app");
   if(!app)return;
+  if(typeof fSyncStyleCantrips==='function') fSyncStyleCantrips();
   if(screen==="guided"&&step>=FNSTEPS){screen='sheet';} // oltre l'ultimo step (12) → scheda
   if(screen==="home")app.innerHTML=fRHome();
   else if(screen==="guided")app.innerHTML=fRGuided();
@@ -5813,6 +5827,7 @@ function nuovoPersonaggio(){
     nemesisMark:{used:0},
     sorcPoints:{used:0},metamagicChoices:[],draconicAffinity:null,innateUsed:0,
     divinatorPresage:[null,null],spellbookSpells:[],beastCompanion:null,
+    styleCantrips:[],                 // Trucchetti da Guerriero Benedetto/Druidico (id incantesimi)
   };
   screen="guided";
   step=0;
@@ -6301,6 +6316,7 @@ function fRS0cl(){
       html += `<div style="margin:12px 0;padding:10px 12px;background:rgba(200,164,90,.06);border:1px solid rgba(200,164,90,.25);border-radius:4px">
         <div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">\u2694\ufe0f ${fsTitle}</div>
         ${fRenderFSPicker('fightingStyle', C.cls, null)}
+        ${fRenderStyleCantripPicker()}
       </div>`;
     }
 
@@ -6371,7 +6387,11 @@ function fFightingStyleLabel(id, clsId, isIt){
 // Render di un selettore di stile (slot = nome del campo in C, exclude = id da escludere)
 function fRenderFSPicker(slot, clsId, exclude){
   var isIt = lang==='it';
-  var list = fFightingStylesList(clsId).filter(function(s){return s.id!==exclude;});
+  // Stili già ottenuti come talento (id 'st-X'): vanno esclusi dal picker di classe
+  var takenAsFeat = (C.feats||[]).map(function(f){return (f && f.id) ? f.id : f;});
+  var list = fFightingStylesList(clsId).filter(function(s){
+    return s.id!==exclude && takenAsFeat.indexOf('st-'+s.id)===-1;
+  });
   var cur = C[slot]||null;
   var html = '<div style="display:flex;flex-direction:column;gap:5px">';
   list.forEach(function(s){
@@ -6383,6 +6403,62 @@ function fRenderFSPicker(slot, clsId, exclude){
       + '</div>';
   });
   html += '</div>';
+  return html;
+}
+
+// ── Trucchetti da "Guerriero Benedetto" (Paladino) / "Guerriero Druidico" (Ranger) ──
+// Lo stile concede 2 trucchetti (da chierico/druido). Scelta STABILE, memorizzata in
+// C.styleCantrips (id incantesimi). Reset automatico via fSyncStyleCantrips (in re()).
+function fStyleCantripSource(){
+  if(typeof C==='undefined'||!C) return null;
+  if(C.fightingStyle==='beato'    && C.cls==='paladin') return 'Chierico';
+  if(C.fightingStyle==='druidico' && C.cls==='ranger')  return 'Druido';
+  return null;
+}
+function fSyncStyleCantrips(){
+  if(typeof C==='undefined'||!C) return;
+  if(!Array.isArray(C.styleCantrips)) C.styleCantrips=[];
+  var src=fStyleCantripSource();
+  if(!src){ if(C.styleCantrips.length) C.styleCantrips=[]; return; }
+  C.styleCantrips = C.styleCantrips.filter(function(id){
+    var sp=SPELLS.find(function(s){return s.id===id;});
+    return sp && sp.livello===0 && Array.isArray(sp.classi) && sp.classi.indexOf(src)>=0;
+  }).slice(0,2);
+}
+function fToggleStyleCantrip(id){
+  if(!Array.isArray(C.styleCantrips)) C.styleCantrips=[];
+  var i=C.styleCantrips.indexOf(id);
+  if(i>=0){ C.styleCantrips.splice(i,1); }
+  else if(C.styleCantrips.length<2){ C.styleCantrips.push(id); }
+  re();
+}
+function fRenderStyleCantripPicker(){
+  var src=fStyleCantripSource();
+  if(!src) return '';
+  var isIt=lang==='it';
+  if(!Array.isArray(C.styleCantrips)) C.styleCantrips=[];
+  var chosen=C.styleCantrips;
+  var styleName=(C.fightingStyle==='beato')
+    ? (isIt?'Guerriero Benedetto':'Blessed Warrior')
+    : (isIt?'Guerriero Druidico':'Druidic Warrior');
+  var list=SPELLS.filter(function(sp){
+    return sp.livello===0 && Array.isArray(sp.classi) && sp.classi.indexOf(src)>=0;
+  }).sort(function(a,b){return a.nome.localeCompare(b.nome);});
+  var html='<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(200,164,90,.25)">'
+    + '<div style="font-size:10px;color:var(--gold2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">'
+    + '\u2728 '+(isIt?'Trucchetti — '+styleName:'Cantrips — '+styleName)+' '+chosen.length+'/2</div>'
+    + '<div style="display:flex;flex-direction:column;gap:4px">';
+  list.forEach(function(sp){
+    var sel=chosen.indexOf(sp.id)>=0;
+    var disabled=!sel && chosen.length>=2;
+    html+='<div'+(disabled?'':' onclick="fToggleStyleCantrip('+sp.id+')"')+' style="cursor:'+(disabled?'default':'pointer')
+      +';opacity:'+(disabled?'.4':'1')+';padding:5px 8px;border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.2)')
+      +';background:'+(sel?'rgba(200,164,90,.1)':'rgba(0,0,0,.15)')+';border-radius:3px;display:flex;align-items:center;gap:8px">'
+      +'<span style="color:'+(sel?'var(--gold)':'var(--vdim)')+';font-size:13px;flex-shrink:0">'+(sel?'\u25c9':'\u25cb')+'</span>'
+      +'<span style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+sp.nome+'</span>'
+      +'</div>';
+  });
+  html+='</div></div>';
   return html;
 }
 // Box riepilogo stile/i per la scheda finale
@@ -6730,7 +6806,7 @@ function fRClassSkillPicker(){
         ${isIt ? sk.it : sk.en}
         ${srcBadge ? `<span style="font-size:9px;color:var(--green);margin-left:4px">(${srcBadge}) — ${isIt ? 'già acquisita' : 'already proficient'}</span>` : ''}
       </span>
-      <span style="font-size:9px;color:var(--vdim)">${stat}</span>
+      <span style="font-size:9px;color:var(--vdim)">${fSA(stat)}</span>
       <span style="font-size:11px;font-weight:600;min-width:30px;text-align:right;color:${numCol}">
         ${(isSel || alreadyHas) ? finalStr : mod}
       </span>
@@ -7816,7 +7892,7 @@ ${(function(){
 
   ${(function(){ var cs=C.concentratingSpell?SPELLS.find(function(s){return s.id===C.concentratingSpell;}):null; return cs?'<div style="background:#fff3cd;border:1px solid #c8a847;border-radius:2px;padding:1mm 2mm;font-size:6pt;margin-bottom:1.5mm">\u25c6 CONCENTRAZIONE: <strong>'+ cs.nome +'</strong></div>':'';})()} 
   <div class="psh">
-    <div class="pcbx"><div class="pl">Caratteristica Incantatore</div><div class="pv">${castStat}</div></div>
+    <div class="pcbx"><div class="pl">Caratteristica Incantatore</div><div class="pv">${fSA(castStat)}</div></div>
     <div class="pcbx"><div class="pl">Modificatore</div><div class="pv">${(castMod>=0?'+':'')+castMod}</div></div>
     <div class="pcbx"><div class="pl">CD Tiro Salvezza</div><div class="pv">${saveDC}</div></div>
     <div class="pcbx"><div class="pl">Bonus Attacco Inc.</div><div class="pv">${(atkBonus>=0?'+':'')+atkBonus}</div></div>
@@ -8662,7 +8738,7 @@ function fShowTT(e,stat){
   div.id="tt-overlay";
   div.style.cssText="position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);padding:20px";
   div.onclick=()=>div.remove();
-  div.innerHTML=`<div style="background:#1a1208;border:2px solid #c8a45a;border-radius:6px;padding:20px;max-width:320px;width:100%"><div style="font-family:'Comfortaa', sans-serif;color:#c8a45a;font-size:14px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #3a2810">${stat} — ${statName}</div><div style="display:flex;justify-content:space-between;gap:16px;padding:5px 0;border-bottom:1px solid rgba(200,164,90,.15)"><span style="color:#9a8060">${ft("Valore base","Base value")}</span><span style="color:#e8d5b0;font-weight:700;font-size:15px">${base}</span></div>${rows}<div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;margin-top:4px;border-top:2px solid rgba(200,164,90,.4)"><span style="color:#e8d5b0;font-weight:600">${ft("Totale","Total")}</span><span style="color:#c8a45a;font-weight:700;font-size:20px">${total}</span></div><div style="color:#7a6040;font-size:11px;text-align:center;margin-top:10px">${ft("Tocca ovunque per chiudere","Tap anywhere to close")}</div></div>`;
+  div.innerHTML=`<div style="background:#1a1208;border:2px solid #c8a45a;border-radius:6px;padding:20px;max-width:320px;width:100%"><div style="font-family:'Comfortaa', sans-serif;color:#c8a45a;font-size:14px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #3a2810">${fSA(stat)} — ${statName}</div><div style="display:flex;justify-content:space-between;gap:16px;padding:5px 0;border-bottom:1px solid rgba(200,164,90,.15)"><span style="color:#9a8060">${ft("Valore base","Base value")}</span><span style="color:#e8d5b0;font-weight:700;font-size:15px">${base}</span></div>${rows}<div style="display:flex;justify-content:space-between;gap:16px;padding:8px 0;margin-top:4px;border-top:2px solid rgba(200,164,90,.4)"><span style="color:#e8d5b0;font-weight:600">${ft("Totale","Total")}</span><span style="color:#c8a45a;font-weight:700;font-size:20px">${total}</span></div><div style="color:#7a6040;font-size:11px;text-align:center;margin-top:10px">${ft("Tocca ovunque per chiudere","Tap anywhere to close")}</div></div>`;
   document.body.appendChild(div);
 }
 
@@ -9096,7 +9172,7 @@ function fRSheet(){
       <span style="position:absolute;bottom:8px;left:8px;color:var(--vdim);font-size:14px">✦</span>
       <span style="position:absolute;bottom:8px;right:8px;color:var(--vdim);font-size:14px">✦</span>
       <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-        <div style="font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:5px">CHARACTER SHEET · D&D 5e 2024</div>
+        <div style="font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:5px">${ft('SCHEDA DEL PERSONAGGIO','CHARACTER SHEET')} · D&D 5e 2024</div>
         <h2 style="font-family:'Comfortaa', sans-serif;font-size:clamp(17px,5vw,26px);color:var(--gold);text-shadow:0 0 14px rgba(200,164,90,.3)">${C.name||ft('Eroe Senza Nome','Unnamed Hero')}</h2>
         <div style="color:var(--muted);font-size:12px;margin-top:3px">${sub}</div>
         ${bg?`<div style="font-size:10px;color:var(--dim);margin-top:2px">Background: ${isIt?bg.it:bg.en}</div>`:''}
@@ -9119,7 +9195,7 @@ function fRSheet(){
             const isEpic=total>20;
             return`<div class="sr-row">
               <div style="font-size:19px;color:${isEpic?'#9b59b6':'var(--gold)'};font-weight:700;width:32px;text-align:center">${total}${isEpic?'<span style="font-size:8px;color:#9b59b6;vertical-align:super">✦</span>':''}</div>
-              <div><div style="font-size:9px;color:var(--gold2);letter-spacing:1px">${s}</div><div style="font-size:14px;color:var(--text)">${fmStr(total)}</div></div>
+              <div><div style="font-size:9px;color:var(--gold2);letter-spacing:1px">${fSA(s)}</div><div style="font-size:14px;color:var(--text)">${fmStr(total)}</div></div>
               <div style="margin-left:auto;text-align:right">
                 <div style="font-size:9px;color:var(--dim)">${isIt?FSI[s]:FSE[s]}</div>
                 ${isEpic?`<div style="font-size:9px;color:#9b59b6;background:rgba(155,89,182,.15);border:1px solid rgba(155,89,182,.4);border-radius:8px;padding:1px 6px;margin-top:2px">🌟 Dono Epico</div>`:''}
@@ -9291,7 +9367,7 @@ ${C.backstory?`<div class="box"><div class="box-title">📜 ${ft('Storia','Backs
                   return'';
                 })()}${hasFactotum?`<span style="font-size:8px;color:#6aa0d0;margin-left:3px" title="${isIt?'Factotum (½ comp.)':'Jack of All Trades (½ prof.)'}">ƒ</span>`:''}
               </span>
-              <span style="color:var(--vdim);font-size:9px">${sk.s}</span>
+              <span style="color:var(--vdim);font-size:9px">${fSA(sk.s)}</span>
               <span style="color:${isProficient?'var(--green)':'var(--text)'};min-width:28px;text-align:right;font-weight:${isProficient?'700':'400'}">${(finalM>=0?'+':'')+finalM}${isProficient?' ✦':''}</span>
             </div>`;
           }).join('')}
@@ -9894,6 +9970,14 @@ function fGetAlwaysPrepared(){
     if(db && _prep.has(db.id)) return;
     result.push({nome:e.nome, fonte:'feat'});
   });
+
+  // Trucchetti da "Guerriero Benedetto" (Paladino) / "Guerriero Druidico" (Ranger)
+  if((C.fightingStyle==='beato' && C.cls==='paladin') || (C.fightingStyle==='druidico' && C.cls==='ranger')){
+    (C.styleCantrips||[]).forEach(function(id){
+      const sp=SPELLS.find(s=>s.id===id);
+      if(sp) result.push({nome:sp.nome, fonte:'style', reqLv:2});
+    });
+  }
 
   return result;
 }
@@ -10614,7 +10698,7 @@ function fRSpellsSection(){
 
   // ── Stat da incantatore ─────────────────────────────────────────────────
   const statBar=`<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:8px 10px;background:rgba(13,10,6,.6);border:1px solid var(--border);border-radius:3px;font-size:11px">
-    <span><span style="color:var(--gold2)">Stat </span><span style="color:var(--gold);font-weight:700">${castStat}</span></span>
+    <span><span style="color:var(--gold2)">Stat </span><span style="color:var(--gold);font-weight:700">${fSA(castStat)}</span></span>
     <span><span style="color:var(--gold2)">Att. </span><span style="color:var(--gold);font-weight:700">${castBonus>=0?'+':''}${castBonus}</span></span>
     <span><span style="color:var(--gold2)">CD </span><span style="color:var(--gold);font-weight:700">${saveDC}</span></span>
   </div>`;
@@ -13404,7 +13488,7 @@ function fRSpeciesSkillPicker(){
         ${isIt ? sk.it : sk.en}${srcBadge}
         ${alreadyHas && !isSel ? `<span style="font-size:9px;color:var(--vdim);margin-left:4px">${isIt?'(già acquisita)':'(already proficient)'}</span>` : ''}
       </span>
-      <span style="font-size:9px;color:var(--vdim)">${sk.s}</span>
+      <span style="font-size:9px;color:var(--vdim)">${fSA(sk.s)}</span>
       <span style="font-size:11px;font-weight:600;min-width:30px;text-align:right;color:${isSel||alreadyHas?'var(--green)':'var(--dim)'}">
         ${isSel||alreadyHas ? finalStr : mod}
       </span>
