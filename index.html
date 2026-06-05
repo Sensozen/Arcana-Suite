@@ -89,6 +89,16 @@ body{
   font-size:.85rem;transition:all .2s;
 }
 .btn-icon:hover{border-color:var(--gold);color:var(--gold)}
+/* Logo cliccabile → Home */
+.site-logo{cursor:pointer}
+/* Menu azioni rapide nell'header */
+.hdr-menu-wrap{position:relative}
+.hdr-menu{position:absolute;top:calc(100% + 6px);right:0;min-width:180px;background:rgba(13,10,6,.97);border:1px solid var(--gold3,#5a3a1a);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.5);padding:4px;z-index:200;display:none}
+.hdr-menu.open{display:block}
+.hdr-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:none;border:none;color:var(--text,#e8dcc0);font-family:'Comfortaa',system-ui,sans-serif;font-size:13px;padding:9px 12px;border-radius:4px;cursor:pointer;transition:background .15s}
+.hdr-menu button:hover{background:rgba(200,164,90,.14);color:var(--gold)}
+.hdr-menu button.danger:hover{background:rgba(180,70,70,.16);color:var(--crimson-light,#d98a8a)}
+.hdr-menu .sep{height:1px;background:var(--gold3,#5a3a1a);margin:4px 6px;opacity:.5}
 
 /* ── MAIN LAYOUT ── */
 main{max-width:1400px;margin:0 auto;padding:1.5rem 2rem 4rem}
@@ -750,7 +760,7 @@ tr.desc-row td{
 .guided-arrow.left{left:8px}
 .guided-arrow.right{right:8px}
 .guided-arrow.view-sheet{font-size:24px}
-@media(max-width:640px){.guided-arrow{width:40px;height:56px;font-size:26px;left:4px}.guided-arrow.right{right:4px}}
+@media(max-width:640px){.guided-arrow{width:40px;height:56px;font-size:26px}.guided-arrow.left{left:4px}.guided-arrow.right{right:4px}}
 .summary-bar{background:rgba(13,10,6,.95);border:1px solid var(--border,#3a2810);border-radius:3px;padding:10px 14px;margin-bottom:16px;font-size:12px}
 .subrace-item{border:1px solid var(--border,#3a2810);border-radius:3px;padding:9px 12px;cursor:pointer;margin-bottom:6px;transition:border-color .2s}
 .subrace-item.sel{border-color:var(--gold);background:rgba(139,90,43,.25)}
@@ -909,7 +919,7 @@ function pwCheck(){
 <!-- ══════════ HEADER ══════════ -->
 <header class="site-header">
   <div class="header-inner">
-    <div class="site-logo">
+    <div class="site-logo" onclick="hdrHome()" role="button" tabindex="0" title="Torna alla Home">
       <span class="ornament">✦</span> Arcana <span class="ornament">✦</span>
       <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5,5E</span>
     </div>
@@ -923,6 +933,15 @@ function pwCheck(){
         <button class="lang-btn" id="btn-en" onclick="setLang('en')">🇬🇧 EN</button>
       </div>
       <button class="btn-icon" title="Stampa scheda" onclick="fOpenExport()">🖨️</button>
+      <div class="hdr-menu-wrap">
+        <button class="btn-icon" id="hdr-menu-btn" title="Menu" aria-haspopup="true" onclick="hdrMenuToggle(event)">☰</button>
+        <div class="hdr-menu" id="hdr-menu" role="menu">
+          <button role="menuitem" onclick="hdrHome()">🏠 Home</button>
+          <button role="menuitem" onclick="hdrRestart()">↺ Vai al passo 1</button>
+          <div class="sep"></div>
+          <button role="menuitem" class="danger" onclick="hdrNew()">⚔️ Nuovo Personaggio</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -1318,6 +1337,18 @@ function switchTab(tab){
   if(tab==='scheda'){re();}
 }
 function mobSetTab(tab){ switchTab(tab); window.scrollTo({top:0,behavior:'smooth'}); }
+
+// ── Menu azioni rapide nell'header (sempre accessibile) ──
+function hdrMenuToggle(e){ if(e)e.stopPropagation(); const m=document.getElementById('hdr-menu'); if(m)m.classList.toggle('open'); }
+function hdrMenuClose(){ const m=document.getElementById('hdr-menu'); if(m)m.classList.remove('open'); }
+function hdrHome(){ hdrMenuClose(); screen='home'; switchTab('scheda'); }          // torna alla Home
+function hdrRestart(){ hdrMenuClose(); screen='guided'; step=0; switchTab('scheda'); } // passo 1, mantiene i dati
+function hdrNew(){ hdrMenuClose(); switchTab('scheda'); nuovoPersonaggio(); }       // azzera tutto e ricomincia
+// Chiudi il menu cliccando fuori
+document.addEventListener('click',function(e){
+  const w=e.target.closest&&e.target.closest('.hdr-menu-wrap');
+  if(!w) hdrMenuClose();
+});
 document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 
 // ══════════════════════════════════════════════════
@@ -11489,28 +11520,33 @@ function fUpdNext(){
   }
 }
 
-// ── Navigazione gesture (swipe al tocco + trascinamento mouse) nella creazione guidata ──
-// Usa solo i Pointer Events, così touch e mouse sono coperti senza doppi conteggi.
+// ── Navigazione gesture nella creazione guidata ──
+// Touch Events per il mobile (i Pointer Events vengono annullati dallo scroll);
+// Pointer Events SOLO per il mouse, così desktop e touch non si sovrappongono.
 (function(){
   let sx=0, sy=0, tracking=false;
-  const THRESH=60, RATIO=1.4;   // px minimi orizzontali · dominanza orizzontale vs verticale
+  const THRESH=55, RATIO=1.3;   // px minimi orizzontali · dominanza orizzontale vs verticale
   function noSwipe(t){ return !!(t&&t.closest&&t.closest('select,input,textarea,.table-wrap,[data-noswipe]')); }
-  document.addEventListener('pointerdown',function(e){
-    if(!e.isPrimary){tracking=false;return;}
-    if(e.pointerType==='mouse'&&e.button!==0){tracking=false;return;}
-    if(typeof screen==='undefined'||screen!=='guided'||noSwipe(e.target)){tracking=false;return;}
-    sx=e.clientX; sy=e.clientY; tracking=true;
-  });
-  document.addEventListener('pointerup',function(e){
-    if(!tracking||!e.isPrimary){tracking=false;return;}
+  function start(x,y,t){
+    if(typeof screen==='undefined'||screen!=='guided'||noSwipe(t)){tracking=false;return;}
+    sx=x; sy=y; tracking=true;
+  }
+  function end(x,y){
+    if(!tracking){return;}
     tracking=false;
     if(screen!=='guided') return;
-    const dx=e.clientX-sx, dy=e.clientY-sy;
+    const dx=x-sx, dy=y-sy;
     if(Math.abs(dx)<THRESH || Math.abs(dx)<Math.abs(dy)*RATIO) return;
     if(dx<0){ if(fCanNext()) fGoNext(); }   // swipe verso sinistra → Avanti (se il passo è valido)
     else { if(step>0) fGoBack(); }          // swipe verso destra → Indietro (a passo 0 non esce)
-  });
-  document.addEventListener('pointercancel',function(){tracking=false;});
+  }
+  // TOUCH (mobile)
+  document.addEventListener('touchstart',function(e){ const t=e.touches[0]; if(t) start(t.clientX,t.clientY,e.target); },{passive:true});
+  document.addEventListener('touchend',function(e){ const t=e.changedTouches[0]; if(t) end(t.clientX,t.clientY); },{passive:true});
+  document.addEventListener('touchcancel',function(){ tracking=false; });
+  // MOUSE (desktop) — solo puntatore mouse, per non duplicare il touch
+  document.addEventListener('pointerdown',function(e){ if(e.pointerType!=='mouse'||e.button!==0)return; start(e.clientX,e.clientY,e.target); });
+  document.addEventListener('pointerup',function(e){ if(e.pointerType!=='mouse')return; end(e.clientX,e.clientY); });
 })();
 
 // Selezioni specie / classe / background / allineamento
