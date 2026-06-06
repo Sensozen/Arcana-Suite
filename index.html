@@ -5593,8 +5593,8 @@ let C={
   armor:null,                       // Equipaggiamento: armatura indossata (nome .en) o null
   shield:false,                     // Equipaggiamento: scudo equipaggiato
   acMisc:0,                         // Equipaggiamento: bonus CA vari (Difensore, anelli, ecc.)
-  acDefenseStyle:false,             // Talento Stile Difesa: +1 CA se indossi un'armatura
-  acMediumMaster:false,             // Talento Maestro Armature Medie: cap DES medie +3 (se DES>=16)
+  acDefenseStyle:false,             // DEPRECATO: ora derivato in fCharacterAC (stile 'difesa')
+  acMediumMaster:false,             // DEPRECATO: ora derivato in fCharacterAC (talento Mae. Arm. Medie)
   conditions:[],                    // Condizioni attive (id dalla costante CONDITIONS)
 };
 
@@ -13060,16 +13060,25 @@ function fCharacterAC(){
   // Scudo: +2 alla CA SOLO se il personaggio ha competenza negli scudi (PHB 2024 pag. 219).
   const shieldBon = (C.shield && !fShieldWithoutProf()) ? 2 : 0;
   const armor = C.armor ? ARMORS.find(a=>a.en===C.armor||a.it===C.armor) : null;
+  // DERIVAZIONE AUTOMATICA (PHB 2024) dalle scelte già fatte negli step precedenti:
+  //  • Stile di Combattimento "Difesa": +1 CA mentre indossi un'armatura. Fonte:
+  //    privilegio di classe (C.fightingStyle/fightingStyle2 === 'difesa') OPPURE
+  //    talento Stile di combattimento "Difesa" (id 'st-difesa' in C.feats).
+  //  • Maestro delle Armature Medie (talento 'maestro-armature-medie'): cap DES +3
+  //    invece di +2 con armatura media, se DES >= 16.
+  const hasDefenseStyle = (C.fightingStyle==='difesa' || C.fightingStyle2==='difesa'
+    || (C.feats||[]).some(function(f){ return (f && (f.id||f))==='st-difesa'; }));
+  const hasMediumMaster = (C.feats||[]).some(function(f){ return (f && (f.id||f))==='maestro-armature-medie'; });
   let base, src;
   let featBon = 0; const featNotes = [];
   if(armor && armor.cat!=='scudo'){
     // Maestro Armature Medie: con armatura media e DES>=16, cap DES +3 invece di +2
     let cap = null;
-    if(C.acMediumMaster && armor.cat==='media' && fTotalStat('DEX')>=16){ cap = 3; featNotes.push(isIt?'Mae. Arm. Medie':'Med. Armor Master'); }
+    if(hasMediumMaster && armor.cat==='media' && fTotalStat('DEX')>=16){ cap = 3; featNotes.push(isIt?'Mae. Arm. Medie':'Med. Armor Master'); }
     base = fArmorACValue(armor, dex, cap);
     src = isIt?armor.it:armor.en;
-    // Stile Difesa: +1 CA se indossi una qualsiasi armatura
-    if(C.acDefenseStyle){ featBon += 1; featNotes.push(isIt?'Difesa +1':'Defense +1'); }
+    // Stile Difesa: +1 CA mentre indossi un'armatura (qualsiasi categoria)
+    if(hasDefenseStyle){ featBon += 1; featNotes.push(isIt?'Difesa +1':'Defense +1'); }
   } else if((typeof fClassLevel==='function'?fClassLevel('barbarian'):(C.cls==='barbarian'?(C.level||1):0))>0){
     // STEP 6: Difesa Senza Armatura del Barbaro vale se Barbaro è in QUALSIASI classe.
     // PHB 2024 (cap.2): con più metodi di CA se ne usa SOLO UNO. Barbaro ha priorità
@@ -13177,8 +13186,8 @@ function fArmorComplianceCheck(){
 function fSetArmor(v){ C.armor = v || null; re(); }
 function fToggleShield(){ C.shield = !C.shield; re(); }
 function fSetAcMisc(v){ C.acMisc = parseInt(v)||0; re(); }
-function fToggleDefenseStyle(){ C.acDefenseStyle = !C.acDefenseStyle; re(); }
-function fToggleMediumMaster(){ C.acMediumMaster = !C.acMediumMaster; re(); }
+// Stile Difesa e Maestro delle Armature Medie sono ora DERIVATI automaticamente in
+// fCharacterAC() dalle scelte (stile di combattimento / talenti): nessun toggle manuale.
 
 // Helper: restituisce le armi disponibili per padronanza in base alla classe
 // PHB 2024: le armi da fuoco (Pistola, Moschetto, Cerbottana) sono armi da guerra a distanza
@@ -13638,8 +13647,8 @@ function fEquipACSelector(){
   if(ac.misc) parts.push((isIt?'varie':'misc')+' '+(ac.misc>0?'+':'')+ac.misc);
   if(ac.feat) parts.push((isIt?'talenti':'feats')+' +'+ac.feat);
   const note = isIt
-    ? 'Il bonus vari copre lo stile Difensore, anelli di protezione, ecc. La Difesa senza armatura di Barbaro e Monaco \u00e8 applicata automaticamente quando non indossi un\u2019armatura.'
-    : 'Misc bonus covers the Defense style, ring of protection, etc. Barbarian/Monk Unarmored Defense applies automatically when no armor is worn.';
+    ? 'Stile Difesa e Maestro delle Armature Medie sono applicati automaticamente dalle scelte fatte (stile di combattimento / talenti). Il bonus vari copre anelli di protezione, oggetti magici, ecc. La Difesa senza armatura di Barbaro e Monaco \u00e8 applicata automaticamente quando non indossi un\u2019armatura.'
+    : 'Defense fighting style and Medium Armor Master are applied automatically from your choices (fighting style / feats). Misc bonus covers ring of protection, magic items, etc. Barbarian/Monk Unarmored Defense applies automatically when no armor is worn.';
   return '<div class="box">'
     + '<div class="box-title">🛡️ '+(isIt?'Classe Armatura':'Armor Class')+'</div>'
     + '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px">'
@@ -13650,10 +13659,11 @@ function fEquipACSelector(){
     + '<select onchange="fSetArmor(this.value)" style="width:100%;padding:7px;background:#1a1208;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px">'+opts+'</select>'
     + '<div style="display:flex;align-items:center;gap:18px;margin-top:10px;flex-wrap:wrap">'
     +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.shield?'checked':'')+' onchange="fToggleShield()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Scudo (+2)':'Shield (+2)')+'</label>'
-    +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.acDefenseStyle?'checked':'')+' onchange="fToggleDefenseStyle()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Stile Difesa (+1)':'Defense style (+1)')+'</label>'
-    +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer"><input type="checkbox" '+(C.acMediumMaster?'checked':'')+' onchange="fToggleMediumMaster()" style="width:16px;height:16px;accent-color:var(--gold)"> '+(isIt?'Mae. Armature Medie (cap DES +3)':'Medium Armor Master')+'</label>'
     +   '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)">'+(isIt?'Bonus vari':'Misc bonus')+': <input type="number" value="'+(parseInt(C.acMisc)||0)+'" onchange="fSetAcMisc(this.value)" style="width:52px;padding:4px;background:#1a1208;color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:12px;text-align:center"></label>'
     + '</div>'
+    + (ac.featNotes && ac.featNotes.length
+        ? '<div style="font-size:10px;color:var(--gold2);margin-top:6px">'+(isIt?'Applicati automaticamente':'Applied automatically')+': '+ac.featNotes.join(' \u00b7 ')+'</div>'
+        : '')
     + '<div style="font-size:9px;color:var(--vdim);margin-top:6px">'+note+'</div>'
     + fArmorComplianceBanner()
     + '</div>';
