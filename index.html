@@ -9320,23 +9320,41 @@ function _rAllDocs(){
 // seleziona i documenti pi\u00f9 pertinenti per parole chiave, su tutte le fonti
 function fRulesRelevant(question,n){
   n=n||5;
-  var toks=_rNorm(question).split(/[^a-z0-9]+/).filter(function(w){return w.length>=3 && !_R_STOP[w];});
+  var qn=_rNorm(question);
+  var toks=qn.split(/[^a-z0-9]+/).filter(function(w){return w.length>=3 && !_R_STOP[w];});
   var docs=_rAllDocs();
   if(!toks.length){
-    var q=_rNorm(question);
-    if(!q) return [];
-    return docs.filter(function(d){return d._t.indexOf(q)>=0 || d._x.indexOf(q)>=0;}).slice(0,n);
+    if(!qn) return [];
+    return docs.filter(function(d){return d._t.indexOf(qn)>=0 || d._x.indexOf(qn)>=0;}).slice(0,n);
   }
+  // token distinti + frase chiave (sequenza) per il match di precisione
+  var uniq=toks.filter(function(w,i){return toks.indexOf(w)===i;});
+  var phrase=uniq.join(' ');
   var scored=docs.map(function(d){
-    var sc=0;
-    toks.forEach(function(w){
-      if(d._t.indexOf(w)>=0) sc+=3;
-      if(d._a.some(function(a){return a.indexOf(w)>=0;})) sc+=2;
-      if(d._x.indexOf(w)>=0) sc+=1;
+    var titleHits=0, aliasHits=0, bodyHits=0, covered=0;
+    uniq.forEach(function(w){
+      var inT=d._t.indexOf(w)>=0;
+      var inA=d._a.some(function(a){return a.indexOf(w)>=0;});
+      var inX=d._x.indexOf(w)>=0;
+      if(inT) titleHits++;
+      if(inA) aliasHits++;
+      if(inX) bodyHits++;
+      if(inT||inA||inX) covered++;
     });
-    return {d:d,sc:sc};
+    // titolo e alias pesano molto; il corpo poco (evita che voci lunghe dominino).
+    // "covered" premia chi tocca PIÙ parole-chiave distinte della domanda.
+    var sc = titleHits*8 + aliasHits*5 + bodyHits*1 + covered*4;
+    if(sc>0){
+      if(d._t.indexOf(phrase)>=0) sc+=10;          // frase esatta nel titolo
+      else if(d._x.indexOf(phrase)>=0) sc+=4;      // frase esatta nel testo
+      if(uniq.length>1 && covered===uniq.length) sc+=6; // copre tutte le keyword
+    }
+    return {d:d, sc:sc, cov:covered, len:d.testo.length};
   }).filter(function(o){return o.sc>0;});
-  scored.sort(function(a,b){return (b.sc-a.sc) || a.d.titolo.localeCompare(b.d.titolo);});
+  // a parità: più keyword coperte, poi la voce più CONCISA (più mirata), poi titolo
+  scored.sort(function(a,b){
+    return (b.sc-a.sc) || (b.cov-a.cov) || (a.len-b.len) || a.d.titolo.localeCompare(b.d.titolo);
+  });
   return scored.slice(0,n).map(function(o){return o.d;});
 }
 
@@ -9354,7 +9372,7 @@ function fRulesAsk(){
   if(!question){ out.innerHTML='<p class="rules-ai-msg">Scrivi una domanda sulle regole.</p>'; return; }
 
   // voci pertinenti dal glossario (riusa il motore di ricerca locale)
-  var hits=fRulesRelevant(question,5);
+  var hits=fRulesRelevant(question,6);
   if(!hits.length){
     out.innerHTML='<p class="rules-ai-msg">Nessuna regola pertinente trovata nel glossario per questa domanda.</p>';
     return;
@@ -9375,12 +9393,14 @@ function fRulesAsk(){
   }
 
   // contesto AI: SOLO le voci pertinenti
-  var context=hits.map(function(d){ var t=d.testo; if(t.length>700) t=t.slice(0,700)+'\u2026'; return '['+d.fonte+': '+d.titolo+'] '+t; }).join('\n\n');
+  var context=hits.map(function(d){ var t=d.testo; if(t.length>1400) t=t.slice(0,1400)+'\u2026'; return '['+d.fonte+': '+d.titolo+'] '+t; }).join('\n\n');
   var sys='Sei un assistente esperto delle regole di D&D 5e (SRD 5.2.1). Rispondi alla '+
           'domanda UNICAMENTE in base alle REGOLE fornite qui sotto, senza inventare nulla e '+
-          'senza usare conoscenze esterne. Cita tra parentesi quadre il titolo della voce o '+
-          'delle voci su cui ti basi. Se le regole fornite non contengono la risposta, dillo '+
-          'chiaramente. Rispondi in italiano, in modo conciso e chiaro.';
+          'senza usare conoscenze esterne. Spiega la meccanica in modo completo ma conciso, '+
+          'elencando i passaggi quando aiuta. Riporta esattamente i valori numerici pertinenti '+
+          '(CD, danni, gittata, durata, costi). Cita tra parentesi quadre il titolo della voce '+
+          'o delle voci su cui ti basi. Se più voci sono rilevanti, sintetizzale. Se le regole '+
+          'fornite non contengono la risposta, dillo chiaramente. Rispondi in italiano.';
   var user='DOMANDA: '+question+'\n\nREGOLE (rispondi solo in base a queste):\n'+context;
 
   if(btn){ btn.disabled=true; btn.textContent='\u27F3 Sto consultando le regole\u2026'; }
@@ -9403,7 +9423,7 @@ function fRulesAsk(){
   }
 
   var sysEnc=encodeURIComponent(sys);
-  var msgEnc=encodeURIComponent(user.slice(0,4500));
+  var msgEnc=encodeURIComponent(user.slice(0,8000));
   var seed=Math.floor(Math.random()*99999);
   var pollGet =function(model){ return 'https://text.pollinations.ai/'+msgEnc+'?model='+model+'&seed='+seed+'&system='+sysEnc; };
   var pollBody=function(model){ return JSON.stringify({ model:model, seed:seed, messages:[ {role:'system',content:sys},{role:'user',content:user} ] }); };
