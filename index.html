@@ -12688,6 +12688,15 @@ function lgParsePrompt(prompt){
   else if(/stealth|furtiv|ombra|assassin/.test(t)) res.role='stealth';
   else if(/melee|mischia|corpo a corpo/.test(t)) res.role='melee';
 
+  // Livello (classe singola): "livello 15", "liv 15", "level 15", "15° livello"
+  // o, in mancanza, un numero 1-20 isolato nel prompt.
+  let lvl = null;
+  let lm = t.match(/(?:liv(?:ello)?\.?|level|lvl)\s*(\d{1,2})/)
+        || t.match(/(\d{1,2})\s*(?:\u00b0|\u00ba|esim[oa]|th|st|nd|rd)?\s*(?:liv(?:ello)?|level|lvl)/);
+  if(lm){ const n=parseInt(lm[1]); if(n>=1 && n<=20) lvl=n; }
+  if(lvl===null){ const nm=t.match(/\b(\d{1,2})\b/); if(nm){ const n=parseInt(nm[1]); if(n>=1 && n<=20) lvl=n; } }
+  res.level = lvl;
+
   return res;
 }
 
@@ -12936,8 +12945,9 @@ function fGenerateLocal(prompt){
   // 4) Background + allineamento + livello
   const bgObj = lgRand(BACKGROUNDS);
   const alignment = lgRand(ALIGNMENTS).id;
-  // Livello della CLASSE PRIMARIA: dal multiclasse se presente, altrimenti 1.
-  const level = mc.length ? mc[0].level : 1;
+  // Livello della CLASSE PRIMARIA: dal multiclasse se presente, altrimenti
+  // dal livello esplicito nel prompt (classe singola), altrimenti 1.
+  const level = mc.length ? mc[0].level : (parsed.level || 1);
 
   // 5) Caratteristiche, abilità, lingue
   const stats = lgStats(clsId);
