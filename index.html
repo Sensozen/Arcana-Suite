@@ -9185,7 +9185,47 @@ function _rClassText(c){
   if(c.subclasses&&c.subclasses.length) p.push('Sottoclassi: '+c.subclasses.map(function(s){return s.it;}).join(', ')+'.');
   return p.join(' ');
 }
-// indice unificato dei documenti consultabili (glossario + incantesimi + classi)
+function _rSpeciesText(s){
+  var p=['Specie: '+s.it+' ('+s.en+').'];
+  if(s.size) p.push('Taglia: '+s.size+'.');
+  if(s.speed) p.push('Velocità: '+s.speed+'.');
+  if(s.traits) p.push('Tratti: '+s.traits+'.');
+  if(s.features&&s.features.length) s.features.forEach(function(f){ if(f&&f.it&&f.desc) p.push(f.it+': '+f.desc); });
+  return p.join(' ');
+}
+function _rBgText(b){
+  var p=['Background: '+b.it+' ('+b.en+').'];
+  if(b.statsIt) p.push('Caratteristiche: '+b.statsIt+'.');
+  if(b.skillsIt) p.push('Competenze in abilità: '+b.skillsIt+'.');
+  if(b.toolsIt&&b.toolsIt!=='—') p.push('Strumenti: '+b.toolsIt+'.');
+  if(b.featIt) p.push('Talento di origine: '+b.featIt+'.');
+  if(b.descIt) p.push(b.descIt);
+  return p.join(' ');
+}
+function _rInvText(w){ return 'Supplica occulta del Warlock'+(w.prereqLv>1?(' (livello '+w.prereqLv+'+)'):'')+': '+(w.desc||''); }
+function _rManText(m){ return 'Manovra di battaglia (Maestro di Battaglia del Guerriero): '+(m.desc||''); }
+function _rWpnText(w){
+  var p=['Arma: '+w.it+(w.en?(' ('+w.en+')'):'')+'.'];
+  if(w.type) p.push('Categoria: '+w.type+'.');
+  if(w.range) p.push('Impiego: '+w.range+'.');
+  if(w.dmg) p.push('Danni: '+w.dmg+(w.dt?(' '+w.dt):'')+'.');
+  if(w.prop) p.push('Proprietà di padronanza: '+w.prop+'.');
+  if(w.props&&w.props.length) p.push('Proprietà: '+w.props.join(', ')+'.');
+  if(w.cost) p.push('Costo: '+w.cost+'.');
+  return p.join(' ');
+}
+function _rArmText(a){
+  var p=['Armatura: '+a.it+(a.en?(' ('+a.en+')'):'')+'.'];
+  if(a.cat) p.push('Categoria: '+a.cat+'.');
+  if(a.ca!=null) p.push('Classe Armatura base: '+a.ca+(a.dex?' + mod. Destrezza'+(a.dexMax!=null?(' (max '+a.dexMax+')'):''):'')+'.');
+  if(a.str) p.push('Richiede Forza '+a.str+'.');
+  if(a.stealth) p.push('Svantaggio alle prove di Furtività.');
+  if(a.cost) p.push('Costo: '+a.cost+'.');
+  return p.join(' ');
+}
+function _rSkillText(s){ return 'Abilità di '+(s.attr||'')+' ('+(s.attr||'')+').'; }
+function _rLangText(l){ return 'Lingua'+((l.originIt||l.origin)?(' parlata da: '+(l.originIt||l.origin)):'')+'.'; }
+// indice unificato dei documenti consultabili (glossario, incantesimi, classi, specie, background, talenti, suppliche, manovre, armi, armature, abilità, lingue)
 var _rDocsCache=null;
 function _rAllDocs(){
   if(_rDocsCache) return _rDocsCache;
@@ -9199,6 +9239,36 @@ function _rAllDocs(){
   if(typeof CLASSES!=='undefined') CLASSES.forEach(function(c){
     docs.push({fonte:'Classe',titolo:c.it,testo:_rClassText(c),alias:[c.en]});
   });
+  if(typeof SPECIES!=='undefined') SPECIES.forEach(function(s){
+    docs.push({fonte:'Specie',titolo:s.it,testo:_rSpeciesText(s),alias:s.en?[s.en]:[]});
+  });
+  if(typeof BACKGROUNDS!=='undefined') BACKGROUNDS.forEach(function(b){
+    docs.push({fonte:'Background',titolo:b.it,testo:_rBgText(b),alias:b.en?[b.en]:[]});
+  });
+  if(typeof FFEATS_DATA_V2!=='undefined') FFEATS_DATA_V2.forEach(function(g){
+    (g.feats||[]).forEach(function(f){
+      docs.push({fonte:'Talento',titolo:f.it,testo:'Talento ('+(g.it||'')+'). '+(f.descIt||''),alias:f.en?[f.en]:[]});
+    });
+  });
+  if(typeof WARLOCK_INVOCATIONS!=='undefined') WARLOCK_INVOCATIONS.forEach(function(w){
+    docs.push({fonte:'Supplica',titolo:w.it,testo:_rInvText(w),alias:w.en?[w.en]:[]});
+  });
+  if(typeof BATTLE_MANEUVERS!=='undefined') BATTLE_MANEUVERS.forEach(function(m){
+    docs.push({fonte:'Manovra',titolo:m.it,testo:_rManText(m),alias:[]});
+  });
+  if(typeof WEAPONS_MASTERY!=='undefined') WEAPONS_MASTERY.forEach(function(w){
+    docs.push({fonte:'Arma',titolo:w.it,testo:_rWpnText(w),alias:w.en?[w.en]:[]});
+  });
+  if(typeof ARMORS!=='undefined') ARMORS.forEach(function(a){
+    docs.push({fonte:'Armatura',titolo:a.it,testo:_rArmText(a),alias:a.en?[a.en]:[]});
+  });
+  if(typeof SKILLS_DEF!=='undefined') SKILLS_DEF.forEach(function(s){
+    docs.push({fonte:'Abilità',titolo:s.nome,testo:_rSkillText(s),alias:[]});
+  });
+  if(typeof LANGUAGES_STANDARD!=='undefined'){
+    var _langs=LANGUAGES_STANDARD.concat(typeof LANGUAGES_RARE!=='undefined'?LANGUAGES_RARE:[]);
+    _langs.forEach(function(l){ docs.push({fonte:'Lingua',titolo:l.it,testo:_rLangText(l),alias:l.en?[l.en]:[]}); });
+  }
   docs.forEach(function(d){
     d._t=_rNorm(d.titolo);
     d._a=(d.alias||[]).map(function(a){return _rNorm(a);});
