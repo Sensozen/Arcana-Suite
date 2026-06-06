@@ -808,6 +808,21 @@ tr.desc-row td{
 
 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 </style>
+<style id="rules-style">
+#regole .rules-wrap{max-width:860px;margin:0 auto;padding:1rem .8rem 3rem}
+.rules-title{color:var(--gold);font-size:1.3rem;letter-spacing:.05em;margin:.2rem 0}
+.rules-sub{color:var(--parchment2);opacity:.7;font-size:.8rem;margin:0 0 1.2rem}
+.rules-cat{margin-bottom:1.6rem}
+.rules-cat-head{color:var(--gold-light);font-size:1rem;border-bottom:1px solid var(--gold-dim);padding-bottom:.3rem;margin:0 0 .5rem;display:flex;align-items:center;gap:.5rem}
+.rules-count{background:var(--gold-dim);color:var(--gold);font-size:.72rem;padding:1px 8px;border-radius:10px;font-weight:600;margin-left:auto}
+.rules-entry{border-bottom:1px solid rgba(201,168,71,.1)}
+.rules-entry summary{cursor:pointer;padding:.5rem .3rem;color:var(--parchment);font-weight:600;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:.45rem}
+.rules-entry summary::-webkit-details-marker{display:none}
+.rules-entry summary::before{content:"\25B8";color:var(--gold);font-size:.8rem;transition:transform .15s}
+.rules-entry[open] summary::before{transform:rotate(90deg)}
+.rules-entry summary:hover{color:var(--gold-light)}
+.rules-body{padding:.2rem .8rem .9rem 1.4rem;color:var(--parchment2);font-size:.84rem;line-height:1.55}
+</style>
 </head>
 <body>
 
@@ -926,6 +941,7 @@ function pwCheck(){
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="scheda">⚔️ Scheda Personaggio</button>
       <button class="tab-btn" data-tab="grimorio">📜 Grimorio degli Incantesimi</button>
+      <button class="tab-btn" data-tab="regole">📖 Regole</button>
     </nav>
     <div class="header-actions">
       <div class="lang-btns" style="display:flex;gap:4px;margin-right:6px">
@@ -955,6 +971,10 @@ function pwCheck(){
   <button class="mob-tab" id="mob-tab-grimorio" onclick="mobSetTab('grimorio')">
     <span class="mob-icon">📜</span>
     <span>Grimorio</span>
+  </button>
+  <button class="mob-tab" id="mob-tab-regole" onclick="mobSetTab('regole')">
+    <span class="mob-icon">📖</span>
+    <span>Regole</span>
   </button>
 </nav>
 
@@ -1100,6 +1120,11 @@ function pwCheck(){
 <!-- ══════════ SCHEDA PERSONAGGIO ══════════ -->
 <section id="scheda" class="section active">
   <div id="char-app"></div>
+</section>
+
+<!-- ══════════ REGOLE (Motore delle Regole) ══════════ -->
+<section id="regole" class="section">
+  <div id="rules-app"></div>
 </section>
 
 </main>
@@ -1335,6 +1360,7 @@ function switchTab(tab){
   document.querySelectorAll('.mob-tab').forEach(b=>b.classList.toggle('active',b.id==='mob-tab-'+tab));
   if(tab==='grimorio'){renderGrimorioTable();}
   if(tab==='scheda'){re();}
+  if(tab==='regole'){renderRules();}
 }
 function mobSetTab(tab){ switchTab(tab); window.scrollTo({top:0,behavior:'smooth'}); }
 
@@ -8982,6 +9008,31 @@ function fRulesFind(query){
     if(r.alias && r.alias.some(function(a){ return String(a).toLowerCase().indexOf(q)>=0; })) return true;
     return false;
   });
+}
+
+function renderRules(){
+  var app=document.getElementById('rules-app'); if(!app||typeof RULES_GLOSSARY==='undefined') return;
+  var cats=[
+    {key:'condizione',   label:'Condizioni',            icon:'\uD83E\uDE78'},
+    {key:'azione',       label:'Azioni',                icon:'\u2694\uFE0F'},
+    {key:'regola_base',  label:'Regole di base',        icon:'\uD83D\uDCD0'},
+    {key:'termine',      label:'Termini del glossario', icon:'\uD83D\uDCD6'}
+  ];
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var html='<div class="rules-wrap"><h2 class="rules-title">\uD83D\uDCD6 Regole di Gioco</h2>'+
+           '<p class="rules-sub">Consultazione completa \u2014 SRD 5.2.1 ('+RULES_GLOSSARY.length+' voci)</p>';
+  cats.forEach(function(c){
+    var items=fRulesByCat(c.key);
+    html+='<section class="rules-cat"><h3 class="rules-cat-head">'+c.icon+' '+c.label+
+          ' <span class="rules-count">'+items.length+'</span></h3>';
+    items.forEach(function(r){
+      html+='<details class="rules-entry"><summary>'+esc(r.it.titolo)+'</summary>'+
+            '<div class="rules-body">'+esc(r.it.testo)+'</div></details>';
+    });
+    html+='</section>';
+  });
+  html+='</div>';
+  app.innerHTML=html;
 }
 
 const CONDITIONS = [
