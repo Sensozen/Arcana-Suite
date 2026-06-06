@@ -822,6 +822,37 @@ tr.desc-row td{
 .rules-entry[open] summary::before{transform:rotate(90deg)}
 .rules-entry summary:hover{color:var(--gold-light)}
 .rules-body{padding:.2rem .8rem .9rem 1.4rem;color:var(--parchment2);font-size:.84rem;line-height:1.55}
+.rules-toolbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:.4rem 0 .6rem;margin-bottom:.4rem}
+.rules-search{position:relative;margin-bottom:.55rem}
+.rules-search-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.6;font-size:.85rem;pointer-events:none}
+.rules-search input{width:100%;box-sizing:border-box;padding:.55rem .6rem .55rem 2rem;background:rgba(13,10,6,.85);border:1px solid var(--gold-dim);border-radius:8px;color:var(--parchment);font-size:.9rem;outline:none}
+.rules-search input:focus{border-color:var(--gold)}
+.rules-search input::placeholder{color:var(--parchment2);opacity:.5}
+.rules-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.rules-chip{background:rgba(13,10,6,.6);border:1px solid var(--gold-dim);color:var(--parchment2);font-size:.74rem;padding:.3rem .65rem;border-radius:14px;cursor:pointer;transition:all .12s}
+.rules-chip:hover{border-color:var(--gold);color:var(--parchment)}
+.rules-chip.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-light);font-weight:600}
+.rules-rescount{color:var(--parchment2);opacity:.65;font-size:.76rem;margin:.2rem 0 .6rem}
+.rules-empty{color:var(--parchment2);opacity:.7;font-size:.86rem;text-align:center;padding:1.4rem .5rem}
+.rules-badge{margin-left:auto;background:var(--gold-dim);color:var(--gold);font-size:.66rem;padding:1px 7px;border-radius:9px;font-weight:600;white-space:nowrap}
+.rules-entry mark,.rules-body mark{background:rgba(201,168,71,.32);color:var(--gold-light);border-radius:2px;padding:0 1px}
+.rules-ai{margin:.2rem 0 1rem;border:1px solid var(--gold-dim);border-radius:8px;background:rgba(13,10,6,.5)}
+.rules-ai>summary{cursor:pointer;padding:.55rem .7rem;color:var(--gold-light);font-weight:600;font-size:.86rem;list-style:none}
+.rules-ai>summary::-webkit-details-marker{display:none}
+.rules-ai>summary::before{content:"\25B8";color:var(--gold);margin-right:.4rem;font-size:.8rem;display:inline-block;transition:transform .15s}
+.rules-ai[open]>summary::before{transform:rotate(90deg)}
+.rules-ai-body{padding:.2rem .7rem .7rem}
+.rules-ai-body textarea{width:100%;box-sizing:border-box;background:rgba(13,10,6,.85);border:1px solid var(--gold-dim);border-radius:6px;color:var(--parchment);font-size:.86rem;padding:.5rem;resize:vertical;outline:none;font-family:inherit}
+.rules-ai-body textarea:focus{border-color:var(--gold)}
+#rules-ai-btn{margin-top:.45rem;background:var(--gold-dim);border:1px solid var(--gold);color:var(--gold-light);font-size:.82rem;font-weight:600;padding:.4rem .9rem;border-radius:6px;cursor:pointer}
+#rules-ai-btn:hover:not(:disabled){background:rgba(201,168,71,.25)}
+#rules-ai-btn:disabled{opacity:.6;cursor:default}
+.rules-ai-note{color:var(--parchment2);opacity:.6;font-size:.7rem;margin:.45rem 0 0;line-height:1.4}
+.rules-ai-msg{color:var(--parchment2);opacity:.8;font-size:.82rem;margin:.6rem 0}
+.rules-ai-answer{margin-top:.7rem;padding:.7rem .8rem;background:rgba(201,168,71,.08);border-left:2px solid var(--gold);border-radius:4px;color:var(--parchment);font-size:.86rem;line-height:1.55}
+.rules-ai-src{margin-top:.5rem}
+.rules-ai-src>summary{cursor:pointer;color:var(--gold);font-size:.74rem;opacity:.8}
+.rules-ai-srcitem{color:var(--parchment2);font-size:.76rem;padding:.1rem 0 .1rem .6rem}
 </style>
 </head>
 <body>
@@ -9010,29 +9041,283 @@ function fRulesFind(query){
   });
 }
 
+// ── Motore delle Regole — ricerca locale (F4) ──
+var _rulesQuery='', _rulesCat='all';
+function _rEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function _rHl(text,q){
+  var e=_rEsc(text);
+  if(!q) return e;
+  var qe=_rEsc(q).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  try{ return e.replace(new RegExp('('+qe+')','gi'),'<mark>$1</mark>'); }catch(_){ return e; }
+}
+var _R_CATS=[
+  {key:'condizione',  label:'Condizioni',            icon:'\uD83E\uDE78'},
+  {key:'azione',      label:'Azioni',                icon:'\u2694\uFE0F'},
+  {key:'regola_base', label:'Regole di base',        icon:'\uD83D\uDCD0'},
+  {key:'termine',     label:'Termini del glossario', icon:'\uD83D\uDCD6'}
+];
+function _rCatLabel(k){ for(var i=0;i<_R_CATS.length;i++){ if(_R_CATS[i].key===k) return _R_CATS[i].label; } return k; }
+function _rCatIcon(k){ for(var i=0;i<_R_CATS.length;i++){ if(_R_CATS[i].key===k) return _R_CATS[i].icon; } return ''; }
+
+// punteggio di pertinenza: prefisso titolo > titolo > alias > testo
+function fRulesScore(r,q){
+  var t=r.it.titolo.toLowerCase();
+  var it=t.indexOf(q);
+  if(it===0) return {s:5,where:'titolo'};
+  if(it>0)   return {s:4,where:'titolo'};
+  if((r.alias||[]).some(function(a){return String(a).toLowerCase().indexOf(q)>=0;})) return {s:3,where:'alias'};
+  if(r.it.testo.toLowerCase().indexOf(q)>=0) return {s:1,where:'testo'};
+  return null;
+}
+// ricerca con filtro categoria e ordinamento per pertinenza
+function fRulesSearch(query,cat){
+  var q=String(query==null?'':query).trim().toLowerCase();
+  var pool=(cat&&cat!=='all')?fRulesByCat(cat):RULES_GLOSSARY.slice();
+  if(!q) return pool.map(function(r){return {r:r,s:0,where:null};});
+  var res=[];
+  pool.forEach(function(r){ var sc=fRulesScore(r,q); if(sc) res.push({r:r,s:sc.s,where:sc.where}); });
+  res.sort(function(a,b){ return (b.s-a.s) || a.r.it.titolo.localeCompare(b.r.it.titolo); });
+  return res;
+}
+
+function rulesSetQuery(v){ _rulesQuery=v; rulesRefresh(); }
+function rulesSetCat(c){ _rulesCat=c; rulesRefresh(); }
+
+// disegna SOLO la lista (#rules-list), preservando l'input e il suo focus
+function rulesRefresh(){
+  var list=document.getElementById('rules-list'); if(!list) return;
+  // sincronizza chip attivi
+  var chips=document.querySelectorAll('.rules-chip');
+  for(var i=0;i<chips.length;i++){ chips[i].classList.toggle('active', chips[i].getAttribute('data-cat')===_rulesCat); }
+  var q=String(_rulesQuery||'').trim();
+  var html='';
+  if(q){
+    var rows=fRulesSearch(q,_rulesCat);
+    if(!rows.length){
+      list.innerHTML='<p class="rules-empty">Nessuna voce trovata per \u201c'+_rEsc(q)+'\u201d.</p>';
+      return;
+    }
+    html+='<p class="rules-rescount">'+rows.length+' '+(rows.length===1?'voce trovata':'voci trovate')+'</p>';
+    rows.forEach(function(o){
+      var openAttr=(o.where==='testo')?' open':'';
+      html+='<details class="rules-entry"'+openAttr+'><summary>'+_rHl(o.r.it.titolo,q)+
+            ' <span class="rules-badge">'+_rCatLabel(o.r.cat)+'</span></summary>'+
+            '<div class="rules-body">'+_rHl(o.r.it.testo,q)+'</div></details>';
+    });
+  } else {
+    var cats=(_rulesCat==='all')?_R_CATS:_R_CATS.filter(function(c){return c.key===_rulesCat;});
+    cats.forEach(function(c){
+      var items=fRulesByCat(c.key);
+      html+='<section class="rules-cat"><h3 class="rules-cat-head">'+c.icon+' '+c.label+
+            ' <span class="rules-count">'+items.length+'</span></h3>';
+      items.forEach(function(r){
+        html+='<details class="rules-entry"><summary>'+_rEsc(r.it.titolo)+'</summary>'+
+              '<div class="rules-body">'+_rEsc(r.it.testo)+'</div></details>';
+      });
+      html+='</section>';
+    });
+  }
+  list.innerHTML=html;
+}
+
 function renderRules(){
   var app=document.getElementById('rules-app'); if(!app||typeof RULES_GLOSSARY==='undefined') return;
-  var cats=[
-    {key:'condizione',   label:'Condizioni',            icon:'\uD83E\uDE78'},
-    {key:'azione',       label:'Azioni',                icon:'\u2694\uFE0F'},
-    {key:'regola_base',  label:'Regole di base',        icon:'\uD83D\uDCD0'},
-    {key:'termine',      label:'Termini del glossario', icon:'\uD83D\uDCD6'}
-  ];
-  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-  var html='<div class="rules-wrap"><h2 class="rules-title">\uD83D\uDCD6 Regole di Gioco</h2>'+
-           '<p class="rules-sub">Consultazione completa \u2014 SRD 5.2.1 ('+RULES_GLOSSARY.length+' voci)</p>';
-  cats.forEach(function(c){
-    var items=fRulesByCat(c.key);
-    html+='<section class="rules-cat"><h3 class="rules-cat-head">'+c.icon+' '+c.label+
-          ' <span class="rules-count">'+items.length+'</span></h3>';
-    items.forEach(function(r){
-      html+='<details class="rules-entry"><summary>'+esc(r.it.titolo)+'</summary>'+
-            '<div class="rules-body">'+esc(r.it.testo)+'</div></details>';
+  // costruisci la toolbar una sola volta (per non perdere il focus dell'input)
+  if(!document.getElementById('rules-list')){
+    var chips='<button class="rules-chip active" data-cat="all" onclick="rulesSetCat(\'all\')">Tutte</button>';
+    _R_CATS.forEach(function(c){
+      chips+='<button class="rules-chip" data-cat="'+c.key+'" onclick="rulesSetCat(\''+c.key+'\')">'+c.icon+' '+c.label+'</button>';
     });
-    html+='</section>';
+    app.innerHTML=
+      '<div class="rules-wrap">'+
+        '<h2 class="rules-title">\uD83D\uDCD6 Regole di Gioco</h2>'+
+        '<p class="rules-sub">Consultazione e ricerca \u2014 SRD 5.2.1 ('+RULES_GLOSSARY.length+' voci)</p>'+
+        '<div class="rules-toolbar">'+
+          '<div class="rules-search">'+
+            '<span class="rules-search-ic">\uD83D\uDD0D</span>'+
+            '<input id="rules-q" type="search" placeholder="Cerca una regola, condizione, termine\u2026 (es. TS, copertura)" '+
+              'autocomplete="off" oninput="rulesSetQuery(this.value)">'+
+          '</div>'+
+          '<div class="rules-chips">'+chips+'</div>'+
+        '</div>'+
+        '<details class="rules-ai">'+
+          '<summary>\uD83E\uDD16 Chiedi alle regole (AI)</summary>'+
+          '<div class="rules-ai-body">'+
+            '<textarea id="rules-ai-q" rows="2" placeholder="Es. Quanti danni fa Palla di fuoco? Che dado vita ha il Barbaro?"></textarea>'+
+            '<button id="rules-ai-btn" onclick="fRulesAsk()">\u2728 Chiedi</button>'+
+            '<p class="rules-ai-note">La domanda viene inviata a un servizio AI gratuito esterno; la risposta si basa solo su voci SRD pertinenti (regole, incantesimi e classi). Se l\'AI non \u00e8 disponibile, vengono mostrate le voci pertinenti.</p>'+
+            '<div id="rules-ai-out"></div>'+
+          '</div>'+
+        '</details>'+
+        '<div id="rules-list"></div>'+
+      '</div>';
+    var inp=document.getElementById('rules-q'); if(inp) inp.value=_rulesQuery;
+  }
+  rulesRefresh();
+}
+
+// selezione voci pertinenti per PAROLE CHIAVE (per le domande in linguaggio naturale)
+var _R_STOP={"il":1,"lo":1,"la":1,"gli":1,"le":1,"un":1,"uno":1,"una":1,"di":1,"da":1,"in":1,"con":1,"su":1,"per":1,"tra":1,"fra":1,"che":1,"chi":1,"cui":1,"non":1,"come":1,"cosa":1,"cose":1,"quando":1,"dove":1,"perche":1,"quale":1,"quali":1,"quanto":1,"quanti":1,"mentre":1,"sono":1,"sei":1,"essere":1,"hai":1,"posso":1,"puoi":1,"puo":1,"devo":1,"devi":1,"deve":1,"fare":1,"mio":1,"mia":1,"miei":1,"suo":1,"sua":1,"allo":1,"alla":1,"agli":1,"alle":1,"del":1,"dello":1,"della":1,"dei":1,"degli":1,"delle":1,"nel":1,"nello":1,"nella":1,"nei":1,"negli":1,"nelle":1,"se":1,"ma":1,"piu":1,"molto":1,"questo":1,"questa":1,"quello":1,"quella":1};
+function _rNorm(s){ return String(s).toLowerCase().replace(/[\u00e0\u00e1\u00e2]/g,"a").replace(/[\u00e8\u00e9]/g,"e").replace(/[\u00ec\u00ed]/g,"i").replace(/[\u00f2\u00f3]/g,"o").replace(/[\u00f9\u00fa]/g,"u"); }
+function _rSpellText(s){
+  var p=[];
+  p.push((s.livello===0?'Trucchetto':('Incantesimo di livello '+s.livello))+' di '+s.scuola+'.');
+  if(s.classi&&s.classi.length) p.push('Classi: '+s.classi.join(', ')+'.');
+  p.push('Tempo di lancio: '+s.tempoLancio+'. Gittata: '+s.gittata+'. Durata: '+s.durata+'.');
+  if(s.tiroSalvezza&&s.tiroSalvezza!=='\u2014'&&s.tiroSalvezza!=='-') p.push('Tiro salvezza: '+s.tiroSalvezza+'.');
+  if(s.concentrazione) p.push('Richiede concentrazione.');
+  if(s.rituale) p.push('Lanciabile come rituale.');
+  p.push(s.descrizione);
+  if(s.upcast) p.push('A livelli superiori: '+s.upcast);
+  return p.join(' ');
+}
+function _rClassText(c){
+  var p=[];
+  p.push('Classe: '+c.it+' ('+c.en+').');
+  if(c.hd) p.push('Dado Vita: '+c.hd+'.');
+  if(c.savesIt) p.push('Tiri salvezza competenti: '+c.savesIt+'.');
+  if(c.armorIt) p.push('Competenza armature: '+c.armorIt+'.');
+  if(c.weaponsIt) p.push('Competenza armi: '+c.weaponsIt+'.');
+  if(c.toolsIt&&c.toolsIt!=='\u2014') p.push('Strumenti: '+c.toolsIt+'.');
+  if(c.skillsIt) p.push('Abilit\u00e0: '+c.skillsIt+'.');
+  if(c.featIt) p.push('Privilegi principali: '+c.featIt+'.');
+  if(c.descIt) p.push(c.descIt+'.');
+  if(c.subclasses&&c.subclasses.length) p.push('Sottoclassi: '+c.subclasses.map(function(s){return s.it;}).join(', ')+'.');
+  return p.join(' ');
+}
+// indice unificato dei documenti consultabili (glossario + incantesimi + classi)
+var _rDocsCache=null;
+function _rAllDocs(){
+  if(_rDocsCache) return _rDocsCache;
+  var docs=[];
+  if(typeof RULES_GLOSSARY!=='undefined') RULES_GLOSSARY.forEach(function(r){
+    docs.push({fonte:'Glossario',titolo:r.it.titolo,testo:r.it.testo,alias:r.alias||[]});
   });
-  html+='</div>';
-  app.innerHTML=html;
+  if(typeof SPELLS!=='undefined') SPELLS.forEach(function(s){
+    docs.push({fonte:'Incantesimo',titolo:s.nome,testo:_rSpellText(s),alias:[]});
+  });
+  if(typeof CLASSES!=='undefined') CLASSES.forEach(function(c){
+    docs.push({fonte:'Classe',titolo:c.it,testo:_rClassText(c),alias:[c.en]});
+  });
+  docs.forEach(function(d){
+    d._t=_rNorm(d.titolo);
+    d._a=(d.alias||[]).map(function(a){return _rNorm(a);});
+    d._x=_rNorm(d.testo);
+  });
+  _rDocsCache=docs;
+  return docs;
+}
+// seleziona i documenti pi\u00f9 pertinenti per parole chiave, su tutte le fonti
+function fRulesRelevant(question,n){
+  n=n||5;
+  var toks=_rNorm(question).split(/[^a-z0-9]+/).filter(function(w){return w.length>=3 && !_R_STOP[w];});
+  var docs=_rAllDocs();
+  if(!toks.length){
+    var q=_rNorm(question);
+    if(!q) return [];
+    return docs.filter(function(d){return d._t.indexOf(q)>=0 || d._x.indexOf(q)>=0;}).slice(0,n);
+  }
+  var scored=docs.map(function(d){
+    var sc=0;
+    toks.forEach(function(w){
+      if(d._t.indexOf(w)>=0) sc+=3;
+      if(d._a.some(function(a){return a.indexOf(w)>=0;})) sc+=2;
+      if(d._x.indexOf(w)>=0) sc+=1;
+    });
+    return {d:d,sc:sc};
+  }).filter(function(o){return o.sc>0;});
+  scored.sort(function(a,b){return (b.sc-a.sc) || a.d.titolo.localeCompare(b.d.titolo);});
+  return scored.slice(0,n).map(function(o){return o.d;});
+}
+
+// ── Motore delle Regole — Q&A AI opzionale (F5) ──
+// Passa all'AI SOLO le voci pertinenti del glossario + la domanda, con istruzione
+// di rispondere unicamente da quel contesto e citare la voce. Se l'AI non è
+// disponibile (offline o tutti i percorsi falliti), mostra le voci pertinenti
+// trovate localmente (fallback = ricerca locale).
+function fRulesAsk(){
+  var qEl =document.getElementById('rules-ai-q');
+  var out =document.getElementById('rules-ai-out');
+  var btn =document.getElementById('rules-ai-btn');
+  if(!qEl||!out) return;
+  var question=String(qEl.value||'').trim();
+  if(!question){ out.innerHTML='<p class="rules-ai-msg">Scrivi una domanda sulle regole.</p>'; return; }
+
+  // voci pertinenti dal glossario (riusa il motore di ricerca locale)
+  var hits=fRulesRelevant(question,5);
+  if(!hits.length){
+    out.innerHTML='<p class="rules-ai-msg">Nessuna regola pertinente trovata nel glossario per questa domanda.</p>';
+    return;
+  }
+
+  function endBtn(){ if(btn){ btn.disabled=false; btn.textContent='\u2728 Chiedi'; } }
+
+  // FALLBACK: mostra le voci pertinenti trovate in locale
+  function showLocal(reason){
+    var h='';
+    if(reason) h+='<p class="rules-ai-note">'+_rEsc(reason)+' Ecco le voci più pertinenti dal glossario:</p>';
+    hits.forEach(function(d){
+      h+='<details class="rules-entry" open><summary>'+_rEsc(d.titolo)+
+         ' <span class="rules-badge">'+_rEsc(d.fonte)+'</span></summary>'+
+         '<div class="rules-body">'+_rEsc(d.testo)+'</div></details>';
+    });
+    out.innerHTML=h; endBtn();
+  }
+
+  // contesto AI: SOLO le voci pertinenti
+  var context=hits.map(function(d){ var t=d.testo; if(t.length>700) t=t.slice(0,700)+'\u2026'; return '['+d.fonte+': '+d.titolo+'] '+t; }).join('\n\n');
+  var sys='Sei un assistente esperto delle regole di D&D 5e (SRD 5.2.1). Rispondi alla '+
+          'domanda UNICAMENTE in base alle REGOLE fornite qui sotto, senza inventare nulla e '+
+          'senza usare conoscenze esterne. Cita tra parentesi quadre il titolo della voce o '+
+          'delle voci su cui ti basi. Se le regole fornite non contengono la risposta, dillo '+
+          'chiaramente. Rispondi in italiano, in modo conciso e chiaro.';
+  var user='DOMANDA: '+question+'\n\nREGOLE (rispondi solo in base a queste):\n'+context;
+
+  if(btn){ btn.disabled=true; btn.textContent='\u27F3 Sto consultando le regole\u2026'; }
+  out.innerHTML='<p class="rules-ai-msg">\u27F3 Consulto le voci pertinenti\u2026</p>';
+
+  function extractText(raw){
+    var txt=String(raw||'').trim();
+    try{ var o=JSON.parse(txt); if(o&&o.choices&&o.choices[0]&&o.choices[0].message) txt=o.choices[0].message.content||txt; }catch(e){}
+    return txt.replace(/```\w*/g,'').replace(/```/g,'').trim();
+  }
+  function showAnswer(raw){
+    var txt=extractText(raw);
+    if(!txt){ showLocal('AI: risposta vuota.'); return; }
+    out.innerHTML=
+      '<div class="rules-ai-answer">'+_rEsc(txt).replace(/\n/g,'<br>')+'</div>'+
+      '<details class="rules-ai-src"><summary>Voci consultate ('+hits.length+')</summary>'+
+        hits.map(function(d){ return '<div class="rules-ai-srcitem">\u2022 '+_rEsc(d.fonte)+' \u2014 '+_rEsc(d.titolo)+'</div>'; }).join('')+
+      '</details>';
+    endBtn();
+  }
+
+  var sysEnc=encodeURIComponent(sys);
+  var msgEnc=encodeURIComponent(user.slice(0,4500));
+  var seed=Math.floor(Math.random()*99999);
+  var pollGet =function(model){ return 'https://text.pollinations.ai/'+msgEnc+'?model='+model+'&seed='+seed+'&system='+sysEnc; };
+  var pollBody=function(model){ return JSON.stringify({ model:model, seed:seed, messages:[ {role:'system',content:sys},{role:'user',content:user} ] }); };
+
+  var attempts=[
+    function(){ return fetch(pollGet('openai')).then(function(r){ if(!r.ok) throw 0; return r.text(); }); },
+    function(){ return fetch(pollGet('mistral')).then(function(r){ if(!r.ok) throw 0; return r.text(); }); },
+    function(){ return fetch(pollGet('qwen-coder')).then(function(r){ if(!r.ok) throw 0; return r.text(); }); },
+    function(){ return fetch('https://corsproxy.io/?url=https://text.pollinations.ai/openai',{
+        method:'POST',headers:{'Content-Type':'application/json'},body:pollBody('openai')
+      }).then(function(r){ if(!r.ok) throw 0; return r.text(); }); },
+    function(){ return fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://text.pollinations.ai/openai'),{
+        method:'POST',headers:{'Content-Type':'application/json'},body:pollBody('openai')
+      }).then(function(r){ if(!r.ok) throw 0; return r.text(); }); }
+  ];
+  function tryFrom(i){
+    if(i>=attempts.length){ showLocal('AI non disponibile.'); return; }
+    attempts[i]().then(function(raw){
+      var txt=extractText(raw);
+      if(!txt) throw 0;
+      showAnswer(raw);
+    }).catch(function(){ tryFrom(i+1); });
+  }
+  tryFrom(0);
 }
 
 const CONDITIONS = [
