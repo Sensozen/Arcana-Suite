@@ -12808,6 +12808,19 @@ function lgParsePrompt(prompt){
   if(lvl===null){ const nm=t.match(/\b(\d{1,2})\b/); if(nm){ const n=parseInt(nm[1]); if(n>=1 && n<=20) lvl=n; } }
   res.level = lvl;
 
+  // Allineamento: ricostruito dai due assi ordine (Legale/Caotico/Neutrale)
+  // e morale (Buono/Malvagio/Neutrale). "neutrale" riempie l'asse mancante.
+  let ord = /caotic|chaotic/.test(t) ? 'C' : (/legale|lawful/.test(t) ? 'L' : null);
+  let mor = /buono|good/.test(t) ? 'G' : (/malvagi|evil|cattiv/.test(t) ? 'E' : null);
+  const hasNeutral = /neutrale|neutral/.test(t);
+  if(ord===null && mor!==null) ord='N';
+  if(mor===null && ord!==null) mor='N';
+  if(ord===null && mor===null && hasNeutral){ ord='N'; mor='N'; }
+  if(ord!==null && mor!==null){
+    const _amap={LG:'LG',NG:'NG',CG:'CG',LN:'LN',NN:'TN',CN:'CN',LE:'LE',NE:'NE',CE:'CE'};
+    res.alignment = _amap[ord+mor] || null;
+  }
+
   return res;
 }
 
@@ -13055,7 +13068,7 @@ function fGenerateLocal(prompt){
 
   // 4) Background + allineamento + livello
   const bgObj = lgRand(BACKGROUNDS);
-  const alignment = lgRand(ALIGNMENTS).id;
+  const alignment = (parsed.alignment && ALIGNMENTS.some(a=>a.id===parsed.alignment)) ? parsed.alignment : lgRand(ALIGNMENTS).id;
   // Livello della CLASSE PRIMARIA: dal multiclasse se presente, altrimenti
   // dal livello esplicito nel prompt (classe singola), altrimenti 1.
   const level = mc.length ? mc[0].level : (parsed.level || 1);
