@@ -9187,9 +9187,9 @@ function renderMagicCatalog(){
     var rarOrder=['comune','non comune','raro','molto raro','leggendario','artefatto','variabile'];
     var rarPresent=rarOrder.filter(function(r){ return MAGIC_ITEMS.some(function(x){ return x.rarita===r; }); });
     var tipi=_mcTipi();
-    var h='<h2 class="rules-title">\U0001F52E Oggetti Magici</h2>';
+    var h='<h2 class="rules-title">🔮 Oggetti Magici</h2>';
     h+='<p class="rules-sub">Catalogo SRD 5.2.1 \u2014 '+MAGIC_ITEMS.length+' oggetti</p>';
-    h+='<div class="rules-search"><span class="rules-search-ic">\U0001F50D</span><input type="text" placeholder="Cerca un oggetto\u2026" oninput="mcSetQuery(this.value)"></div>';
+    h+='<div class="rules-search"><span class="rules-search-ic">🔍</span><input type="text" placeholder="Cerca un oggetto\u2026" oninput="mcSetQuery(this.value)"></div>';
     h+='<div class="mc-filter-row"><span class="mc-flabel">Rarit\u00e0</span><div class="rules-chips" id="mc-chips-rar">';
     h+='<button class="rules-chip active" data-rar="all" onclick="mcSetRar(\'all\')">Tutte</button>';
     rarPresent.forEach(function(r){ h+='<button class="rules-chip mi-rar-'+_mcRarSlug(r)+'" data-rar="'+r+'" onclick="mcSetRar(\''+r+'\')">'+_mcRarLabel(r)+'</button>'; });
