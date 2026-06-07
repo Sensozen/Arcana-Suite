@@ -825,6 +825,19 @@ tr.desc-row td{
 .rules-body p{margin:.35rem 0}
 .rules-body p:first-child{margin-top:0}
 .rules-h3{margin:.7rem 0 .25rem;color:var(--gold-light);font-weight:600;font-size:.86rem}
+.mc-filter-row{display:flex;align-items:center;gap:.5rem;margin:.4rem 0;flex-wrap:wrap}
+.mc-flabel{font-size:.66rem;color:var(--parchment2);min-width:52px;opacity:.8;text-transform:uppercase;letter-spacing:.05em}
+.mc-count{font-size:.75rem;color:var(--parchment2);margin:.55rem 0 .3rem;opacity:.75}
+.mi-badge{display:inline-block;font-size:.6rem;padding:.08rem .42rem;border-radius:8px;font-weight:600;vertical-align:middle;border:1px solid;margin-left:.15rem}
+.mi-attune{color:var(--gold);margin-left:.28rem;font-size:.8rem}
+.mi-rar-comune{color:#aab0b6;border-color:#aab0b6;background:rgba(170,176,182,.12)}
+.mi-rar-non-comune{color:#5cc46a;border-color:#4caf50;background:rgba(76,175,80,.13)}
+.mi-rar-raro{color:#6aa8f0;border-color:#4a90e2;background:rgba(74,144,226,.14)}
+.mi-rar-molto-raro{color:#c07fe0;border-color:#b066d6;background:rgba(176,102,214,.15)}
+.mi-rar-leggendario{color:#f3b24c;border-color:#f0a73a;background:rgba(240,167,58,.15)}
+.mi-rar-artefatto{color:#e0764a;border-color:#d9663a;background:rgba(217,102,58,.15)}
+.mi-rar-variabile{color:#c2a05e;border-color:#b89653;background:rgba(184,150,83,.13)}
+.rules-chip.mi-rar-comune.active,.rules-chip.mi-rar-non-comune.active,.rules-chip.mi-rar-raro.active,.rules-chip.mi-rar-molto-raro.active,.rules-chip.mi-rar-leggendario.active,.rules-chip.mi-rar-artefatto.active,.rules-chip.mi-rar-variabile.active{filter:brightness(1.25);font-weight:700}
 .rules-toolbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:.4rem 0 .6rem;margin-bottom:.4rem}
 .rules-search{position:relative;margin-bottom:.55rem}
 .rules-search-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.6;font-size:.85rem;pointer-events:none}
@@ -975,6 +988,7 @@ function pwCheck(){
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="scheda">⚔️ Scheda Personaggio</button>
       <button class="tab-btn" data-tab="grimorio">📜 Grimorio degli Incantesimi</button>
+      <button class="tab-btn" data-tab="oggetti">🔮 Oggetti Magici</button>
       <button class="tab-btn" data-tab="regole">📖 Regole</button>
     </nav>
     <div class="header-actions">
@@ -1005,6 +1019,10 @@ function pwCheck(){
   <button class="mob-tab" id="mob-tab-grimorio" onclick="mobSetTab('grimorio')">
     <span class="mob-icon">📜</span>
     <span>Grimorio</span>
+  </button>
+  <button class="mob-tab" id="mob-tab-oggetti" onclick="mobSetTab('oggetti')">
+    <span class="mob-icon">🔮</span>
+    <span>Oggetti</span>
   </button>
   <button class="mob-tab" id="mob-tab-regole" onclick="mobSetTab('regole')">
     <span class="mob-icon">📖</span>
@@ -1159,6 +1177,11 @@ function pwCheck(){
 <!-- ══════════ REGOLE (Motore delle Regole) ══════════ -->
 <section id="regole" class="section">
   <div id="rules-app"></div>
+</section>
+
+<!-- ══════ OGGETTI MAGICI (Catalogo) ══════ -->
+<section id="oggetti" class="section">
+  <div id="magic-catalog"></div>
 </section>
 
 </main>
@@ -1395,6 +1418,7 @@ function switchTab(tab){
   if(tab==='grimorio'){renderGrimorioTable();}
   if(tab==='scheda'){re();}
   if(tab==='regole'){renderRules();}
+  if(tab==='oggetti'){renderMagicCatalog();}
 }
 function mobSetTab(tab){ switchTab(tab); window.scrollTo({top:0,behavior:'smooth'}); }
 
@@ -9143,6 +9167,73 @@ function rulesRefresh(){
   list.innerHTML=html;
 }
 
+// \u2550\u2550 CATALOGO OGGETTI MAGICI \u2550\u2550
+var _mcQuery='', _mcRar='all', _mcTipo='all', _mcSint='all';
+function mcSetQuery(v){ _mcQuery=v; mcRefresh(); }
+function mcSetRar(r){ _mcRar=r; mcRefresh(); }
+function mcSetTipo(t){ _mcTipo=t; mcRefresh(); }
+function mcSetSint(s){ _mcSint=s; mcRefresh(); }
+function _mcRarSlug(r){ return String(r).replace(/[^a-z]+/g,'-'); }
+function _mcRarLabel(r){ return String(r).charAt(0).toUpperCase()+String(r).slice(1); }
+function _mcTipi(){ var s={}; MAGIC_ITEMS.forEach(function(r){ s[r.tipo]=(s[r.tipo]||0)+1; });
+  return Object.keys(s).sort(function(a,b){ return s[b]-s[a] || a.localeCompare(b); }); }
+function _mcSyncChips(boxId,attr,val){ var box=document.getElementById(boxId); if(!box) return;
+  var chips=box.querySelectorAll('.rules-chip');
+  for(var i=0;i<chips.length;i++){ chips[i].classList.toggle('active', chips[i].getAttribute(attr)===val); } }
+function renderMagicCatalog(){
+  var app=document.getElementById('magic-catalog');
+  if(!app || typeof MAGIC_ITEMS==='undefined') return;
+  if(!app.getAttribute('data-built')){
+    var rarOrder=['comune','non comune','raro','molto raro','leggendario','artefatto','variabile'];
+    var rarPresent=rarOrder.filter(function(r){ return MAGIC_ITEMS.some(function(x){ return x.rarita===r; }); });
+    var tipi=_mcTipi();
+    var h='<h2 class="rules-title">\U0001F52E Oggetti Magici</h2>';
+    h+='<p class="rules-sub">Catalogo SRD 5.2.1 \u2014 '+MAGIC_ITEMS.length+' oggetti</p>';
+    h+='<div class="rules-search"><span class="rules-search-ic">\U0001F50D</span><input type="text" placeholder="Cerca un oggetto\u2026" oninput="mcSetQuery(this.value)"></div>';
+    h+='<div class="mc-filter-row"><span class="mc-flabel">Rarit\u00e0</span><div class="rules-chips" id="mc-chips-rar">';
+    h+='<button class="rules-chip active" data-rar="all" onclick="mcSetRar(\'all\')">Tutte</button>';
+    rarPresent.forEach(function(r){ h+='<button class="rules-chip mi-rar-'+_mcRarSlug(r)+'" data-rar="'+r+'" onclick="mcSetRar(\''+r+'\')">'+_mcRarLabel(r)+'</button>'; });
+    h+='</div></div>';
+    h+='<div class="mc-filter-row"><span class="mc-flabel">Tipo</span><div class="rules-chips" id="mc-chips-tipo">';
+    h+='<button class="rules-chip active" data-tipo="all" onclick="mcSetTipo(\'all\')">Tutti</button>';
+    tipi.forEach(function(t){ var te=_rEsc(t), tj=t.replace(/'/g,"\\'"); h+='<button class="rules-chip" data-tipo="'+te+'" onclick="mcSetTipo(\''+tj+'\')">'+te+'</button>'; });
+    h+='</div></div>';
+    h+='<div class="mc-filter-row"><span class="mc-flabel">Sintonia</span><div class="rules-chips" id="mc-chips-sint">';
+    h+='<button class="rules-chip active" data-sint="all" onclick="mcSetSint(\'all\')">Tutti</button>';
+    h+='<button class="rules-chip" data-sint="si" onclick="mcSetSint(\'si\')">\u269c Richiede sintonia</button>';
+    h+='<button class="rules-chip" data-sint="no" onclick="mcSetSint(\'no\')">Senza sintonia</button>';
+    h+='</div></div>';
+    h+='<div class="mc-count" id="mc-count"></div><div id="mc-list"></div>';
+    app.innerHTML=h; app.setAttribute('data-built','1');
+  }
+  mcRefresh();
+}
+function mcRefresh(){
+  if(typeof MAGIC_ITEMS==='undefined') return;
+  _mcSyncChips('mc-chips-rar','data-rar',_mcRar);
+  _mcSyncChips('mc-chips-tipo','data-tipo',_mcTipo);
+  _mcSyncChips('mc-chips-sint','data-sint',_mcSint);
+  var q=_rNorm(_mcQuery||'');
+  var list=MAGIC_ITEMS.filter(function(r){
+    if(_mcRar!=='all' && r.rarita!==_mcRar) return false;
+    if(_mcTipo!=='all' && r.tipo!==_mcTipo) return false;
+    if(_mcSint==='si' && !r.sintonia) return false;
+    if(_mcSint==='no' && r.sintonia) return false;
+    if(q && _rNorm(r.it.titolo).indexOf(q)<0 && _rNorm(r.it.testo).indexOf(q)<0) return false;
+    return true;
+  });
+  list.sort(function(a,b){ return a.it.titolo.localeCompare(b.it.titolo); });
+  var cnt=document.getElementById('mc-count');
+  if(cnt) cnt.textContent=list.length+(list.length===1?' oggetto':' oggetti');
+  var box=document.getElementById('mc-list'); if(!box) return;
+  if(!list.length){ box.innerHTML='<p class="rules-empty">Nessun oggetto corrisponde ai filtri.</p>'; return; }
+  box.innerHTML=list.map(function(r){
+    var badge='<span class="mi-badge mi-rar-'+_mcRarSlug(r.rarita)+'">'+_mcRarLabel(r.rarita)+'</span>';
+    var sint=r.sintonia?'<span class="mi-attune" title="Richiede sintonia">\u269c</span>':'';
+    return '<details class="rules-entry"><summary>'+_rEsc(r.it.titolo)+' '+badge+sint+'</summary>'+
+           '<div class="rules-body">'+_rFmtRuleBody(r.it.testo,q)+'</div></details>';
+  }).join('');
+}
 function renderRules(){
   var app=document.getElementById('rules-app'); if(!app||typeof RULES_GLOSSARY==='undefined') return;
   // costruisci la toolbar una sola volta (per non perdere il focus dell'input)
