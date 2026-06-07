@@ -9873,12 +9873,20 @@ function fRSpellsSection(){
   const isIt        = lang==='it';
   const lv          = C.level;
   const alwaysPrep  = fGetAlwaysPrepared();
-  const maxCantrips = fGetMaxCantrips();
-  const maxSpells   = fGetMaxSpells();
-  const castStat    = fGetCastingStat();
+  // FIX multiclasse: se esiste UNA sola classe incantatrice (anche quando la
+  // classe primaria non incanta, es. Ladro/Bardo), i totali del display devono
+  // riferirsi a QUELLA classe, non alla primaria/livello totale. Con 2+ caster
+  // il display per-classe (multiCasterBar) ha la precedenza.
+  const _scSolo = (typeof fGetSpellcastingByClass==='function'
+    ? fGetSpellcastingByClass(lang==='it')
+    : []);
+  const _solo = _scSolo.length===1 ? _scSolo[0] : null;
+  const maxCantrips = _solo ? (_solo.maxCantrips||0) : fGetMaxCantrips();
+  const maxSpells   = _solo ? (_solo.maxSpells||0)   : fGetMaxSpells();
+  const castStat    = _solo ? _solo.stat : fGetCastingStat();
   const castMod     = fcmod(fTotalStat(castStat));
-  const castBonus   = fpb(lv)+castMod;
-  const saveDC      = 8+fpb(lv)+castMod;
+  const castBonus   = _solo ? _solo.atkBonus : (fpb(lv)+castMod);
+  const saveDC      = _solo ? _solo.saveDC : (8+fpb(lv)+castMod);
   const hasBook     = fHasSpellbook();      // solo mago
   const isKnown     = fIsKnownCaster();     // PHB 2024: sempre false (tutti preparano)
   const formula     = fPreparedFormula();   // formula testuale
