@@ -541,7 +541,7 @@ tr.desc-row td{
   main{padding:1rem}
   /* Header tablet */
   .header-inner{gap:1rem;height:56px}
-  .site-logo span:last-child{display:none} /* nascondi "Suite D&D 5,5E" */
+  .site-logo span:last-child{display:none} /* nascondi "Suite D&D 5.5E" */
   .tab-btn{padding:.45rem .9rem;font-size:.72rem}
   /* Spell table: nascondi colonne meno critiche */
   .spell-classes{display:none}
@@ -934,7 +934,7 @@ tr.desc-row td{
 <div id="pw-overlay">
   <div id="pw-box">
     <div id="pw-logo">⚔️ Arcana</div>
-    <div id="pw-sub">D&amp;D 5e 2024 — Suite Italiana</div>
+    <div id="pw-sub">D&amp;D 5.5e 2024 — Suite Italiana</div>
     <input id="pw-input" type="password" placeholder="Password"
       onkeydown="if(event.key==='Enter')pwCheck()">
     <button id="pw-btn" onclick="pwCheck()">Accedi</button>
@@ -985,7 +985,7 @@ function pwCheck(){
   <div class="header-inner">
     <div class="site-logo" onclick="hdrHome()" role="button" tabindex="0" title="Torna alla Home">
       <span class="ornament">✦</span> Arcana <span class="ornament">✦</span>
-      <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5,5E</span>
+      <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5.5E</span>
     </div>
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="scheda">⚔️ Scheda Personaggio</button>
@@ -1187,6 +1187,13 @@ function pwCheck(){
 </section>
 
 </main>
+
+<footer id="srd-credits" style="max-width:900px;margin:26px auto 84px;padding:14px 16px;border-top:1px solid var(--border,#3a2a1a);font-size:10px;line-height:1.6;color:var(--dim,#9a8060)">
+  <div style="font-family:'Comfortaa',sans-serif;color:var(--gold,#c8a45a);font-size:11px;letter-spacing:.06em;margin-bottom:7px">© CREDITI E LICENZA · CREDITS &amp; LICENSE</div>
+  <p style="margin:0 0 7px">Quest'opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all'indirizzo <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">dndbeyond.com/srd</a>. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all'indirizzo <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">creativecommons.org/licenses/by/4.0</a>.</p>
+  <p style="margin:0 0 7px;opacity:.85">This work includes material from the System Reference Document 5.2.1 ("SRD 5.2.1") by Wizards of the Coast LLC, available at <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">dndbeyond.com/srd</a>. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">creativecommons.org/licenses/by/4.0</a>.</p>
+  <p style="margin:0;opacity:.7">Compatibile con la 5ª edizione (5E) · Compatible with Fifth Edition (5E). Arcana — Suite D&amp;D 5e (non ufficiale).</p>
+</footer>
 
 <div class="toast" id="toast"></div>
 
@@ -4869,7 +4876,7 @@ function fUpdLang(){
 // ═══════════════════════════════════════
 function fRHome(){
   return`<div class="fade-in" style="text-align:center;padding-top:28px">
-    <div style="font-size:11px;letter-spacing:4px;color:var(--gold2);margin-bottom:8px">✦ D&D 5e · 2024 ✦</div>
+    <div style="font-size:11px;letter-spacing:4px;color:var(--gold2);margin-bottom:8px">✦ D&D 5.5e · 2024 ✦</div>
     <h1 style="font-family:'Comfortaa', sans-serif;font-size:clamp(20px,5vw,32px);color:var(--gold);text-shadow:0 0 20px rgba(200,164,90,.4);margin-bottom:6px">${ft("Fucina dei Personaggi","Character Forge")}</h1>
     <p style="color:var(--dim);margin-bottom:36px;font-size:14px">${ft("Crea la tua leggenda","Create your legend")}</p>
     <div class="g2" style="max-width:480px;margin:0 auto;gap:14px">
@@ -5001,7 +5008,7 @@ function fRS0cl(){
         <span style="font-size:9px;color:var(--gold2);background:rgba(139,90,43,.15);padding:2px 5px;border-radius:2px">${c.hd}</span>
       </div>
       <div style="font-size:12px;font-weight:600;color:${C.cls===c.id?"var(--gold)":"var(--text)"};margin:4px 0 2px">${lang==="it"?c.it:c.en}</div>
-      <div style="font-size:9px;color:var(--dim)">${ft("TS:","S:")} ${lang==="it"?c.savesIt:c.savesEn}</div>
+      <div style="font-size:9px;color:var(--dim)">⭐ ${(typeof CLASS_PRIMARY!=="undefined"&&CLASS_PRIMARY[c.id])?(lang==="it"?CLASS_PRIMARY[c.id].it:CLASS_PRIMARY[c.id].en):"—"}</div>
     </div>`).join("")}
   </div>`;
 
@@ -5447,7 +5454,7 @@ function fRS0(cl){
           <span style="font-size:9px;color:var(--gold2);background:rgba(139,90,43,.15);padding:2px 5px;border-radius:2px">${c.hd}</span>
         </div>
         <div style="font-size:12px;font-weight:600;color:${C.cls===c.id?"var(--gold)":"var(--text)"};margin:4px 0 2px">${lang==="it"?c.it:c.en}</div>
-        <div style="font-size:9px;color:var(--dim)">${ft("TS:","S:")} ${lang==="it"?c.savesIt:c.savesEn}</div>
+        <div style="font-size:9px;color:var(--dim)">⭐ ${(typeof CLASS_PRIMARY!=="undefined"&&CLASS_PRIMARY[c.id])?(lang==="it"?CLASS_PRIMARY[c.id].it:CLASS_PRIMARY[c.id].en):"—"}</div>
       </div>`).join("")}
     </div>
     ${cl?`<div class="panel sel-border fade-in">
