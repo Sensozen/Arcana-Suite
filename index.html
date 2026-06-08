@@ -1192,7 +1192,7 @@ function pwCheck(){
   <div style="font-family:'Comfortaa',sans-serif;color:var(--gold,#c8a45a);font-size:11px;letter-spacing:.06em;margin-bottom:7px">© CREDITI E LICENZA · CREDITS &amp; LICENSE</div>
   <p style="margin:0 0 7px">Quest'opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all'indirizzo <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">dndbeyond.com/srd</a>. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all'indirizzo <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">creativecommons.org/licenses/by/4.0</a>.</p>
   <p style="margin:0 0 7px;opacity:.85">This work includes material from the System Reference Document 5.2.1 ("SRD 5.2.1") by Wizards of the Coast LLC, available at <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">dndbeyond.com/srd</a>. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener" style="color:var(--gold2,#b8923f);text-decoration:underline">creativecommons.org/licenses/by/4.0</a>.</p>
-  <p style="margin:0;opacity:.7">Compatibile con la 5ª edizione (5E) · Compatible with Fifth Edition (5E). Arcana — Suite D&amp;D 5e (non ufficiale).</p>
+  <p style="margin:0;opacity:.7">Compatibile con la 5ª edizione (5E) · Compatible with Fifth Edition (5E). Arcana — Suite D&amp;D 5.5e (non ufficiale).</p>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -2315,6 +2315,7 @@ function fIsSRD(cat, id){ const l=SRD_PHB_ONLY[cat]; return !l || !l.includes(id
 var SRD_BUILD_MODE = 'srd'; /* [build SRD] forzato */
 function fSrdAllowed(cat, id){ return SRD_BUILD_MODE !== 'srd' || fIsSRD(cat, id); }
 
+function fEd(){ return (typeof SRD_BUILD_MODE!=='undefined'&&SRD_BUILD_MODE==='srd')?'SRD 5.2.1':'PHB 2024'; }
 const CLASS_PRIMARY = {
   barbarian:{it:"FOR",en:"STR"}, bard:{it:"CAR",en:"CHA"}, cleric:{it:"SAG",en:"WIS"},
   druid:{it:"SAG",en:"WIS"}, fighter:{it:"FOR o DES",en:"STR or DEX"}, rogue:{it:"DES",en:"DEX"},
@@ -6436,7 +6437,7 @@ function fBuildPrintSheet(){
 
 <!-- ══════════════ PAGINA 1 ══════════════ -->
 <div class="psp">
-  <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">DUNGEONS &amp; DRAGONS · 5e 2024 · SCHEDA PERSONAGGIO</div>
+  <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">DUNGEONS &amp; DRAGONS · 5.5e 2024 · SCHEDA PERSONAGGIO</div>
 
   <div class="phdr">
     <div class="phdr1">
@@ -6748,11 +6749,6 @@ function _arcanaClear(){
   try { localStorage.removeItem(_ARCANA_KEY); } catch(e){}
 }
 
-_arcanaRestore(); // PERSISTENZA: ripristina il personaggio salvato prima del primo render
-fSyncClassDerived(); // MULTICLASSE: garantisce C.classes coerente all'avvio
-re();
-setupPillGroups();
-populateClassSelect();
 
 function fRS3(){
   const bg=fgBg();
@@ -8464,7 +8460,7 @@ function fRSheet(){
       <span style="position:absolute;bottom:8px;left:8px;color:var(--vdim);font-size:14px">✦</span>
       <span style="position:absolute;bottom:8px;right:8px;color:var(--vdim);font-size:14px">✦</span>
       <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
-        <div style="font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:5px">${ft('SCHEDA DEL PERSONAGGIO','CHARACTER SHEET')} · D&D 5e 2024</div>
+        <div style="font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:5px">${ft('SCHEDA DEL PERSONAGGIO','CHARACTER SHEET')} · D&D 5.5e 2024</div>
         <h2 style="font-family:'Comfortaa', sans-serif;font-size:clamp(17px,5vw,26px);color:var(--gold);text-shadow:0 0 14px rgba(200,164,90,.3)">${C.name||ft('Eroe Senza Nome','Unnamed Hero')}</h2>
         <div style="color:var(--muted);font-size:12px;margin-top:3px">${sub}</div>
         ${bg?`<div style="font-size:10px;color:var(--dim);margin-top:2px">Background: ${isIt?bg.it:bg.en}</div>`:''}
@@ -8628,11 +8624,11 @@ function fRSheet(){
       })()}
     ${fEquipACSelector()}
     <details class="box" style="cursor:pointer">
-      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">⚔️ ${ft("Tabella Armi (PHB 2024)","Weapons Table (PHB 2024)")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
+      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">⚔️ ${ft("Tabella Armi ("+fEd()+")","Weapons Table ("+fEd()+")")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
       <div style="margin-top:8px">${fEquipWeaponsRef()}</div>
     </details>
     <details class="box" style="cursor:pointer">
-      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">🛡️ ${ft("Tabella Armature & Scudi (PHB 2024)","Armor & Shields Table (PHB 2024)")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
+      <summary style="font-family:'Comfortaa',sans-serif;color:var(--gold);font-size:13px;list-style:none;outline:none">🛡️ ${ft("Tabella Armature & Scudi ("+fEd()+")","Armor & Shields Table ("+fEd()+")")} <span style="font-size:9px;color:var(--vdim)">▾ tocca per espandere</span></summary>
       <div style="margin-top:8px">${fEquipArmorRef()}</div>
     </details>
 ${C.backstory?`<div class="box"><div class="box-title">📜 ${ft('Storia','Backstory')}</div><div style="font-size:13px;color:var(--text);font-style:italic;line-height:1.7">${C.backstory}</div></div>`:''}
@@ -13019,7 +13015,7 @@ function fRS11(cl){
     .filter(Boolean);
   return`<div>
     <div class="sec-title">🎒 ${ft("13 · Equipaggiamento","13 · Equipment")}</div>
-    <div style="text-align:center;font-size:11px;color:var(--vdim);margin:-4px 0 10px;font-style:italic">${ft("Equipaggiamento iniziale di classe · strumenti dell'origine (PHB 2024)","Class starting equipment · origin tools (PHB 2024)")}</div>
+    <div style="text-align:center;font-size:11px;color:var(--vdim);margin:-4px 0 10px;font-style:italic">${ft("Equipaggiamento iniziale di classe · strumenti dell'origine ("+fEd()+")","Class starting equipment · origin tools ("+fEd()+")")}</div>
     ${cl&&eq?`<div class="box"><div class="box-title">${cl.icon} ${ft("Classe","Class")}: ${lang==="it"?cl.it:cl.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${lang==="it"?eq.it:eq.en}</div></div>`:`<div class="box"><div class="box-title">⚔️ ${ft("Classe","Class")}</div><div style="color:var(--muted);font-size:12px">${ft("Seleziona una classe per vedere l'equipaggiamento.","Select a class to see its equipment.")}</div></div>`}
     ${bg?`<div class="box"><div class="box-title">${bg.icon} ${ft("Origine","Origin")}: ${lang==="it"?bg.it:bg.en}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${ft("Strumenti","Tools")}: ${hasTools?bgTools:ft("nessuno","none")}</div></div>`:`<div class="box"><div class="box-title">🎭 ${ft("Origine","Origin")}</div><div style="color:var(--muted);font-size:12px">${ft("Seleziona un'origine per vedere gli strumenti.","Select an origin to see its tools.")}</div></div>`}
     ${featToolNames.length?`<div class="box"><div class="box-title">✨ ${ft("Strumenti da talenti","Tools from Feats")}</div><div style="color:var(--text);font-size:13px;line-height:1.7">${featToolNames.join(', ')}</div></div>`:""}
@@ -13028,6 +13024,14 @@ function fRS11(cl){
 }
 
 // ── STEP 6: Livello & Talenti ──
+
+// ═══ AVVIO APP (spostato a fine script: dopo tutte le costanti, evita errori di inizializzazione) ═══
+_arcanaRestore(); // PERSISTENZA: ripristina il personaggio salvato prima del primo render
+fSyncClassDerived(); // MULTICLASSE: garantisce C.classes coerente all'avvio
+re();
+setupPillGroups();
+populateClassSelect();
+
 </script>
 </body>
 </html>
