@@ -30,6 +30,32 @@
   --radius: 6px;
   --glow: 0 0 20px rgba(201,168,71,0.08);
 }
+/* ── TEMI ALTERNATIVI (Pro) — sovrascrivono le variabili principali ── */
+html[data-theme="notte"]{
+  --bg:#05060f; --surface:#0c0e1c; --surface2:#13162a; --surface3:#1b2040;
+  --gold:#6e93e0; --gold-light:#92b4f5; --gold-dim:rgba(110,147,224,0.15);
+  --crimson:#3a3f8f; --crimson-light:#5055b0;
+  --text:#cdd4ea; --text-dim:#7480a8;
+  --border:rgba(110,147,224,0.20); --border-strong:rgba(110,147,224,0.5);
+  --glow:0 0 20px rgba(110,147,224,0.10);
+}
+html[data-theme="bosco"]{
+  --bg:#060d09; --surface:#0c1610; --surface2:#13231a; --surface3:#1b3326;
+  --gold:#46b277; --gold-light:#67d398; --gold-dim:rgba(70,178,119,0.15);
+  --crimson:#246b3a; --crimson-light:#2f8a4c;
+  --text:#c6e6d0; --text-dim:#6f9a80;
+  --border:rgba(70,178,119,0.20); --border-strong:rgba(70,178,119,0.5);
+  --glow:0 0 20px rgba(70,178,119,0.10);
+}
+html[data-theme="pergamena"]{
+  --bg:#e7dabc; --surface:#f1e6cb; --surface2:#e2d3ad; --surface3:#d3c094;
+  --gold:#8a6a23; --gold-light:#a8852f; --gold-dim:rgba(138,106,35,0.18);
+  --crimson:#7a1515; --crimson-light:#9a2020;
+  --text:#3a2e18; --text-dim:#6a5938;
+  --border:rgba(138,106,35,0.30); --border-strong:rgba(138,106,35,0.6);
+  --glow:0 0 16px rgba(138,106,35,0.12);
+}
+html[data-theme="pergamena"] body{ background-image:none; }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
@@ -2313,7 +2339,7 @@ const SRD_PHB_ONLY = {
 };
 function fIsSRD(cat, id){ const l=SRD_PHB_ONLY[cat]; return !l || !l.includes(id); }
 var SRD_BUILD_MODE = 'srd'; /* [build SRD] forzato */
-function fSrdAllowed(cat, id){ return SRD_BUILD_MODE !== 'srd' || fIsSRD(cat, id); }
+function fSrdAllowed(cat, id){ return SRD_BUILD_MODE !== 'srd' || (id && String(id).indexOf('hb_')===0) || fIsSRD(cat, id); }
 
 function fEd(){ return (typeof SRD_BUILD_MODE!=='undefined'&&SRD_BUILD_MODE==='srd')?'SRD 5.2.1':'PHB 2024'; }
 const CLASS_PRIMARY = {
@@ -4556,6 +4582,332 @@ function fCanNext(){
   return true;
 }
 
+// ═══════════════════════════════════════
+// SCHERMATA CREDITI / LICENZA (attribuzione CC-BY-4.0 obbligatoria — SRD 5.2.1)
+// Roadmap commercializzazione, passo 2. Il testo di attribuzione è VERBATIM
+// dall'SRD 5.2.1 ufficiale italiano e NON va alterato.
+// ═══════════════════════════════════════
+function fRCredits(){
+  // Testo di attribuzione VERBATIM dall'SRD 5.2.1 IT (Wizards of the Coast).
+  // Gli URL sono resi cliccabili ma il testo resta identico all'originale.
+  var attrIT = 'Quest\u2019opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all\u2019indirizzo <a href="https://www.dndbeyond.com/srd" target="_blank" rel="noopener" style="color:var(--gold)">https://www.dndbeyond.com/srd</a>. Il SRD 5.2.1 \u00e8 concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all\u2019indirizzo <a href="https://creativecommons.org/licenses/by/4.0/legalcode" target="_blank" rel="noopener" style="color:var(--gold)">https://creativecommons.org/licenses/by/4.0/legalcode</a>.';
+  return '<div class="fade-in" style="max-width:640px;margin:0 auto;padding-top:24px">'
+    +'<div class="sec-title">\u2139\ufe0f '+ft("Crediti & Licenza","Credits & License")+'</div>'
+    +'<div class="panel" style="text-align:left">'
+      +'<div style="font-family:\'Comfortaa\',sans-serif;color:var(--gold);font-size:18px;margin-bottom:4px">Arcana</div>'
+      +'<p style="color:var(--muted);font-size:13px;margin-bottom:18px">'+ft("Suite per la creazione di personaggi \u2014 compatibile con la quinta edizione.","Character creation suite \u2014 compatible with the fifth edition.")+'</p>'
+      +'<div style="font-family:\'Comfortaa\',sans-serif;color:var(--gold2);font-size:12px;letter-spacing:1px;margin-bottom:8px">'+ft("ATTRIBUZIONE","ATTRIBUTION")+'</div>'
+      +'<div style="background:rgba(13,10,6,.7);border:1px solid var(--border2);border-left:3px solid var(--gold2);border-radius:4px;padding:14px 16px;font-size:13px;line-height:1.7;color:var(--text)">'+attrIT+'</div>'
+      +'<p style="color:var(--text-dim);font-size:11px;margin-top:14px;line-height:1.6">'+ft("Il materiale tratto dal SRD 5.2.1 \u00e8 usato in conformit\u00e0 alla licenza CC-BY-4.0. \u201cDungeons & Dragons\u201d, \u201cD&D\u201d e i relativi marchi sono di propriet\u00e0 di Wizards of the Coast e non sono associati n\u00e9 approvati da questa applicazione.","Material from the SRD 5.2.1 is used under the CC-BY-4.0 license. \u201cDungeons & Dragons\u201d, \u201cD&D\u201d and related trademarks are property of Wizards of the Coast and are not affiliated with or endorsed by this application.")+'</p>'
+    +'</div>'
+    +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">\u2190 '+ft("Torna alla Home","Back to Home")+'</button>'
+  +'</div>';
+}
+
+// ═══════════════════════════════════════
+// ROSTER MULTI-PERSONAGGIO (archivio interno)
+// Free: fino a ROSTER_FREE_LIMIT personaggi · Pro: illimitato
+// ═══════════════════════════════════════
+var ROSTER_FREE_LIMIT = 3;
+var _rosterConfirmDel = null;
+function fRosterList(){ var l=fPrefGet('roster',[]); return Array.isArray(l)?l:[]; }
+function fRosterSave(list){ fPrefSet('roster', list); }
+function fRosterCount(){ return fRosterList().length; }
+function fRosterCanAdd(){ return fIsPro() || fRosterCount() < ROSTER_FREE_LIMIT; }
+function fRosterSummary(){
+  var cl = (typeof fClassDisplay==='function') ? (fClassDisplay(true)||'') : '';
+  var lvl = (typeof fTotalLevel==='function') ? fTotalLevel() : (C.level||1);
+  var sp = SPECIES.find(function(s){return s.id===C.species;});
+  var parts = [];
+  if(cl) parts.push(cl);
+  parts.push(ft('liv.','lv.')+' '+lvl);
+  if(sp) parts.push(sp.it);
+  return parts.join(' \u00b7 ');
+}
+function fRosterDate(ts){
+  try{ var d=new Date(ts); var p=function(n){return (n<10?'0':'')+n;};
+    return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());
+  }catch(e){ return ''; }
+}
+function fRosterSaveCurrent(){
+  if(!fRosterCanAdd()){ screen='pro'; re(); return; }
+  var list=fRosterList();
+  list.unshift({
+    id:'r_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    name:(C.name||ft('Senza nome','Unnamed')),
+    summary:fRosterSummary(),
+    savedAt:Date.now(),
+    data:JSON.parse(JSON.stringify(C))
+  });
+  fRosterSave(list); re();
+}
+function fRosterUpdate(id){
+  var list=fRosterList(); var i=list.findIndex(function(e){return e.id===id;});
+  if(i<0) return;
+  list[i].name=(C.name||ft('Senza nome','Unnamed'));
+  list[i].summary=fRosterSummary();
+  list[i].savedAt=Date.now();
+  list[i].data=JSON.parse(JSON.stringify(C));
+  fRosterSave(list); re();
+}
+function fRosterLoad(id){
+  var e=fRosterList().find(function(x){return x.id===id;}); if(!e) return;
+  try{
+    if(typeof fHBSync==='function') fHBSync(); // assicura le sottoclassi homebrew prima della validazione
+    fApplyCharData(JSON.parse(JSON.stringify(e.data)));
+    screen='sheet'; re();
+  }catch(err){ console.error('roster load:', err); alert(ft('Caricamento non riuscito.','Load failed.')); }
+}
+function fRosterRemove(id){ fRosterSave(fRosterList().filter(function(e){return e.id!==id;})); }
+function fRosterAskDel(id){ _rosterConfirmDel=id; re(); }
+function fRosterCancelDel(){ _rosterConfirmDel=null; re(); }
+function fRosterDoDel(id){ fRosterRemove(id); _rosterConfirmDel=null; re(); }
+
+function fRRoster(){
+  var list=fRosterList(); var pro=fIsPro(); var canAdd=fRosterCanAdd();
+  var counter = pro
+    ? (list.length+' '+ft('salvati \u00b7 illimitato','saved \u00b7 unlimited'))
+    : (list.length+' / '+ROSTER_FREE_LIMIT);
+  var rows = list.length ? list.map(function(e){
+    var confirming = (_rosterConfirmDel===e.id);
+    var del = confirming
+      ? '<button class="btn sm" style="font-size:11px;color:var(--red);border-color:var(--red)" onclick="fRosterDoDel(\''+e.id+'\')">'+ft('Conferma','Confirm')+'</button>'
+        +'<button class="btn sm" style="font-size:11px" onclick="fRosterCancelDel()">'+ft('Annulla','Cancel')+'</button>'
+      : '<button class="btn sm" style="font-size:13px;opacity:.7" onclick="fRosterAskDel(\''+e.id+'\')">\uD83D\uDDD1\uFE0F</button>';
+    return '<div class="panel" style="text-align:left;margin-bottom:10px">'
+      +'<div style="display:flex;gap:11px;align-items:flex-start;margin-bottom:8px">'
+        +((e.data && e.data.portrait) ? '<img src="'+e.data.portrait+'" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border-strong);flex-shrink:0">' : '')
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-weight:600;font-size:15px;color:var(--text)">'+(e.name||ft('Senza nome','Unnamed'))+'</div>'
+          +'<div style="font-size:12px;color:var(--muted);margin:2px 0">'+(e.summary||'')+'</div>'
+          +'<div style="font-size:11px;color:var(--vdim)">'+ft('Salvato','Saved')+': '+fRosterDate(e.savedAt)+'</div>'
+        +'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+        +'<button class="btn sm primary" style="font-size:12px" onclick="fRosterLoad(\''+e.id+'\')">'+ft('Carica','Load')+'</button>'
+        +'<button class="btn sm" style="font-size:12px" onclick="fRosterUpdate(\''+e.id+'\')">'+ft('Aggiorna con quello attuale','Update with current')+'</button>'
+        +del
+      +'</div>'
+    +'</div>';
+  }).join('') : '<p style="color:var(--muted);font-size:13px;text-align:center;padding:24px 0">'+ft('Nessun personaggio salvato.','No saved characters.')+'</p>';
+
+  var addBtn = canAdd
+    ? '<button class="btn primary full" onclick="fRosterSaveCurrent()">\uD83D\uDCBE '+ft('Salva personaggio attuale','Save current character')+'</button>'
+    : '<button class="btn full" onclick="screen=\'pro\';re()">'+ft('Limite gratuito raggiunto \u2014 passa a Pro','Free limit reached \u2014 go Pro')+'</button>';
+
+  return '<div class="fade-in" style="max-width:560px;margin:0 auto;padding-top:24px">'
+    +'<div class="sec-title">\uD83D\uDCDA '+ft('Archivio personaggi','Character roster')+'</div>'
+    +'<div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:14px">'+counter+'</div>'
+    +addBtn
+    +'<div style="margin-top:18px">'+rows+'</div>'
+    +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">\u2190 '+ft('Torna alla Home','Back to Home')+'</button>'
+  +'</div>';
+}
+
+// ═══════════════════════════════════════
+// TEMI GRAFICI — "Grimorio" gratuito, gli altri Pro
+// ═══════════════════════════════════════
+var THEMES = [
+  { id:'grimorio',  it:'Grimorio',        en:'Grimoire',      free:true,  sw:['#07070d','#c9a847','#7a1515'] },
+  { id:'notte',     it:'Notte Arcana',    en:'Arcane Night',  free:false, sw:['#05060f','#6e93e0','#3a3f8f'] },
+  { id:'bosco',     it:'Bosco Silvano',   en:'Sylvan Wood',   free:false, sw:['#060d09','#46b277','#246b3a'] },
+  { id:'pergamena', it:'Pergamena Antica',en:'Old Parchment', free:false, sw:['#e7dabc','#8a6a23','#7a1515'] }
+];
+function fThemeGet(){ var t=fPrefGet('theme','grimorio'); return THEMES.some(function(x){return x.id===t;})?t:'grimorio'; }
+function fThemeApply(id){
+  try{
+    var el=document.documentElement;
+    if(!el) return;
+    if(id && id!=='grimorio') el.setAttribute('data-theme', id);
+    else el.removeAttribute('data-theme');
+  }catch(e){}
+}
+function fThemeIsFree(id){ var t=THEMES.find(function(x){return x.id===id;}); return !t || t.free===true; }
+function fThemeSet(id){
+  if(!fThemeIsFree(id) && !fIsPro()){ screen='pro'; re(); return; } // gating Pro
+  fPrefSet('theme', id);
+  fThemeApply(id);
+  re();
+}
+function fRThemes(){
+  var cur=fThemeGet(); var pro=fIsPro();
+  var cards = THEMES.map(function(t){
+    var active=(t.id===cur);
+    var locked=(!t.free && !pro);
+    var swats = t.sw.map(function(c){ return '<span style="display:inline-block;width:20px;height:20px;border-radius:4px;background:'+c+';border:1px solid rgba(255,255,255,.15)"></span>'; }).join('');
+    return '<button class="panel" onclick="fThemeSet(\''+t.id+'\')" style="display:block;width:100%;text-align:left;cursor:pointer;border:1px solid '+(active?'var(--gold)':'var(--border)')+';background:var(--surface2);margin-bottom:10px;padding:12px 14px">'
+      +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<span style="display:flex;gap:5px">'+swats+'</span>'
+        +'<span style="flex:1;font-size:15px;color:var(--text);font-weight:600">'+ft(t.it,t.en)+'</span>'
+        +(active?'<span style="font-size:12px;color:var(--gold)">\u2713 '+ft('attivo','active')+'</span>':'')
+        +(locked&&!active?'<span style="font-size:12px;color:var(--text-dim)">\uD83D\uDD12 Pro</span>':'')
+        +(!t.free&&pro&&!active?'<span style="font-size:11px;color:var(--text-dim)">Pro</span>':'')
+      +'</div>'
+    +'</button>';
+  }).join('');
+  return '<div class="fade-in" style="max-width:560px;margin:0 auto;padding-top:24px">'
+    +'<div class="sec-title">\uD83C\uDFA8 '+ft('Temi','Themes')+'</div>'
+    +'<p style="color:var(--text-dim);font-size:13px;line-height:1.6;margin-bottom:16px">'+ft('Scegli l\u2019aspetto dell\u2019app. Il tema Grimorio \u00e8 gratuito; gli altri sono inclusi in Pro.','Choose the app look. The Grimoire theme is free; the others are included in Pro.')+'</p>'
+    +cards
+    +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">\u2190 '+ft('Torna alla Home','Back to Home')+'</button>'
+  +'</div>';
+}
+
+// ═══════════════════════════════════════
+// RITRATTO DEL PERSONAGGIO — caricamento immagine, ridimensionata e compressa
+// Salvata in C.portrait come data URL JPEG (~50-100 KB), segue il PG ovunque.
+// ═══════════════════════════════════════
+function fPortraitPick(){ var i=document.getElementById('portrait-input'); if(i) i.click(); }
+function fPortraitRemove(){ C.portrait=null; re(); }
+function fPortraitLoad(input){
+  try{
+    var file = input && input.files && input.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        try{
+          var MAX=512, w=img.width, h=img.height;
+          if(w>h && w>MAX){ h=Math.round(h*MAX/w); w=MAX; }
+          else if(h>=w && h>MAX){ w=Math.round(w*MAX/h); h=MAX; }
+          var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+          cv.getContext('2d').drawImage(img,0,0,w,h);
+          C.portrait = cv.toDataURL('image/jpeg', 0.72);
+          re();
+        }catch(e){ console.error('portrait canvas', e); alert(ft('Immagine non valida.','Invalid image.')); }
+      };
+      img.onerror = function(){ alert(ft('Immagine non valida.','Invalid image.')); };
+      img.src = ev.target.result;
+    };
+    reader.onerror = function(){ alert(ft('Lettura immagine non riuscita.','Image read failed.')); };
+    reader.readAsDataURL(file);
+  }catch(e){ console.error('portrait load', e); }
+}
+function fPortraitHTML(){
+  var has = !!C.portrait;
+  return '<input type="file" id="portrait-input" accept="image/*" style="display:none" onchange="fPortraitLoad(this)">'
+    +'<div style="display:flex;justify-content:center;margin-bottom:10px">'
+    +(has
+      ? '<div style="position:relative">'
+          +'<img src="'+C.portrait+'" alt="ritratto" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);box-shadow:var(--glow);cursor:pointer" onclick="fPortraitPick()">'
+          +'<button onclick="fPortraitRemove()" title="'+ft('Rimuovi','Remove')+'" style="position:absolute;top:-4px;right:-4px;width:24px;height:24px;border-radius:50%;background:var(--surface3);border:1px solid var(--border-strong);color:var(--text);font-size:14px;cursor:pointer;line-height:1;padding:0">\u00d7</button>'
+        +'</div>'
+      : '<div onclick="fPortraitPick()" style="width:96px;height:96px;border-radius:50%;border:2px dashed var(--border-strong);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);background:var(--surface2)">'
+          +'<span style="font-size:26px;line-height:1">\uD83D\uDC64</span>'
+          +'<span style="font-size:9px;margin-top:2px;letter-spacing:.5px">'+ft('Ritratto','Portrait')+'</span>'
+        +'</div>')
+    +'</div>';
+}
+
+// SCHERMATA PRO — upgrade / stato tier (roadmap commercializzazione, passo 4)
+function fRPro(){
+  var pro = fIsPro();
+  var benefit = function(icon, t, on){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border2)">'
+      +'<span style="font-size:16px;width:22px;text-align:center">'+icon+'</span>'
+      +'<span style="flex:1;font-size:14px;color:var(--text)">'+t+'</span>'
+      +'<span style="font-size:11px;color:'+(on?'var(--green)':'var(--vdim)')+'">'+(on?ft('Pro','Pro'):ft('in arrivo','soon'))+'</span>'
+    +'</div>';
+  };
+  return '<div class="fade-in" style="max-width:560px;margin:0 auto;padding-top:24px">'
+    +'<div class="sec-title">\u2728 '+ft('Arcana Pro','Arcana Pro')+'</div>'
+    +'<div style="text-align:center;margin-bottom:18px">'
+      +(pro
+        ? '<span style="display:inline-block;font-size:13px;background:rgba(90,170,110,.15);color:var(--green);border:1px solid var(--green);border-radius:20px;padding:5px 16px">\u2713 '+ft('Pro attivo','Pro active')+'</span>'
+        : '<span style="display:inline-block;font-size:13px;background:rgba(120,120,120,.12);color:var(--muted);border:1px solid var(--border2);border-radius:20px;padding:5px 16px">'+ft('Versione gratuita','Free version')+'</span>')
+    +'</div>'
+    +'<p style="color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px">'+ft('Pro sblocca comodit\u00e0 software extra. Il contenuto SRD e la creazione dei personaggi restano sempre gratuiti.','Pro unlocks extra software conveniences. SRD content and character creation are always free.')+'</p>'
+    +'<div class="panel" style="text-align:left;margin-bottom:18px">'
+      +benefit('\uD83D\uDDA8\uFE0F', ft('Stampa / Esporta PDF della scheda','Print / Export character sheet to PDF'), true)
+      +benefit('\u2728', ft('Generazione AI online (il generatore locale resta gratuito)','Online AI generation (local generator stays free)'), true)
+      +benefit('\uD83D\uDCE5', ft('Import homebrew illimitato','Unlimited homebrew imports'), true)
+      +benefit('\uD83C\uDFA8', ft('Temi grafici','Visual themes'), true)
+      +benefit('\uD83D\uDCDA', ft('Archivio multi-personaggio','Multi-character roster'), true)
+    +'</div>'
+    +(pro
+      ? '<button class="btn full" onclick="fSetPro(false);re()">'+ft('Disattiva Pro (test)','Disable Pro (test)')+'</button>'
+      : '<button class="btn primary full" onclick="fSetPro(true);re()">'+ft('Sblocca Pro (anteprima)','Unlock Pro (preview)')+'</button>')
+    +'<p style="color:var(--vdim);font-size:11px;line-height:1.55;margin-top:10px;text-align:center">'+ft('Nota: questo pulsante \u00e8 temporaneo per le prove. L\u2019acquisto reale arriver\u00e0 tramite Google Play.','Note: this button is temporary for testing. Real purchase will come via Google Play.')+'</p>'
+    +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">\u2190 '+ft('Torna alla Home','Back to Home')+'</button>'
+  +'</div>';
+}
+
+// SCHERMATA HOMEBREW - import sottoclassi dell'utente (passo 5)
+function fRHomebrew(){
+  var d = _hbEnsureDraft();
+  var list = fHBList();
+  var pro = fIsPro();
+  var count = list.length;
+  var meter = pro
+    ? ('<span style="color:var(--green)">'+ft('Pro \u00b7 import illimitati','Pro \u00b7 unlimited imports')+'</span>')
+    : (ft('Voci','Entries')+': <span style="color:'+(count>=HB_FREE_LIMIT?'#c45a5a':'var(--gold)')+'">'+count+'</span> / '+HB_FREE_LIMIT+' '+ft('(gratuito)','(free)'));
+
+  var featRows = d.features.map(function(p,i){
+    return '<div style="border:1px solid var(--border2);border-radius:4px;padding:9px;margin-bottom:8px">'
+      +'<div style="display:flex;gap:8px;margin-bottom:6px">'
+        +'<div style="width:64px"><label style="font-size:10px;color:var(--vdim);display:block">'+ft('Liv.','Lv.')+'</label>'
+          +'<input type="number" min="1" max="20" value="'+(parseInt(p.lvl)||1)+'" oninput="fHBDraftFeat('+i+',\'lvl\',this.value)" style="width:100%"></div>'
+        +'<div style="flex:1"><label style="font-size:10px;color:var(--vdim);display:block">'+ft('Nome privilegio','Feature name')+'</label>'
+          +'<input type="text" value="'+_hbEsc(p.name)+'" oninput="fHBDraftFeat('+i+',\'name\',this.value)" style="width:100%"></div>'
+        +'<button class="btn sm" style="align-self:flex-end" onclick="fHBDraftDelFeat('+i+')" title="'+ft('Rimuovi','Remove')+'">✕</button>'
+      +'</div>'
+      +'<textarea rows="2" placeholder="'+ft('Descrizione (testo tuo)','Description (your text)')+'" oninput="fHBDraftFeat('+i+',\'desc\',this.value)" style="width:100%;font-size:12px">'+_hbEsc(p.desc)+'</textarea>'
+    +'</div>';
+  }).join('');
+
+  var saved = count
+    ? list.map(function(e){
+        var feats = (e.features||[]).slice().sort(function(a,b){return a.lvl-b.lvl;}).map(function(p){
+          return '<div style="padding:6px 0;border-top:1px solid var(--border2)">'
+            +'<div><span style="color:var(--gold2);font-size:11px;font-weight:700;margin-right:6px">'+ft('Liv.','Lv.')+' '+(parseInt(p.lvl)||1)+'</span>'
+            +'<span style="font-weight:600">'+_hbEsc(p.name)+'</span></div>'
+            +(p.desc?'<div style="color:var(--muted);font-size:12px;margin-top:3px;line-height:1.5">'+_hbEsc(p.desc)+'</div>':'')
+          +'</div>';
+        }).join('');
+        return '<div class="box" style="text-align:left;margin-bottom:10px">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+            +'<div><div style="color:var(--vdim);font-size:11px">'+_hbEsc(_hbClsName(e.cls))+'</div>'
+              +'<div style="color:var(--gold);font-size:16px;font-weight:600">'+_hbEsc(e.name)+'</div></div>'
+            +'<div style="display:flex;gap:6px;align-items:center">'
+              +'<span style="font-size:10px;background:rgba(200,164,90,.15);color:var(--gold2);padding:2px 8px;border-radius:3px">Homebrew</span>'
+              +(_hbConfirmDel===e.id
+                 ? '<button class="btn sm" style="color:#c45a5a;border-color:#c45a5a" onclick="fHBDoDel(\''+e.id+'\')">'+ft('Elimina','Delete')+'</button> <button class="btn sm" onclick="fHBCancelDel()">'+ft('Annulla','Cancel')+'</button>'
+                 : '<button class="btn sm" onclick="fHBAskDel(\''+e.id+'\')" title="'+ft('Elimina','Delete')+'">🗑</button>')
+            +'</div>'
+          +'</div>'+feats
+        +'</div>';
+      }).join('')
+    : ('<p style="color:var(--vdim);font-size:13px;text-align:center;padding:14px 0">'+ft('Nessuna voce ancora. Compila il modulo qui sopra e premi Importa.','No entries yet. Fill in the form above and press Import.')+'</p>');
+
+  var atLimit = !pro && count >= HB_FREE_LIMIT;
+
+  return '<div class="fade-in" style="max-width:640px;margin:0 auto;padding-top:20px">'
+    +'<div class="sec-title">📥 '+ft('Homebrew','Homebrew')+'</div>'
+    +'<p style="color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.55">'+ft('Aggiungi materiale tuo (es. una sottoclasse del tuo manuale). Lo trascrivi qui, resta salvato su questo dispositivo e lo rivedi come testo. Nessuna foto, nessun servizio esterno.','Add your own material (e.g. a subclass from your book). Type it here; it stays on this device and is shown back as text. No photos, no external services.')+'</p>'
+    +'<div style="font-size:12px;color:var(--muted);margin-bottom:14px">'+meter+'</div>'
+    +'<div class="panel" style="text-align:left;margin-bottom:18px">'
+      +'<div class="box-title">'+ft('Nuova sottoclasse','New subclass')+'</div>'
+      +'<label style="font-size:12px;color:var(--muted);display:block;margin:4px 0 3px">'+ft('Nome','Name')+'</label>'
+      +'<input type="text" value="'+_hbEsc(d.name)+'" placeholder="'+ft('es. Abiuratore','e.g. Abjurer')+'" oninput="fHBDraftField(\'name\',this.value)" style="width:100%;margin-bottom:10px">'
+      +'<label style="font-size:12px;color:var(--muted);display:block;margin-bottom:3px">'+ft('Classe','Class')+'</label>'
+      +'<select onchange="fHBDraftField(\'cls\',this.value)" style="width:100%;margin-bottom:14px">'
+        +CLASSES.map(function(c){return '<option value="'+c.id+'" '+(d.cls===c.id?'selected':'')+'>'+(lang==='it'?c.it:c.en)+'</option>';}).join('')
+      +'</select>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+        +'<span style="font-size:12px;color:var(--muted)">'+ft('Privilegi per livello','Features by level')+'</span>'
+        +'<button class="btn sm" onclick="fHBDraftAddFeat()">+ '+ft('Privilegio','Feature')+'</button>'
+      +'</div>'
+      +featRows
+      +'<button class="btn primary full" style="margin-top:8px" '+(atLimit?'disabled':'')+' onclick="fHBImportDraft()">📥 '+ft('Importa','Import')+'</button>'
+      +(atLimit?'<p style="font-size:11px;color:#c45a5a;margin-top:6px;text-align:center">'+ft('Limite gratuito raggiunto. Con Pro gli import sono illimitati.','Free limit reached. Pro unlocks unlimited imports.')+'</p>':'')
+    +'</div>'
+    +'<div class="box-title" style="margin-bottom:8px">'+ft('Il tuo materiale','Your material')+'</div>'
+    +saved
+    +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">← '+ft('Torna alla Home','Back to Home')+'</button>'
+  +'</div>';
+}
+
 function re(){
   const app=document.getElementById("char-app");
   if(!app)return;
@@ -4564,6 +4916,11 @@ function re(){
   if(screen==="home")app.innerHTML=fRHome();
   else if(screen==="guided")app.innerHTML=fRGuided();
   else if(screen==="sheet")app.innerHTML=fRSheet();
+  else if(screen==="credits")app.innerHTML=fRCredits();
+  else if(screen==="homebrew")app.innerHTML=fRHomebrew();
+  else if(screen==="pro")app.innerHTML=fRPro();
+  else if(screen==="roster")app.innerHTML=fRRoster();
+  else if(screen==="themes")app.innerHTML=fRThemes();
   fUpdLang();
   _arcanaSaveDebounced(); // PERSISTENZA: autosalva il personaggio a ogni render
 }
@@ -4571,7 +4928,7 @@ function re(){
 function nuovoPersonaggio(){
   // Resetta il personaggio e avvia la creazione guidata
   C={
-    name:"",species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
+    name:"",portrait:null,species:null,subrace:null,cls:null,subclass:null,bg:null,alignment:null,
     classes:[{cls:null,level:1,subclass:null}], // MULTICLASSE: fonte di verità
     stats:{STR:15,DEX:14,CON:13,INT:12,WIS:10,CHA:8},
     statMethod:"standardarray",pointsLeft:27,
@@ -4965,6 +5322,7 @@ function fRHome(){
         <button class="btn full" style="margin-top:8px" onclick="document.getElementById('ai-box').style.display='none'">← ${ft("Indietro","Back")}</button>
       </div>
     </div>
+    <div style="margin-top:42px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn sm" style="font-size:11px;opacity:.85" onclick="screen='roster';re()">📚 ${ft("Personaggi","Characters")}</button><button class="btn sm" style="font-size:11px;opacity:.85" onclick="screen='themes';re()">🎨 ${ft("Temi","Themes")}</button><button class="btn sm" style="font-size:11px;opacity:.85" onclick="screen='pro';re()">✨ Pro</button><button class="btn sm" style="font-size:11px;opacity:.85" onclick="screen='homebrew';re()">📥 Homebrew</button><button class="btn sm" style="font-size:11px;opacity:.85" onclick="screen='credits';re()">ℹ️ ${ft("Crediti & Licenza","Credits & License")}</button></div>
   </div>`;
 }
 
@@ -6111,6 +6469,7 @@ function fToggleSubclassSkill(skillEn, max){
 // EXPORT / PRINT FUNCTIONS
 // ═══════════════════════════════════════
 function fOpenExport(){
+  if(!fIsPro()){ screen='pro'; re(); return; }   // gating Pro: Stampa/Export PDF
   const modal=document.getElementById('export-modal');
   const preview=document.getElementById('exp-preview');
   document.getElementById('exp-title').textContent='Scheda — '+(C.name||'Personaggio');
@@ -6176,37 +6535,37 @@ async function fSaveJSON(){
         }
       }
 
+// Applica i dati di un personaggio (da file o dal roster) all'oggetto C, con
+// le validazioni multiclasse/sottoclasse/sottospecie. Può lanciare se i dati
+// non sono validi. NON chiama re(): è responsabilità del chiamante.
+function fApplyCharData(loaded){
+  if(!loaded || (!loaded.cls && !loaded.name)) throw new Error('Dati personaggio non validi');
+  Object.assign(C, loaded);
+  // Compatibilità legacy: ricostruisci C.classes se assente (schede pre-multiclasse)
+  if(!Array.isArray(loaded.classes) || loaded.classes.length===0){
+    C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
+  }
+  fSyncClassDerived();
+  C.classes.forEach(c=>{
+    const cd = CLASSES.find(x=>x.id===c.cls);
+    if(cd && c.subclass && !(cd.subclasses||[]).some(sc=>sc.id===c.subclass)) c.subclass=null;
+  });
+  fSyncClassDerived();
+  if(C.cls){
+    const clData = CLASSES.find(c => c.id === C.cls);
+    const validSc = clData && clData.subclasses && clData.subclasses.some(sc => sc.id === C.subclass);
+    if(!validSc) C.subclass = null;
+    const spData = SPECIES.find(s => s.id === C.species);
+    if(spData && spData.subraces && !spData.subraces.some(r => r.id === C.subrace)) C.subrace = null;
+  }
+}
 function fLoadJSON(evt){
   var file=evt.target.files[0]; if(!file) return;
   var reader=new FileReader();
   reader.onload=function(e){
     try{
       var loaded=JSON.parse(e.target.result);
-      if(!loaded.cls&&!loaded.name) throw new Error('File non valido');
-      Object.assign(C, loaded);
-      // STEP 10 — Compatibilità legacy: se la scheda caricata NON ha il campo
-      // classes (salvata prima del multiclasse), ricostruiscilo dai suoi campi
-      // cls/level/subclass. Necessario perché Object.assign non sovrascrive
-      // C.classes con 'undefined', lasciando residui del personaggio precedente.
-      if(!Array.isArray(loaded.classes) || loaded.classes.length===0){
-        C.classes=[{cls:C.cls||null, level:C.level||1, subclass:C.subclass||null}];
-      }
-      fSyncClassDerived(); // MULTICLASSE: migra schede legacy e ricalcola i derivati
-      // Valida le sottoclassi di OGNI classe: rimuovi quelle incoerenti (es. residui)
-      C.classes.forEach(c=>{
-        const cd = CLASSES.find(x=>x.id===c.cls);
-        if(cd && c.subclass && !(cd.subclasses||[]).some(sc=>sc.id===c.subclass)) c.subclass=null;
-      });
-      fSyncClassDerived(); // ri-sincronizza dopo la pulizia delle sottoclassi
-      // Valida la sottoclasse: deve appartenere alla classe caricata (evita residui incoerenti, es. sottoclasse Bardo su Guerriero)
-      if(C.cls){
-        const clData = CLASSES.find(c => c.id === C.cls);
-        const validSc = clData && clData.subclasses && clData.subclasses.some(sc => sc.id === C.subclass);
-        if(!validSc) C.subclass = null;
-        // Valida anche la sottospecie rispetto alla specie
-        const spData = SPECIES.find(s => s.id === C.species);
-        if(spData && spData.subraces && !spData.subraces.some(r => r.id === C.subrace)) C.subrace = null;
-      }
+      fApplyCharData(loaded);
       closeExport();
       re();
       var msg=document.getElementById('exp-load-msg');
@@ -6437,7 +6796,7 @@ function fBuildPrintSheet(){
 
   return`<style>
 .ps{font-family:"Arial Narrow",Arial,sans-serif;font-size:7.5pt;color:#000;background:#fff;width:190mm;margin:0 auto}
-.psp{width:190mm;min-height:274mm;max-height:277mm;page-break-after:always;box-sizing:border-box;padding:3mm 3mm 2mm;overflow:hidden}
+.psp{width:190mm;min-height:274mm;page-break-after:always;box-sizing:border-box;padding:3mm 3mm 2mm}
 .psp:last-child{page-break-after:avoid}
 /* header */
 .phdr{border:1.5px solid #333;border-radius:3px;margin-bottom:2mm;overflow:hidden}
@@ -6498,6 +6857,7 @@ function fBuildPrintSheet(){
 
 <!-- ══════════════ PAGINA 1 ══════════════ -->
 <div class="psp">
+  ${C.portrait?'<div style="text-align:center;margin-bottom:1mm"><img src="'+C.portrait+'" style="width:18mm;height:18mm;object-fit:cover;border:1px solid #333;border-radius:50%"></div>':''}
   <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">DUNGEONS &amp; DRAGONS · 5.5e 2024 · SCHEDA PERSONAGGIO</div>
 
   <div class="phdr">
@@ -6577,16 +6937,16 @@ function fBuildPrintSheet(){
         <tbody>${Array(6).fill('<tr><td>&nbsp;</td><td></td><td></td><td></td></tr>').join('')}</tbody>
       </table>
       <div class="pst">Privilegi di Classe</div>
-      <div class="ptx" style="min-height:36mm;max-height:52mm;overflow:hidden">${classFeat}</div>
-      ${(()=>{ const cr=fBuildClassResourcesPrint(); return cr ? '<div class="pst">Risorse di Classe</div><div class="ptx" style="min-height:8mm;max-height:20mm;overflow:hidden;font-size:5.5pt">' + cr.replace(/\n/g,'<br>') + '</div>' : ''; })()}
+      <div class="ptx" style="min-height:36mm">${classFeat}</div>
+      ${(()=>{ const cr=fBuildClassResourcesPrint(); return cr ? '<div class="pst">Risorse di Classe</div><div class="ptx" style="min-height:8mm;font-size:5.5pt">' + cr.replace(/\n/g,'<br>') + '</div>' : ''; })()}
       <div class="pst">Tratti della Specie</div>
-      <div class="ptx" style="min-height:10mm;max-height:18mm;overflow:hidden">${spTraits}</div>
+      <div class="ptx" style="min-height:10mm">${spTraits}</div>
     </div>
 
     <!-- COLONNA DESTRA -->
     <div>
       <div class="pst">Talenti</div>
-      <div class="ptx" style="min-height:16mm;max-height:22mm;overflow:hidden">${featsList}</div>
+      <div class="ptx" style="min-height:16mm">${featsList}</div>
       <div class="pst">Personalità</div>
       <div style="font-size:5.5pt;color:#555;margin-bottom:0.3mm">Tratto</div>
       <div class="ptx" style="min-height:9mm">${C.trait||''}</div>
@@ -6597,7 +6957,7 @@ function fBuildPrintSheet(){
       <div style="font-size:5.5pt;color:#555;margin-bottom:0.3mm">Difetto</div>
       <div class="ptx" style="min-height:8mm">${C.flaw||''}</div>
       <div class="pst">Lingue</div>
-      <div class="ptx" style="min-height:7mm;max-height:12mm;overflow:hidden">${langTxt}</div>
+      <div class="ptx" style="min-height:7mm">${langTxt}</div>
       ${(()=>{
         const wm=C.weaponMasteries||[];
         if(!wm.length) return '';
@@ -6619,14 +6979,14 @@ ${(function(){
     var cName=C.name||'—';
     var equipTxt2=C.equipNotes||(fgCl()?fgCl().equipIt||'':'');
     var backstoryTxt=C.backstory||'';
-    return `<div class="psp" style="page-break-before:always;overflow:hidden">
+    return `<div class="psp" style="page-break-before:always">
   <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1.5mm">${cName} · Note &amp; Equipaggiamento</div>
-  <div style="display:grid;grid-template-columns:1fr 1.4fr 0.75fr;gap:3mm;height:268mm;overflow:hidden">
+  <div style="display:grid;grid-template-columns:1fr 1.4fr 0.75fr;gap:3mm;min-height:268mm">
 
     <!-- COLONNA SINISTRA: Equipaggiamento + Sintonia + Storia -->
     <div style="overflow:hidden">
       <div class="pst">Equipaggiamento</div>
-      <div class="ptx" style="min-height:55mm;max-height:80mm;overflow:hidden">${equipTxt2}</div>
+      <div class="ptx" style="min-height:55mm">${equipTxt2}</div>
       <div class="pst">Sintonia con Oggetto Magico</div>
       <div class="ptx" style="min-height:20mm">
         <div style="border-bottom:0.4px solid #aaa;height:5mm;margin-bottom:2mm">◇ ________________</div>
@@ -6634,13 +6994,13 @@ ${(function(){
         <div style="border-bottom:0.4px solid #aaa;height:5mm">◇ ________________</div>
       </div>
       <div class="pst">Storia del Personaggio</div>
-      <div class="ptx" style="min-height:40mm;max-height:60mm;overflow:hidden;font-size:6pt">${backstoryTxt}</div>
+      <div class="ptx" style="min-height:40mm;font-size:6pt">${backstoryTxt}</div>
     </div>
 
     <!-- COLONNA CENTRALE: Note di Campagna (ampia) -->
     <div style="overflow:hidden">
       <div class="pst">Note di Campagna</div>
-      <div class="ptx" style="min-height:160mm;max-height:200mm"></div>
+      <div class="ptx" style="min-height:160mm"></div>
       <div class="pst">Obiettivi &amp; Alleanze</div>
       <div class="ptx" style="min-height:40mm"></div>
     </div>
@@ -6881,6 +7241,76 @@ function _prefsFlush(){
 function fPrefGet(k, def){ var p = _prefsLoad(); return (k in p) ? p[k] : def; }
 function fPrefSet(k, v){ _prefsLoad(); _prefsCache[k] = v; _prefsFlush(); }
 function fPrefDel(k){ _prefsLoad(); delete _prefsCache[k]; _prefsFlush(); }
+
+// HOMEBREW - import materiale dell'utente (roadmap commercializzazione, passo 5)
+// Prima versione: SOTTOCLASSI come testo. L'utente trascrive il proprio
+// materiale; viene salvato su questo dispositivo e mostrato come testo.
+// NON viene iniettato nel motore delle sottoclassi (nessuna meccanica automatica).
+// Modello freemium: fino a HB_FREE_LIMIT voci gratis, illimitate con Pro.
+var HB_FREE_LIMIT = 2;
+function _hbEsc(x){ return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fHBList(){ var a = fPrefGet('homebrew', []); return Array.isArray(a) ? a : []; }
+function fHBSave(a){ fPrefSet('homebrew', Array.isArray(a)?a:[]); }
+function fHBCount(){ return fHBList().length; }
+function fHBCanAdd(){ return fIsPro() || fHBCount() < HB_FREE_LIMIT; }
+function fHBAdd(entry){
+  var a = fHBList();
+  if(!fIsPro() && a.length >= HB_FREE_LIMIT) return false;
+  entry.id = 'hb_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+  a.push(entry); fHBSave(a); return true;
+}
+function fHBRemove(id){ fHBSave(fHBList().filter(function(e){ return e.id !== id; })); }
+var _hbDraft = null;
+function _hbEnsureDraft(){ if(!_hbDraft) _hbDraft = { cls:'wizard', name:'', features:[{lvl:3,name:'',desc:''}] }; return _hbDraft; }
+function fHBDraftField(f,v){ _hbEnsureDraft()[f] = v; }
+function fHBDraftFeat(i,f,v){ var d=_hbEnsureDraft(); if(!d.features[i]) return; d.features[i][f] = (f==='lvl') ? (parseInt(v)||1) : v; }
+function fHBDraftAddFeat(){ _hbEnsureDraft().features.push({lvl:1,name:'',desc:''}); re(); }
+function fHBDraftDelFeat(i){ var d=_hbEnsureDraft(); d.features.splice(i,1); if(!d.features.length) d.features.push({lvl:1,name:'',desc:''}); re(); }
+function fHBImportDraft(){
+  var d = _hbEnsureDraft();
+  var nm = (d.name||'').trim();
+  if(!nm){ try{ alert(ft('Inserisci un nome per la sottoclasse.','Enter a subclass name.')); }catch(e){} return; }
+  if(!fHBCanAdd()){ try{ alert(ft('Limite gratuito raggiunto ('+HB_FREE_LIMIT+' voci). Passa a Pro per import illimitati.','Free limit reached ('+HB_FREE_LIMIT+' entries). Upgrade to Pro for unlimited imports.')); }catch(e){} return; }
+  var feats = (d.features||[])
+    .filter(function(x){ return (x.name||'').trim(); })
+    .map(function(x){ return { lvl: parseInt(x.lvl)||1, name:(x.name||'').trim(), desc:(x.desc||'').trim() }; });
+  fHBAdd({ type:'subclass', cls:d.cls, name:nm, features:feats });
+  fHBSync();
+  _hbDraft = null;
+  re();
+}
+var _hbConfirmDel = null;
+function fHBAskDel(id){ _hbConfirmDel = id; re(); }
+function fHBDoDel(id){ fHBRemove(id); fHBSync(); _hbConfirmDel = null; re(); }
+function fHBCancelDel(){ _hbConfirmDel = null; re(); }
+function _hbClsName(cid){ var c=CLASSES.find(function(x){return x.id===cid;}); return c ? (lang==='it'?c.it:c.en) : cid; }
+// Inietta le sottoclassi homebrew in CLASSES (selezionabili) e in SUBCLASS_FEATURES
+// (privilegi nella scheda). Idempotente: rimuove le iniezioni precedenti e ri-applica.
+function fHBSync(){
+  try {
+    if(typeof CLASSES==='undefined' || typeof SUBCLASS_FEATURES==='undefined') return;
+    CLASSES.forEach(function(c){
+      if(Array.isArray(c.subclasses)) c.subclasses = c.subclasses.filter(function(s){ return !s.homebrew; });
+    });
+    Object.keys(SUBCLASS_FEATURES).forEach(function(clsId){
+      var m = SUBCLASS_FEATURES[clsId]; if(!m) return;
+      Object.keys(m).forEach(function(scId){ if(String(scId).indexOf('hb_')===0) delete m[scId]; });
+    });
+    fHBList().forEach(function(e){
+      if(e.type!=='subclass') return;
+      var cl = CLASSES.find(function(c){return c.id===e.cls;});
+      if(!cl) return;
+      if(!Array.isArray(cl.subclasses)) cl.subclasses = [];
+      if(!cl.subclasses.some(function(s){return s.id===e.id;}))
+        cl.subclasses.push({ id:e.id, it:e.name, en:e.name, homebrew:true });
+      if(!SUBCLASS_FEATURES[e.cls]) SUBCLASS_FEATURES[e.cls] = {};
+      SUBCLASS_FEATURES[e.cls][e.id] = (e.features||[]).map(function(p){
+        return { lv: parseInt(p.lvl)||1, it: p.name, en: p.name, desc: p.desc||'' };
+      });
+    });
+  } catch(err){}
+}
+
 
 // ── Ponte Capacitor Preferences ──
 var _CAP_KEYS = [_ARCANA_KEY, _GROQ_LS, _PREFS_KEY];
@@ -8642,6 +9072,7 @@ function fRSheet(){
       <span style="position:absolute;bottom:8px;right:8px;color:var(--vdim);font-size:14px">✦</span>
       <div style="text-align:center;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border)">
         <div style="font-size:9px;letter-spacing:3px;color:var(--gold2);margin-bottom:5px">${ft('SCHEDA DEL PERSONAGGIO','CHARACTER SHEET')} · D&D 5.5e 2024</div>
+        ${fPortraitHTML()}
         <h2 style="font-family:'Comfortaa', sans-serif;font-size:clamp(17px,5vw,26px);color:var(--gold);text-shadow:0 0 14px rgba(200,164,90,.3)">${C.name||ft('Eroe Senza Nome','Unnamed Hero')}</h2>
         <div style="color:var(--muted);font-size:12px;margin-top:3px">${sub}</div>
         ${bg?`<div style="font-size:10px;color:var(--dim);margin-top:2px">Background: ${isIt?bg.it:bg.en}</div>`:''}
@@ -12454,6 +12885,7 @@ function fGenLocal(){
 }
 
 function fDoAI(){
+  if(!fIsPro()){ screen='pro'; re(); return; }   // gating Pro: generazione AI online (il generatore locale resta gratuito)
   const prompt = (document.getElementById('ai-prompt')?.value || '').trim();
   const btn    = document.getElementById('ai-gen-btn');
   const status = document.getElementById('ai-status');
@@ -13519,6 +13951,8 @@ fInitNative();
 _arcanaRestore(); // PERSISTENZA: ripristina il personaggio salvato prima del primo render
 _capPrefBoot();   // PERSISTENZA v2: recupera da Capacitor Preferences se il WebView ha perso lo storage
 fSyncClassDerived(); // MULTICLASSE: garantisce C.classes coerente all'avvio
+fHBSync(); // HOMEBREW: inietta le sottoclassi importate dall'utente
+fThemeApply(fThemeGet()); // TEMA: applica il tema salvato all'avvio
 re();
 setupPillGroups();
 populateClassSelect();
