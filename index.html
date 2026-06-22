@@ -10087,10 +10087,13 @@ function fRFeatSpellsOnlyBlock(featSpells){
   const isIt = lang==='it';
   const rows = featSpells.map(function(e){
     const db = SPELLS.find(s=>s.nome.toLowerCase()===e.nome.toLowerCase());
-    const metaTxt = db ? ((db.livello===0?(isIt?'Trucchetto':'Cantrip'):db.livello+'°')+(db.scuola?' · '+db.scuola:'')+(db.rituale?' · R':'')) : '';
+    const _scIt = (db&&db.scuola)?db.scuola:'';
+    const _sc = (!isIt && _scIt && typeof I18N!=='undefined' && I18N[lang] && I18N[lang][_scIt]) ? I18N[lang][_scIt] : _scIt;
+    const metaTxt = db ? ((db.livello===0?(isIt?'Trucchetto':'Cantrip'):db.livello+'°')+(_sc?' · '+_sc:'')+(db.rituale?' · R':'')) : '';
+    const _nm = db ? fSpN(db) : e.nome;
     const nameCell = db
-      ? '<span onclick="fShowSpellDetail('+db.id+')" style="flex:1;font-size:12px;color:var(--gold2);font-weight:500;cursor:pointer">'+e.nome+'</span>'
-      : '<span style="flex:1;font-size:12px;color:var(--gold2)">'+e.nome+'</span>';
+      ? '<span onclick="fShowSpellDetail('+db.id+')" style="flex:1;font-size:12px;color:var(--gold2);font-weight:500;cursor:pointer">'+_nm+'</span>'
+      : '<span style="flex:1;font-size:12px;color:var(--gold2)">'+_nm+'</span>';
     return '<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04);background:rgba(200,164,90,.04)">'
       +'<span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>'
       + nameCell
