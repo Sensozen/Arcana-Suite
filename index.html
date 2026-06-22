@@ -1626,6 +1626,11 @@ function fSpDesc(s){ if(!s) return ''; if(typeof lang!=='undefined' && lang!=='i
 // Asse lingua: descEn/descFr… (suffisso dinamico, come fSpDesc). Asse origine (solo IT): descPhbIt (build full personale) vs descSrdIt (base SRD, entrambe le build). Fallback al vecchio riassunto `desc` per le classi non ancora migrate.
 function fClassFeatDesc(f){ if(!f) return ''; if(typeof lang!=='undefined' && lang!=='it'){ var k='desc'+lang.charAt(0).toUpperCase()+lang.slice(1); if(f[k]) return f[k]; if(f.descEn) return f.descEn; } var srd=(typeof SRD_BUILD_MODE!=='undefined' && SRD_BUILD_MODE==='srd'); if(!srd && f.descPhbIt) return f.descPhbIt; return f.descSrdIt || f.desc || ''; }
 function fToolDesc(t){ if(!t) return ''; if(typeof lang!=='undefined' && lang!=='it'){ var k='desc'+lang.charAt(0).toUpperCase()+lang.slice(1); if(t[k]) return t[k]; if(t.descEn) return t.descEn; } return (t.descSrdIt||t.desc)||''; }
+// Verbatim della lingua corrente (≠it) per una feature, cercata per nome en, dentro CLASS_FEATURES[cls] o SUBCLASS_FEATURES[sc].
+// Usato nel pannello Risorse di Classe per mostrare prosa SRD verbatim sotto EN senza parafrasi inventate.
+function fFeatByEn(arr, enName){ if(!arr) return null; for(var i=0;i<arr.length;i++){ if(arr[i] && arr[i].en===enName) return arr[i]; } return null; }
+function rfEn(clsId, enName){ var a=(typeof CLASS_FEATURES!=='undefined'&&CLASS_FEATURES[clsId])||null; var f=fFeatByEn(a,enName); return f?fClassFeatDesc(f):''; }
+function rsEn(scId, enName){ var a=(typeof SUBCLASS_FEATURES!=='undefined'&&SUBCLASS_FEATURES[scId])||null; var f=fFeatByEn(a,enName); return f?fClassFeatDesc(f):''; }
 function fRLoc(r){ if(!r) return {}; var Lg=(typeof lang!=='undefined'&&lang)?lang:'it'; var o=r[Lg]; if(o&&((o.titolo&&o.titolo.length)||(o.testo&&o.testo.length))) return o; return r.en||r.it||{}; }
 function fRTit(r){ return (fRLoc(r).titolo)||(r&&r.it&&r.it.titolo)||''; }
 function fRTxt(r){ return (fRLoc(r).testo)||(r&&r.it&&r.it.testo)||''; }
@@ -3538,24 +3543,28 @@ function fRClassBlock(){
     var af=Math.ceil(lv/2);
     html+='<div style="'+boxS+'">';
     html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🗡️ '+(isIt?'Attacco Furtivo':'Sneak Attack')+': '+af+'d6</div>';
-    html+='<div style="font-size:10px;color:var(--muted)">1×/turno · con vantaggio o con alleato entro 1,5 m dal bersaglio · arma accurata o a distanza</div>';
+    html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'1×/turno · con vantaggio o con alleato entro 1,5 m dal bersaglio · arma accurata o a distanza':rfEn('rogue','Sneak Attack'))+'</div>';
     if(lv>=5){
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">⚡ Colpo Astuto (Lv.5) — spendi dadi per effetti:</div>';
-      html+='<div style="font-size:9px;color:var(--vdim)">Inciampo 1d6 · Ritirata 1d6 · Veleno 1d6'+(lv>=11?' · (fino a 2 effetti)':'')+'</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">⚡ '+(isIt?'Colpo Astuto (Lv.5) — spendi dadi per effetti:':'Cunning Strike (Lv.5) — spend dice for effects:')+'</div>';
+      html+='<div style="font-size:9px;color:var(--vdim)">'+(isIt?'Inciampo 1d6 · Ritirata 1d6 · Veleno 1d6':'Trip 1d6 · Withdraw 1d6 · Poison 1d6')+(lv>=11?(isIt?' · (fino a 2 effetti)':' · (up to 2 effects)'):'')+'</div>';
     }
     if(lv>=14){
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">💀 Colpi Infidi (Lv.14): Atterramento 6d6 · Confusione 2d6 · Rabbuio 3d6</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">💀 '+(isIt?'Colpi Infidi (Lv.14): Atterramento 6d6 · Confusione 2d6 · Rabbuio 3d6':'Devious Strikes (Lv.14): Knock Out 6d6 · Daze 2d6 · Obscure 3d6')+'</div>';
     }
     html+='</div>';
 
     // Privilegi base del Ladro
     if(lv>=3){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎭 Privilegi del Ladro</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎭 '+(isIt?'Privilegi del Ladro':'Rogue Features')+'</div>';
+      if(isIt){
       html+='<div style="font-size:10px;color:var(--muted)">Azione Scaltra (Lv.2): Scatto, Disimpegno o Nascondersi come az. bonus. · Mira Ferma (Lv.3): az. bonus → vantaggio al prossimo tiro per colpire del turno (solo se non ti sei mosso; velocità ridotta a 0 fino a fine turno).</div>';
       if(lv>=5)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Schivata Prodigiosa (Lv.5): reazione → dimezzi i danni di un attacco da un attaccante visibile.</div>';
       if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Dote Affidabile (Lv.7): le prove con abilità/strumenti in cui hai competenza trattano un d20 ≤9 come 10. · Elusione (Lv.7): TS su DES per dimezzare → nessun danno se superi, metà se fallisci.</div>';
       if(lv>=15)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Mente Sfuggente (Lv.15): competenza nei TS su SAG e CAR.</div>';
       if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Inafferrabile (Lv.18): nessun tiro per colpire può avere vantaggio contro di te (se non sei incapacitato).</div>';
+      } else {
+        [['Cunning Action',2],['Steady Aim',3],['Uncanny Dodge',5],['Reliable Talent',7],['Evasion',7],['Slippery Mind',15],['Elusive',18]].forEach(function(p){ if(lv>=p[1]){ var d=rfEn('rogue',p[0]); if(d) html+='<div style="font-size:10px;color:var(--muted);margin-top:3px"><b style="color:var(--gold2)">'+p[0]+' (Lv.'+p[1]+'):</b> '+d+'</div>'; } });
+      }
       html+='</div>';
     }
 
@@ -3563,9 +3572,9 @@ function fRClassBlock(){
     if(lv>=20){
       if(!C.luckyStrike)C.luckyStrike={used:0};
       var lsUsed=C.luckyStrike.used||0;
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🍀 Colpo di Fortuna (Lv.20)</div>';
-      html+='<div style="'+rowS+'"><span style="'+lblS+'">Fallimento → 20</span>'+fDots(lsUsed,1,'if(!C.luckyStrike)C.luckyStrike={used:0};if(C.luckyStrike.used<1)C.luckyStrike.used++;re()','if(C.luckyStrike&&C.luckyStrike.used>0)C.luckyStrike.used--;re()','#2ecc71')+'<span style="font-size:10px;color:var(--vdim)">'+(1-lsUsed)+'/1</span></div>';
-      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Trasforma un tiro con d20 fallito in un 20 · recupero: riposo breve o lungo</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🍀 '+(isIt?'Colpo di Fortuna (Lv.20)':'Stroke of Luck (Lv.20)')+'</div>';
+      html+='<div style="'+rowS+'"><span style="'+lblS+'">'+(isIt?'Fallimento → 20':'Failure → 20')+'</span>'+fDots(lsUsed,1,'if(!C.luckyStrike)C.luckyStrike={used:0};if(C.luckyStrike.used<1)C.luckyStrike.used++;re()','if(C.luckyStrike&&C.luckyStrike.used>0)C.luckyStrike.used--;re()','#2ecc71')+'<span style="font-size:10px;color:var(--vdim)">'+(1-lsUsed)+'/1</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">'+(isIt?'Trasforma un tiro con d20 fallito in un 20 · recupero: riposo breve o lungo':rfEn('rogue','Stroke of Luck'))+'</div>';
       html+='</div>';
     }
 
@@ -3617,12 +3626,16 @@ function fRClassBlock(){
 
     // Furfante
     if(sc==='thief' && lv>=3){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🪝 Furfante</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🪝 '+(isIt?'Furfante':'Thief')+'</div>';
+      if(isIt){
       html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Lavoro al Secondo Piano: Saltatore (usa mod.DES per i salti) · Scalatore (velocità di scalata = velocità).</div>';
       html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.3 Mani Veloci: az. bonus → Rapidità di Mano (scassinare/disattivare trappola/borseggiare) oppure Usare un oggetto (azione di Utilizzo/Magia per un oggetto magico).</div>';
       if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.9 Furtività Suprema: opzione Colpo Astuto «Attacco nascosto» (1d6): se invisibile per Nascondersi, l\'attacco non rompe l\'invisibilità se chiudi il turno a 3/4 di copertura o copertura totale.</div>';
       if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.13 Usare Oggetto Magico: cariche (su 1d6, con 6 non consumi la carica); pergamene (usi qualsiasi pergamena con INT; trucchetto/1° senza prova, altrimenti CD 10+livello); sintonia fino a 4 oggetti magici.</div>';
       if(lv>=17)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.17 Riflessi da Furfante: due turni nel 1° round (il secondo a iniziativa −10).</div>';
+      } else {
+        [['Second-Story Work',3],['Fast Hands',3],['Supreme Sneak',9],['Use Magic Device',13],["Thief's Reflexes",17]].forEach(function(p){ if(lv>=p[1]){ var d=rsEn('thief',p[0]); if(d) html+='<div style="font-size:10px;color:var(--muted);margin-top:3px"><b style="color:var(--gold2)">'+p[0]+' (Lv.'+p[1]+'):</b> '+d+'</div>'; } });
+      }
       html+='</div>';
     }
   }
