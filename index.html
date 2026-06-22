@@ -6192,10 +6192,10 @@ function fRS1(){
 // ─── Maestrie d'armi: conta dinamica per livello (PHB 2024) ────────────────
 function fMasteryCount(cls, lv){
   if(cls==='barbarian') return lv>=10?4:lv>=4?3:2;
-  if(cls==='fighter')   return lv>=16?5:lv>=10?4:3;
+  if(cls==='fighter')   return lv>=16?6:lv>=10?5:lv>=4?4:3; // PHB 2024: 3/4/5/6 ai Lv.1/4/10/16
   if(cls==='ranger')    return 2; // Padronanza d'Armi: sempre 2 (nessun aumento per livello - PHB 2024)
-  if(cls==='rogue')     return lv>=10?3:2;
-  if(cls==='paladin')   return lv>=10?3:2;
+  if(cls==='rogue')     return 2; // PHB 2024: Padronanza del Ladro sempre 2 (non cresce)
+  if(cls==='paladin')   return 2; // PHB 2024: Padronanza del Paladino sempre 2 (non cresce)
   const cl=CLASSES.find(c=>c.id===cls);
   return cl?cl.masteryCount||0:0;
 }
@@ -12367,6 +12367,22 @@ function lgSkills(clsId, bgObj){
   return classSkills;
 }
 
+// ── Maestria/Expertise: sceglie le abilità con doppia competenza nel numero
+//    corretto per classe e livello (Ladro Lv.1 +Lv.6, Bardo Lv.2 +Lv.9,
+//    Ranger Lv.2 +Lv.9), pescando solo tra le abilità in cui il PG è
+//    competente (classe + background). exp2 non si sovrappone a exp.
+function lgExpertise(clsId, level, classSkills, bgObj){
+  const ec  = (typeof fBaseExpertiseCount==='function')  ? fBaseExpertiseCount(clsId, level)  : 0;
+  const ec2 = (typeof fExtraExpertiseCount==='function') ? fExtraExpertiseCount(clsId, level) : 0;
+  if(ec<=0 && ec2<=0) return { exp:[], exp2:[] };
+  const bgSkills = (bgObj?.skillsEn||'').split(/ and |, | e /i).map(s=>s.trim()).filter(Boolean);
+  const pool = [...new Set([...(classSkills||[]), ...bgSkills])];
+  const exp  = lgSample(pool, ec);
+  const rest = pool.filter(s=>!exp.includes(s));
+  const exp2 = lgSample(rest, ec2);
+  return { exp, exp2 };
+}
+
 // ── Lingue: pesca langsCount lingue, escludendo quelle note dalla specie ─
 function lgLanguages(spObj, bgObj){
   const known = new Set(['comune']);
@@ -12381,13 +12397,18 @@ function lgLanguages(spObj, bgObj){
 }
 
 // ── Weapon Mastery: masteryCount armi valide per la classe ──────────────
-function lgWeaponMasteries(clObj){
-  const n = clObj?.masteryCount || 0;
+function lgWeaponMasteries(clObj, level){
+  // Numero corretto per livello (Guerriero/Barbaro scalano; Ladro/Paladino/Ranger fissi a 2).
+  const n = (typeof fMasteryCount==='function')
+    ? fMasteryCount(clObj?.id, level||1)
+    : (clObj?.masteryCount || 0);
   if(!n) return [];
-  // Filtro per competenza: classi con sole armi semplici → solo 'semplice'
-  const simpleOnly = /Armi semplici$|Simple weapons$/i.test(clObj.weaponsEn||'');
-  let pool = WEAPONS_MASTERY.slice();
-  if(simpleOnly) pool = pool.filter(w=>w.type==='semplice');
+  // Pool corretto per la competenza della classe: semplici / semplici+Accurate-Leggere
+  // (Ladro, Monaco) / piene (Barbaro, Guerriero, Paladino, Ranger). Riusa l'helper
+  // del wizard così la padronanza non cade su armi non consentite.
+  const pool = (typeof fGetMasteryWeapons==='function')
+    ? fGetMasteryWeapons(clObj.id).slice()
+    : WEAPONS_MASTERY.slice();
   return lgSample(pool, n).map(w=>w.en);
 }
 
@@ -12885,10 +12906,12 @@ function fGenerateLocal(prompt){
   // 5) Caratteristiche, abilità, lingue
   const stats = lgStats(clsId);
   const classSkills = lgSkills(clsId, bgObj);
+  // 5b) Maestria/Expertise (doppia competenza) nel numero corretto per livello.
+  const lgExp = lgExpertise(clsId, level, classSkills, bgObj);
   const languages = lgLanguages(spObj, bgObj);
 
   // 6) Weapon Mastery, Fighting Style
-  const weaponMasteries = lgWeaponMasteries(clObj);
+  const weaponMasteries = lgWeaponMasteries(clObj, level);
   const fightingStyle = lgFightingStyle(clsId, level);
 
   // 7) Warlock pact + invocazioni
@@ -12930,6 +12953,8 @@ function fGenerateLocal(prompt){
     bg: bgObj.id, alignment, level,
     stats, statMethod:'standardarray',
     classSkills,
+    expertiseSkills: lgExp.exp,
+    expertiseSkills2: lgExp.exp2,
     languages,
     weaponMasteries,
     fightingStyle,
@@ -12989,6 +13014,9 @@ function fApplyGeneratedChar(char){
     flaw: char.flaw||'', backstory: char.backstory||'',
     equipNotes: char.equipNotes || C.equipNotes || '',
     classSkills, speciesSkills: autoSp,
+    expertiseSkills: Array.isArray(char.expertiseSkills) ? char.expertiseSkills : [],
+    expertiseSkills2: Array.isArray(char.expertiseSkills2) ? char.expertiseSkills2 : [],
+    subclassSkills: [],
     // PASSI PRIMA SALTATI — ora popolati:
     languages: Array.isArray(char.languages) ? char.languages : [],
     weaponMasteries: Array.isArray(char.weaponMasteries) ? char.weaponMasteries : [],
