@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
+<script>window.BUILD_VERSION = "25/06/2026 · 00:43"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -103,8 +104,12 @@ body{
   font-size:1.15rem;font-weight:700;
   color:var(--gold);letter-spacing:.12em;
   text-transform:uppercase;white-space:nowrap;
-  display:flex;align-items:center;gap:.6rem;
+  display:flex;flex-direction:column;align-items:flex-start;gap:0;
 }
+.logo-main{ display:flex;align-items:center;gap:.6rem; }
+.logo-stamp{ display:flex;flex-direction:column;line-height:1.1;text-transform:none;letter-spacing:normal;margin-top:1px; }
+.logo-stamp #hdr-ip{ font-size:.5rem;color:var(--text-dim);font-weight:400; }
+.logo-stamp #hdr-version{ font-size:.56rem;color:var(--gold2,var(--text-dim));font-weight:400;letter-spacing:.03em; }
 .site-logo .ornament{color:var(--crimson-light);font-size:.9rem}
 .tab-nav{display:flex;gap:0;flex:1}
 .tab-btn{
@@ -578,7 +583,7 @@ tr.desc-row td{
   main{padding:1rem}
   /* Header tablet */
   .header-inner{gap:1rem;height:56px}
-  .site-logo span:last-child{display:none} /* nascondi "Suite D&D 5.5E" */
+  .logo-main > span:last-child{display:none} /* nascondi "Suite D&D 5.5E" */
   .tab-btn{padding:.45rem .9rem;font-size:.72rem}
   /* Spell table: nascondi colonne meno critiche */
   .spell-classes{display:none}
@@ -603,7 +608,7 @@ tr.desc-row td{
     grid-column:1;grid-row:1;
     font-size:.9rem;gap:.4rem;
   }
-  .site-logo span:last-child{display:none}
+  .logo-main > span:last-child{display:none}
   .header-actions{
     grid-column:3;grid-row:1;
     margin-left:0;gap:.4rem;
@@ -936,8 +941,10 @@ tr.desc-row td{
   letter-spacing:.04em;
 }
 #pw-sub {
-  font-size:.8rem; color:#555; margin-bottom:28px;
+  font-size:.8rem; color:#555; margin-bottom:8px;
 }
+#pw-ip { font-size:.62rem; color:#4a4a55; margin-bottom:2px; letter-spacing:.02em; }
+#pw-version { font-size:.62rem; color:#5a5a66; margin-bottom:26px; letter-spacing:.04em; }
 #pw-input {
   width:100%; padding:12px 16px;
   background:#161622; border:1px solid #333;
@@ -972,6 +979,8 @@ tr.desc-row td{
   <div id="pw-box">
     <div id="pw-logo">⚔️ Arcana</div>
     <div id="pw-sub">D&amp;D 5.5e 2024 — Suite Italiana</div>
+    <div id="pw-ip">Creazione originale di Natale · Tutti i diritti riservati</div>
+    <div id="pw-version"></div>
     <input id="pw-input" type="password" placeholder="Password"
       onkeydown="if(event.key==='Enter')pwCheck()">
     <button id="pw-btn" onclick="pwCheck()">Accedi</button>
@@ -982,6 +991,7 @@ tr.desc-row td{
 
 <script>
 (function(){
+  try{ var _v=document.getElementById('pw-version'); if(_v&&window.BUILD_VERSION) _v.textContent='vers. '+window.BUILD_VERSION; }catch(e){}
   const HASH = 'ec3471459e6bec66c87c800239aa2db1e075dfa180a5fdcc019309277ec623fc';
   // Controlla se già autenticato in questa sessione
   if(sessionStorage.getItem('arcana_auth') === HASH){
@@ -1021,8 +1031,11 @@ function pwCheck(){
 <header class="site-header">
   <div class="header-inner">
     <div class="site-logo" onclick="hdrHome()" role="button" tabindex="0" title="Torna alla Home">
-      <span class="ornament">✦</span> Arcana <span class="ornament">✦</span>
-      <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5.5E</span>
+      <span class="logo-main">
+        <span class="ornament">✦</span> Arcana <span class="ornament">✦</span>
+        <span style="color:var(--text-dim);font-weight:400;font-size:.7rem;margin-left:.3rem">Suite D&D 5.5E</span>
+      </span>
+      <span class="logo-stamp"><span id="hdr-ip"></span><span id="hdr-version"></span></span>
     </div>
     <nav class="tab-nav">
       <button class="tab-btn active" data-tab="scheda">⚔️ Scheda Personaggio</button>
@@ -1269,11 +1282,13 @@ var LANGS = [
   {code:'es',label:'Español', flag:'🇪🇸',ready:false}
 ];
 // Dizionario interfaccia per le lingue oltre IT/EN (chiave = testo italiano). Si popola in Fase 2.
-var I18N = { en: {"Oggetti Magici":"Magic Items","Regole di Gioco":"Game Rules","Grimorio degli Incantesimi":"Spell Grimoire","Rarità":"Rarity","Tipo":"Type","Sintonia":"Attunement","Tutte":"All","Tutti":"All","Richiede sintonia":"Requires Attunement","⚜ Richiede sintonia":"⚜ Requires Attunement","Senza sintonia":"No Attunement","Comune":"Common","Non comune":"Uncommon","Raro":"Rare","Molto raro":"Very Rare","Leggendario":"Legendary","Artefatto":"Artifact","Variabile":"Varies","Oggetto meraviglioso":"Wondrous Item","Arma":"Weapon","Armatura":"Armor","Anello":"Ring","Bacchetta":"Wand","Bastone":"Staff","Verga":"Rod","Pergamena":"Scroll","Pozione":"Potion","Abiurazione":"Abjuration","Ammaliamento":"Enchantment","Divinazione":"Divination","Evocazione":"Conjuration","Invocazione":"Evocation","Illusione":"Illusion","Necromanzia":"Necromancy","Trasmutazione":"Transmutation","Come si gioca":"How to Play","Esplorazione":"Exploration","Combattimento":"Combat","Danni e guarigione":"Damage & Healing","Condizioni":"Conditions","Azioni":"Actions","Regole di base":"Basic Rules","Termini del glossario":"Glossary Terms","Equipaggiamento":"Equipment","Oggetti magici":"Magic Items","Strumenti del GM":"GM Tools","TEMPO":"TIME","GITTATA":"RANGE","DURATA":"DURATION","COMPONENTI":"COMPONENTS","Concentrazione attiva?":"Concentration active?","Trucchetto":"Cantrip","Trucchetti":"Cantrips","Nessun oggetto corrisponde ai filtri.":"No items match the filters.","Cerca un oggetto…":"Search an item…","Cerca una regola, condizione, termine… (es. TS, copertura)":"Search a rule, condition, term… (e.g. ST, cover)","🤖 Chiedi alle regole (AI)":"🤖 Ask the rules (AI)","✨ Chiedi":"✨ Ask","Es. Quanti danni fa Palla di fuoco? Che dado vita ha il Barbaro?":"E.g. How much damage does Fireball do? What's the Barbarian's Hit Die?","✦ CON SLOT SUPERIORE":"✦ WITH HIGHER SLOT","⬤ Concentrazione":"⬤ Concentration","Concentrazione":"Concentration","Rituale":"Ritual","Nessun incantesimo trovato.":"No spells found.","Nessuna regola pertinente trovata nel glossario per questa domanda.":"No relevant glossary rule found for this question.","Password non corretta":"Incorrect password","Scrivi una domanda sulle regole.":"Write a question about the rules.","Sintonia con Oggetto Magico":"Attunement with Magic Item","Slot Incantesimo per Livello":"Spell Slots per Level","Storia del Personaggio":"Character Background","+ Aggiungi una classe":"+ Add a class","(già acquisita)":"(already acquired)","(nessun limite)":"(no limit)","(nessuno disponibile per la tua build)":"(none available for your build)","— scegli incantesimo —":"— choose a spell —","Nessuna armatura":"No armor","Indebolimento":"Exhaustion","Filtri":"Filters","Cerca":"Search","Nome incantesimo…":"Spell name…","Livello":"Level","Scuola":"School","Classe":"Class","Componente Materiale":"Material Component","Materiale":"Material","Tiro Salvezza":"Saving Throw","— Tutte —":"— All —","— Tutti —":"— All —","Con conc.":"With Conc.","Senza conc.":"No Conc.","Solo rituali":"Rituals Only","Non rituali":"Non-Ritual","Con M":"With M","Senza M":"No M","Azzera":"Clear","Incantesimi:":"Spells:","Filtrati:":"Filtered:","Trucchetti:":"Cantrips:","In scheda:":"On Sheet:","Aggiungi alla scheda":"Add to Sheet","Deseleziona":"Deselect","Nome":"Name","Classi":"Classes","Pag.":"Pg.","T.S.":"ST","Nessuno":"None","Forza":"Strength","Destrezza":"Dexterity","Costituzione":"Constitution","Intelligenza":"Intelligence","Saggezza":"Wisdom","Carisma":"Charisma","Bonus Competenza":"Proficiency Bonus","Classe Armatura":"Armor Class","Competenze Equipaggiamento":"Equipment Proficiencies","Incantesimi per Classe (Multiclasse)":"Spells per Class (Multiclass)","Iniziativa":"Initiative","Modificatore":"Modifier","Note":"Notes","Note / Danni":"Notes / Damage","Note di Campagna":"Campaign Notes","Personalità":"Personality","Privilegi di Classe":"Class Features","Risorse di Classe":"Class Resources","Storia e Tratti Caratteriali":"Background & Personality Traits","Tratti della Specie":"Species Traits","Trucchetti e Incantesimi Preparati":"Cantrips & Prepared Spells","Velocità":"Speed","Armi e Trucchetti da Combattimento":"Combat Weapons & Cantrips","Bonus Attacco Inc.":"Spell Atk. Bonus","Bonus att. / CD":"Atk. Bonus / DC","CD Tiro Salvezza":"Save DC","Tempo di Lancio":"Casting Time","per livello":"per level","Salva come PDF":"Save as PDF","Tipo di Terra":"Land Type","Preda del Cacciatore (Lv.3)":"Hunter's Prey (Lv.3)","Affinità Elementale (Lv.6)":"Elemental Affinity (Lv.6)","Abilità bonus (Taumaturgo)":"Bonus Abilities (Thaumaturge)","−2×liv. ai tiri con d20 · −1,5 m×liv. velocità · 6 = morte":"−2×lvl to d20 rolls · −1.5 m/lvl Speed · 6 = death"}, fr:{}, de:{}, es:{} };
+var I18N = { en: {"Oggetti Magici":"Magic Items","Regole di Gioco":"Game Rules","Grimorio degli Incantesimi":"Spell Grimoire","Rarità":"Rarity","Tipo":"Type","Sintonia":"Attunement","Tutte":"All","Tutti":"All","Richiede sintonia":"Requires Attunement","⚜ Richiede sintonia":"⚜ Requires Attunement","Senza sintonia":"No Attunement","Comune":"Common","Non comune":"Uncommon","Raro":"Rare","Molto raro":"Very Rare","Leggendario":"Legendary","Artefatto":"Artifact","Variabile":"Varies","Oggetto meraviglioso":"Wondrous Item","Arma":"Weapon","Armatura":"Armor","Anello":"Ring","Bacchetta":"Wand","Bastone":"Staff","Verga":"Rod","Pergamena":"Scroll","Pozione":"Potion","Abiurazione":"Abjuration","Ammaliamento":"Enchantment","Divinazione":"Divination","Evocazione":"Conjuration","Invocazione":"Evocation","Illusione":"Illusion","Necromanzia":"Necromancy","Trasmutazione":"Transmutation","Come si gioca":"How to Play","Esplorazione":"Exploration","Combattimento":"Combat","Danni e guarigione":"Damage & Healing","Condizioni":"Conditions","Azioni":"Actions","Regole di base":"Basic Rules","Termini del glossario":"Glossary Terms","Equipaggiamento":"Equipment","Oggetti magici":"Magic Items","Strumenti del GM":"GM Tools","TEMPO":"TIME","GITTATA":"RANGE","DURATA":"DURATION","COMPONENTI":"COMPONENTS","Concentrazione attiva?":"Concentration active?","Trucchetto":"Cantrip","Trucchetti":"Cantrips","Nessun oggetto corrisponde ai filtri.":"No items match the filters.","Cerca un oggetto…":"Search an item…","Cerca una regola, condizione, termine… (es. TS, copertura)":"Search a rule, condition, term… (e.g. ST, cover)","🤖 Chiedi alle regole (AI)":"🤖 Ask the rules (AI)","✨ Chiedi":"✨ Ask","Es. Quanti danni fa Palla di fuoco? Che dado vita ha il Barbaro?":"E.g. How much damage does Fireball do? What's the Barbarian's Hit Die?","✦ CON SLOT SUPERIORE":"✦ WITH HIGHER SLOT","⬤ Concentrazione":"⬤ Concentration","Concentrazione":"Concentration","Rituale":"Ritual","Nessun incantesimo trovato.":"No spells found.","Nessuna regola pertinente trovata nel glossario per questa domanda.":"No relevant glossary rule found for this question.","Password non corretta":"Incorrect password","Scrivi una domanda sulle regole.":"Write a question about the rules.","Sintonia con Oggetto Magico":"Attunement with Magic Item","Slot Incantesimo per Livello":"Spell Slots per Level","Storia del Personaggio":"Character Background","+ Aggiungi una classe":"+ Add a class","(già acquisita)":"(already acquired)","(nessun limite)":"(no limit)","(nessuno disponibile per la tua build)":"(none available for your build)","— scegli incantesimo —":"— choose a spell —","Nessuna armatura":"No armor","Indebolimento":"Exhaustion","Filtri":"Filters","Cerca":"Search","Nome incantesimo…":"Spell name…","Livello":"Level","Scuola":"School","Classe":"Class","Componente Materiale":"Material Component","Materiale":"Material","Tiro Salvezza":"Saving Throw","— Tutte —":"— All —","— Tutti —":"— All —","Con conc.":"With Conc.","Senza conc.":"No Conc.","Solo rituali":"Rituals Only","Non rituali":"Non-Ritual","Con M":"With M","Senza M":"No M","Azzera":"Clear","Incantesimi:":"Spells:","Filtrati:":"Filtered:","Trucchetti:":"Cantrips:","In scheda:":"On Sheet:","Aggiungi alla scheda":"Add to Sheet","Deseleziona":"Deselect","Nome":"Name","Classi":"Classes","Pag.":"Pg.","T.S.":"ST","Nessuno":"None","Forza":"Strength","Destrezza":"Dexterity","Costituzione":"Constitution","Intelligenza":"Intelligence","Saggezza":"Wisdom","Carisma":"Charisma","Bonus Competenza":"Proficiency Bonus","Classe Armatura":"Armor Class","Competenze Equipaggiamento":"Equipment Proficiencies","Incantesimi per Classe (Multiclasse)":"Spells per Class (Multiclass)","Iniziativa":"Initiative","Modificatore":"Modifier","Note":"Notes","Note / Danni":"Notes / Damage","Note di Campagna":"Campaign Notes","Personalità":"Personality","Privilegi di Classe":"Class Features","Risorse di Classe":"Class Resources","Storia e Tratti Caratteriali":"Background & Personality Traits","Tratti della Specie":"Species Traits","Trucchetti e Incantesimi Preparati":"Cantrips & Prepared Spells","Velocità":"Speed","Armi e Trucchetti da Combattimento":"Combat Weapons & Cantrips","Bonus Attacco Inc.":"Spell Atk. Bonus","Bonus att. / CD":"Atk. Bonus / DC","CD Tiro Salvezza":"Save DC","Tempo di Lancio":"Casting Time","per livello":"per level","Salva come PDF":"Save as PDF","Tipo di Terra":"Land Type","Preda del Cacciatore (Lv.3)":"Hunter's Prey (Lv.3)","Affinità Elementale (Lv.6)":"Elemental Affinity (Lv.6)","Abilità bonus (Taumaturgo)":"Bonus Abilities (Thaumaturge)","−2×liv. ai tiri con d20 · −1,5 m×liv. velocità · 6 = morte":"−2×lvl to d20 rolls · −5 ft/lvl Speed · 6 = death"}, fr:{}, de:{}, es:{} };
 (function(){ try{ var ks=Object.keys(I18N.en); ["fr","de","es"].forEach(function(L){ ks.forEach(function(k){ if(!(k in I18N[L])) I18N[L][k]=""; }); }); }catch(e){} })();
+// Mappa inversa (testo tradotto -> chiave italiana) per RIPRISTINARE l'italiano quando si torna a 'it'.
+var I18N_REV=(function(){ var r={}; try{ ["en","fr","de","es"].forEach(function(L){ var d=I18N[L]; if(!d) return; Object.keys(d).forEach(function(k){ var v=d[k]; if(v&&!(v in r)) r[v]=k; }); }); }catch(e){} return r; })();
 function fTranslateUI(root){
-  if(typeof lang==="undefined"||lang==="it") return;
-  var dict=I18N[lang]; if(!dict) return;
+  if(typeof lang==="undefined") return;
+  var dict=(lang==="it")?I18N_REV:I18N[lang]; if(!dict) return;
   function tr1(key){
     if(dict[key]) return dict[key];
     // Prefisso emoji/simbolo + spazio (chip, header di sezione, titoli, pulsanti): traduci il resto e riattacca il prefisso.
@@ -1297,7 +1312,7 @@ function fTranslateUI(root){
   }catch(e){}
 }
 var _xlTimer=null;
-function fXL(){ if(typeof lang==="undefined"||lang==="it") return; try{ clearTimeout(_xlTimer); }catch(e){} _xlTimer=setTimeout(function(){ try{ fTranslateUI(document.body); }catch(e){} },20); }
+function fXL(){ if(typeof lang==="undefined") return; try{ clearTimeout(_xlTimer); }catch(e){} _xlTimer=setTimeout(function(){ try{ fTranslateUI(document.body); }catch(e){} },20); }
 (function(){ try{ if(typeof document==="undefined"||typeof MutationObserver==="undefined") return; function start(){ try{ var ob=new MutationObserver(function(){ fXL(); }); ob.observe(document.body,{childList:true,subtree:true}); }catch(e){} } if(document.body) start(); else if(document.addEventListener) document.addEventListener("DOMContentLoaded",start); }catch(e){} })();
 function fLangsReady(){ if(typeof SRD_BUILD_MODE==='undefined'||SRD_BUILD_MODE!=='srd') return LANGS.filter(function(l){return l.code==='it';}); return LANGS.filter(function(l){return l.ready;}); }
 // Accessore per i dati multilingui: L({it,en,fr,...}) -> stringa nella lingua attiva con fallback
@@ -1320,6 +1335,7 @@ function setLang(l){
   re();
   try{ if(typeof renderMagicCatalog==="function") renderMagicCatalog(); }catch(e){}
   try{ if(typeof renderRules==="function") renderRules(); }catch(e){}
+  try{ if(typeof renderGrimorioTable==="function") renderGrimorioTable(); }catch(e){}
   fXL();
 }
 
@@ -1360,6 +1376,11 @@ function fApplyChromeLang(){
     var cIt=document.getElementById('cred-it'), cEn=document.getElementById('cred-en'), cTit=document.getElementById('cred-title');
     if(cIt&&cEn){ var showIt=(lang==='it'); cIt.style.display=showIt?'':'none'; cEn.style.display=showIt?'none':''; }
     if(cTit) cTit.textContent='\u00a9 '+ft('CREDITI E LICENZA','CREDITS & LICENSE');
+    try{
+      var _bv=window.BUILD_VERSION||'';
+      var hi=document.getElementById('hdr-ip'); if(hi) hi.textContent=ft('Creazione originale di Natale','Original creation by Natale');
+      var hv=document.getElementById('hdr-version'); if(hv) hv.textContent=_bv?('vers. '+_bv):'';
+    }catch(e){}
   }catch(e){}
 }
 
@@ -2444,7 +2465,7 @@ function fGetFeatStatChoices(featId){
 
 
 
-const SPECIES=[{"id":"dragonborn","it":"Dragonide","en":"Dragonborn","icon":"🐉","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Discendenza Draconica, Resistenza, Scurovisione 18m, Soffio, Volo Draconico (Lv.5)","traitsEn":"Draconic Ancestry, Damage Resistance, Darkvision 18m, Breath Weapon, Draconic Flight (Lv.5)","subraces":[{"id":"rosso","it":"Rosso (Fuoco)","en":"Red (Fire)","icon":"🔴","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — cono 4,5m, TS COS","en":"Fire Breath — 15ft cone, CON save","desc":"1d10 fuoco (scala con i livelli)","descEn":"1d10 fire (scales with level)"}]},{"id":"blu","it":"Blu (Fulmine)","en":"Blue (Lightning)","icon":"💙","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fulmine — linea 9m, TS DES","en":"Lightning Breath — 30ft line, DEX save","desc":"1d10 fulmine","descEn":"1d10 lightning"}]},{"id":"oro","it":"Oro (Fuoco)","en":"Gold (Fire)","icon":"🟡","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — cono 4,5m, TS COS","en":"Fire Breath — 15ft cone, CON save","desc":"1d10 fuoco","descEn":"1d10 fire"}]},{"id":"argento","it":"Argento (Freddo)","en":"Silver (Cold)","icon":"🩶","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Freddo — cono 4,5m, TS COS","en":"Cold Breath — 15ft cone, CON save","desc":"1d10 freddo","descEn":"1d10 cold"}]},{"id":"nero","it":"Nero (Acido)","en":"Black (Acid)","icon":"🖤","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Acido — linea 9m, TS DES","en":"Acid Breath — 30ft line, DEX save","desc":"1d10 acido","descEn":"1d10 acid"}]},{"id":"verde","it":"Verde (Veleno)","en":"Green (Poison)","icon":"💚","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Veleno — cono 4,5m, TS COS","en":"Poison Breath — 15ft cone, CON save","desc":"1d10 veleno","descEn":"1d10 poison"}]},{"id":"bianco","it":"Bianco (Freddo)","en":"White (Cold)","icon":"🤍","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Freddo — cono 4,5m, TS COS","en":"Cold Breath — 15ft cone, CON save","desc":"1d10 freddo","descEn":"1d10 cold"}]},{"id":"bronzo","it":"Bronzo (Fulmine)","en":"Bronze (Lightning)","icon":"🟫","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fulmine — linea 9m, TS DES","en":"Lightning Breath — 30ft line, DEX save","desc":"1d10 fulmine","descEn":"1d10 lightning"}]},{"id":"rame","it":"Rame (Acido)","en":"Copper (Acid)","icon":"🟠","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Acido — linea 9m, TS DES","en":"Acid Breath — 30ft line, DEX save","desc":"1d10 acido","descEn":"1d10 acid"}]},{"id":"ottone","it":"Ottone (Fuoco)","en":"Brass (Fire)","icon":"🟤","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — linea 9m, TS DES","en":"Fire Breath — 30ft line, DEX save","desc":"1d10 fuoco","descEn":"1d10 fire"}]}],"features":[{"it":"Discendenza Draconica","en":"Draconic Ancestry","desc":"Scegli il tipo di drago: determina Soffio e resistenza.","descEn":"Choose dragon type: determines Breath and resistance."},{"it":"Resistenza ai Danni","en":"Damage Resistance","desc":"Resistenza al tipo della Discendenza Draconica.","descEn":"Resistance to your Draconic Ancestry damage type."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."},{"it":"Soffio","en":"Breath Weapon","desc":"Durante Attacco: sostituisci un attacco col soffio. 1d10, usabile bonus-comp volte/riposo lungo.","descEn":"During Attack action: replace one attack with breath. 1d10, usable proficiency bonus times/long rest."},{"it":"Volo Draconico (Lv.5)","en":"Draconic Flight (Lv.5)","desc":"Azione bonus: ali spettrali 10 min, velocità di volo = velocità. 1/riposo lungo.","descEn":"Bonus action: spectral wings 10 min, fly speed = speed. 1/long rest."}]},{"id":"elfo","it":"Elfo","en":"Elf","icon":"🧝","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune, Elfico","langsEn":"Common, Elvish","bonuses":["—"],"bonusesEn":["—"],"traits":"Lignaggio Elfico, Retaggio Fatato, Scurovisione 18m, Sensi Acuti, Trance","traitsEn":"Elven Lineage, Fey Ancestry, Darkvision 18m, Keen Senses, Trance","subraces":[{"id":"elfo-alto","it":"Elfo Alto","en":"High Elf","icon":"⭐","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Prestidigitazione","en":"Lv.1: Prestidigitation","desc":"Conosci Prestidigitazione. Sostituibile ad ogni riposo lungo.","descEn":"Know Prestidigitation. Replace after long rest."},{"it":"Lv.3: Individuazione del Magico","en":"Lv.3: Detect Magic","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Passo Velato","en":"Lv.5: Misty Step","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]},{"id":"elfo-boschi","it":"Elfo dei Boschi","en":"Wood Elf","icon":"🌲","speed":"10,5m","speedEn":"35 ft","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Velocità 10,5m + Artificio Druidico","en":"Lv.1: Speed 10.5m + Druidcraft","desc":"Velocità 10,5 m. Trucchetto Artificio druidico.","descEn":"Speed 35 ft. Druidcraft cantrip."},{"it":"Lv.3: Passo Veloce","en":"Lv.3: Longstrider","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Passare Senza Tracce","en":"Lv.5: Pass Without Trace","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]},{"id":"drow","it":"Drow","en":"Drow","icon":"🕷️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Scurovisione 36m + Luci Danzanti","en":"Lv.1: Darkvision 36m + Dancing Lights","desc":"Scurovisione 36 m. Trucchetto Luci danzanti.","descEn":"Darkvision 120 ft. Dancing Lights cantrip."},{"it":"Lv.3: Luminescenza","en":"Lv.3: Faerie Fire","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Oscurità","en":"Lv.5: Darkness","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]}],"features":[{"it":"Lignaggio Elfico","en":"Elven Lineage","desc":"Scegli Drow, Elfo Alto o Elfo dei Boschi. Tratti ai Lv.1, 3, 5.","descEn":"Choose Drow, High Elf or Wood Elf. Traits at Lv.1, 3, 5."},{"it":"Retaggio Fatato","en":"Fey Ancestry","desc":"Vantaggio ai TS per evitare/terminare la condizione affascinato.","descEn":"Advantage on saves to avoid/end charmed condition."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m (Drow: 36 m).","descEn":"Darkvision 60 ft (Drow: 120 ft)."},{"it":"Sensi Acuti","en":"Keen Senses","desc":"Competenza in Intuizione, Percezione o Sopravvivenza.","descEn":"Proficiency in Insight, Perception, or Survival."},{"it":"Trance","en":"Trance","desc":"Riposo lungo in 4 ore di trance meditativa.","descEn":"Long rest in 4 hours of meditative trance."}]},{"id":"gnomo","it":"Gnomo","en":"Gnome","icon":"🔮","size":"Piccola","sizeEn":"Small","speed":"9m","speedEn":"30 ft","langs":"Comune, Gnomesco","langsEn":"Common, Gnomish","bonuses":["—"],"bonusesEn":["—"],"traits":"Astuzia Gnomesca, Scurovisione 18m, Lignaggio Gnomesco","traitsEn":"Gnomish Cunning, Darkvision 18m, Gnomish Lineage","subraces":[{"id":"gnomo-rocce","it":"Gnomo delle Rocce","en":"Rock Gnome","icon":"⚙️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Riparare + Prestidigitazione + Dispositivo","en":"Mending + Prestidigitation + Clockwork","desc":"Trucchetti Riparare e Prestidigitazione. Crea piccoli dispositivi meccanici.","descEn":"Mending and Prestidigitation cantrips. Create tiny clockwork devices."}]},{"id":"gnomo-foreste","it":"Gnomo delle Foreste","en":"Forest Gnome","icon":"🌳","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Illusione Minore + Parlare con gli Animali","en":"Minor Illusion + Speak with Animals","desc":"Trucchetto Illusione minore. Parlare con gli animali bonus-comp volte/riposo lungo.","descEn":"Minor Illusion cantrip. Speak with Animals proficiency-bonus times/long rest."}]}],"features":[{"it":"Astuzia Gnomesca","en":"Gnomish Cunning","desc":"Vantaggio ai TS su INT, SAG e CAR.","descEn":"Advantage on INT, WIS, and CHA saving throws."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."},{"it":"Lignaggio Gnomesco","en":"Gnomish Lineage","desc":"Scegli Gnomo delle Foreste o delle Rocce.","descEn":"Choose Forest Gnome or Rock Gnome."}]},{"id":"goliath","it":"Goliath","en":"Goliath","icon":"🏔️","size":"Media","sizeEn":"Medium","speed":"10,5m","speedEn":"35 ft","langs":"Comune, Gigante","langsEn":"Common, Giant","bonuses":["—"],"bonusesEn":["—"],"traits":"Costituzione Robusta, Discendenza Gigantica, Forma Grande (Lv.5)","traitsEn":"Giant Ancestry, Supernatural Gift, Large Form (Lv.5)","subraces":[{"id":"pietra","it":"Gigante delle Pietre","en":"Stone Giant","icon":"🪨","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Resistenza della Pietra","en":"Stone's Endurance","desc":"Reazione: tira 1d12+COS e sottrai ai danni subiti.","descEn":"Reaction: roll 1d12+CON, subtract from damage taken."}]},{"id":"gelo","it":"Gigante del Gelo","en":"Frost Giant","icon":"❄️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Brivido Gelante","en":"Frigid Storm","desc":"Colpendo: +1d6 freddo e velocità −3 m fino al prossimo turno.","descEn":"On hit: +1d6 cold and speed −10 ft until your next turn."}]},{"id":"fuoco","it":"Gigante del Fuoco","en":"Fire Giant","icon":"🔥","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Fuoco Bruciante","en":"Fire's Burn","desc":"Colpendo: +1d10 danni fuoco.","descEn":"On hit: +1d10 fire damage."}]},{"id":"nuvole","it":"Gigante delle Nuvole","en":"Cloud Giant","icon":"☁️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Salta-Nuvole","en":"Cloud's Jaunt","desc":"Azione bonus: teletrasporto 9 m.","descEn":"Bonus action: teleport 30 ft."}]},{"id":"tempeste","it":"Gigante delle Tempeste","en":"Storm Giant","icon":"⚡","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Tuono Tempestoso","en":"Storm's Thunder","desc":"Reazione: 1d8 danni tuono a chi ti colpisce entro 18 m.","descEn":"Reaction: deal 1d8 thunder to attacker within 60 ft."}]},{"id":"colline","it":"Gigante delle Colline","en":"Hill Giant","icon":"🌄","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Forza della Collina","en":"Hill's Tumble","desc":"Colpendo creatura Grande o inferiore: può cadere prona.","descEn":"Hit Large or smaller creature: it can fall prone."}]}],"features":[{"it":"Costituzione Robusta","en":"Giant Ancestry","desc":"Vantaggio per non essere afferrato. Capacità trasporto come taglia superiore.","descEn":"Advantage vs grappled. Carrying capacity as one size larger."},{"it":"Discendenza Gigantica","en":"Giant Lineage","desc":"Scegli 1 dono su 6. Usabile bonus-comp volte/riposo lungo.","descEn":"Choose 1 of 6 supernatural gifts. Usable proficiency bonus times/long rest."},{"it":"Forma Grande (Lv.5)","en":"Large Form (Lv.5)","desc":"Azione bonus: taglia Grande per 10 min, vantaggio FOR, +3 m velocità. 1/riposo lungo.","descEn":"Bonus action: Large for 10 min, advantage STR, +10 ft speed. 1/long rest."}]},{"id":"halfling","it":"Halfling","en":"Halfling","icon":"🍀","size":"Piccola","sizeEn":"Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Agilità Halfling, Coraggioso, Fortuna, Furtività Innata","traitsEn":"Halfling Agility, Brave, Luck, Naturally Stealthy","features":[{"it":"Agilità Halfling","en":"Halfling Agility","desc":"Può attraversare lo spazio di creature più grandi.","descEn":"Can move through larger creatures' spaces."},{"it":"Coraggioso","en":"Brave","desc":"Vantaggio ai TS per evitare la condizione spaventato.","descEn":"Advantage on saves vs frightened."},{"it":"Fortuna","en":"Luck","desc":"Con 1 su un d20 test, puoi ritirare il dado.","descEn":"When you roll 1 on a d20 test, reroll it."},{"it":"Furtività Innata","en":"Naturally Stealthy","desc":"Puoi nasconderti anche se oscurato solo da una creatura più grande.","descEn":"Can Hide even when obscured only by a larger creature."}]},{"id":"nano","it":"Nano","en":"Dwarf","icon":"⛏️","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","hpPerLevel":1,"langs":"Comune, Nanico","langsEn":"Common, Dwarvish","bonuses":["—"],"bonusesEn":["—"],"traits":"Esperto Minatore, Resilienza Nanica, Robustezza Nanica, Scurovisione 36m","traitsEn":"Stonecunning, Dwarven Resilience, Dwarven Toughness, Darkvision 36m","features":[{"it":"Esperto Minatore","en":"Stonecunning","desc":"Azione bonus: percezione tellurica 18 m per 10 min (tocca pietra). Bonus-comp volte/riposo lungo.","descEn":"Bonus action: tremorsense 60 ft for 10 min (touch stone). Proficiency bonus times/long rest."},{"it":"Resilienza Nanica","en":"Dwarven Resilience","desc":"Resistenza al veleno. Vantaggio ai TS contro avvelenato.","descEn":"Resistance to poison. Advantage on saves vs poisoned."},{"it":"Robustezza Nanica","en":"Dwarven Toughness","desc":"PF max +1, poi +1 ad ogni livello.","descEn":"Max HP +1, then +1 each level."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 36 m.","descEn":"Darkvision 120 ft."}]},{"id":"orco","it":"Orco","en":"Orc","icon":"🪓","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune, Orchesco","langsEn":"Common, Orc","bonuses":["—"],"bonusesEn":["—"],"traits":"Scarica di Adrenalina, Scurovisione 36m, Resistenza Implacabile","traitsEn":"Adrenaline Rush, Darkvision 36m, Relentless Endurance","features":[{"it":"Scarica di Adrenalina","en":"Adrenaline Rush","desc":"Azione bonus: Scatto + PF temporanei = bonus competenza. Bonus-comp volte/riposo.","descEn":"Bonus action: Dash + temp HP = proficiency bonus. Proficiency bonus times/rest."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 36 m.","descEn":"Darkvision 120 ft."},{"it":"Resistenza Implacabile","en":"Relentless Endurance","desc":"A 0 PF senza morire: rimani a 1 PF. 1/riposo lungo.","descEn":"Reduced to 0 HP but not killed: drop to 1 HP instead. 1/long rest."}]},{"id":"tiefling","it":"Tiefling","en":"Tiefling","icon":"😈","size":"Media o Piccola","sizeEn":"Medium or Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Presenza Ultraterrena, Retaggio Immondo, Scurovisione 18m","traitsEn":"Otherworldly Presence, Fiendish Legacy, Darkvision 18m","subraces":[{"id":"infernale","it":"Infernale","en":"Infernal","icon":"🔥","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Fuoco + Dardo di Fuoco","en":"Lv.1: Fire Resistance + Fire Bolt","desc":"Resistenza fuoco. Trucchetto Dardo di fuoco.","descEn":"Fire resistance. Fire Bolt cantrip."},{"it":"Lv.3: Intimidire Infernale","en":"Lv.3: Hellish Rebuke","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Oscurità","en":"Lv.5: Darkness","desc":"1/riposo lungo.","descEn":"1/long rest."}]},{"id":"abissale","it":"Abissale","en":"Abyssal","icon":"🌀","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Veleno + Spruzzo Velenoso","en":"Lv.1: Poison Resistance + Poison Spray","desc":"Resistenza veleno. Trucchetto Spruzzo velenoso.","descEn":"Poison resistance. Poison Spray cantrip."},{"it":"Lv.3: Raggio di Infermità","en":"Lv.3: Ray of Sickness","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Blocca Persone","en":"Lv.5: Hold Person","desc":"1/riposo lungo.","descEn":"1/long rest."}]},{"id":"ctonio","it":"Ctonio","en":"Chthonic","icon":"💀","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Necrotica + Tocco Gelido","en":"Lv.1: Necrotic Resistance + Chill Touch","desc":"Resistenza necrotica. Trucchetto Tocco gelido.","descEn":"Necrotic resistance. Chill Touch cantrip."},{"it":"Lv.3: Vita Falsata","en":"Lv.3: False Life","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Raggio di Affaticamento","en":"Lv.5: Ray of Enfeeblement","desc":"1/riposo lungo.","descEn":"1/long rest."}]}],"features":[{"it":"Presenza Ultraterrena","en":"Otherworldly Presence","desc":"Conosci Taumaturgia.","descEn":"Know Thaumaturgy."},{"it":"Retaggio Immondo","en":"Fiendish Legacy","desc":"Scegli Abissale, Ctonio o Infernale. Resistenza + trucchetto Lv.1, incantesimi Lv.3 e 5.","descEn":"Choose Abyssal, Chthonic, or Infernal. Resistance + cantrip Lv.1, spells Lv.3 and 5."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."}]},{"id":"umano","it":"Umano","en":"Human","icon":"👤","size":"Media o Piccola","sizeEn":"Medium or Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","extraLangs":1,"versatileFeat":true,"bonuses":["—"],"bonusesEn":["—"],"traits":"Intraprendente, Pluriabilità, Versatile","traitsEn":"Resourceful, Skillful, Versatile","features":[{"it":"Intraprendente","en":"Resourceful","desc":"Ottieni Ispirazione eroica ad ogni riposo lungo.","descEn":"Gain Heroic Inspiration after every long rest."},{"it":"Pluriabilità","en":"Skillful","desc":"Competenza in un'abilità a scelta.","descEn":"Proficiency in one skill of your choice."},{"it":"Versatile","en":"Versatile","desc":"Ottieni un talento delle origini a scelta.","descEn":"Gain an Origin feat of your choice."}]}];
+const SPECIES=[{"id":"dragonborn","it":"Dragonide","en":"Dragonborn","icon":"🐉","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Discendenza Draconica, Resistenza, Scurovisione 18m, Soffio, Volo Draconico (Lv.5)","traitsEn":"Draconic Ancestry, Damage Resistance, Darkvision 18m, Breath Weapon, Draconic Flight (Lv.5)","subraces":[{"id":"rosso","it":"Rosso (Fuoco)","en":"Red (Fire)","icon":"🔴","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — cono 4,5m, TS COS","en":"Fire Breath — 15ft cone, CON save","desc":"1d10 fuoco (scala con i livelli)","descEn":"1d10 fire (scales with level)"}]},{"id":"blu","it":"Blu (Fulmine)","en":"Blue (Lightning)","icon":"💙","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fulmine — linea 9m, TS DES","en":"Lightning Breath — 30ft line, DEX save","desc":"1d10 fulmine","descEn":"1d10 lightning"}]},{"id":"oro","it":"Oro (Fuoco)","en":"Gold (Fire)","icon":"🟡","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — cono 4,5m, TS COS","en":"Fire Breath — 15ft cone, CON save","desc":"1d10 fuoco","descEn":"1d10 fire"}]},{"id":"argento","it":"Argento (Freddo)","en":"Silver (Cold)","icon":"🩶","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Freddo — cono 4,5m, TS COS","en":"Cold Breath — 15ft cone, CON save","desc":"1d10 freddo","descEn":"1d10 cold"}]},{"id":"nero","it":"Nero (Acido)","en":"Black (Acid)","icon":"🖤","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Acido — linea 9m, TS DES","en":"Acid Breath — 30ft line, DEX save","desc":"1d10 acido","descEn":"1d10 acid"}]},{"id":"verde","it":"Verde (Veleno)","en":"Green (Poison)","icon":"💚","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Veleno — cono 4,5m, TS COS","en":"Poison Breath — 15ft cone, CON save","desc":"1d10 veleno","descEn":"1d10 poison"}]},{"id":"bianco","it":"Bianco (Freddo)","en":"White (Cold)","icon":"🤍","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Freddo — cono 4,5m, TS COS","en":"Cold Breath — 15ft cone, CON save","desc":"1d10 freddo","descEn":"1d10 cold"}]},{"id":"bronzo","it":"Bronzo (Fulmine)","en":"Bronze (Lightning)","icon":"🟫","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fulmine — linea 9m, TS DES","en":"Lightning Breath — 30ft line, DEX save","desc":"1d10 fulmine","descEn":"1d10 lightning"}]},{"id":"rame","it":"Rame (Acido)","en":"Copper (Acid)","icon":"🟠","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Acido — linea 9m, TS DES","en":"Acid Breath — 30ft line, DEX save","desc":"1d10 acido","descEn":"1d10 acid"}]},{"id":"ottone","it":"Ottone (Fuoco)","en":"Brass (Fire)","icon":"🟤","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Soffio Fuoco — linea 9m, TS DES","en":"Fire Breath — 30ft line, DEX save","desc":"1d10 fuoco","descEn":"1d10 fire"}]}],"features":[{"it":"Discendenza Draconica","en":"Draconic Ancestry","desc":"Scegli il tipo di drago: determina Soffio e resistenza.","descEn":"Choose dragon type: determines Breath and resistance."},{"it":"Resistenza ai Danni","en":"Damage Resistance","desc":"Resistenza al tipo della Discendenza Draconica.","descEn":"Resistance to your Draconic Ancestry damage type."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."},{"it":"Soffio","en":"Breath Weapon","desc":"Durante Attacco: sostituisci un attacco col soffio. 1d10, usabile bonus-comp volte/riposo lungo.","descEn":"During Attack action: replace one attack with breath. 1d10, usable proficiency bonus times/long rest."},{"it":"Volo Draconico (Lv.5)","en":"Draconic Flight (Lv.5)","desc":"Azione bonus: ali spettrali 10 min, velocità di volo = velocità. 1/riposo lungo.","descEn":"Bonus action: spectral wings 10 min, fly speed = speed. 1/long rest."}]},{"id":"elfo","it":"Elfo","en":"Elf","icon":"🧝","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune, Elfico","langsEn":"Common, Elvish","bonuses":["—"],"bonusesEn":["—"],"traits":"Lignaggio Elfico, Retaggio Fatato, Scurovisione 18m, Sensi Acuti, Trance","traitsEn":"Elven Lineage, Fey Ancestry, Darkvision 18m, Keen Senses, Trance","subraces":[{"id":"elfo-alto","it":"Elfo Alto","en":"High Elf","icon":"⭐","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Prestidigitazione","en":"Lv.1: Prestidigitation","desc":"Conosci Prestidigitazione. Sostituibile ad ogni riposo lungo.","descEn":"Know Prestidigitation. Replace after long rest."},{"it":"Lv.3: Individuazione del Magico","en":"Lv.3: Detect Magic","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Passo Velato","en":"Lv.5: Misty Step","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]},{"id":"elfo-boschi","it":"Elfo dei Boschi","en":"Wood Elf","icon":"🌲","speed":"10,5m","speedEn":"35 ft","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Velocità 10,5m + Artificio Druidico","en":"Lv.1: Speed 35 ft + Druidcraft","desc":"Velocità 10,5 m. Trucchetto Artificio druidico.","descEn":"Speed 35 ft. Druidcraft cantrip."},{"it":"Lv.3: Passo Veloce","en":"Lv.3: Longstrider","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Passare Senza Tracce","en":"Lv.5: Pass Without Trace","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]},{"id":"drow","it":"Drow","en":"Drow","icon":"🕷️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Scurovisione 36m + Luci Danzanti","en":"Lv.1: Darkvision 36m + Dancing Lights","desc":"Scurovisione 36 m. Trucchetto Luci danzanti.","descEn":"Darkvision 120 ft. Dancing Lights cantrip."},{"it":"Lv.3: Luminescenza","en":"Lv.3: Faerie Fire","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."},{"it":"Lv.5: Oscurità","en":"Lv.5: Darkness","desc":"1/riposo lungo senza slot.","descEn":"1/long rest without slot."}]}],"features":[{"it":"Lignaggio Elfico","en":"Elven Lineage","desc":"Scegli Drow, Elfo Alto o Elfo dei Boschi. Tratti ai Lv.1, 3, 5.","descEn":"Choose Drow, High Elf or Wood Elf. Traits at Lv.1, 3, 5."},{"it":"Retaggio Fatato","en":"Fey Ancestry","desc":"Vantaggio ai TS per evitare/terminare la condizione affascinato.","descEn":"Advantage on saves to avoid/end charmed condition."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m (Drow: 36 m).","descEn":"Darkvision 60 ft (Drow: 120 ft)."},{"it":"Sensi Acuti","en":"Keen Senses","desc":"Competenza in Intuizione, Percezione o Sopravvivenza.","descEn":"Proficiency in Insight, Perception, or Survival."},{"it":"Trance","en":"Trance","desc":"Riposo lungo in 4 ore di trance meditativa.","descEn":"Long rest in 4 hours of meditative trance."}]},{"id":"gnomo","it":"Gnomo","en":"Gnome","icon":"🔮","size":"Piccola","sizeEn":"Small","speed":"9m","speedEn":"30 ft","langs":"Comune, Gnomesco","langsEn":"Common, Gnomish","bonuses":["—"],"bonusesEn":["—"],"traits":"Astuzia Gnomesca, Scurovisione 18m, Lignaggio Gnomesco","traitsEn":"Gnomish Cunning, Darkvision 18m, Gnomish Lineage","subraces":[{"id":"gnomo-rocce","it":"Gnomo delle Rocce","en":"Rock Gnome","icon":"⚙️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Riparare + Prestidigitazione + Dispositivo","en":"Mending + Prestidigitation + Clockwork","desc":"Trucchetti Riparare e Prestidigitazione. Crea piccoli dispositivi meccanici.","descEn":"Mending and Prestidigitation cantrips. Create tiny clockwork devices."}]},{"id":"gnomo-foreste","it":"Gnomo delle Foreste","en":"Forest Gnome","icon":"🌳","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Illusione Minore + Parlare con gli Animali","en":"Minor Illusion + Speak with Animals","desc":"Trucchetto Illusione minore. Parlare con gli animali bonus-comp volte/riposo lungo.","descEn":"Minor Illusion cantrip. Speak with Animals proficiency-bonus times/long rest."}]}],"features":[{"it":"Astuzia Gnomesca","en":"Gnomish Cunning","desc":"Vantaggio ai TS su INT, SAG e CAR.","descEn":"Advantage on INT, WIS, and CHA saving throws."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."},{"it":"Lignaggio Gnomesco","en":"Gnomish Lineage","desc":"Scegli Gnomo delle Foreste o delle Rocce.","descEn":"Choose Forest Gnome or Rock Gnome."}]},{"id":"goliath","it":"Goliath","en":"Goliath","icon":"🏔️","size":"Media","sizeEn":"Medium","speed":"10,5m","speedEn":"35 ft","langs":"Comune, Gigante","langsEn":"Common, Giant","bonuses":["—"],"bonusesEn":["—"],"traits":"Costituzione Robusta, Discendenza Gigantica, Forma Grande (Lv.5)","traitsEn":"Giant Ancestry, Supernatural Gift, Large Form (Lv.5)","subraces":[{"id":"pietra","it":"Gigante delle Pietre","en":"Stone Giant","icon":"🪨","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Resistenza della Pietra","en":"Stone's Endurance","desc":"Reazione: tira 1d12+COS e sottrai ai danni subiti.","descEn":"Reaction: roll 1d12+CON, subtract from damage taken."}]},{"id":"gelo","it":"Gigante del Gelo","en":"Frost Giant","icon":"❄️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Brivido Gelante","en":"Frigid Storm","desc":"Colpendo: +1d6 freddo e velocità −3 m fino al prossimo turno.","descEn":"On hit: +1d6 cold and speed −10 ft until your next turn."}]},{"id":"fuoco","it":"Gigante del Fuoco","en":"Fire Giant","icon":"🔥","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Fuoco Bruciante","en":"Fire's Burn","desc":"Colpendo: +1d10 danni fuoco.","descEn":"On hit: +1d10 fire damage."}]},{"id":"nuvole","it":"Gigante delle Nuvole","en":"Cloud Giant","icon":"☁️","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Salta-Nuvole","en":"Cloud's Jaunt","desc":"Azione bonus: teletrasporto 9 m.","descEn":"Bonus action: teleport 30 ft."}]},{"id":"tempeste","it":"Gigante delle Tempeste","en":"Storm Giant","icon":"⚡","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Tuono Tempestoso","en":"Storm's Thunder","desc":"Reazione: 1d8 danni tuono a chi ti colpisce entro 18 m.","descEn":"Reaction: deal 1d8 thunder to attacker within 60 ft."}]},{"id":"colline","it":"Gigante delle Colline","en":"Hill Giant","icon":"🌄","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Forza della Collina","en":"Hill's Tumble","desc":"Colpendo creatura Grande o inferiore: può cadere prona.","descEn":"Hit Large or smaller creature: it can fall prone."}]}],"features":[{"it":"Costituzione Robusta","en":"Giant Ancestry","desc":"Vantaggio per non essere afferrato. Capacità trasporto come taglia superiore.","descEn":"Advantage vs grappled. Carrying capacity as one size larger."},{"it":"Discendenza Gigantica","en":"Giant Lineage","desc":"Scegli 1 dono su 6. Usabile bonus-comp volte/riposo lungo.","descEn":"Choose 1 of 6 supernatural gifts. Usable proficiency bonus times/long rest."},{"it":"Forma Grande (Lv.5)","en":"Large Form (Lv.5)","desc":"Azione bonus: taglia Grande per 10 min, vantaggio FOR, +3 m velocità. 1/riposo lungo.","descEn":"Bonus action: Large for 10 min, advantage STR, +10 ft speed. 1/long rest."}]},{"id":"halfling","it":"Halfling","en":"Halfling","icon":"🍀","size":"Piccola","sizeEn":"Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Agilità Halfling, Coraggioso, Fortuna, Furtività Innata","traitsEn":"Halfling Agility, Brave, Luck, Naturally Stealthy","features":[{"it":"Agilità Halfling","en":"Halfling Agility","desc":"Può attraversare lo spazio di creature più grandi.","descEn":"Can move through larger creatures' spaces."},{"it":"Coraggioso","en":"Brave","desc":"Vantaggio ai TS per evitare la condizione spaventato.","descEn":"Advantage on saves vs frightened."},{"it":"Fortuna","en":"Luck","desc":"Con 1 su un d20 test, puoi ritirare il dado.","descEn":"When you roll 1 on a d20 test, reroll it."},{"it":"Furtività Innata","en":"Naturally Stealthy","desc":"Puoi nasconderti anche se oscurato solo da una creatura più grande.","descEn":"Can Hide even when obscured only by a larger creature."}]},{"id":"nano","it":"Nano","en":"Dwarf","icon":"⛏️","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","hpPerLevel":1,"langs":"Comune, Nanico","langsEn":"Common, Dwarvish","bonuses":["—"],"bonusesEn":["—"],"traits":"Esperto Minatore, Resilienza Nanica, Robustezza Nanica, Scurovisione 36m","traitsEn":"Stonecunning, Dwarven Resilience, Dwarven Toughness, Darkvision 36m","features":[{"it":"Esperto Minatore","en":"Stonecunning","desc":"Azione bonus: percezione tellurica 18 m per 10 min (tocca pietra). Bonus-comp volte/riposo lungo.","descEn":"Bonus action: tremorsense 60 ft for 10 min (touch stone). Proficiency bonus times/long rest."},{"it":"Resilienza Nanica","en":"Dwarven Resilience","desc":"Resistenza al veleno. Vantaggio ai TS contro avvelenato.","descEn":"Resistance to poison. Advantage on saves vs poisoned."},{"it":"Robustezza Nanica","en":"Dwarven Toughness","desc":"PF max +1, poi +1 ad ogni livello.","descEn":"Max HP +1, then +1 each level."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 36 m.","descEn":"Darkvision 120 ft."}]},{"id":"orco","it":"Orco","en":"Orc","icon":"🪓","size":"Media","sizeEn":"Medium","speed":"9m","speedEn":"30 ft","langs":"Comune, Orchesco","langsEn":"Common, Orc","bonuses":["—"],"bonusesEn":["—"],"traits":"Scarica di Adrenalina, Scurovisione 36m, Resistenza Implacabile","traitsEn":"Adrenaline Rush, Darkvision 36m, Relentless Endurance","features":[{"it":"Scarica di Adrenalina","en":"Adrenaline Rush","desc":"Azione bonus: Scatto + PF temporanei = bonus competenza. Bonus-comp volte/riposo.","descEn":"Bonus action: Dash + temp HP = proficiency bonus. Proficiency bonus times/rest."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 36 m.","descEn":"Darkvision 120 ft."},{"it":"Resistenza Implacabile","en":"Relentless Endurance","desc":"A 0 PF senza morire: rimani a 1 PF. 1/riposo lungo.","descEn":"Reduced to 0 HP but not killed: drop to 1 HP instead. 1/long rest."}]},{"id":"tiefling","it":"Tiefling","en":"Tiefling","icon":"😈","size":"Media o Piccola","sizeEn":"Medium or Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","bonuses":["—"],"bonusesEn":["—"],"traits":"Presenza Ultraterrena, Retaggio Immondo, Scurovisione 18m","traitsEn":"Otherworldly Presence, Fiendish Legacy, Darkvision 18m","subraces":[{"id":"infernale","it":"Infernale","en":"Infernal","icon":"🔥","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Fuoco + Dardo di Fuoco","en":"Lv.1: Fire Resistance + Fire Bolt","desc":"Resistenza fuoco. Trucchetto Dardo di fuoco.","descEn":"Fire resistance. Fire Bolt cantrip."},{"it":"Lv.3: Intimidire Infernale","en":"Lv.3: Hellish Rebuke","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Oscurità","en":"Lv.5: Darkness","desc":"1/riposo lungo.","descEn":"1/long rest."}]},{"id":"abissale","it":"Abissale","en":"Abyssal","icon":"🌀","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Veleno + Spruzzo Velenoso","en":"Lv.1: Poison Resistance + Poison Spray","desc":"Resistenza veleno. Trucchetto Spruzzo velenoso.","descEn":"Poison resistance. Poison Spray cantrip."},{"it":"Lv.3: Raggio di Infermità","en":"Lv.3: Ray of Sickness","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Blocca Persone","en":"Lv.5: Hold Person","desc":"1/riposo lungo.","descEn":"1/long rest."}]},{"id":"ctonio","it":"Ctonio","en":"Chthonic","icon":"💀","bonuses":["—"],"bonusesEn":["—"],"features":[{"it":"Lv.1: Res. Necrotica + Tocco Gelido","en":"Lv.1: Necrotic Resistance + Chill Touch","desc":"Resistenza necrotica. Trucchetto Tocco gelido.","descEn":"Necrotic resistance. Chill Touch cantrip."},{"it":"Lv.3: Vita Falsata","en":"Lv.3: False Life","desc":"1/riposo lungo.","descEn":"1/long rest."},{"it":"Lv.5: Raggio di Affaticamento","en":"Lv.5: Ray of Enfeeblement","desc":"1/riposo lungo.","descEn":"1/long rest."}]}],"features":[{"it":"Presenza Ultraterrena","en":"Otherworldly Presence","desc":"Conosci Taumaturgia.","descEn":"Know Thaumaturgy."},{"it":"Retaggio Immondo","en":"Fiendish Legacy","desc":"Scegli Abissale, Ctonio o Infernale. Resistenza + trucchetto Lv.1, incantesimi Lv.3 e 5.","descEn":"Choose Abyssal, Chthonic, or Infernal. Resistance + cantrip Lv.1, spells Lv.3 and 5."},{"it":"Scurovisione","en":"Darkvision","desc":"Scurovisione 18 m.","descEn":"Darkvision 60 ft."}]},{"id":"umano","it":"Umano","en":"Human","icon":"👤","size":"Media o Piccola","sizeEn":"Medium or Small","speed":"9m","speedEn":"30 ft","langs":"Comune","langsEn":"Common","extraLangs":1,"versatileFeat":true,"bonuses":["—"],"bonusesEn":["—"],"traits":"Intraprendente, Pluriabilità, Versatile","traitsEn":"Resourceful, Skillful, Versatile","features":[{"it":"Intraprendente","en":"Resourceful","desc":"Ottieni Ispirazione eroica ad ogni riposo lungo.","descEn":"Gain Heroic Inspiration after every long rest."},{"it":"Pluriabilità","en":"Skillful","desc":"Competenza in un'abilità a scelta.","descEn":"Proficiency in one skill of your choice."},{"it":"Versatile","en":"Versatile","desc":"Ottieni un talento delle origini a scelta.","descEn":"Gain an Origin feat of your choice."}]}];
 
 // REGISTRO SRD 5.2.1 — id PHB-only per categoria; tutto il resto e' SRD.
 // feats: id allineati a FFEATS_DATA_V2 (il picker).
@@ -3261,43 +3282,43 @@ function fRClassBlock(){
     html+='<div style="'+boxS+'">';
     // Header con toggle "In Ira"
     html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:6px">';
-    html+='<span style="'+lblS+'">🔥 Ira</span>';
-    html+='<button onclick="C.rageActive=!C.rageActive;re()" style="font-size:10px;padding:3px 10px;border-radius:12px;cursor:pointer;font-weight:700;border:1px solid '+(rageInIra?'#c43030':'rgba(200,164,90,.4)')+';background:'+(rageInIra?'rgba(196,48,48,.2)':'transparent')+';color:'+(rageInIra?'#ff6b6b':'var(--muted)')+'">'+( rageInIra?'🔥 IN IRA':'⬜ FUORI IRA')+'</button>';
+    html+='<span style="'+lblS+'">🔥 '+(isIt?'Ira':'Rage')+'</span>';
+    html+='<button onclick="C.rageActive=!C.rageActive;re()" style="font-size:10px;padding:3px 10px;border-radius:12px;cursor:pointer;font-weight:700;border:1px solid '+(rageInIra?'#c43030':'rgba(200,164,90,.4)')+';background:'+(rageInIra?'rgba(196,48,48,.2)':'transparent')+';color:'+(rageInIra?'#ff6b6b':'var(--muted)')+'">'+(rageInIra?(isIt?'🔥 IN IRA':'🔥 IN RAGE'):(isIt?'⬜ FUORI IRA':'⬜ OUT OF RAGE'))+'</button>';
     html+='</div>';
     // Dots
     html+='<div style="'+rowS+'">';
     html+=fDots(rUsed,rMax,'fUseRage','fRestoreRage','#c43030');
-    html+='<span style="font-size:10px;color:var(--vdim)">'+(rMax-rUsed)+'/'+rMax+' · 1/breve · tutti/lungo</span>';
+    html+='<span style="font-size:10px;color:var(--vdim)">'+(rMax-rUsed)+'/'+rMax+(isIt?' · 1/breve · tutti/lungo':' · 1/short · all/long')+'</span>';
     html+='</div>';
     // Info ira
     html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">';
-    html+='<span style="color:var(--gold2)">+'+rageBonus+' danni</span> · resist. contund./perf./tagl.';
-    html+=' · vantaggio TS FOR · max 10 min';
+    html+='<span style="color:var(--gold2)">+'+rageBonus+(isIt?' danni':' dmg')+'</span>'+(isIt?' · resist. contund./perf./tagl.':' · resist. bludg./pierc./slash.')+'';
+    html+=''+(isIt?' · vantaggio TS FOR · max 10 min':' · Advantage STR saves · max 10 min')+'';
     html+='</div>';
     // Attacco Irruento (Lv.2)
     if(rageInIra){
       html+='<div style="margin-top:6px;padding:5px 8px;background:rgba(196,48,48,.08);border:1px solid rgba(196,48,48,.3);border-radius:3px">';
-      html+='<div style="font-size:10px;color:#ff8080;font-weight:700">⚔️ ATTACCO IRRUENTO attivo</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">1° tiro per colpire nel turno: vantaggio (tutti tiri FOR) · nemici vantaggio vs te</div>';
+      html+='<div style="font-size:10px;color:#ff8080;font-weight:700">⚔️ '+(isIt?'ATTACCO IRRUENTO attivo':'RECKLESS ATTACK active')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'1° tiro per colpire nel turno: vantaggio (tutti tiri FOR) · nemici vantaggio vs te':'First attack roll of your turn: Advantage (all STR rolls) · enemies have Advantage vs you')+'</div>';
       html+='</div>';
     } else if(lv>=2){
-      html+='<div style="font-size:10px;color:var(--vdim);margin-top:4px">⚔️ Attacco Irruento (Lv.2): disponibile quando entri in ira</div>';
+      html+='<div style="font-size:10px;color:var(--vdim);margin-top:4px">⚔️ '+(isIt?'Attacco Irruento (Lv.2): disponibile quando entri in ira':'Reckless Attack (Lv.2): available when you enter Rage')+'</div>';
     }
     html+='</div>';
 
     // ── DIFESA SENZA ARMATURA (Lv.1) ─────────────────────────────────────────
     var unarmoredAC=10+Math.floor((fTotalStat('DEX')-10)/2)+Math.floor((fTotalStat('CON')-10)/2);
     html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
-    html+='<span style="'+lblS+'">🛡️ Difesa senza Armatura</span>';
-    html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+unarmoredAC+'</span>';
-    html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.COS (senza armatura)</span>';
+    html+='<span style="'+lblS+'">🛡️ '+(isIt?'Difesa senza Armatura':'Unarmored Defense')+'</span>';
+    html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">'+(isIt?'CA ':'AC ')+unarmoredAC+'</span>';
+    html+='<span style="font-size:10px;color:var(--muted)">'+(isIt?'10 + mod.DES + mod.COS (senza armatura)':'10 + DEX mod + CON mod (no armor)')+'</span>';
     html+='</div></div>';
 
     // ── PERCEZIONE DEL PERICOLO (Lv.2) ───────────────────────────────────────
     if(lv>=2){
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:3px">👁️ Percezione del Pericolo (Lv.2)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Vantaggio ai TS su DES se non incapacitato</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:3px">👁️ '+(isIt?'Percezione del Pericolo (Lv.2)':'Danger Sense (Lv.2)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Vantaggio ai TS su DES se non incapacitato':'Advantage on DEX saves unless Incapacitated')+'</div>';
       html+='</div>';
     }
 
@@ -3314,11 +3335,11 @@ function fRClassBlock(){
       if(!C.primordialKnowledge)C.primordialKnowledge=null;
 
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);font-weight:700;margin-bottom:8px">🌿 Conoscenza Primordiale (Lv.3)</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);font-weight:700;margin-bottom:8px">🌿 '+(isIt?'Conoscenza Primordiale (Lv.3)':'Primal Knowledge (Lv.3)')+'</div>';
 
       // ── Scelta 1: Competenza extra ─────────────────────────────────────
       html+='<div style="margin-bottom:10px">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">📚 Competenza extra (1 abilità aggiuntiva)</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">📚 '+(isIt?'Competenza extra (1 abilità aggiuntiva)':'Extra proficiency (1 additional skill)')+'</div>';
       html+='<div style="display:flex;flex-wrap:wrap;gap:4px">';
       primSkillsEn.forEach(function(sEn,i){
         var sIt=primSkillsIt[i];
@@ -3330,22 +3351,22 @@ function fRClassBlock(){
         var textCol=sel?'var(--gold)':alr?'var(--vdim)':'var(--text)';
         var cursor=disabled?'default':'pointer';
         var click=disabled?'':('C.primordialKnowledgeSkill=(C.primordialKnowledgeSkill===\''+sEn+'\'?null:\''+sEn+'\');re()');
-        var badge=alr?'<span style="font-size:8px;color:var(--vdim);margin-left:3px">(già)</span>':'';
-        html+='<span onclick="'+click+'" style="cursor:'+cursor+';padding:3px 9px;border-radius:8px;font-size:11px;border:1px solid '+borderCol+';color:'+textCol+';background:'+bgCol+';opacity:'+(disabled?'.5':'1')+'">'+sIt+badge+'</span>';
+        var badge=alr?'<span style="font-size:8px;color:var(--vdim);margin-left:3px">'+(isIt?'(già)':'(have)')+'</span>':'';
+        html+='<span onclick="'+click+'" style="cursor:'+cursor+';padding:3px 9px;border-radius:8px;font-size:11px;border:1px solid '+borderCol+';color:'+textCol+';background:'+bgCol+';opacity:'+(disabled?'.5':'1')+'">'+(isIt?sIt:sEn)+badge+'</span>';
       });
       html+='</div>';
       if(C.primordialKnowledgeSkill){
         var chosenItIdx=primSkillsEn.indexOf(C.primordialKnowledgeSkill);
         var chosenIt=chosenItIdx>-1?primSkillsIt[chosenItIdx]:C.primordialKnowledgeSkill;
-        html+='<div style="font-size:10px;color:var(--green);margin-top:5px">✓ Competenza extra: <strong>'+chosenIt+'</strong></div>';
+        html+='<div style="font-size:10px;color:var(--green);margin-top:5px">'+(isIt?'✓ Competenza extra: ':'✓ Extra proficiency: ')+'<strong>'+chosenIt+'</strong></div>';
       } else {
-        html+='<div style="font-size:10px;color:var(--vdim);margin-top:5px">← Seleziona un\'abilità</div>';
+        html+='<div style="font-size:10px;color:var(--vdim);margin-top:5px">'+(isIt?'← Seleziona un\'abilità':'← Select a skill')+'</div>';
       }
       html+='</div>';
 
       // ── Info: Abilità FOR-sostitutiva in ira (no scelta, vale per tutte) ──
       html+='<div style="border-top:1px solid rgba(200,164,90,.15);padding-top:8px">';
-      html+='<div style="font-size:10px;color:var(--muted)">⚡ <strong>In ira:</strong> puoi usare la Forza per le prove di Acrobazia, Intimidire, Percezione, Furtività o Sopravvivenza (anche se usano un\'altra caratteristica)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'⚡ <strong>In ira:</strong> puoi usare la Forza per le prove di Acrobazia, Intimidire, Percezione, Furtività o Sopravvivenza (anche se usano un\'altra caratteristica)':'⚡ <strong>While raging:</strong> you can use Strength for Acrobatics, Intimidation, Perception, Stealth, or Survival checks (even if they normally use another ability)')+'</div>';
       html+='</div>';
 
       html+='</div>';
@@ -3354,8 +3375,8 @@ function fRClassBlock(){
     // ── MOVIMENTO VELOCE (Lv.5) + ATTACCO EXTRA ───────────────────────────────
     if(lv>=5){
       html+='<div style="'+boxS+'"><div style="display:flex;gap:8px;flex-wrap:wrap">';
-      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">⚔️ Attacco Extra (Lv.5)</span>';
-      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">💨 Mov. Veloce +3m (Lv.5)</span>';
+      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">⚔️ '+(isIt?'Attacco Extra (Lv.5)':'Extra Attack (Lv.5)')+'</span>';
+      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">💨 '+(isIt?'Mov. Veloce +3m (Lv.5)':'Fast Movement +10 ft (Lv.5)')+'</span>';
       html+='</div></div>';
     }
 
@@ -3363,9 +3384,9 @@ function fRClassBlock(){
     if(lv>=7){
       html+='<div style="'+boxS+'">';
       html+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px">';
-      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">⚡ Istinto Ferino: vantaggio Iniziativa</span>';
+      html+='<span style="font-size:10px;padding:3px 8px;background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2)">⚡ '+(isIt?'Istinto Ferino: vantaggio Iniziativa':'Feral Instinct: Advantage on Initiative')+'</span>';
       html+='</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">🐾 Balzo Istintivo: entrando in ira (az. bonus) → muoviti metà velocità gratis</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">🐾 '+(isIt?'Balzo Istintivo: entrando in ira (az. bonus) → muoviti metà velocità gratis':'Instinctive Pounce: when you enter Rage (Bonus Action) → move up to half your Speed for free')+'</div>';
       html+='</div>';
     }
 
@@ -3374,16 +3395,16 @@ function fRClassBlock(){
       var brutDmg=lv>=17?'2d10':'1d10';
       // Lv.9: spaccaossa + violento | Lv.13: aggiunge sbalorditivo + scissione | Lv.17: 2d10 + 2 effetti
       var effs=[
-        {id:'spaccaossa',it:'Spaccaossa',desc:'Vel. bersaglio -4,5m fino all\'inizio del tuo prossimo turno. Solo l\'effetto più recente è attivo.'},
-        {id:'violento',  it:'Violento',  desc:'Bersaglio spinto 4,5m; poi muoviti metà vel. in linea retta verso di lui senza OA.'},
+        {id:'spaccaossa',it:'Spaccaossa',en:'Hamstring Blow',descEn:'Target Speed -15 ft until the start of your next turn. Only the most recent effect is active.',desc:'Vel. bersaglio -4,5m fino all\'inizio del tuo prossimo turno. Solo l\'effetto più recente è attivo.'},
+        {id:'violento',  it:'Violento',  en:'Forceful Blow',descEn:'Target pushed 15 ft; then move half your Speed in a straight line toward it without provoking OA.',desc:'Bersaglio spinto 4,5m; poi muoviti metà vel. in linea retta verso di lui senza OA.'},
       ];
       if(lv>=13){
-        effs.push({id:'sbalorditivo',it:'★ Sbalorditivo (Lv.13)',desc:'Svantaggio al prossimo TS del bersaglio + no attacchi di opportunità fino al suo prossimo turno.'});
-        effs.push({id:'scissione',   it:'★ Scissione (Lv.13)',   desc:'Prima del tuo prossimo turno, il prossimo tiro per colpire di un\'altra creatura vs il bersaglio ottiene +5 (max 1 bonus).'});
+        effs.push({id:'sbalorditivo',it:'★ Sbalorditivo (Lv.13)',en:'★ Staggering Blow (Lv.13)',descEn:'Disadvantage on the target\'s next save + it can\'t make Opportunity Attacks until its next turn.',desc:'Svantaggio al prossimo TS del bersaglio + no attacchi di opportunità fino al suo prossimo turno.'});
+        effs.push({id:'scissione',   it:'★ Scissione (Lv.13)',   en:'★ Sundering Blow (Lv.13)',descEn:'Before your next turn, the next attack roll by another creature against the target gains +5 (max 1 bonus).',desc:'Prima del tuo prossimo turno, il prossimo tiro per colpire di un\'altra creatura vs il bersaglio ottiene +5 (max 1 bonus).'});
       }
       html+='<div style="'+boxS+'">';
       html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
-      html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">⚡ Colpo Brutale (Lv.9)</span>';
+      html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">⚡ '+(isIt?'Colpo Brutale (Lv.9)':'Brutal Strike (Lv.9)')+'</span>';
       html+='<span style="font-size:10px;color:#c43030;background:rgba(196,48,48,.12);padding:1px 6px;border-radius:3px">+'+brutDmg+'</span>';
       html+='</div>';
       html+='<div style="display:flex;flex-direction:column;gap:4px">';
@@ -3391,11 +3412,11 @@ function fRClassBlock(){
         var sel=(C.brutalStrike===e.id);
         html+='<div onclick="fSetBrutalStrike(C.brutalStrike===\''+e.id+'\'?null:\''+e.id+'\')" style="cursor:pointer;padding:6px 8px;border:1px solid '+(sel?'#c43030':'rgba(200,164,90,.2)')+';background:'+(sel?'rgba(196,48,48,.1)':'rgba(0,0,0,.15)')+';border-radius:3px;display:flex;align-items:flex-start;gap:8px">';
         html+='<span style="font-size:14px;color:'+(sel?'#ff6b6b':'var(--vdim)')+';margin-top:1px">'+(sel?'◉':'◯')+'</span>';
-        html+='<div><div style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+e.it+'</div>';
-        html+='<div style="font-size:10px;color:var(--vdim)">'+fLocalizeStatAbbr(e.desc)+'</div></div></div>';
+        html+='<div><div style="font-size:11px;color:'+(sel?'var(--text)':'var(--muted)')+';font-weight:'+(sel?'600':'400')+'">'+(isIt?e.it:e.en)+'</div>';
+        html+='<div style="font-size:10px;color:var(--vdim)">'+(isIt?fLocalizeStatAbbr(e.desc):e.descEn)+'</div></div></div>';
       });
       html+='</div>';
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:5px">Usa con Attacco Irruento: rinuncia a vantaggio, colpo con FOR → effetto</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:5px">'+(isIt?'Usa con Attacco Irruento: rinuncia a vantaggio, colpo con FOR → effetto':'Use with Reckless Attack: forgo Advantage, a STR hit → effect')+'</div>';
       html+='</div>';
     }
 
@@ -3405,23 +3426,23 @@ function fRClassBlock(){
       var icd=C.rageImplacableCD||10;
       html+='<div style="'+boxS+'">';
       html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:4px">';
-      html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">💀 Ira Implacabile (Lv.11)</span>';
+      html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">💀 '+(isIt?'Ira Implacabile (Lv.11)':'Relentless Rage (Lv.11)')+'</span>';
       html+='<div style="display:flex;gap:5px;align-items:center">';
-      html+='<span style="font-size:10px;color:var(--vdim)">CD attuale:</span>';
+      html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'CD attuale:':'Current DC:')+'</span>';
       html+='<span style="font-size:14px;font-weight:900;color:#e74c3c">'+icd+'</span>';
-      html+='<button onclick="C.rageImplacableCD=(C.rageImplacableCD||10)+5;re()" style="font-size:10px;background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;padding:2px 7px;cursor:pointer">Usata +5</button>';
+      html+='<button onclick="C.rageImplacableCD=(C.rageImplacableCD||10)+5;re()" style="font-size:10px;background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;padding:2px 7px;cursor:pointer">'+(isIt?'Usata +5':'Used +5')+'</button>';
       html+='<button onclick="C.rageImplacableCD=10;re()" style="font-size:10px;background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.25);border-radius:3px;color:var(--vdim);padding:2px 7px;cursor:pointer">♺</button>';
       html+='</div></div>';
-      html+='<div style="font-size:10px;color:var(--muted)">A 0 PF in ira: TS COS CD '+icd+' → PF = 2×livello ('+lv*2+') · CD +5 a ogni uso · reset su riposo</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'A 0 PF in ira: TS COS CD ':'At 0 HP while raging: CON save DC ')+icd+(isIt?' → PF = 2×livello (':' → HP = 2×level (')+lv*2+(isIt?') · CD +5 a ogni uso · reset su riposo':') · DC +5 each use · resets on a rest')+'</div>';
       html+='</div>';
     }
 
     // ── IRA PERSISTENTE (Lv.15) ───────────────────────────────────────────────
     if(lv>=15){
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">♾️ Ira Persistente (Lv.15)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Inizio Iniziativa: recupera tutti gli usi di ira spesi</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Ira dura 10 min senza prolungare ogni round · termina solo se 0 sensi o armatura pesante</div>';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">♾️ '+(isIt?'Ira Persistente (Lv.15)':'Persistent Rage (Lv.15)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Inizio Iniziativa: recupera tutti gli usi di ira spesi':'Start of Initiative: regain all expended Rage uses')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Ira dura 10 min senza prolungare ogni round · termina solo se 0 sensi o armatura pesante':'Rage lasts 10 min without extending each round · ends only if Unconscious or you don Heavy armor')+'</div>';
       html+='</div>';
     }
 
@@ -3429,16 +3450,16 @@ function fRClassBlock(){
     if(lv>=18){
       var strScore=fTotalStat('STR');
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">💪 Potenza Indomabile (Lv.18)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Prova FOR o TS FOR: se tiro < punteggio FOR ('+strScore+'), usa punteggio</div>';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">💪 '+(isIt?'Potenza Indomabile (Lv.18)':'Indomitable Might (Lv.18)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Prova FOR o TS FOR: se tiro < punteggio FOR (':'STR check or STR save: if your roll < STR score (')+strScore+(isIt?'), usa punteggio':'), use the score')+'</div>';
       html+='</div>';
     }
 
     // ── CAMPIONE PRIMORDIALE (Lv.20) ──────────────────────────────────────────
     if(lv>=20){
       html+='<div style="'+boxS+';border-color:rgba(200,164,90,.6)">';
-      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">👑 Campione Primordiale (Lv.20)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">FOR e COS +4 (max 25) · Forza: '+Math.min(25,fTotalStat('STR')+4)+' · Costituzione: '+Math.min(25,fTotalStat('CON')+4)+'</div>';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:3px">👑 '+(isIt?'Campione Primordiale (Lv.20)':'Primal Champion (Lv.20)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'FOR e COS +4 (max 25) · Forza: ':'STR and CON +4 (max 25) · Strength: ')+Math.min(25,fTotalStat('STR')+4)+(isIt?' · Costituzione: ':' · Constitution: ')+Math.min(25,fTotalStat('CON')+4)+'</div>';
       html+='</div>';
     }
 
@@ -3447,24 +3468,24 @@ function fRClassBlock(){
     // ═════════════════════════════════════════════════════════════════════════
     if(sc&&lv>=3){
       html+='<div style="border-top:1px solid rgba(200,164,90,.2);margin-top:4px;padding-top:8px">';
-      html+='<div style="font-size:9px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px">Cammino: '+sc.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div>';
+      html+='<div style="font-size:9px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px">'+(isIt?'Cammino: ':'Path: ')+sc.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div>';
 
       // ── BERSERKER ──────────────────────────────────────────────────────────
       if(sc==='berserker'){
         // Lv.3: Frenesia
         html+='<div style="'+boxS+'">';
-        html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:3px">🩸 Frenesia (Lv.3)</div>';
-        html+='<div style="font-size:10px;color:var(--muted)">In ira + Attacco Irruento: primo bersaglio colpito (att. FOR) subisce +<strong>'+rageBonus+'d6</strong> danni extra stesso tipo arma</div>';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:3px">🩸 '+(isIt?'Frenesia (Lv.3)':'Frenzy (Lv.3)')+'</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'In ira + Attacco Irruento: primo bersaglio colpito (att. FOR) subisce +':'While raging + Reckless Attack: the first target hit (STR attack) takes +')+'<strong>'+rageBonus+'d6</strong>'+(isIt?' danni extra stesso tipo arma':' extra damage of the weapon\'s type')+'</div>';
         html+='</div>';
         // Lv.6: Ira Incontenibile
         if(lv>=6){
-          html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">🛡️ Ira Incontenibile (Lv.6)</div>';
-          html+='<div style="font-size:10px;color:var(--muted)">Non puoi essere affascinato o spaventato mentre sei in ira. Se lo sei quando entri in ira, la condizione termina.</div></div>';
+          html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">🛡️ '+(isIt?'Ira Incontenibile (Lv.6)':'Mindless Rage (Lv.6)')+'</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Non puoi essere affascinato o spaventato mentre sei in ira. Se lo sei quando entri in ira, la condizione termina.':'You can\'t be Charmed or Frightened while raging. If you already are when you enter Rage, the condition ends.')+'</div></div>';
         }
         // Lv.10: Ritorsione
         if(lv>=10){
-          html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ Ritorsione (Lv.10)</div>';
-          html+='<div style="font-size:10px;color:var(--muted)">Reazione: quando subisci danni da creatura entro 1,5m → attacco in mischia contro di essa</div></div>';
+          html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ '+(isIt?'Ritorsione (Lv.10)':'Retaliation (Lv.10)')+'</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Reazione: quando subisci danni da creatura entro 1,5m → attacco in mischia contro di essa':'Reaction: when you take damage from a creature within 5 ft → make a melee attack against it')+'</div></div>';
         }
         // Lv.14: Presenza Intimidatoria
         if(lv>=14){
@@ -3472,14 +3493,14 @@ function fRClassBlock(){
           var cd8=8+Math.floor((fTotalStat('STR')-10)/2)+fpb(lv);
           html+='<div style="'+boxS+'">';
           html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-          html+='<span style="font-size:10px;color:var(--gold2)">😱 Presenza Intimidatoria (Lv.14)</span>';
+          html+='<span style="font-size:10px;color:var(--gold2)">😱 '+(isIt?'Presenza Intimidatoria (Lv.14)':'Intimidating Presence (Lv.14)')+'</span>';
           if(!C.berserkerIntimUsed){
-            html+='<button onclick="C.berserkerIntimUsed=true;re()" style="font-size:10px;background:rgba(196,48,48,.12);border:1px solid rgba(196,48,48,.35);border-radius:3px;color:#e74c3c;padding:3px 9px;cursor:pointer">Az. Bonus: Attiva</button>';
+            html+='<button onclick="C.berserkerIntimUsed=true;re()" style="font-size:10px;background:rgba(196,48,48,.12);border:1px solid rgba(196,48,48,.35);border-radius:3px;color:#e74c3c;padding:3px 9px;cursor:pointer">'+(isIt?'Az. Bonus: Attiva':'Bonus Action: Activate')+'</button>';
           } else {
-            html+='<span style="font-size:10px;color:var(--vdim)">Usata <button onclick="C.berserkerIntimUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';
+            html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'Usata':'Used')+' <button onclick="C.berserkerIntimUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';
           }
           html+='</div>';
-          html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">CD Sag 8+FOR+comp · AoE 9m · Spaventato 1 min · 1/riposo lungo</div>';
+          html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'CD Sag 8+FOR+comp · AoE 9m · Spaventato 1 min · 1/riposo lungo':'WIS DC 8+STR+prof · AoE 30 ft · Frightened 1 min · 1/Long Rest')+'</div>';
           html+='</div>';
         }
       }
@@ -3505,34 +3526,34 @@ function fRClassBlock(){
     var asMax=fMaxActionSurge(lv),asUsed=(C.actionSurge&&C.actionSurge.used)||0;
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">💪 '+(isIt?'Rec. Energie':'Second Wind')+'</span>'+fDots(swUsed,swMax,'fUseSecondWind','fRestoreSecondWind','var(--green)')+'<span style="font-size:10px;color:var(--vdim)">'+(swMax-swUsed)+'/'+swMax+'</span></div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">1d10 + livello PF (az. bonus) · recupero: 1/riposo breve, tutti/lungo</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'1d10 + livello PF (az. bonus) · recupero: 1/riposo breve, tutti/lungo':'1d10 + level HP (Bonus Action) · recovery: 1/Short Rest, all/Long Rest')+'</div>';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">\u26a1 '+(isIt?'Az. Impetuosa':'Action Surge')+'</span>'+fDots(asUsed,asMax,'fUseActionSurge','fRestoreActionSurge','#4a8fff')+'<span style="font-size:10px;color:var(--vdim)">'+(asMax-asUsed)+'/'+asMax+'</span></div>';
     // Indomabile (Lv.9): tracker usi = 1/2/3 a L9/13/17, recupero riposo lungo
     if(lv>=9){
       var indMax=fMaxIndomitable(lv),indUsed=(C.indomitable&&C.indomitable.used)||0;
       html+='<div style="'+rowS+'"><span style="'+lblS+'">🛡️ '+(isIt?'Indomabile':'Indomitable')+'</span>'+fDots(indUsed,indMax,'fUseIndomitable','fRestoreIndomitable','#e67e22')+'<span style="font-size:10px;color:var(--vdim)">'+(indMax-indUsed)+'/'+indMax+'</span></div>';
-      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Ripeti un TS fallito con +livello · recupero: riposo lungo</div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Ripeti un TS fallito con +livello · recupero: riposo lungo':'Reroll a failed save with +level · recovery: Long Rest')+'</div>';
     }
     html+='</div>';
     // Privilegi base descrittivi
     if(lv>=2){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎯 Privilegi marziali</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Mente Tattica (Lv.2): se fallisci una prova di caratteristica, spendi 1 uso di Rec. Energie per +1d10 (se fallisce ancora, l\'uso non si consuma).</div>';
-      if(lv>=5)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Spostamento Tattico (Lv.5): quando usi Rec. Energie come az. bonus, muoviti fino a metà velocità senza attacchi di opportunità.</div>';
-      if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Signore delle Tattiche (Lv.9): un attacco con padronanza può usare spinta, prosciugamento o rallentamento.</div>';
-      if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Attacchi Studiati (Lv.13): se manchi un attacco, vantaggio al prossimo tiro per colpire contro quella creatura (fino a fine turno successivo).</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🎯 '+(isIt?'Privilegi marziali':'Martial Features')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Mente Tattica (Lv.2): se fallisci una prova di caratteristica, spendi 1 uso di Rec. Energie per +1d10 (se fallisce ancora, l\'uso non si consuma).':'Tactical Mind (Lv.2): if you fail an ability check, spend 1 Second Wind use for +1d10 (if it still fails, the use isn\'t spent).')+'</div>';
+      if(lv>=5)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Spostamento Tattico (Lv.5): quando usi Rec. Energie come az. bonus, muoviti fino a metà velocità senza attacchi di opportunità.':'Tactical Shift (Lv.5): when you use Second Wind as a Bonus Action, move up to half your Speed without provoking Opportunity Attacks.')+'</div>';
+      if(lv>=9)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Signore delle Tattiche (Lv.9): un attacco con padronanza può usare spinta, prosciugamento o rallentamento.':'Tactical Master (Lv.9): a mastery attack can use Push, Sap, or Slow.')+'</div>';
+      if(lv>=13)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Attacchi Studiati (Lv.13): se manchi un attacco, vantaggio al prossimo tiro per colpire contro quella creatura (fino a fine turno successivo).':'Studied Attacks (Lv.13): if you miss an attack, you have Advantage on your next attack roll against that creature (until the end of your next turn).')+'</div>';
       html+='</div>';
     }
 
 
     if(sc==='campione'){
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🏆 Campione — privilegi attivi</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Lv.3 Atleta Straordinario: vantaggio all\'iniziativa e alle prove di FOR (Atletica); dopo un critico puoi muoverti fino a metà velocità senza attacchi di opportunità.</div>';
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.3 Critico Migliorato: i tiri per colpire con armi/colpi senz\'armi fanno critico con <strong style="color:var(--gold)">19-20</strong>'+(lv>=15?' → <strong style="color:var(--gold)">18-20</strong> (Lv.15 Critico Superiore)':'')+'.</div>';
-      if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.7 Stile di Combattimento Aggiuntivo: un altro Talento Stile di Combattimento.</div>';
-      if(lv>=10)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.10 Guerriero Eroico: ottieni Ispirazione Eroica all\'inizio del turno se ne sei privo (in combattimento).</div>';
-      if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Lv.18 Sopravvissuto: se sanguinante con ≥1 PF, recuperi 5 + mod.COS PF a inizio turno; vantaggio ai TS contro morte (18-20 = 20).</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🏆 '+(isIt?'Campione — privilegi attivi':'Champion — active features')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Lv.3 Atleta Straordinario: vantaggio all\'iniziativa e alle prove di FOR (Atletica); dopo un critico puoi muoverti fino a metà velocità senza attacchi di opportunità.':'Lv.3 Remarkable Athlete: Advantage on Initiative and STR (Athletics) checks; after a critical hit you can move up to half your Speed without provoking Opportunity Attacks.')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Lv.3 Critico Migliorato: i tiri per colpire con armi/colpi senz\'armi fanno critico con ':'Lv.3 Improved Critical: weapon/unarmed attack rolls score a critical hit on ')+'<strong style="color:var(--gold)">19-20</strong>'+(lv>=15?' → <strong style="color:var(--gold)">18-20</strong> '+(isIt?'(Lv.15 Critico Superiore)':'(Lv.15 Superior Critical)')+'':'')+'.</div>';
+      if(lv>=7)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Lv.7 Stile di Combattimento Aggiuntivo: un altro Talento Stile di Combattimento.':'Lv.7 Additional Fighting Style: another Fighting Style feat.')+'</div>';
+      if(lv>=10)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Lv.10 Guerriero Eroico: ottieni Ispirazione Eroica all\'inizio del turno se ne sei privo (in combattimento).':'Lv.10 Heroic Warrior: gain Heroic Inspiration at the start of your turn if you lack it (during combat).')+'</div>';
+      if(lv>=18)html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Lv.18 Sopravvissuto: se sanguinante con ≥1 PF, recuperi 5 + mod.COS PF a inizio turno; vantaggio ai TS contro morte (18-20 = 20).':'Lv.18 Survivor: if Bloodied with ≥1 HP, regain 5 + CON mod HP at the start of your turn; Advantage on Death Saves (18-20 = 20).')+'</div>';
       html+='</div>';
     }
 
@@ -3645,18 +3666,18 @@ function fRClassBlock(){
     // ── DIFESA SENZA ARMATURA (Lv.1): 10 + mod.DES + mod.SAG ──
     var monkAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('WIS'));
     html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
-    html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
-    html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+monkAC+'</span>';
-    html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.SAG (senza armatura n\u00e9 scudo)</span>';
+    html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F '+(isIt?'Difesa senza Armatura':'Unarmored Defense')+'</span>';
+    html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">'+(isIt?'CA ':'AC ')+monkAC+'</span>';
+    html+='<span style="font-size:10px;color:var(--muted)">'+(isIt?'10 + mod.DES + mod.SAG (senza armatura n\u00e9 scudo)':'10 + DEX mod + WIS mod (no armor or shield)')+'</span>';
     html+='</div></div>';
     if(lv>=2){
     var kiMax=fMaxKi(lv),kiUsed=(C.ki&&C.ki.used)||0;
     html+='<div style="'+boxS+'">';
     html+='<div style="font-size:11px;color:var(--gold2);margin-bottom:6px;font-weight:700">\uD83D\uDD35 '+(isIt?'Punti Concentrazione':'Ki Points')+' \u2014 '+(kiMax-kiUsed)+'/'+kiMax+'</div>';
     html+='<div style="'+rowS+'">'+fDots(kiUsed,kiMax,'fUseKi','fRestoreKi','#3498db')+'</div>';
-    html+='<div style="display:flex;gap:6px;margin-top:4px"><button onclick="fUseKi()" style="'+selS+';font-size:11px">- Usa 1</button><button onclick="fRestoreKi()" style="'+selS+';font-size:11px">+ Recupera 1</button></div>';
-    html+='<div style="margin-top:6px;font-size:10px;color:var(--muted)">Difesa paziente (1) \u00b7 Passo del vento (1) \u00b7 Raffica di colpi (1)</div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: tutti/riposo breve o lungo</div>';
+    html+='<div style="display:flex;gap:6px;margin-top:4px"><button onclick="fUseKi()" style="'+selS+';font-size:11px">'+(isIt?'- Usa 1':'- Use 1')+'</button><button onclick="fRestoreKi()" style="'+selS+';font-size:11px">'+(isIt?'+ Recupera 1':'+ Regain 1')+'</button></div>';
+    html+='<div style="margin-top:6px;font-size:10px;color:var(--muted)">'+(isIt?'Difesa paziente (1) \u00b7 Passo del vento (1) \u00b7 Raffica di colpi (1)':'Patient Defense (1) \u00b7 Step of the Wind (1) \u00b7 Flurry of Blows (1)')+'</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Recupero: tutti/riposo breve o lungo':'Recovery: all on a Short or Long Rest')+'</div>';
     html+='</div>';
     }
   }
@@ -3668,30 +3689,30 @@ function fRClassBlock(){
     var bUsed=(C.bardicInsp&&C.bardicInsp.used)||0;
     html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">\uD83C\uDFB5 '+(isIt?'Ispirazione':'Bardic Insp.')+' ('+bDie+')</span>'+fDots(bUsed,bMax,'fUseBardicInsp','fRestoreBardicInsp','#f39c12')+'<span style="font-size:10px;color:var(--vdim)">'+(bMax-bUsed)+'/'+bMax+'</span></div></div>';
     // Info recupero IB
-    html+='<div style="font-size:10px;color:var(--vdim);margin-top:3px">Usi: mod. CAR (min 1) · '+(lv>=5?'rec. riposo breve o lungo':'rec. riposo lungo')+'</div>';
+    html+='<div style="font-size:10px;color:var(--vdim);margin-top:3px">'+(isIt?'Usi: mod. CAR (min 1) · ':'Uses: CHA mod (min 1) · ')+(lv>=5?(isIt?'rec. riposo breve o lungo':'rec. on Short or Long Rest'):(isIt?'rec. riposo lungo':'rec. on Long Rest'))+'</div>';
     // ── Collegio della Danza: Difesa senza Armatura (Lv.3) — 10 + mod.DES + mod.CAR ──
     if(sc==='danza'&&lv>=3){
       var danzaAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('CHA'));
       html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
-      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
-      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+danzaAC+'</span>';
+      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F '+(isIt?'Difesa senza Armatura':'Unarmored Defense')+'</span>';
+      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">'+(isIt?'CA ':'AC ')+danzaAC+'</span>';
       html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.CAR (Scarto Smagliante, senza armatura n\u00e9 scudo)</span>';
       html+='</div></div>';
     }
     // Fonte di Ispirazione Lv.5: spendi slot → recupera 1 IB
     if(lv>=5){
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">⚡ Fonte di Ispirazione (Lv.5): spendi 1 slot incantesimo → recupera 1 uso IB (nessuna azione)</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">⚡ '+(isIt?'Fonte di Ispirazione (Lv.5): spendi 1 slot incantesimo → recupera 1 uso IB (nessuna azione)':'Font of Inspiration (Lv.5): spend 1 spell slot → regain 1 Bardic Inspiration use (no action)')+'</div>';
     }
     // Controfascino Lv.7
     if(lv>=7){
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🛡️ Controfascino (Lv.7): reazione — se tu o creatura entro 9m fallisce TS contro affascinato/spaventato → ripete il TS con vantaggio</div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:2px">🛡️ '+(isIt?'Controfascino (Lv.7): reazione — se tu o creatura entro 9m fallisce TS contro affascinato/spaventato → ripete il TS con vantaggio':'Countercharm (Lv.7): Reaction — if you or a creature within 30 ft fails a save vs Charmed/Frightened → reroll the save with Advantage')+'</div>';
     }
     // Ispirazione Superiore Lv.18
     if(lv>=18){
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:2px">✨ Ispirazione Superiore (Lv.18): quando tira per iniziativa con meno di 2 IB → recupera fino ad averne 2</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:2px">✨ '+(isIt?'Ispirazione Superiore (Lv.18): quando tira per iniziativa con meno di 2 IB → recupera fino ad averne 2':'Superior Inspiration (Lv.18): when you roll Initiative with fewer than 2 Bardic Inspiration → regain up to 2')+'</div>';
     }
-    if(lv>=10){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">📚 Segreti Magici (Lv.10+)</div>'+'<div style="font-size:10px;color:var(--muted)">Ogni level-up in cui i preparati aumentano: scegli da lista Chierico, Druido o Mago (valgono come da Bardo).</div></div>';}
-    if(sc==='sapienza'&&lv>=6){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2)">📚 Sapienza: Scoperte Magiche (Lv.6)</div>'+'<div style="font-size:10px;color:var(--muted)">Apprende 2 incantesimi da lista chierico, druido o mago (trucchetto o livello con slot).</div></div>';}
+    if(lv>=10){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2);margin-bottom:4px">📚 '+(isIt?'Segreti Magici (Lv.10+)':'Magical Secrets (Lv.10+)')+'</div>'+'<div style="font-size:10px;color:var(--muted)">'+(isIt?'Ogni level-up in cui i preparati aumentano: scegli da lista Chierico, Druido o Mago (valgono come da Bardo).':'Each level-up that increases prepared spells: choose from the Cleric, Druid, or Wizard list (count as Bard spells).')+'</div></div>';}
+    if(sc==='sapienza'&&lv>=6){html+='<div style="'+boxS+'">'+'<div style="font-size:10px;color:var(--gold2)">📚 '+(isIt?'Sapienza: Scoperte Magiche (Lv.6)':'Lore: Magical Discoveries (Lv.6)')+'</div>'+'<div style="font-size:10px;color:var(--muted)">'+(isIt?'Apprende 2 incantesimi da lista chierico, druido o mago (trucchetto o livello con slot).':'Learn 2 spells from the Cleric, Druid, or Wizard list (cantrip or leveled with a slot).')+'</div></div>';}
 
     // ===== Collegio della DANZA: privilegi descrittivi =====
 
@@ -3702,9 +3723,9 @@ function fRClassBlock(){
     // ===== Collegio della SAPIENZA: Maestosità Invitta (Lv.14) =====
     if(sc==='sapienza'&&lv>=14){
       var umUsed=(C.unbreakableMajesty&&C.unbreakableMajesty.used)||0;
-      html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">👑 Maestosità Invitta (Lv.14)</span>'+fDots(umUsed,1,'fUseUnbreakableMajesty','fRestoreUnbreakableMajesty','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(1-umUsed)+'/1</span></div>';
-      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Azione bonus: presenza maestosa 1 min. Chi ti colpisce per la prima volta in un turno → TS su CAR (CD incantesimi) o l\'attacco fallisce e l\'attaccante indietreggia atterrito.</div>';
-      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: 1/riposo breve o lungo</div></div>';
+      html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">👑 '+(isIt?'Maestosità Invitta (Lv.14)':'Unbreakable Majesty (Lv.14)')+'</span>'+fDots(umUsed,1,'fUseUnbreakableMajesty','fRestoreUnbreakableMajesty','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(1-umUsed)+'/1</span></div>';
+      html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Azione bonus: presenza maestosa 1 min. Chi ti colpisce per la prima volta in un turno → TS su CAR (CD incantesimi) o l\'attacco fallisce e l\'attaccante indietreggia atterrito.':'Bonus Action: majestic presence 1 min. The first creature to hit you each turn → CHA save (spell DC) or the attack misses and the attacker recoils in fear.')+'</div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Recupero: 1/riposo breve o lungo':'Recovery: 1/Short or Long Rest')+'</div></div>';
     }
 
     // ===== Collegio del VALORE: privilegi descrittivi =====
@@ -3718,36 +3739,36 @@ function fRClassBlock(){
     var sparkDice=lv>=18?'4d8':lv>=13?'3d8':lv>=7?'2d8':'1d8';
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">✝️ '+(isIt?'Incan. Divinità':'Channel Div.')+'</span>'+fDots(cdUsed,cdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(cdMax-cdUsed)+'/'+cdMax+'</span></div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Effetti: Scacciare non morti · Scintilla Divina · effetto sottoclasse</div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:1px">Recupero: 1 uso/riposo breve · tutti/riposo lungo</div>';
-    html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">✨ Scintilla Divina: <strong style="color:var(--gold)">'+sparkDice+'</strong> <span style="font-size:9px;color:var(--muted)">cura o danni radiosi/necrotici a 1 creatura entro 9 m (scelta al lancio)</span></div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Trucchetti: <strong style="color:var(--gold)">'+cantripCount+'</strong> (Lv.1-3→3, Lv.4-9→4, Lv.10+→5)</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Effetti: Scacciare non morti · Scintilla Divina · effetto sottoclasse':'Effects: Turn Undead · Divine Spark · subclass effect')+'</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:1px">'+(isIt?'Recupero: 1 uso/riposo breve · tutti/riposo lungo':'Recovery: 1 use/Short Rest · all/Long Rest')+'</div>';
+    html+='<div style="font-size:10px;color:var(--gold2);margin-top:5px">✨ '+(isIt?'Scintilla Divina:':'Divine Spark:')+' <strong style="color:var(--gold)">'+sparkDice+'</strong> <span style="font-size:9px;color:var(--muted)">'+(isIt?'cura o danni radiosi/necrotici a 1 creatura entro 9 m (scelta al lancio)':'heal or radiant/necrotic damage to 1 creature within 30 ft (chosen on cast)')+'</span></div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Trucchetti:':'Cantrips:')+' <strong style="color:var(--gold)">'+cantripCount+'</strong> (Lv.1-3→3, Lv.4-9→4, Lv.10+→5)</div>';
     html+='</div>';
         if(!C.divOrder){
-      html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u2699\ufe0f Ordine Divino (Lv.1)</div><div style="display:flex;gap:6px"><button onclick="fSetDivOrder(\'protettore\')" style="'+selS+'">🛡️ Protettore</button><button onclick="fSetDivOrder(\'taumaturgo\')" style="'+selS+'">📜 Taumaturgo</button></div></div>';
+      html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\u2699\ufe0f '+(isIt?'Ordine Divino (Lv.1)':'Divine Order (Lv.1)')+'</div><div style="display:flex;gap:6px"><button onclick="fSetDivOrder(\'protettore\')" style="'+selS+'">🛡️ '+(isIt?'Protettore':'Protector')+'</button><button onclick="fSetDivOrder(\'taumaturgo\')" style="'+selS+'">📜 '+(isIt?'Taumaturgo':'Thaumaturge')+'</button></div></div>';
     } else {
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.divOrder==='protettore'?'🛡️ Protettore':'📜 Taumaturgo')+'</strong>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">'+(isIt?'Ordine: ':'Order: ')+'<strong style="color:var(--gold)">'+(C.divOrder==='protettore'?(isIt?'🛡️ Protettore':'🛡️ Protector'):(isIt?'📜 Taumaturgo':'📜 Thaumaturge'))+'</strong>';
       if(C.divOrder==='taumaturgo'){
         var sagBonus=Math.max(1,fcmod(fTotalStat('WIS')));
-        html+=' <span style="font-size:9px;color:var(--muted)">— bonus INT(Arcano/Religione): <strong style="color:var(--gold)">+'+(sagBonus)+'</strong></span>';
+        html+=' <span style="font-size:9px;color:var(--muted)">'+(isIt?'— bonus INT(Arcano/Religione): ':'— INT bonus (Arcana/Religion): ')+'<strong style="color:var(--gold)">+'+(sagBonus)+'</strong></span>';
       }
-      html+=' <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
+      html+=' <span onclick="fSetDivOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">'+(isIt?'✕ cambia':'✕ change')+'</span></div>';
     }
     if(lv>=7){
       if(!C.blessedStrikes){
-        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ Colpi Benedetti (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ Colpo Divino</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
+        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">⚡ '+(isIt?'Colpi Benedetti (Lv.7)':'Blessed Strikes (Lv.7)')+'</div><div style="display:flex;gap:6px"><button onclick="fSetBlessedStrikes(\'divino\')" style="'+selS+'">⚔️ '+(isIt?'Colpo Divino':'Divine Strike')+'</button><button onclick="fSetBlessedStrikes(\'potenti\')" style="'+selS+'">✨ '+(isIt?'Inc. Potenti':'Potent Spellcasting')+'</button></div></div>';
       } else {
         var lv14note='';
-        if(lv>=14)lv14note=C.blessedStrikes==='divino'?' <span style="color:var(--muted);font-size:9px">(Lv.14: →2d8)</span>':' <span style="color:var(--muted);font-size:9px">(Lv.14: PF temp 2×SAG)</span>';
-        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Colpi: <strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?'⚔️ Divino':'✨ Potenti')+'</strong>'+lv14note+' <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">✕ cambia</span></div>';
+        if(lv>=14)lv14note=C.blessedStrikes==='divino'?' <span style="color:var(--muted);font-size:9px">(Lv.14: →2d8)</span>':' <span style="color:var(--muted);font-size:9px">'+(isIt?'(Lv.14: PF temp 2×SAG)':'(Lv.14: 2×WIS temp HP)')+'</span>';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">'+(isIt?'Colpi: ':'Strikes: ')+'<strong style="color:var(--gold)">'+(C.blessedStrikes==='divino'?(isIt?'⚔️ Divino':'⚔️ Divine'):(isIt?'✨ Potenti':'✨ Potent'))+'</strong>'+lv14note+' <span onclick="fSetBlessedStrikes(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">'+(isIt?'✕ cambia':'✕ change')+'</span></div>';
       }
     }
     // Bruciare i Non Morti (Lv.5) — feature base classe
     if(lv>=5){
       var burnMod=Math.max(1,fcmod(fTotalStat('WIS')));
       var burnDiceStr=burnMod+'d8';
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🔥 Bruciare i Non Morti (Lv.5)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Scacciare non morti: <strong style="color:var(--gold)">'+burnDiceStr+'</strong> danni radiosi extra ai fallimenti <span style="font-size:9px;color:var(--vdim)">(mod.SAG d8, min 1d8 · CD incantesimo)</span></div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">🔥 '+(isIt?'Bruciare i Non Morti (Lv.5)':'Burn Undead (Lv.5)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Scacciare non morti: ':'Turn Undead: ')+'<strong style="color:var(--gold)">'+burnDiceStr+'</strong>'+(isIt?' danni radiosi extra ai fallimenti ':' extra radiant damage on failures ')+'<span style="font-size:9px;color:var(--vdim)">'+(isIt?'(mod.SAG d8, min 1d8 · CD incantesimo)':'(WIS mod d8, min 1d8 · spell DC)')+'</span></div>';
       html+='</div>';
     }
     // Sacerdote di Guerra (Dominio della Guerra Lv.3)
@@ -3755,13 +3776,13 @@ function fRClassBlock(){
     // Preservare Vita (Dominio della Vita Lv.3) — pool PF = 5 × livello chierico
     if(sc==='vita'){
       var preserveHP=lv*5;
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">💖 Preservare Vita (Lv.3)</div>';
-      html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="'+lblS+'">Pool PF</span><span style="font-size:16px;font-weight:900;color:var(--gold)">'+preserveHP+' PF</span><span style="font-size:9px;color:var(--muted)">(5 × livello chierico)</span></div>';
-      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">Azione di Magia + 1 uso Incanalare Divinità: distribuisci tra creature sanguinanti entro 9 m (incluso te), fino a metà dei PF massimi di ciascuna.</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">💖 '+(isIt?'Preservare Vita (Lv.3)':'Preserve Life (Lv.3)')+'</div>';
+      html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="'+lblS+'">'+(isIt?'Pool PF':'HP Pool')+'</span><span style="font-size:16px;font-weight:900;color:var(--gold)">'+preserveHP+' '+(isIt?'PF':'HP')+'</span><span style="font-size:9px;color:var(--muted)">'+(isIt?'(5 × livello chierico)':'(5 × cleric level)')+'</span></div>';
+      html+='<div style="font-size:9px;color:var(--vdim);margin-top:3px">'+(isIt?'Azione di Magia + 1 uso Incanalare Divinità: distribuisci tra creature sanguinanti entro 9 m (incluso te), fino a metà dei PF massimi di ciascuna.':'Magic action + 1 Channel Divinity use: distribute among bleeding creatures within 30 ft (including you), up to half each one\'s maximum HP.')+'</div>';
       // Guaritore Benedetto (Lv.6) — descrittivo
-      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">Lv.6 Guaritore Benedetto: quando curi un\'altra creatura con uno slot, recuperi PF = 2 + livello slot.</div>';
+      if(lv>=6)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">'+(isIt?'Lv.6 Guaritore Benedetto: quando curi un\'altra creatura con uno slot, recuperi PF = 2 + livello slot.':'Lv.6 Blessed Healer: when you heal another creature with a slot, you regain HP = 2 + slot level.')+'</div>';
       // Guarigione Suprema (Lv.17) — descrittivo
-      if(lv>=17)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">Lv.17 Guarigione Suprema: i dadi di guarigione (incantesimi/Incanalare Divinità) usano sempre il valore massimo.</div>';
+      if(lv>=17)html+='<div style="font-size:9px;color:var(--gold2);margin-top:2px">'+(isIt?'Lv.17 Guarigione Suprema: i dadi di guarigione (incantesimi/Incanalare Divinità) usano sempre il valore massimo.':'Lv.17 Supreme Healing: healing dice (spells/Channel Divinity) always use the maximum value.')+'</div>';
       html+='</div>';
     }
     // Benedizione dell'Ingannatore (Dominio dell'Inganno Lv.3) — descrittivo + privilegi superiori
@@ -3770,16 +3791,17 @@ function fRClassBlock(){
     if(lv>=10){
       var divIntUsed=C.divIntUsed||false;
       html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-      html+='<span style="font-size:11px;color:var(--gold2)">\u{1F64F} Intervento Divino'+(lv>=20?' Superiore (Lv.20)':' (Lv.10+)')+'</span>';
-      if(!divIntUsed){html+='<button onclick="C.divIntUsed=true;re()" style="background:rgba(241,196,15,.15);border:1px solid rgba(241,196,15,.4);border-radius:3px;color:#f1c40f;font-size:11px;padding:4px 10px;cursor:pointer">\u26a1 Attiva</button>';}
-      else{html+='<span style="font-size:10px;color:var(--vdim)">Usato <button onclick="C.divIntUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">\u21a9 reset</button></span>';}
+      html+='<span style="font-size:11px;color:var(--gold2)">\u{1F64F} '+(isIt?'Intervento Divino':'Divine Intervention')+(lv>=20?(isIt?' Superiore (Lv.20)':' Improved (Lv.20)'):' (Lv.10+)')+'</span>';
+      if(!divIntUsed){html+='<button onclick="C.divIntUsed=true;re()" style="background:rgba(241,196,15,.15);border:1px solid rgba(241,196,15,.4);border-radius:3px;color:#f1c40f;font-size:11px;padding:4px 10px;cursor:pointer">\u26a1 '+(isIt?'Attiva':'Activate')+'</button>';}
+      else{html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'Usato':'Used')+' <button onclick="C.divIntUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">\u21a9 reset</button></span>';}
       html+='</div>';
-      if(lv<20)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Incantesimo da chierico \u2264 5\u00b0 lv (no reazione) \u00b7 senza slot n\u00e9 componenti \u00b7 1/riposo lungo</div>';
+      if(lv<20)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'Incantesimo da chierico \u2264 5\u00b0 lv (no reazione) \u00b7 senza slot n\u00e9 componenti \u00b7 1/riposo lungo':'Cleric spell \u2264 5th lv (no Reaction) \u00b7 no slot or components \u00b7 1/Long Rest')+'</div>';
       html+='</div>';
     }
     var cdEffects={vita:['Preservare Vita'],luce:['Fulgore dell\'Alba'],inganno:['Invocare Duplicato'],guerra:['Colpo Guidato']};
-    var cdSc2=cdEffects[sc]||[];
-    if(cdSc2.length>0)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Effetto CD sottoclasse: <strong>'+cdSc2[0]+'</strong></div>';
+    var cdEffectsEn={vita:['Preserve Life'],luce:["Dawn's Radiance"],inganno:['Invoke Duplicity'],guerra:['Guided Strike']};
+    var cdSc2=(isIt?cdEffects[sc]:cdEffectsEn[sc])||[];
+    if(cdSc2.length>0)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'Effetto CD sottoclasse: ':'Subclass CD effect: ')+'<strong>'+cdSc2[0]+'</strong></div>';
     html+='</div>';
 
 
@@ -3789,34 +3811,35 @@ function fRClassBlock(){
   if(cl==='paladin'){
     var pcdMax=lv>=3?(lv>=11?3:2):0,pcdUsed=(C.channelDiv&&C.channelDiv.used)||0;
     var oathFx={devotion:['Percezione del Divino','Arma Consacrata'],ancients:['Percezione del Divino','Furia della Natura'],vengeance:['Percezione del Divino','Voto di Inimicizia','Abiurare Nemici'],glory:['Percezione del Divino','Atleta Impareggiabile']};
-    var oEff=oathFx[sc]||['Percezione del Divino'];
+    var oathFxEn={devotion:['Divine Sense','Sacred Weapon'],ancients:['Divine Sense',"Nature's Wrath"],vengeance:['Divine Sense','Vow of Enmity','Abjure Foes'],glory:['Divine Sense','Peerless Athlete']};
+    var oEff=(isIt?oathFx[sc]:oathFxEn[sc])||(isIt?['Percezione del Divino']:['Divine Sense']);
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">✝️ '+(isIt?'Incan. Divinità':'Channel Div.')+'</span>'+fDots(pcdUsed,pcdMax,'fUseChannelDiv','fRestoreChannelDiv','#f1c40f')+'<span style="font-size:10px;color:var(--vdim)">'+(pcdMax-pcdUsed)+'/'+pcdMax+'</span></div>';
-    html+='<div style="font-size:10px;color:var(--muted)">Effetti: '+oEff.join(' · ')+'</div>';
-    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">Recupero: 1/riposo breve · tutti/riposo lungo</div></div>';
+    html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Effetti: ':'Effects: ')+oEff.join(' · ')+'</div>';
+    html+='<div style="font-size:9px;color:var(--vdim);margin-top:2px">'+(isIt?'Recupero: 1/riposo breve · tutti/riposo lungo':'Recovery: 1/Short Rest · all/Long Rest')+'</div></div>';
     // Imposizione delle Mani — tracker PF interattivo
     if(!C.palLayHands||C.palLayHands.max!==lv*5)C.palLayHands={max:lv*5,cur:(C.palLayHands&&C.palLayHands.cur!=null?C.palLayHands.cur:lv*5)};
     var layMax=C.palLayHands.max,layCur=C.palLayHands.cur;
     html+='<div style="'+boxS+'">';
-    html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span style="'+lblS+'">🛐 Imposizione Mani</span><span style="color:var(--gold);font-weight:700;font-size:15px">'+layCur+'/'+layMax+' PF</span></div>';
+    html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><span style="'+lblS+'">🛐 '+(isIt?'Imposizione Mani':'Lay on Hands')+'</span><span style="color:var(--gold);font-weight:700;font-size:15px">'+layCur+'/'+layMax+' PF</span></div>';
     html+='<div style="display:flex;gap:5px;flex-wrap:wrap">';
     [1,5,10].forEach(function(n){html+='<button onclick="if(!C.palLayHands)C.palLayHands={max:'+layMax+',cur:'+layCur+'};C.palLayHands.cur=Math.max(0,C.palLayHands.cur-'+n+');re()" style="background:rgba(200,0,0,.12);border:1px solid rgba(200,0,0,.3);border-radius:3px;color:#e74c3c;font-size:11px;padding:3px 7px;cursor:pointer">−'+n+'</button>';});
     [1,5,10].forEach(function(n){html+='<button onclick="if(!C.palLayHands)C.palLayHands={max:'+layMax+',cur:'+layCur+'};C.palLayHands.cur=Math.min(C.palLayHands.max,C.palLayHands.cur+'+n+');re()" style="background:rgba(39,174,96,.12);border:1px solid rgba(39,174,96,.3);border-radius:3px;color:#27ae60;font-size:11px;padding:3px 7px;cursor:pointer">+'+n+'</button>';});
     html+='<button onclick="C.palLayHands={max:'+layMax+',cur:'+layMax+'};re()" style="background:rgba(200,164,90,.1);border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--gold2);font-size:10px;padding:3px 7px;cursor:pointer">♺ Full</button>';
-    html+='</div><div style="font-size:10px;color:var(--muted);margin-top:4px">5 PF = cura 1 malattia/veleno</div></div>';
+    html+='</div><div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'5 PF = cura 1 malattia/veleno':'5 HP = cure 1 disease/poison')+'</div></div>';
     // Punizione Divina (1×/riposo lungo senza slot)
     if(!C.divPunish)C.divPunish={used:false};
     html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-    html+='<span style="font-size:11px;color:var(--gold2)">⚡ Punizione Divina (sempre preparata)</span>';
-    if(!C.divPunish.used){html+='<button onclick="if(!C.divPunish)C.divPunish={};C.divPunish.used=true;re()" style="background:rgba(241,196,15,.15);border:1px solid rgba(241,196,15,.4);border-radius:3px;color:#f1c40f;font-size:11px;padding:3px 9px;cursor:pointer">⚡ Usa senza slot</button>';}
-    else{html+='<span style="font-size:10px;color:var(--vdim)">Usata <button onclick="C.divPunish.used=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
-    html+='</div><div style="font-size:10px;color:var(--muted);margin-top:4px">+2d8 radiosi (+2d8 vs non morti/immondi) · 1×/riposo lungo</div></div>';
+    html+='<span style="font-size:11px;color:var(--gold2)">⚡ '+(isIt?'Punizione Divina (sempre preparata)':'Divine Smite (always prepared)')+'</span>';
+    if(!C.divPunish.used){html+='<button onclick="if(!C.divPunish)C.divPunish={};C.divPunish.used=true;re()" style="background:rgba(241,196,15,.15);border:1px solid rgba(241,196,15,.4);border-radius:3px;color:#f1c40f;font-size:11px;padding:3px 9px;cursor:pointer">⚡ '+(isIt?'Usa senza slot':'Use without slot')+'</button>';}
+    else{html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'Usata':'Used')+' <button onclick="C.divPunish.used=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
+    html+='</div><div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'+2d8 radiosi (+2d8 vs non morti/immondi) · 1×/riposo lungo':'+2d8 radiant (+2d8 vs undead/fiends) · 1×/Long Rest')+'</div></div>';
     // Aura di Protezione (Lv.6+)
     if(lv>=6){
       html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:8px">';
-      html+='<span style="font-size:11px;color:var(--gold2)">🛡️ Aura di Protezione</span>';
-      html+='<span style="font-size:11px;color:var(--gold);font-weight:700">'+(lv>=18?9:3)+' m</span>';
-      html+='</div><div style="font-size:10px;color:var(--muted)">Tu e alleati nell\'aura: +mod. CAR ai TS (min 1)</div></div>';
+      html+='<span style="font-size:11px;color:var(--gold2)">🛡️ '+(isIt?'Aura di Protezione':'Aura of Protection')+'</span>';
+      html+='<span style="font-size:11px;color:var(--gold);font-weight:700">'+(isIt?(lv>=18?9:3)+' m':(lv>=18?30:10)+' ft')+'</span>';
+      html+='</div><div style="font-size:10px;color:var(--muted)">'+(isIt?'Tu e alleati nell\'aura: +mod. CAR ai TS (min 1)':'You and allies in the aura: +CHA mod to saves (min 1)')+'</div></div>';
     }
   }
 
@@ -3830,36 +3853,36 @@ function fRClassBlock(){
     var hasVolo=lv>=8;
     html+='<div style="'+boxS+'">';
     html+='<div style="'+rowS+'"><span style="'+lblS+'">\uD83D\uDC3E '+(isIt?'Forma Selvatica':'Wild Shape')+'</span>'+fDots(wsUsed,wsMax,'fUseWildShape','fRestoreWildShape','#27ae60')+'<span style="font-size:10px;color:var(--vdim)">'+(wsMax-wsUsed)+'/'+wsMax+'</span></div>';
-    html+='<div style="font-size:10px;color:var(--muted)">GS max: '+gsMax+' \u00b7 '+(hasVolo?'con volo':'senza volo')+'</div>';
+    html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'GS max: ':'CR max: ')+gsMax+' \u00b7 '+(hasVolo?(isIt?'con volo':'with flight'):(isIt?'senza volo':'no flight'))+'</div>';
     var wForms=C.wildForms||[];
-    html+='<div style="margin-top:8px"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">Forme conosciute ('+wForms.length+'/'+maxForms+'):</div>';
+    html+='<div style="margin-top:8px"><div style="font-size:10px;color:var(--gold2);margin-bottom:4px">'+(isIt?'Forme conosciute':'Known forms')+' ('+wForms.length+'/'+maxForms+'):</div>';
     html+='<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">';
     wForms.forEach(function(f,i){html+='<span style="background:rgba(39,174,96,.1);border:1px solid rgba(39,174,96,.3);border-radius:10px;padding:2px 8px;font-size:10px;color:var(--text);display:flex;align-items:center;gap:4px">'+f.nome+' <span style="color:var(--vdim);font-size:9px">GS '+f.gs+'</span><span onclick="fRemoveWildForm('+i+')" style="cursor:pointer;color:var(--vdim)">\u2715</span></span>';});
     html+='</div>';
-    if(wForms.length<maxForms)html+='<div style="display:flex;gap:4px"><input id="wf-inp" placeholder="Nome bestia..." style="flex:1;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 7px" onkeydown="if(event.key===\'Enter\')fAddWildForm()"><input id="wf-gs" placeholder="GS" style="width:44px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 5px;text-align:center"><button onclick="fAddWildForm()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 9px;cursor:pointer">+</button></div>';
+    if(wForms.length<maxForms)html+='<div style="display:flex;gap:4px"><input id="wf-inp" placeholder="'+(isIt?'Nome bestia...':'Beast name...')+'" style="flex:1;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 7px" onkeydown="if(event.key===\'Enter\')fAddWildForm()"><input id="wf-gs" placeholder="GS" style="width:44px;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:4px 5px;text-align:center"><button onclick="fAddWildForm()" style="background:rgba(200,164,90,.15);border:1px solid rgba(200,164,90,.4);border-radius:3px;color:var(--gold);font-size:11px;padding:4px 9px;cursor:pointer">+</button></div>';
     html+='</div>';
     if(!C.primordialOrder){
-      html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\uD83C\uDF3F Ordine Primordiale (Lv.1)</div><div style="display:flex;gap:6px"><button onclick="fSetPrimordialOrder(\'custode\')" style="'+selS+'">🛡️ Custode</button><button onclick="fSetPrimordialOrder(\'mago\')" style="'+selS+'">📚 Mago</button></div></div>';
+      html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\uD83C\uDF3F '+(isIt?'Ordine Primordiale (Lv.1)':'Primordial Order (Lv.1)')+'</div><div style="display:flex;gap:6px"><button onclick="fSetPrimordialOrder(\'custode\')" style="'+selS+'">🛡️ '+(isIt?'Custode':'Warden')+'</button><button onclick="fSetPrimordialOrder(\'mago\')" style="'+selS+'">📚 '+(isIt?'Mago':'Mage')+'</button></div></div>';
     } else {
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Ordine: <strong style="color:var(--gold)">'+(C.primordialOrder==='custode'?'🛡️ Custode':'📚 Mago')+'</strong> <span onclick="fSetPrimordialOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">'+(isIt?'Ordine: ':'Order: ')+'<strong style="color:var(--gold)">'+(C.primordialOrder==='custode'?(isIt?'🛡️ Custode':'🛡️ Warden'):(isIt?'📚 Mago':'📚 Mage'))+'</strong> <span onclick="fSetPrimordialOrder(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 '+(isIt?'cambia':'change')+'</span></div>';
     }
     if(lv>=7){
       if(!C.elementalFury){
-        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\uD83C\uDF2A\ufe0f Furia Elementale (Lv.7)</div><div style="display:flex;gap:6px"><button onclick="fSetElementalFury(\'colpo\')" style="'+selS+'">\u26a1 Colpo Primordiale</button><button onclick="fSetElementalFury(\'potenti\')" style="'+selS+'">✨ Inc. Potenti</button></div></div>';
+        html+='<div style="margin-top:6px"><div style="font-size:10px;color:var(--gold2);margin-bottom:3px">\uD83C\uDF2A\ufe0f '+(isIt?'Furia Elementale (Lv.7)':'Elemental Fury (Lv.7)')+'</div><div style="display:flex;gap:6px"><button onclick="fSetElementalFury(\'colpo\')" style="'+selS+'">\u26a1 '+(isIt?'Colpo Primordiale':'Primal Strike')+'</button><button onclick="fSetElementalFury(\'potenti\')" style="'+selS+'">✨ '+(isIt?'Inc. Potenti':'Potent Spellcasting')+'</button></div></div>';
       } else {
-        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">Furia: <strong style="color:var(--gold)">'+(C.elementalFury==='colpo'?'\u26a1 Colpo Primordiale':'✨ Inc. Potenti')+'</strong> <span onclick="fSetElementalFury(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 cambia</span></div>';
+        html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">'+(isIt?'Furia: ':'Fury: ')+'<strong style="color:var(--gold)">'+(C.elementalFury==='colpo'?(isIt?'\u26a1 Colpo Primordiale':'\u26a1 Primal Strike'):(isIt?'✨ Inc. Potenti':'✨ Potent Spellcasting'))+'</strong> <span onclick="fSetElementalFury(null)" style="cursor:pointer;color:var(--vdim);font-size:9px">\u2715 '+(isIt?'cambia':'change')+'</span></div>';
       }
     }
     // Furia Elementale Migliorata (Lv.15)
     if(lv>=15 && C.elementalFury){
-      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">⚡ Furia Migliorata (Lv.15): ';
-      if(C.elementalFury==='colpo') html+='Colpo primordiale → 2d8 danni extra</div>';
-      else html+='Inc. Potenti → trucchetti a 90 m di gittata in più</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-top:4px">⚡ '+(isIt?'Furia Migliorata (Lv.15): ':'Improved Fury (Lv.15): ');
+      if(C.elementalFury==='colpo') html+=''+(isIt?'Colpo primordiale → 2d8 danni extra':'Primal strike → 2d8 extra damage')+'</div>';
+      else html+=''+(isIt?'Inc. Potenti → trucchetti a 90 m di gittata in più':'Potent Spellcasting → cantrips gain +300 ft range')+'</div>';
     }
     // Incantesimi Bestiali (Lv.18)
-    if(lv>=18) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🐾 Incantesimi Bestiali (Lv.18): puoi lanciare incantesimi in Forma Selvatica</div>';
+    if(lv>=18) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🐾 '+(isIt?'Incantesimi Bestiali (Lv.18): puoi lanciare incantesimi in Forma Selvatica':'Beast Spells (Lv.18): you can cast spells in Wild Shape')+'</div>';
     // Arcidruido (Lv.20)
-    if(lv>=20) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🌿 Arcidruido (Lv.20): Forma Selvatica sempreverde · Mago della natura · Corpo senza tempo</div>';
+    if(lv>=20) html+='<div style="font-size:10px;color:var(--gold2);margin-top:3px">🌿 '+(isIt?'Arcidruido (Lv.20): Forma Selvatica sempreverde · Mago della natura · Corpo senza tempo':'Archdruid (Lv.20): evergreen Wild Shape · Nature Magician · Timeless Body')+'</div>';
 
     // Circolo della Luna: Forme del Circolo (CA e PF temp potenziati)
 
@@ -3867,11 +3890,11 @@ function fRClassBlock(){
 
     // Circolo della Terra: tipo terreno
     if(sc==='terra'){
-      var tTypes=[{id:'arida',it:'Arida',r:'Fuoco'},{id:'polare',it:'Polare',r:'Freddo'},{id:'temperata',it:'Temperata',r:'Fulmine'},{id:'tropicale',it:'Tropicale',r:'Veleno'}];
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">\uD83C\uDF0D Tipo di Terra</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
-      tTypes.forEach(function(t){var sel=(C.circleTerrainType===t.id);html+='<button onclick="C.circleTerrainType=\''+t.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+t.it+'</button>';});
+      var tTypes=[{id:'arida',it:'Arida',en:'Arid',r:'Fuoco',rEn:'Fire'},{id:'polare',it:'Polare',en:'Polar',r:'Freddo',rEn:'Cold'},{id:'temperata',it:'Temperata',en:'Temperate',r:'Fulmine',rEn:'Lightning'},{id:'tropicale',it:'Tropicale',en:'Tropical',r:'Veleno',rEn:'Poison'}];
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:5px">\uD83C\uDF0D '+(isIt?'Tipo di Terra':'Land Type')+'</div><div style="display:flex;flex-wrap:wrap;gap:5px">';
+      tTypes.forEach(function(t){var sel=(C.circleTerrainType===t.id);html+='<button onclick="C.circleTerrainType=\''+t.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+(isIt?t.it:t.en)+'</button>';});
       html+='</div>';
-      if(C.circleTerrainType){var cur=tTypes.find(function(t){return t.id===C.circleTerrainType;});if(cur)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resist. '+cur.r+' (Lv.10: Interdizione della Natura)</div>';}
+      if(C.circleTerrainType){var cur=tTypes.find(function(t){return t.id===C.circleTerrainType;});if(cur)html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'Resist. ':'Resist. ')+(isIt?cur.r:cur.rEn)+(isIt?' (Lv.10: Interdizione della Natura)':' (Lv.10: Nature\'s Ward)')+'</div>';}
       html+='</div>';
     }
     // Circolo delle Stelle: tracker dardo tracciante (Carta Celeste)
@@ -3885,9 +3908,9 @@ function fRClassBlock(){
     if(sc==='draconic'&&lv>=3){
       var dracAC=10+fcmod(fTotalStat('DEX'))+fcmod(fTotalStat('CHA'));
       html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">';
-      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F Difesa senza Armatura</span>';
-      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">CA '+dracAC+'</span>';
-      html+='<span style="font-size:10px;color:var(--muted)">10 + mod.DES + mod.CAR (Resilienza Draconica, senza armatura)</span>';
+      html+='<span style="'+lblS+'">\uD83D\uDEE1\uFE0F '+(isIt?'Difesa senza Armatura':'Unarmored Defense')+'</span>';
+      html+='<span style="font-size:18px;font-weight:900;color:var(--gold)">'+(isIt?'CA ':'AC ')+dracAC+'</span>';
+      html+='<span style="font-size:10px;color:var(--muted)">'+(isIt?'10 + mod.DES + mod.CAR (Resilienza Draconica, senza armatura)':'10 + DEX mod + CHA mod (Draconic Resilience, no armor)')+'</span>';
       html+='</div></div>';
     }
     var spMax2=lv>=2?fMaxSorcPoints(lv):0,spUsed2=(C.sorcPoints&&C.sorcPoints.used)||0;
@@ -3897,28 +3920,28 @@ function fRClassBlock(){
     // Stregoneria Innata (2 usi/riposo lungo)
     if(!C.innateUsed)C.innateUsed=0;
     html+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px">';
-    html+='<span style="font-size:10px;color:var(--gold2)">✨ Stregoneria Innata: '+(2-C.innateUsed)+'/2</span>';
-    html+='<button onclick="if((C.innateUsed||0)<2){C.innateUsed=(C.innateUsed||0)+1;re();}" style="background:rgba(142,68,173,.15);border:1px solid rgba(142,68,173,.4);border-radius:3px;color:#8e44ad;font-size:10px;padding:2px 7px;cursor:pointer">Usa</button>';
+    html+='<span style="font-size:10px;color:var(--gold2)">✨ '+(isIt?'Stregoneria Innata: ':'Innate Sorcery: ')+(2-C.innateUsed)+'/2</span>';
+    html+='<button onclick="if((C.innateUsed||0)<2){C.innateUsed=(C.innateUsed||0)+1;re();}" style="background:rgba(142,68,173,.15);border:1px solid rgba(142,68,173,.4);border-radius:3px;color:#8e44ad;font-size:10px;padding:2px 7px;cursor:pointer">'+(isIt?'Usa':'Use')+'</button>';
     html+='<button onclick="C.innateUsed=0;re()" style="background:none;border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--vdim);font-size:10px;padding:2px 7px;cursor:pointer">↩</button>';
     html+='</div>';
     html+='</div>';
     // Conversione slot ↔ punti
     if(lv>=2){
     html+='<div style="'+boxS+'">';
-    html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">♻️ Converti Slot ↔ Punti</div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">Slot → Punti (costo = livello slot):</div>';
+    html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">♻️ '+(isIt?'Converti Slot ↔ Punti':'Convert Slots ↔ Points')+'</div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+(isIt?'Slot → Punti (costo = livello slot):':'Slots → Points (cost = slot level):')+'</div>';
     html+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
     var lvToSlot=[1,2,3,4,5];
     lvToSlot.forEach(function(n){
-      html+='<button onclick="fConvertSlotToSP('+n+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+n+'°→'+n+'PS</button>';
+      html+='<button onclick="fConvertSlotToSP('+n+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+n+'°→'+n+(isIt?'PS':'SP')+'</button>';
     });
     html+='</div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">Punti → Slot:</div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+(isIt?'Punti → Slot:':'Points → Slots:')+'</div>';
     html+='<div style="display:flex;gap:4px;flex-wrap:wrap">';
     var spCost={1:2,2:3,3:5,4:6,5:7};
     Object.keys(spCost).forEach(function(lvl){
       var cost=spCost[lvl];
-      html+='<button onclick="fConvertSPtoSlot('+lvl+','+cost+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+cost+'PS→'+lvl+'°</button>';
+      html+='<button onclick="fConvertSPtoSlot('+lvl+','+cost+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+cost+(isIt?'PS':'SP')+'→'+lvl+'°</button>';
     });
     html+='</div>';
     if(C._sorcMsg&&C._sorcMsg.text){
@@ -3929,37 +3952,38 @@ function fRClassBlock(){
     // Metamagia
     if(lv>=2){
       var metaOpts=['Celato','Distante','Esteso','Intensificato','Mirato','Potenziato','Preciso','Raddoppiato','Rapido','Trasmutato'];
+      var metaOptsEn=['Subtle','Distant','Extended','Heightened','Seeking','Empowered','Careful','Twinned','Quickened','Transmuted'];
       var metaMax2=lv>=17?6:lv>=10?4:2;
       var metaChosen=C.metamagicChoices||[];
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🔮 Metamagia ('+metaChosen.length+'/'+metaMax2+')</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:6px">🔮 '+(isIt?'Metamagia':'Metamagic')+' ('+metaChosen.length+'/'+metaMax2+')</div>';
       html+='<div style="display:flex;flex-wrap:wrap;gap:4px">';
       metaOpts.forEach(function(m){
         var chosen=metaChosen.indexOf(m)>-1;
-        html+='<span onclick="fToggleMetamagic(\''+m+'\')" style="cursor:pointer;padding:2px 8px;border-radius:10px;font-size:10px;border:1px solid '+(chosen?'var(--gold)':'rgba(200,164,90,.2)')+';color:'+(chosen?'var(--gold)':'var(--muted)')+';background:'+(chosen?'rgba(200,164,90,.12)':'transparent')+'">'+m+'</span>';
+        html+='<span onclick="fToggleMetamagic(\''+m+'\')" style="cursor:pointer;padding:2px 8px;border-radius:10px;font-size:10px;border:1px solid '+(chosen?'var(--gold)':'rgba(200,164,90,.2)')+';color:'+(chosen?'var(--gold)':'var(--muted)')+';background:'+(chosen?'rgba(200,164,90,.12)':'transparent')+'">'+(isIt?m:(metaOptsEn[metaOpts.indexOf(m)]||m))+'</span>';
       });
       html+='</div></div>';
     }
     // Affinità Elementale (sottoclasse Draconica, Lv.6) — scelta del tipo di danno
     if(sc==='draconic'&&lv>=6){
       var elemTypes=[
-        {id:'acido',it:'Acido'},{id:'freddo',it:'Freddo'},
-        {id:'fulmine',it:'Fulmine'},{id:'fuoco',it:'Fuoco'},
-        {id:'veleno',it:'Veleno'}
+        {id:'acido',it:'Acido',en:'Acid'},{id:'freddo',it:'Freddo',en:'Cold'},
+        {id:'fulmine',it:'Fulmine',en:'Lightning'},{id:'fuoco',it:'Fuoco',en:'Fire'},
+        {id:'veleno',it:'Veleno',en:'Poison'}
       ];
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🐉 Affinità Elementale (Lv.6)</div>';
+      html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:5px">🐉 '+(isIt?'Affinità Elementale (Lv.6)':'Elemental Affinity (Lv.6)')+'</div>';
       if(!C.draconicAffinity){
         html+='<select onchange="C.draconicAffinity=this.value;re()" style="width:100%;background:#0a0a12;border:1px solid rgba(200,164,90,.3);border-radius:3px;color:var(--text);font-size:11px;padding:5px">';
-        html+='<option value="">— scegli tipo di danno —</option>';
-        elemTypes.forEach(function(d){html+='<option value="'+d.id+'">'+d.it+'</option>';});
+        html+='<option value="">'+(isIt?'— scegli tipo di danno —':'— choose damage type —')+'</option>';
+        elemTypes.forEach(function(d){html+='<option value="'+d.id+'">'+(isIt?d.it:d.en)+'</option>';});
         html+='</select>';
       } else {
         var curEl=elemTypes.find(function(d){return d.id===C.draconicAffinity;});
         html+='<div style="display:flex;align-items:center;justify-content:space-between">';
-        html+='<span style="color:var(--gold)">Affinità: '+(curEl?curEl.it:C.draconicAffinity)+'</span>';
-        html+='<span onclick="C.draconicAffinity=null;re()" style="cursor:pointer;color:var(--vdim);font-size:10px">✕ cambia</span>';
+        html+='<span style="color:var(--gold)">'+(isIt?'Affinità: ':'Affinity: ')+(curEl?(isIt?curEl.it:curEl.en):C.draconicAffinity)+'</span>';
+        html+='<span onclick="C.draconicAffinity=null;re()" style="cursor:pointer;color:var(--vdim);font-size:10px">'+(isIt?'✕ cambia':'✕ change')+'</span>';
         html+='</div>';
-        html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">Resistenza '+(curEl?curEl.it:'—')+' · +mod.CAR ai danni degli incantesimi di quel tipo</div>';
+        html+='<div style="font-size:10px;color:var(--muted);margin-top:4px">'+(isIt?'Resistenza ':'Resistance ')+(curEl?(isIt?curEl.it:curEl.en):'—')+(isIt?' · +mod.CAR ai danni degli incantesimi di quel tipo':' · +CHA mod to that damage type\'s spells')+'</div>';
       }
       html+='</div>';
     }
@@ -3984,20 +4008,20 @@ function fRClassBlock(){
     var nmMax2=lv>=17?6:lv>=13?5:lv>=9?4:lv>=5?3:2;
     var nmUsed=(C.nemesisMark&&C.nemesisMark.used)||0;
     html+='<div style="'+boxS+'"><div style="'+rowS+'"><span style="'+lblS+'">\uD83C\uDFAF '+(isIt?'Nemico Prescelto':'Favored Enemy')+'</span>'+fDots(nmUsed,nmMax2,'fUseNemesis','fRestoreNemesis','var(--green)')+'<span style="font-size:10px;color:var(--vdim)">'+(nmMax2-nmUsed)+'/'+nmMax2+'</span></div>';
-    html+='<div style="font-size:10px;color:var(--muted)">Marchio del cacciatore \u00b7 rec. riposo lungo</div></div>';
+    html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Marchio del cacciatore \u00b7 rec. riposo lungo':'Hunter\'s Mark \u00b7 recovery on Long Rest')+'</div></div>';
     // Hunter: Preda + Tattiche
     if(sc==='hunter'){
-      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:6px">\uD83C\uDFAF Opzioni Cacciatore</div>';
+      html+='<div style="'+boxS+'"><div style="font-size:10px;color:var(--gold2);margin-bottom:6px">\uD83C\uDFAF '+(isIt?'Opzioni Cacciatore':'Hunter Options')+'</div>';
       if(lv>=3){
-        var preyOpts=[{id:'devastatore',it:'Devastatore Orda'},{id:'sterminatore',it:'Sterminatore Colossi'}];
-        html+='<div style="margin-bottom:6px"><div style="font-size:9px;color:var(--vdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Preda (Lv.3)</div><div style="display:flex;gap:4px;flex-wrap:wrap">';
-        preyOpts.forEach(function(o){var sel=(C.hunterPrey===o.id);html+='<button onclick="C.hunterPrey=\''+o.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+o.it+'</button>';});
+        var preyOpts=[{id:'devastatore',it:'Devastatore Orda',en:'Horde Breaker'},{id:'sterminatore',it:'Sterminatore Colossi',en:'Colossus Slayer'}];
+        html+='<div style="margin-bottom:6px"><div style="font-size:9px;color:var(--vdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">'+(isIt?'Preda (Lv.3)':'Prey (Lv.3)')+'</div><div style="display:flex;gap:4px;flex-wrap:wrap">';
+        preyOpts.forEach(function(o){var sel=(C.hunterPrey===o.id);html+='<button onclick="C.hunterPrey=\''+o.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+(isIt?o.it:o.en)+'</button>';});
         html+='</div></div>';
       }
       if(lv>=7){
-        var defOpts=[{id:'multi',it:'Difesa Multiattacco'},{id:'orda',it:'Sfuggire all\'Orda'}];
-        html+='<div><div style="font-size:9px;color:var(--vdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Tattiche (Lv.7)</div><div style="display:flex;gap:4px;flex-wrap:wrap">';
-        defOpts.forEach(function(o){var sel=(C.hunterDefense===o.id);html+='<button onclick="C.hunterDefense=\''+o.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+o.it+'</button>';});
+        var defOpts=[{id:'multi',it:'Difesa Multiattacco',en:'Multiattack Defense'},{id:'orda',it:'Sfuggire all\'Orda',en:'Escape the Horde'}];
+        html+='<div><div style="font-size:9px;color:var(--vdim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">'+(isIt?'Tattiche (Lv.7)':'Tactics (Lv.7)')+'</div><div style="display:flex;gap:4px;flex-wrap:wrap">';
+        defOpts.forEach(function(o){var sel=(C.hunterDefense===o.id);html+='<button onclick="C.hunterDefense=\''+o.id+'\';re()" style="border:1px solid '+(sel?'var(--gold)':'rgba(200,164,90,.3)')+';background:'+(sel?'rgba(200,164,90,.15)':'transparent')+';border-radius:3px;color:'+(sel?'var(--gold)':'var(--muted)')+';font-size:10px;padding:2px 7px;cursor:pointer">'+(isIt?o.it:o.en)+'</button>';});
         html+='</div></div>';
       }
       html+='</div>';
@@ -4015,33 +4039,33 @@ function fRClassBlock(){
     var arcMax=Math.max(1,Math.ceil(lv/2));
     html+='<div style="'+boxS+'">';
     html+='<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-    html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">📖 Recupero Arcano (Lv.1)</span>';
-    if(!C.arcaneRecovUsed){html+='<button onclick="C.arcaneRecovUsed=true;re()" style="background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#3498db;font-size:11px;padding:3px 9px;cursor:pointer">Usa</button>';}
-    else{html+='<span style="font-size:10px;color:var(--vdim)">Usato (riposo lungo) <button onclick="C.arcaneRecovUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
+    html+='<span style="font-size:11px;color:var(--gold2);font-weight:700">📖 '+(isIt?'Recupero Arcano (Lv.1)':'Arcane Recovery (Lv.1)')+'</span>';
+    if(!C.arcaneRecovUsed){html+='<button onclick="C.arcaneRecovUsed=true;re()" style="background:rgba(52,152,219,.15);border:1px solid rgba(52,152,219,.4);border-radius:3px;color:#3498db;font-size:11px;padding:3px 9px;cursor:pointer">'+(isIt?'Usa':'Use')+'</button>';}
+    else{html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'Usato (riposo lungo)':'Used (Long Rest)')+' <button onclick="C.arcaneRecovUsed=false;re()" style="background:none;border:none;color:var(--vdim);font-size:10px;cursor:pointer;text-decoration:underline">↩</button></span>';}
     html+='</div>';
-    html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">Riposo breve: recupera slot tot. livelli ≤ '+arcMax+' (max 5°) · 1×/giorno</div>';
+    html+='<div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Riposo breve: recupera slot tot. livelli ≤ ':'Short Rest: regain slots with total levels ≤ ')+arcMax+(isIt?' (max 5°) · 1×/giorno':' (max 5th) · 1×/day')+'</div>';
     html+='</div>';
 
     // ── LV.1: ADEPTO DEI RITUALI ───────────────────────────────────────────
-    html+='<div style="font-size:10px;color:var(--muted)">📜 Adepto dei Rituali (Lv.1): lancia incantesimi con [R] dal libro come rituali senza slot</div>';
+    html+='<div style="font-size:10px;color:var(--muted)">📜 '+(isIt?'Adepto dei Rituali (Lv.1): lancia incantesimi con [R] dal libro come rituali senza slot':'Ritual Adept (Lv.1): cast spells marked [R] from your book as rituals without a slot')+'</div>';
 
     // ── LV.2: STUDIOSO ─────────────────────────────────────────────────────
     if(lv>=2){
-      html+='<div style="font-size:10px;color:var(--muted)">🎓 Studioso (Lv.2): maestria in Arcano, Indagare, Medicina, Natura, Religione o Storia (a scelta)</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">🎓 '+(isIt?'Studioso (Lv.2): maestria in Arcano, Indagare, Medicina, Natura, Religione o Storia (a scelta)':'Scholar (Lv.2): Expertise in Arcana, Investigation, Medicine, Nature, Religion, or History (your choice)')+'</div>';
     }
 
     // ── LV.5: MEMORIZZARE INCANTESIMI ──────────────────────────────────────
     if(lv>=5){
       html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">🧠 Memorizzare Incantesimi (Lv.5)</div>';
-      html+='<div style="font-size:10px;color:var(--muted)">Ogni volta che sali di livello: puoi sostituire incantesimi preparati con altri del libro gratuitamente (la lista cresce col livello)</div>';
+      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:3px">🧠 '+(isIt?'Memorizzare Incantesimi (Lv.5)':'Memorize Spell (Lv.5)')+'</div>';
+      html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Ogni volta che sali di livello: puoi sostituire incantesimi preparati con altri del libro gratuitamente (la lista cresce col livello)':'Whenever you level up: you can swap prepared spells for others from your book for free (the list grows with level)')+'</div>';
       html+='</div>';
     }
 
     // ── SOTTOCLASSI ────────────────────────────────────────────────────────
     if(sc&&lv>=3){
       html+='<div style="border-top:1px solid rgba(200,164,90,.2);margin:6px 0 4px;padding-top:8px">';
-      html+='<div style="font-size:9px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px">Sottoclasse: '+sc.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div>';
+      html+='<div style="font-size:9px;letter-spacing:1.5px;color:var(--gold2);text-transform:uppercase;margin-bottom:6px">'+(isIt?'Sottoclasse: ':'Subclass: ')+sc.replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();})+'</div>';
 
 
 
@@ -4049,22 +4073,22 @@ function fRClassBlock(){
 
       // ── INVOCATORE (Evocatore) ──────────────────────────────────────────
       if(sc==='evocation'){
-        html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">✨ Trucchetto Potente (Lv.3)</div>';
-        html+='<div style="font-size:10px;color:var(--muted)">Trucchetto che manca il tiro per colpire o di cui il bersaglio supera il TS → subisce comunque metà dei danni (nessun effetto aggiuntivo)</div></div>';
+        html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">✨ '+(isIt?'Trucchetto Potente (Lv.3)':'Potent Cantrip (Lv.3)')+'</div>';
+        html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Trucchetto che manca il tiro per colpire o di cui il bersaglio supera il TS → subisce comunque metà dei danni (nessun effetto aggiuntivo)':'A cantrip that misses its attack roll or whose target succeeds on its save → still deals half damage (no added effect)')+'</div></div>';
         if(lv>=6){
-          html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">🌀 Plasmare Incantesimi (Lv.6)</div>';
-          html+='<div style="font-size:10px;color:var(--muted)">Lanci un\'Invocazione che colpisce più creature nel campo visivo: scegli un numero di creature = 1 + livello dell\'incantesimo → superano automaticamente il TS e non subiscono danni in caso di successo</div></div>';
+          html+='<div style="'+boxS+'"><div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:4px">🌀 '+(isIt?'Plasmare Incantesimi (Lv.6)':'Sculpt Spells (Lv.6)')+'</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">'+(isIt?'Lanci un\'Invocazione che colpisce più creature nel campo visivo: scegli un numero di creature = 1 + livello dell\'incantesimo → superano automaticamente il TS e non subiscono danni in caso di successo':'When you cast an Evocation that affects multiple creatures you can see: choose a number of them = 1 + the spell\'s level → they automatically succeed on the save and take no damage on a success')+'</div></div>';
         }
         if(lv>=10){
-          html+='<div style="font-size:10px;color:var(--muted)">💥 Invocazione Potente (Lv.10): +'+intMod+' ai danni delle Invocazioni</div>';
+          html+='<div style="font-size:10px;color:var(--muted)">💥 '+(isIt?'Invocazione Potente (Lv.10): +':'Empowered Evocation (Lv.10): +')+intMod+(isIt?' ai danni delle Invocazioni':' to Evocation spell damage')+'</div>';
         }
         if(lv>=14){
           if(!C.overchargeUsed)C.overchargeUsed=0;
           html+='<div style="'+boxS+'"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">';
-          html+='<span style="font-size:11px;color:var(--gold2)">💥 Saturazione Magica (Lv.14)</span>';
-          html+='<span style="font-size:10px;color:var(--vdim)">Usi dopo riposo lungo: '+(C.overchargeUsed||0)+'</span>';
-          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px">Slot 1°-5° dannoso → max danni · Prima volta: nessun penalty · Reuso prima del rip. lungo: 2d12 per Lv spell necrotici (+1d12 ogni uso successivo)</div>';
-          html+='<div style="display:flex;gap:5px;margin-top:5px"><button onclick="C.overchargeUsed=(C.overchargeUsed||0)+1;re()" style="background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:2px 7px;cursor:pointer">+1 uso</button><button onclick="C.overchargeUsed=0;re()" style="background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--vdim);font-size:10px;padding:2px 7px;cursor:pointer">↩</button></div>';
+          html+='<span style="font-size:11px;color:var(--gold2)">💥 '+(isIt?'Saturazione Magica (Lv.14)':'Overchannel (Lv.14)')+'</span>';
+          html+='<span style="font-size:10px;color:var(--vdim)">'+(isIt?'Usi dopo riposo lungo: ':'Uses since Long Rest: ')+(C.overchargeUsed||0)+'</span>';
+          html+='</div><div style="font-size:10px;color:var(--muted);margin-top:3px">'+(isIt?'Slot 1°-5° dannoso → max danni · Prima volta: nessun penalty · Reuso prima del rip. lungo: 2d12 per Lv spell necrotici (+1d12 ogni uso successivo)':'Damaging slot 1st-5th → max damage · First time: no penalty · Reuse before a Long Rest: 2d12 necrotic per spell level (+1d12 each further use)')+'</div>';
+          html+='<div style="display:flex;gap:5px;margin-top:5px"><button onclick="C.overchargeUsed=(C.overchargeUsed||0)+1;re()" style="background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.3);border-radius:3px;color:#e74c3c;font-size:10px;padding:2px 7px;cursor:pointer">'+(isIt?'+1 uso':'+1 use')+'</button><button onclick="C.overchargeUsed=0;re()" style="background:rgba(200,164,90,.08);border:1px solid rgba(200,164,90,.2);border-radius:3px;color:var(--vdim);font-size:10px;padding:2px 7px;cursor:pointer">↩</button></div>';
           html+='</div>';
         }
       }
@@ -7536,6 +7560,16 @@ function fAIConsentEnsure(){
   return ok;
 }
 function fAIConsentReset(){ fPrefDel('aiConsent'); }
+// Lingua di OUTPUT delle funzioni AI = lingua dell'interfaccia (non del prompt).
+function fAiLang(){
+  switch(lang){
+    case 'en': return 'English';
+    case 'es': return 'espa\u00f1ol';
+    case 'fr': return 'fran\u00e7ais';
+    case 'de': return 'Deutsch';
+    default:   return 'italiano';
+  }
+}
 
 
 function fRS3(){
@@ -8956,7 +8990,7 @@ function fRulesAsk(){
           'elencando i passaggi quando aiuta. Riporta esattamente i valori numerici pertinenti '+
           '(CD, danni, gittata, durata, costi). Cita tra parentesi quadre il titolo della voce '+
           'o delle voci su cui ti basi. Se più voci sono rilevanti, sintetizzale. Se le regole '+
-          'fornite non contengono la risposta, dillo chiaramente. Rispondi in italiano.';
+          'fornite non contengono la risposta, dillo chiaramente. Rispondi in '+fAiLang()+'.';
   var user='DOMANDA: '+question+'\n\nREGOLE (rispondi solo in base a queste):\n'+context;
 
   if(btn){ btn.disabled=true; btn.textContent='\u27F3 Sto consultando le regole\u2026'; }
@@ -9004,10 +9038,10 @@ const CONDITIONS = [
   {id:'avvelenato', it:'Avvelenato', en:'Poisoned', di:'Svantaggio ai tiri per colpire e alle prove di caratteristica.', de:'Disadvantage on attack rolls and ability checks.'},
   {id:'incapacitato', it:'Incapacitato', en:'Incapacitated', di:'Niente azioni, azioni bonus o reazioni; la concentrazione si interrompe; non puoi parlare. Svantaggio all\u2019iniziativa se subentra mentre la tiri.', de:'No actions, Bonus Actions or Reactions; Concentration ends; can\u2019t speak.'},
   {id:'invisibile', it:'Invisibile', en:'Invisible', di:'Impossibile da vedere senza magia o sensi speciali; puoi nasconderti. I tuoi tiri per colpire hanno vantaggio; quelli contro di te svantaggio.', de:'Unseen without magic/special sense; can Hide. Advantage on your attacks; Disadvantage on attacks vs you.'},
-  {id:'paralizzato', it:'Paralizzato', en:'Paralyzed', di:'Incapacitato, non ti muovi n\u00e9 parli. Fallisci i TS su Forza e Destrezza. Vantaggio ai tiri contro di te; ogni colpo da entro 1,5 m \u00e8 un critico.', de:'Incapacitated; can\u2019t move/speak. Auto-fail STR/DEX saves; hits within 1.5 m are crits.'},
+  {id:'paralizzato', it:'Paralizzato', en:'Paralyzed', di:'Incapacitato, non ti muovi n\u00e9 parli. Fallisci i TS su Forza e Destrezza. Vantaggio ai tiri contro di te; ogni colpo da entro 1,5 m \u00e8 un critico.', de:'Incapacitated; can\u2019t move/speak. Auto-fail STR/DEX saves; hits within 5 ft are crits.'},
   {id:'pietrificato', it:'Pietrificato', en:'Petrified', di:'Trasformato in pietra; incapacitato e inconsapevole. Resistenza a tutti i danni; immune a veleni e malattie. Fallisci i TS su Forza e Destrezza.', de:'Turned to stone; Incapacitated. Resistance to all damage; immune to poison/disease.'},
-  {id:'privo-sensi', it:'Privo di sensi', en:'Unconscious', di:'Incapacitato e inconsapevole; lasci cadere ci\u00f2 che impugni e cadi prono. Fallisci i TS su Forza e Destrezza; colpi da entro 1,5 m sono critici.', de:'Incapacitated; drop items, fall Prone. Auto-fail STR/DEX saves; hits within 1.5 m are crits.'},
-  {id:'prono', it:'Prono', en:'Prone', di:'Puoi muoverti solo strisciando. Svantaggio ai tuoi tiri per colpire. Tiri contro di te: vantaggio da entro 1,5 m, altrimenti svantaggio.', de:'Can only crawl. Disadvantage on your attacks. Attacks vs you: Advantage within 1.5 m, else Disadvantage.'},
+  {id:'privo-sensi', it:'Privo di sensi', en:'Unconscious', di:'Incapacitato e inconsapevole; lasci cadere ci\u00f2 che impugni e cadi prono. Fallisci i TS su Forza e Destrezza; colpi da entro 1,5 m sono critici.', de:'Incapacitated; drop items, fall Prone. Auto-fail STR/DEX saves; hits within 5 ft are crits.'},
+  {id:'prono', it:'Prono', en:'Prone', di:'Puoi muoverti solo strisciando. Svantaggio ai tuoi tiri per colpire. Tiri contro di te: vantaggio da entro 1,5 m, altrimenti svantaggio.', de:'Can only crawl. Disadvantage on your attacks. Attacks vs you: Advantage within 5 ft, else Disadvantage.'},
   {id:'spaventato', it:'Spaventato', en:'Frightened', di:'Svantaggio a prove e tiri per colpire mentre vedi la fonte della paura. Non puoi avvicinarti volontariamente alla fonte.', de:'Disadvantage on checks/attacks while the source is in sight; can\u2019t willingly move closer.'},
   {id:'stordito', it:'Stordito', en:'Stunned', di:'Incapacitato, non ti muovi e parli con esitazione. Fallisci i TS su Forza e Destrezza. Vantaggio ai tiri contro di te.', de:'Incapacitated; can\u2019t move, falters speech. Auto-fail STR/DEX saves; Advantage on attacks vs you.'},
   {id:'trattenuto', it:'Trattenuto', en:'Restrained', di:'Velocit\u00e0 0. Svantaggio ai tuoi tiri per colpire e ai TS su Destrezza; vantaggio ai tiri contro di te.', de:'Speed 0. Disadvantage on your attacks & DEX saves; Advantage on attacks vs you.'},
@@ -9109,7 +9143,7 @@ function fRExhaustionBox(){
     +   '<span style="font-size:14px;font-weight:700;color:'+(spReduced?'#ff8a8a':'var(--gold)')+'">'+(isIt?fmtM(effSp)+' m':f2ft(effSp)+' ft')+'</span>'
     + '</div>'
     + (spNote?'<div style="font-size:9px;color:var(--vdim);margin-top:3px">'+spNote+'</div>':'')
-    + '<div style="font-size:9px;color:var(--vdim);margin-top:4px">'+(isIt?'Ogni livello: \u22122 ai tiri con d20 e \u22121,5 m alla velocit\u00e0 (cumulativi). Un riposo lungo riduce di 1.':'Each level: \u22122 to d20 rolls and \u22121.5m speed (cumulative). A long rest reduces it by 1.')+'</div>'
+    + '<div style="font-size:9px;color:var(--vdim);margin-top:4px">'+(isIt?'Ogni livello: \u22122 ai tiri con d20 e \u22121,5 m alla velocit\u00e0 (cumulativi). Un riposo lungo riduce di 1.':'Each level: \u22122 to d20 rolls and \u22125 ft speed (cumulative). A long rest reduces it by 1.')+'</div>'
     + '</div>';
 }
 function fSetExhaustion(n){ var ex=C.exhaustion||0; C.exhaustion=(n===ex)?n-1:n; if(C.exhaustion<0)C.exhaustion=0; if(C.exhaustion>6)C.exhaustion=6; re(); }
@@ -12513,8 +12547,10 @@ const LG_NAMES = {
 const LG_EPITHETS = ["del Crepuscolo","di Pietragrigia","Cuordiferro","Lamafredda",
   "dei Sette Venti","Ombralunga","del Guado Rosso","Mezzaluna","delle Brume","Filodargento"];
 function lgName(spId){
-  const n = lgRand(LG_NAMES[spId] || LG_NAMES._gen);
-  return Math.random() < 0.4 ? n + " " + lgRand(LG_EPITHETS) : n;
+  const NM = lgPool('NAMES') || {};
+  const EP = lgPool('EPITHETS') || [];
+  const n = lgRand(NM[spId] || NM._gen || LG_NAMES._gen);
+  return Math.random() < 0.4 ? n + " " + lgRand(EP) : n;
 }
 
 // Tratti e difetti generici (validi per chiunque)
@@ -12699,19 +12735,28 @@ const LG_BS_DRIVE = [
 ];
 
 function lgBackstory(name, spId, clsId, bgId){
-  const origin = lgRand(LG_BS_ORIGIN[bgId] || ["crebbe lontano dai riflettori, in un luogo che le mappe ricordano a stento"]);
-  const specie = LG_BS_SPECIE[spId] || "";
-  const turn   = LG_BS_TURN[clsId] || "la vita ordinaria si incrinò e dalla crepa entrò l'avventura";
+  const J   = lgPool('BS_JOIN') || {};
+  const ORI = lgPool('BS_ORIGIN') || {};
+  const SPE = lgPool('BS_SPECIE') || {};
+  const TRN = lgPool('BS_TURN') || {};
+  const DRV = lgPool('BS_DRIVE') || [];
+  const origin = lgRand(ORI[bgId] || [J.originFb || "crebbe lontano dai riflettori, in un luogo che le mappe ricordano a stento"]);
+  const specie = SPE[spId] || "";
+  const turn   = TRN[clsId] || (J.turnFb || "la vita ordinaria si incrinò e dalla crepa entrò l'avventura");
   return name + " " + origin + ". " + (specie ? specie + " " : "") +
-         "Tutto cambiò il giorno in cui " + turn + ". " + lgRand(LG_BS_DRIVE);
+         (J.turn || "Tutto cambiò il giorno in cui ") + turn + ". " + lgRand(DRV);
 }
 
 function lgNarrative(clsId, bgId, name, spId){
+  const TR = lgPool('TRAITS') || {trait:[],flaw:[]};
+  const ID = lgPool('IDEALS_CLASS') || {};
+  const BO = lgPool('BONDS_BG') || {};
+  const BG = lgPool('BONDS_GEN') || [];
   return {
-    trait: lgRand(LG_TRAITS.trait),
-    ideal: lgRand(LG_IDEALS_CLASS[clsId] || [].concat.apply([], Object.values(LG_IDEALS_CLASS))),
-    bond:  lgRand(LG_BONDS_BG[bgId] || LG_BONDS_GEN),
-    flaw:  lgRand(LG_TRAITS.flaw),
+    trait: lgRand(TR.trait),
+    ideal: lgRand(ID[clsId] || [].concat.apply([], Object.values(ID))),
+    bond:  lgRand(BO[bgId] || BG),
+    flaw:  lgRand(TR.flaw),
     backstory: lgBackstory(name, spId, clsId, bgId)
   };
 }
@@ -12753,7 +12798,8 @@ const LG_BG_KEYWORDS = [
   {bg:'mercante',  kw:['mercato','carovan','spezie','emporio','banchier']}
 ];
 function lgParseBg(t){
-  for(const e of LG_BG_KEYWORDS){ if(e.kw.some(k=>t.includes(k))) return e.bg; }
+  const KW = lgPool('BG_KEYWORDS') || [];
+  for(const e of KW){ if(e.kw.some(k=>t.includes(k))) return e.bg; }
   return null;
 }
 
@@ -12787,9 +12833,304 @@ const LG_ROLES = [
   {re:/tradiment|tradit[oa]/, frase:'Un tradimento insegnò più di mille maestri: ora la fiducia si guadagna a caro prezzo.'},
   {re:/sogn[oi] ricorrent|vision[ei]|profezia/, frase:'Sogni e visioni indicano una direzione, e ha smesso di fingere di non vederli.'}
 ];
+
+// ═══ LOCALIZZAZIONE MOTORE NARRATIVO (output + parsing) ═══
+// Registro centrale: ogni voce ha it (verità, = const sopra) + en + scaffold
+// es/fr/de da riempire. Aggiungere una lingua = compilare le chiavi (zero logica).
+const LG_LOC = {
+  TRAITS: { it: LG_TRAITS, en: {
+    trait: [
+      "I watch before I act, then strike without hesitation.",
+      "I find humor even in the grimmest moments.",
+      "I always keep my word, whatever it costs.",
+      "Anything I don't understand pulls at me like a lodestone.",
+      "I speak little, but when I do, everyone listens.",
+      "I write everything down: names, debts, favors, and slights.",
+      "I always share my food with those who have less than me.",
+      "I sleep with one eye open and my back to the wall.",
+      "I collect a small keepsake from every place I visit.",
+      "I give a nickname to everyone I meet."
+    ],
+    flaw: [
+      "I can't resist a wager.",
+      "I distrust anyone who shows too much kindness.",
+      "My tongue is quicker than my good sense.",
+      "Pride often drives me past the breaking point.",
+      "I never ask for help, even when I desperately need it.",
+      "Money slips through my fingers like water.",
+      "I hold a grudge for a long time, even over the smallest wrongs.",
+      "Faced with a mystery, I forget all caution.",
+      "I lie out of habit, even when the truth would be simpler.",
+      "I always underestimate my opponents."
+    ]
+  }, es:{}, fr:{}, de:{} },
+
+  IDEALS_CLASS: { it: LG_IDEALS_CLASS, en: {
+    barbarian:["Strength. The world respects only those who can command respect.",
+               "Freedom. No walls, no laws, no masters.",
+               "Instinct. The gut knows before the head does."],
+    bard:["Art. A well-told story is worth more than a hundred swords.",
+          "Memory. As long as someone sings of you, you never truly die.",
+          "Beauty. To bring wonder where there is only mud."],
+    cleric:["Faith. The light I serve shines even through the darkest night.",
+            "Service. My hands belong to those who suffer.",
+            "Truth. The gods do not fear questions, only lies."],
+    druid:["Balance. Everything that grows must also wither.",
+           "Nature. Civilization is a guest, not a master.",
+           "The Cycle. Nothing truly dies: everything returns."],
+    fighter:["Discipline. The sword is only the last part of the training.",
+             "Honor. To win without honor is just another way to lose.",
+             "Victory. Whoever hesitates has already decided in the enemy's favor."],
+    monk:["Perfection. Every motion can be done better.",
+          "Harmony. The body is a string: neither too taut nor too slack.",
+          "Self-control. One who masters themselves need not master others."],
+    paladin:["Justice. Evil thrives only where the righteous stay silent.",
+             "The Oath. My word is my sturdiest armor.",
+             "Protection. I stand between danger and those who cannot defend themselves."],
+    ranger:["The Frontier. Someone must keep watch where the roads end.",
+            "The Hunt. Every quarry teaches the hunter something.",
+            "Guardianship. I defend borders most will never see."],
+    rogue:["Freedom. Locks exist to be opened.",
+           "Profit. Risk is measured in gold pieces.",
+           "Loyalty. I'll betray anyone, except my own."],
+    sorcerer:["Destiny. This power chose me: I will find out why.",
+              "Potential. I have not yet seen the limit of what I can do.",
+              "Acceptance. I am what I am, and I make no apologies."],
+    warlock:["Knowledge. Some doors must be opened, whatever the price.",
+             "Ambition. The pact is only the first rung of the ladder.",
+             "The Debt. What I promised I will pay, but on my terms."],
+    wizard:["Knowledge. Ignorance is the only true enemy.",
+            "Rigor. Magic is a science, not a miracle.",
+            "Discovery. Somewhere there is a formula no one has ever read."]
+  }, es:{}, fr:{}, de:{} },
+
+  BONDS_BG: { it: LG_BONDS_BG, en: {
+    accolito:["The temple that raised me is my true family.",
+              "I guard a relic that must never fall into the wrong hands."],
+    artigiano:["My workshop burned down: rebuilding it is my purpose.",
+               "My master's masterwork was stolen, and I will find it again."],
+    ciarlatano:["I must make amends for a con that ruined an innocent person.",
+                "Someone knows my real name, and that keeps me awake at night."],
+    contadino:["My family's land is mortgaged: I will buy it back.",
+               "My village sent me out into the world: I cannot return empty-handed."],
+    criminale:["I owe an enormous favor to the one who got me out of prison.",
+               "An old accomplice holds proof that could ruin me."],
+    eremita:["In solitude I uncovered a secret the world needs to know.",
+             "Someone used to visit me in my retreat: now they have vanished."],
+    guardia:["I failed to protect the one I was meant to protect: never again.",
+             "The badge I wear belonged to someone better than me."],
+    guida:["I know a path marked on no map.",
+           "I left someone behind, once. Never again."],
+    intrattenitore:["My instrument is the last thing left of my old life.",
+                    "There is a theater where I swore I would perform before I die."],
+    marinaio:["My ship lies on the seabed: one day I'll learn who sank it.",
+              "I owe a debt of honor to the captain who taught me everything."],
+    mercante:["My name is worth more than any cargo: I won't sell it cheap.",
+              "A contract signed years ago has come back to call in its due."],
+    nobile:["My house has fallen into disgrace: I will restore its name.",
+            "I carry a ring that proves who I truly am, but I cannot show it."],
+    sapiente:["There's a book I read only halfway: the other half has vanished.",
+              "My mentor disappeared studying something they refused to show me."],
+    scriba:["I copied a document I should never have read.",
+            "Somewhere there exists the original of a letter that changed my life."],
+    soldato:["The fallen deserve to have someone finish their war.",
+             "My old commander will call on me one day. And I will answer."],
+    viandante:["The road is my home, but there's a door I'll knock on again.",
+               "Someone has followed me across many cities: sooner or later we'll talk."]
+  }, es:{}, fr:{}, de:{} },
+
+  BONDS_GEN: { it: LG_BONDS_GEN, en: [
+    "I owe everything to those who raised me.",
+    "A wrong I suffered still awaits its reckoning.",
+    "I carry an object that is my only anchor to the past.",
+    "I have sworn to protect a place I call home."
+  ], es:[], fr:[], de:[] },
+
+  BS_ORIGIN: { it: LG_BS_ORIGIN, en: {
+    accolito:["grew up amid incense and temple chants, learning early that faith demands discipline",
+              "spent childhood polishing candelabra and reciting litanies, until the sacred words became their own"],
+    artigiano:["grew up in the scent of wood shavings and hot metal of a workshop, where every mistake was paid for in labor",
+               "learned the trade through pieces remade from scratch, until their hands stopped trembling"],
+    ciarlatano:["grew up selling promises from square to square, one step ahead of the guards and two ahead of the creditors",
+                "grew up counting the good days on their fingers and inventing stories to survive the bad ones"],
+    contadino:["grew up following the seasons, back bent over the fields and eyes full of horizon",
+               "grew up where the harvest decides who eats, learning to read the sky better than any book"],
+    criminale:["grew up in the alleys where the law rarely reaches, learning the value of silence and escape routes",
+               "served an apprenticeship among fences and gambling dens, where trust is bought and sold"],
+    eremita:["spent years in a retreat far from everything, in the company of questions larger than the answers",
+             "lived a long time where the only voice was the wind, and learned to hear what others drown out with noise"],
+    guardia:["grew up walking the rounds on walls and gates, where the nights are long and the eyes must stay open",
+             "spent years watching over other people's doors, learning to spot trouble by the gait of whoever carries it"],
+    guida:["grew up on the border trails, where a misread track can cost an entire caravan its life",
+           "grew up reading tracks and skies, where taking the wrong road means not coming back"],
+    intrattenitore:["grew up among makeshift stages and smoky taverns, where every night the audience decides if you've eaten",
+                    "learned early that applause warms more than a meal, and that both must be earned every evening"],
+    marinaio:["grew up among rigging and storms, learning that the sea forgives no one who turns their back on it",
+              "spent more nights at sea than ashore, where the stars are a map and the ship's timber is home"],
+    mercante:["grew up among market stalls and caravan routes, where a handshake is worth a contract",
+              "grew up weighing goods and words, learning that everything has two prices: the one spoken and the real one"],
+    nobile:["grew up among halls and tutors, learning that behind every court smile lies a calculation",
+            "grew up with a name heavier than armor, amid expectations written before birth"],
+    sapiente:["grew up among shelves and parchments, certain that every answer hides three more questions",
+              "spent childhood in libraries where the dust holds more stories than the townsfolk"],
+    scriba:["grew up by ink and candlelight, copying others' words and dreaming of writing their own",
+            "grew up among ledgers and seals, where a misplaced comma can ruin a noble house"],
+    soldato:["grew up to the rhythm of drums and barked orders, where obedience keeps you alive and doubt kills",
+             "learned to march before learning to choose, in a company where rations are earned in the field"],
+    viandante:["grew up without a fixed roof, with the road for a teacher and the sky for a ceiling",
+               "grew up counting steps between one village and the next, guest of everyone and of no one"]
+  }, es:{}, fr:{}, de:{} },
+
+  BS_SPECIE: { it: LG_BS_SPECIE, en: {
+    umano:"From their own people they inherited the restlessness of those who know they have little time and much to do.",
+    elfo:"Their elven heritage marked every step: the patience of centuries and a memory that grants no oblivion.",
+    nano:"From their clan they inherited the stubbornness of stone and a long memory for debts and for friends.",
+    halfling:"Like every halfling, they learned that fortune smiles on those who travel light and laugh often.",
+    gnomo:"Gnomish curiosity was their first teacher and the cause of nearly all their troubles.",
+    dragonborn:"In their blood burns the echo of dragons: an ancient pride that admits no shame.",
+    tiefling:"Infernal blood meant closed doors and sidelong looks, and a shell of irony to bear them.",
+    orco:"From their lineage they inherited a strength many fear and few stop to understand.",
+    goliath:"From their native mountains they learned that every burden is carried, one step at a time.",
+    aasimar:"A celestial spark burns in their chest: a silent call toward something greater."
+  }, es:{}, fr:{}, de:{} },
+
+  BS_TURN: { it: LG_BS_TURN, en: {
+    barbarian:"the fury smoldering within erupted for the first time, and nothing was left standing around them",
+    bard:"a song sung at just the right moment changed the fate of an entire hall",
+    cleric:"a prayer was answered, clear and unmistakable",
+    druid:"the woods spoke to them, and from that day never stopped",
+    fighter:"they took up a weapon out of necessity and discovered they were born to it",
+    monk:"a master glimpsed a potential no one else had ever noticed",
+    paladin:"they spoke an oath before witnesses no mortal eye could see",
+    ranger:"they followed a trail beyond the edge of the maps and came back changed",
+    rogue:"they picked the wrong lock and found the truth someone wanted buried",
+    sorcerer:"the power manifested without warning, and the world stopped seeming solid",
+    warlock:"something ancient offered a pact, and the answer was yes",
+    wizard:"a formula on a yellowed page actually worked, against all good sense"
+  }, es:{}, fr:{}, de:{} },
+
+  BS_DRIVE: { it: LG_BS_DRIVE, en: [
+    "Today they walk toward a future they intend to write in their own hand.",
+    "Ever since, they chase an answer that keeps moving one step further on.",
+    "Now they seek companions worthy of trust and deeds worthy of a song.",
+    "From that day on, they keep the past at arm's length, knowing it will knock sooner or later.",
+    "Today any road is a good one, so long as it leads away from where it all began.",
+    "Now they carry an unsettled score and the patience to collect it.",
+    "Now they measure the world one tavern at a time, looking for the place to stop.",
+    "Ever since, every dawn is a promise to keep before dusk.",
+    "Today they offer their talent to whoever pays, but their principles have no price.",
+    "Now they follow rumors and legends: at least one of them must be true.",
+    "From that day on, they count their friends on one hand, and defend them with both.",
+    "Today they seek a name that makes enemies tremble and friends smile."
+  ], es:[], fr:[], de:[] },
+
+  EPITHETS: { it: LG_EPITHETS, en: [
+    "of the Twilight","of Graystone","Ironheart","Coldblade","of the Seven Winds",
+    "Longshadow","of the Red Ford","Halfmoon","of the Mists","Silverthread"
+  ], es:[], fr:[], de:[] },
+
+  // Solo le specie con nomi-concetto vengono tradotte; le altre ereditano i nomi
+  // "fantasy" universali da LG_NAMES via Object.assign.
+  NAMES: { it: LG_NAMES, en: Object.assign({}, LG_NAMES, {
+    tiefling:["Vesper","Shade","Calix","Myrrh","Severa","Dante","Shadow","Lux","Requiem","Vigil",
+              "Ash","Thorn","Lazarus","Malice","Candle","Haze","Sorrow","Ardor","Solstice","Eclipse",
+              "Soot","Vortex","Styx","Gloam"],
+    gnomo:["Sapphira","Tink","Glint","Mimosa","Quill","Sparkwick","Nimble","Giddle","Sparkle","Pip",
+           "Whirligig","Ribbon","Fizzle","Pinwheel","Medlar","Cork","Greta","Click","Amber","Whistle",
+           "Petunia","Cricket","Mallow","Ticktock"],
+    aasimar:["Seraphel","Caelia","Lumen","Aurelia","Oriel","Niven","Solene","Dawn","Candor","Estelle",
+             "Lucerne","Aurora","Seren","Clara","Splendor","Iris","Harmony","Fulgor","Stellaria","Sky",
+             "Dewlight","Joy","Orpheus","Nimbus"]
+  }), es:{}, fr:{}, de:{} },
+
+  // ── PARSING INPUT ──
+  BG_KEYWORDS: { it: LG_BG_KEYWORDS, en: [
+    {bg:'criminale', kw:['gang','smuggl','underworld','fence']},
+    {bg:'criminale', kw:['pickpocket','burglar','thief','theft','robber']},
+    {bg:'criminale', kw:['slum','underbelly','seedy']},
+    {bg:'accolito',  kw:['temple','priest','sanctuary','church','shrine']},
+    {bg:'accolito',  kw:['novice','seminar','acolyte']},
+    {bg:'marinaio',  kw:['ship','pirate','harbor','harbour','sailor']},
+    {bg:'marinaio',  kw:['fisher','fishing']},
+    {bg:'artigiano', kw:['workshop','smith','forge']},
+    {bg:'artigiano', kw:['carpenter','tailor','goldsmith','tanner','artisan']},
+    {bg:'contadino', kw:['farm','harvest','shepherd','peasant','farmer']},
+    {bg:'contadino', kw:['stable','vineyard']},
+    {bg:'intrattenitore', kw:['circus','theater','theatre','stage','jester']},
+    {bg:'intrattenitore', kw:['minstrel','dancer','acrobat','entertainer','performer']},
+    {bg:'sapiente',  kw:['library','universit','academ']},
+    {bg:'sapiente',  kw:['alchemist','scholar','sage']},
+    {bg:'scriba',    kw:['scribe','copyist','notary','archiv']},
+    {bg:'nobile',    kw:['court','palace','noble','aristocra']},
+    {bg:'nobile',    kw:['duke','baron','prince','earl']},
+    {bg:'soldato',   kw:['army','barracks','legion','battalion']},
+    {bg:'soldato',   kw:['mercenary','veteran','soldier']},
+    {bg:'guardia',   kw:['militia','patrol','sentinel','sentry','jail','prison','guard']},
+    {bg:'guardia',   kw:['bodyguard','escort']},
+    {bg:'guida',     kw:['forest','trail','explorer','frontier']},
+    {bg:'guida',     kw:['hunter','trapper']},
+    {bg:'guida',     kw:['cartograph','expedition','scout']},
+    {bg:'eremita',   kw:['hermit','hermitage','recluse','ascetic']},
+    {bg:'eremita',   kw:['prophet','visionary']},
+    {bg:'ciarlatano',kw:['scam','swindler','gambl','charlatan']},
+    {bg:'ciarlatano',kw:['fortune tell','soothsay','con artist']},
+    {bg:'mercante',  kw:['market','caravan','spice','emporium','banker','merchant','trader']}
+  ], es:[], fr:[], de:[] },
+
+  GRP_ART: { it: LG_GRP_ART, en: {
+    band:'a band', guild:'a guild', coven:'a coven', company:'a company', clan:'a clan',
+    crew:'a crew', sect:'a sect', cult:'a cult', order:'an order'
+  }, es:{}, fr:{}, de:{} },
+
+  ROLES: { it: LG_ROLES, en: [
+    {re:/(?:leader|head|in charge|commands?|boss)\s+(?:of\s+)?(?:the\s+|an?\s+)?(band|guild|coven|company|clan|crew|sect|cult|order)/,
+     mk:m=>({frase:'Today '+((lgPool('GRP_ART')||{})[m[1]]||'a group')+' answers to them, and every order carries weight.',
+             bond:'Those under my command are under my protection: they come before all else.'})},
+    {re:/last survivor|sole survivor/, frase:'They are what remains of something that no longer exists, and memory grants no discount.',
+     bond:"I carry the names of those who are gone: no one will forget them."},
+    {re:/on the run|fugitive|wanted|hunted/, frase:'Ever since, they travel watching their back: someone has not stopped searching.'},
+    {re:/revenge|vengeance|avenge/, frase:'A vengeance awaits its moment, and its moment draws near.',
+     bond:'Whoever wronged me has an open account, and I keep good records.'},
+    {re:/exile|exiled|banished/, frase:'Exile closed a door behind them; ever since, they seek the key, or another door.'},
+    {re:/orphan/, frase:'Growing up without a family taught them early to rely only on their own hands.'},
+    {re:/heir|descendant/, frase:'An inheritance awaits their return, but between it and the present lies a long road.'},
+    {re:/curse|cursed/, frase:'A curse follows their every step, and every clue to break it is worth more than gold.'},
+    {re:/desert(?:er|ed)/, frase:'They turned their back on a war not their own: desertion carries a price they still pay.'},
+    {re:/\bspy\b|infiltrat/, frase:"They live off others' secrets and guard their own better than any treasure."},
+    {re:/healer|medic|physician/, frase:'Their hands can mend what violence tears, and the world never stops giving them work.'},
+    {re:/(?:monster|demon|vampire|witch|undead|dragon)\s*-?\s*hunt/, frase:'They hunt what others would rather not name.'},
+    {re:/bounty\s*-?\s*hunt/, frase:'They live chasing names on a scrap of paper, and so far no name has escaped for good.'},
+    {re:/obsession|obsessed|student of/, frase:'An obsession lights their nights: to understand, at any cost.'},
+    {re:/in search of|searching for|seeking/, frase:'There is something out there that calls, and the call does not fade.'},
+    {re:/champion|hero|defender/, frase:'Common folk know their name and speak it with hope.'},
+    {re:/ruined|lost everything|disgrace/, frase:'They lost everything in a single night; ever since, they rebuild, brick by brick.'},
+    {re:/protect|guardian/, frase:'There is someone to protect, and that duty comes before all else.',
+     bond:'The person I protect will never know what it costs me, and that is fine.'},
+    {re:/betray|betrayed|treason/, frase:'A betrayal taught more than a thousand masters: now trust is earned at a high price.'},
+    {re:/recurring dream|vision|prophecy/, frase:'Dreams and visions point a direction, and they have stopped pretending not to see them.'}
+  ], es:[], fr:[], de:[] },
+
+  // connettivo + fallback della backstory
+  BS_JOIN: {
+    it:{ turn:'Tutto cambi\u00f2 il giorno in cui ',
+         originFb:'crebbe lontano dai riflettori, in un luogo che le mappe ricordano a stento',
+         turnFb:"la vita ordinaria si incrin\u00f2 e dalla crepa entr\u00f2 l'avventura" },
+    en:{ turn:'Everything changed the day ',
+         originFb:'grew up far from the spotlight, in a place the maps scarcely remember',
+         turnFb:'ordinary life cracked, and through the crack came adventure' },
+    es:{}, fr:{}, de:{}
+  }
+};
+function lgPool(key){
+  const o = LG_LOC[key];
+  if(!o) return undefined;
+  return o[lang] || o.en || o.it;
+}
+
 function lgParseRoles(t){
   const out=[];
-  for(const r of LG_ROLES){
+  const ROLES = lgPool('ROLES') || [];
+  for(const r of ROLES){
     const m=t.match(r.re);
     if(m){ out.push(r.mk ? r.mk(m) : r); if(out.length>=2) break; }
   }
@@ -13181,6 +13522,7 @@ function fDoAI(){
   const subclassLines = Object.entries(subclassMap)
     .map(([cid, scs]) => `  ${cid}: [${scs}]`).join('\n');
 
+  const aiLang = fAiLang();
   const systemPrompt = `Sei un assistente per la creazione di personaggi D&D 5e 2024 (PHB 2024).
 Devi rispondere SOLO con un oggetto JSON valido, senza testo prima o dopo, senza backtick markdown.
 
@@ -13243,11 +13585,11 @@ Formato JSON richiesto:
   "classes": [{ "cls":"id_classe", "level":1, "subclass":"id_sottoclasse_o_null" }],
   "stats": { "STR":15, "DEX":13, "CON":14, "INT":10, "WIS":12, "CHA":8 },
   "classSkills": ["Skill1EN","Skill2EN"],
-  "trait": "Tratto di personalità in italiano (1-2 frasi)",
-  "ideal": "Ideale in italiano (1 frase)",
-  "bond": "Legame in italiano (1 frase)",
-  "flaw": "Difetto in italiano (1 frase)",
-  "backstory": "Storia del personaggio in italiano (3-5 frasi, vivida e narrativa)"
+  "trait": "Tratto di personalità in ${aiLang} (1-2 frasi)",
+  "ideal": "Ideale in ${aiLang} (1 frase)",
+  "bond": "Legame in ${aiLang} (1 frase)",
+  "flaw": "Difetto in ${aiLang} (1 frase)",
+  "backstory": "Storia del personaggio in ${aiLang} (3-5 frasi, vivida e narrativa)"
 }
 
 Regole:
@@ -13255,15 +13597,15 @@ Regole:
 - subrace: id valido della specie scelta, o null
 - stats: usa ESATTAMENTE i 6 valori [15,14,13,12,10,8] distribuiti tra le caratteristiche
 - classSkills: array EN con il numero esatto di abilità per la classe
-- Se l'utente scrive in italiano, rispondi in italiano; se in inglese, in inglese
+- Scrivi name, trait, ideal, bond, flaw e backstory in ${aiLang} (lingua dell'interfaccia), a prescindere dalla lingua del prompt
 - trait, ideal, bond, flaw: specifici e coerenti con specie/classe/background
 - backstory: narrativa e vivida, 3-5 frasi
 - Varia le scelte: non usare sempre umano/fighter, sii creativo`;
 
   const validIds = `Species: ${speciesIds}. Classes: ${classIds}. Backgrounds: ${bgIds}. Alignments: ${alignIds}.`;
   const userMessage = prompt
-    ? `${validIds} Crea un personaggio D&D 5e 2024 basandoti su questa descrizione: "${prompt}". Subclass ids dipendono dalla classe.`
-    : `${validIds} Crea un personaggio D&D 5e 2024 originale e interessante, scegli liberamente specie, classe e storia.`;
+    ? `${validIds} Crea un personaggio D&D 5e 2024 basandoti su questa descrizione: "${prompt}". Subclass ids dipendono dalla classe. Campi narrativi (name, trait, ideal, bond, flaw, backstory) in ${aiLang}.`
+    : `${validIds} Crea un personaggio D&D 5e 2024 originale e interessante, scegli liberamente specie, classe e storia. Campi narrativi (name, trait, ideal, bond, flaw, backstory) in ${aiLang}.`;
 
   const groqKey = fGroqKeyActive();
 
