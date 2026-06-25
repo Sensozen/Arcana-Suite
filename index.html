@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "25/06/2026 · 01:30"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "25/06/2026 · 20:12"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -979,7 +979,7 @@ tr.desc-row td{
   <div id="pw-box">
     <div id="pw-logo">⚔️ Arcana</div>
     <div id="pw-sub">D&amp;D 5.5e 2024 — Suite Italiana</div>
-    <div id="pw-ip">Creazione originale di Natale · Tutti i diritti riservati</div>
+    <div id="pw-ip">Creazione originale di Natale Gubinelli · Tutti i diritti riservati</div>
     <div id="pw-version"></div>
     <input id="pw-input" type="password" placeholder="Password"
       onkeydown="if(event.key==='Enter')pwCheck()">
@@ -1378,7 +1378,7 @@ function fApplyChromeLang(){
     if(cTit) cTit.textContent='\u00a9 '+ft('CREDITI E LICENZA','CREDITS & LICENSE');
     try{
       var _bv=window.BUILD_VERSION||'';
-      var hi=document.getElementById('hdr-ip'); if(hi) hi.textContent=ft('Creazione originale di Natale','Original creation by Natale');
+      var hi=document.getElementById('hdr-ip'); if(hi) hi.textContent=ft('Creazione originale di Natale Gubinelli','Original creation by Natale Gubinelli');
       var hv=document.getElementById('hdr-version'); if(hv) hv.textContent=_bv?('vers. '+_bv):'';
     }catch(e){}
   }catch(e){}
@@ -6665,7 +6665,7 @@ function fToggleSubclassSkill(skillEn, max){
 // EXPORT / PRINT FUNCTIONS
 // ═══════════════════════════════════════
 function fOpenExport(){
-  if(!fIsNative()){ try{ alert(ft('L\u2019export PDF \u00e8 disponibile nell\u2019app per dispositivi.','PDF export is available in the device app.')); }catch(e){} return; }
+  if(!fIsNative() && !IS_FULL_BUILD){ try{ alert(ft('L\u2019export PDF \u00e8 disponibile nell\u2019app per dispositivi.','PDF export is available in the device app.')); }catch(e){} return; }
   if(!fIsPro()){ screen='pro'; re(); return; }   // gating Pro: Stampa/Export PDF
   const modal=document.getElementById('export-modal');
   const preview=document.getElementById('exp-preview');
@@ -7547,11 +7547,14 @@ function _capPrefBoot(){
   });
 }
 
+// ── Build: true=FULL (uso personale, tutto sbloccato), false=SRD (freemium). build-srd.js lo imposta a false ──
+var IS_FULL_BUILD = false;
+
 // ── Piattaforma: true=APK nativo (Capacitor), false=web/browser ──
 function fIsNative(){ try{ var cap=window.Capacitor; return !!(cap&&cap.isNativePlatform&&cap.isNativePlatform()); }catch(e){ return false; } }
 
-// ── Stato Pro (gating in roadmap, passo 4) ──
-function fIsPro(){ return fPrefGet('pro', false) === true; }
+// ── Stato Pro: nella build FULL l'accesso completo è sempre attivo (web e APK) ──
+function fIsPro(){ return IS_FULL_BUILD === true || fPrefGet('pro', false) === true; }
 function fSetPro(v){ fPrefSet('pro', v === true); }
 
 // ── Consenso AI (disclosure richiesta dagli store) ──
