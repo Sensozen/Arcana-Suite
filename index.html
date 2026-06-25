@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "25/06/2026 · 00:43"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "25/06/2026 · 01:30"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -4695,11 +4695,13 @@ function fRCredits(){
 // Free: fino a ROSTER_FREE_LIMIT personaggi · Pro: illimitato
 // ═══════════════════════════════════════
 var ROSTER_FREE_LIMIT = 3;
+// Web (vetrina) = solo 1 personaggio salvabile (assaggio); APK = limite pieno
+function fRosterLimit(){ return fIsNative() ? ROSTER_FREE_LIMIT : 1; }
 var _rosterConfirmDel = null;
 function fRosterList(){ var l=fPrefGet('roster',[]); return Array.isArray(l)?l:[]; }
 function fRosterSave(list){ fPrefSet('roster', list); }
 function fRosterCount(){ return fRosterList().length; }
-function fRosterCanAdd(){ return fIsPro() || fRosterCount() < ROSTER_FREE_LIMIT; }
+function fRosterCanAdd(){ return fIsPro() || fRosterCount() < fRosterLimit(); }
 function fRosterSummary(){
   var cl = (typeof fClassDisplay==='function') ? (fClassDisplay(true)||'') : '';
   var lvl = (typeof fTotalLevel==='function') ? fTotalLevel() : (C.level||1);
@@ -4753,7 +4755,7 @@ function fRRoster(){
   var list=fRosterList(); var pro=fIsPro(); var canAdd=fRosterCanAdd();
   var counter = pro
     ? (list.length+' '+ft('salvati \u00b7 illimitato','saved \u00b7 unlimited'))
-    : (list.length+' / '+ROSTER_FREE_LIMIT);
+    : (list.length+' / '+fRosterLimit());
   var rows = list.length ? list.map(function(e){
     var confirming = (_rosterConfirmDel===e.id);
     var del = confirming
@@ -5019,8 +5021,10 @@ function fRPro(){
     +'</div>'
     +(pro
       ? '<button class="btn full" onclick="fSetPro(false);re()">'+ft('Disattiva Pro (test)','Disable Pro (test)')+'</button>'
-      : '<button class="btn primary full" onclick="fSetPro(true);re()">'+ft('Sblocca Pro (anteprima)','Unlock Pro (preview)')+'</button>')
-    +'<p style="color:var(--vdim);font-size:11px;line-height:1.55;margin-top:10px;text-align:center">'+ft('Nota: questo pulsante \u00e8 temporaneo per le prove. L\u2019acquisto reale arriver\u00e0 tramite Google Play.','Note: this button is temporary for testing. Real purchase will come via Google Play.')+'</p>'
+      : (fIsNative()
+          ? '<button class="btn primary full" onclick="fSetPro(true);re()">'+ft('Sblocca Pro (anteprima)','Unlock Pro (preview)')+'</button>'
+          : '<p style="color:var(--muted);font-size:13px;line-height:1.6;text-align:center;padding:4px 0">'+ft('\u2728 Pro si sblocca nell\u2019app per dispositivi. Scarica l\u2019app per queste funzioni.','\u2728 Pro unlocks in the device app. Download the app for these features.')+'</p>'))
+    +(fIsNative() ? ('<p style="color:var(--vdim);font-size:11px;line-height:1.55;margin-top:10px;text-align:center">'+ft('Nota: questo pulsante \u00e8 temporaneo per le prove. L\u2019acquisto reale arriver\u00e0 tramite Google Play.','Note: this button is temporary for testing. Real purchase will come via Google Play.')+'</p>') : '')
     +'<button class="btn full" style="margin-top:14px" onclick="screen=\'home\';re()">\u2190 '+ft('Torna alla Home','Back to Home')+'</button>'
   +'</div>';
 }
@@ -6661,6 +6665,7 @@ function fToggleSubclassSkill(skillEn, max){
 // EXPORT / PRINT FUNCTIONS
 // ═══════════════════════════════════════
 function fOpenExport(){
+  if(!fIsNative()){ try{ alert(ft('L\u2019export PDF \u00e8 disponibile nell\u2019app per dispositivi.','PDF export is available in the device app.')); }catch(e){} return; }
   if(!fIsPro()){ screen='pro'; re(); return; }   // gating Pro: Stampa/Export PDF
   const modal=document.getElementById('export-modal');
   const preview=document.getElementById('exp-preview');
@@ -7541,6 +7546,9 @@ function _capPrefBoot(){
     }).catch(function(){ --pending; });
   });
 }
+
+// ── Piattaforma: true=APK nativo (Capacitor), false=web/browser ──
+function fIsNative(){ try{ var cap=window.Capacitor; return !!(cap&&cap.isNativePlatform&&cap.isNativePlatform()); }catch(e){ return false; } }
 
 // ── Stato Pro (gating in roadmap, passo 4) ──
 function fIsPro(){ return fPrefGet('pro', false) === true; }
