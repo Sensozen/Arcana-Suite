@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "25/06/2026 · 20:12"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "26/06/2026 · 12:47"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -851,6 +851,19 @@ tr.desc-row td{
 
 
 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* Cropper ritratto */
+#crop-modal{display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:16px}
+.crop-box{background:var(--panel-bg);border:1px solid var(--gold2);border-radius:8px;padding:16px;max-width:340px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 8px 40px rgba(0,0,0,.8)}
+.crop-title{font-family:'Comfortaa', sans-serif;color:var(--gold);font-size:15px}
+.crop-stage{position:relative;overflow:hidden;border-radius:50%;border:2px solid var(--gold);background:#000;touch-action:none;cursor:grab;flex-shrink:0}
+.crop-stage:active{cursor:grabbing}
+.crop-stage img{position:absolute;top:0;left:0;max-width:none;user-select:none;-webkit-user-select:none;-webkit-user-drag:none}
+.crop-zoom{display:flex;align-items:center;gap:10px;width:100%;color:var(--gold)}
+.crop-zoom input{flex:1;accent-color:var(--gold)}
+.crop-actions{display:flex;gap:10px;width:100%}
+.crop-actions .btn{flex:1}
+.crop-hint{font-size:11px;color:var(--vdim);text-align:center}
 </style>
 <style id="rules-style">
 #regole .rules-wrap{max-width:860px;margin:0 auto;padding:1rem .8rem 3rem}
@@ -4960,23 +4973,100 @@ function fPortraitLoad(input){
     var reader = new FileReader();
     reader.onload = function(ev){
       var img = new Image();
-      img.onload = function(){
-        try{
-          var MAX=512, w=img.width, h=img.height;
-          if(w>h && w>MAX){ h=Math.round(h*MAX/w); w=MAX; }
-          else if(h>=w && h>MAX){ w=Math.round(w*MAX/h); h=MAX; }
-          var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-          cv.getContext('2d').drawImage(img,0,0,w,h);
-          C.portrait = cv.toDataURL('image/jpeg', 0.72);
-          re();
-        }catch(e){ console.error('portrait canvas', e); alert(ft('Immagine non valida.','Invalid image.')); }
-      };
+      img.onload = function(){ try{ fCropOpen(img); }catch(e){ console.error('crop open', e); alert(ft('Immagine non valida.','Invalid image.')); } };
       img.onerror = function(){ alert(ft('Immagine non valida.','Invalid image.')); };
       img.src = ev.target.result;
     };
     reader.onerror = function(){ alert(ft('Lettura immagine non riuscita.','Image read failed.')); };
     reader.readAsDataURL(file);
+    try{ input.value=''; }catch(e){} // consente di ricaricare lo stesso file
   }catch(e){ console.error('portrait load', e); }
+}
+
+// ── Cropper ritratto: inquadratura quadrata con pan + zoom; salva 256×256 ──
+var _crop = null;
+function fCropOpen(img){
+  var V = 260; // lato del riquadro di inquadratura (px)
+  var sb = V / Math.min(img.naturalWidth||1, img.naturalHeight||1); // "copri il quadrato" a zoom 1
+  _crop = { img:img, V:V, scaleBase:sb, zoom:1, ox:0, oy:0, drag:null };
+  fCropCenter();
+  var ov=document.getElementById('crop-modal');
+  if(!ov){ ov=document.createElement('div'); ov.id='crop-modal'; document.body.appendChild(ov); }
+  ov.innerHTML = fCropHTML();
+  ov.style.display='flex';
+  document.body.style.overflow='hidden';
+  if(!_crop._listen){
+    _crop._mv=function(e){ fCropPointerMove(e); };
+    _crop._up=function(){ fCropPointerUp(); };
+    window.addEventListener('pointermove', _crop._mv, {passive:false});
+    window.addEventListener('pointerup', _crop._up);
+    _crop._listen=true;
+  }
+  fCropRender();
+}
+function fCropCenter(){
+  var c=_crop, s=c.scaleBase*c.zoom;
+  c.ox=(c.V - c.img.naturalWidth*s)/2;
+  c.oy=(c.V - c.img.naturalHeight*s)/2;
+  fCropClamp();
+}
+function fCropClamp(){
+  var c=_crop, s=c.scaleBase*c.zoom;
+  var minX=c.V - c.img.naturalWidth*s, minY=c.V - c.img.naturalHeight*s;
+  if(c.ox>0) c.ox=0; if(c.ox<minX) c.ox=minX;
+  if(c.oy>0) c.oy=0; if(c.oy<minY) c.oy=minY;
+}
+function fCropHTML(){
+  var V=_crop.V;
+  return '<div class="crop-box">'
+    +'<div class="crop-title">'+ft('Inquadra il ritratto','Frame the portrait')+'</div>'
+    +'<div class="crop-stage" id="crop-stage" style="width:'+V+'px;height:'+V+'px" onpointerdown="fCropPointerDown(event)">'
+      +'<img id="crop-img" src="'+_crop.img.src+'" draggable="false">'
+    +'</div>'
+    +'<div class="crop-zoom"><span style="font-size:18px">\u2212</span><input type="range" id="crop-zoom" min="1" max="3" step="0.01" value="'+_crop.zoom+'" oninput="fCropZoom(this.value)"><span style="font-size:18px">+</span></div>'
+    +'<div class="crop-hint">'+ft('Trascina per spostare \u00b7 usa lo zoom','Drag to move \u00b7 use the zoom')+'</div>'
+    +'<div class="crop-actions">'
+      +'<button class="btn sm" onclick="fCropCancel()">'+ft('Annulla','Cancel')+'</button>'
+      +'<button class="btn primary sm" onclick="fCropConfirm()">'+ft('Conferma','Confirm')+'</button>'
+    +'</div>'
+  +'</div>';
+}
+function fCropRender(){
+  var c=_crop; if(!c) return;
+  var im=document.getElementById('crop-img'); if(!im) return;
+  var s=c.scaleBase*c.zoom;
+  im.style.width=(c.img.naturalWidth*s)+'px';
+  im.style.height=(c.img.naturalHeight*s)+'px';
+  im.style.transform='translate('+c.ox+'px,'+c.oy+'px)';
+}
+function fCropZoom(v){
+  var c=_crop; if(!c) return;
+  var s0=c.scaleBase*c.zoom, cx=(c.V/2-c.ox)/s0, cy=(c.V/2-c.oy)/s0;
+  c.zoom=parseFloat(v)||1;
+  var s1=c.scaleBase*c.zoom;
+  c.ox=c.V/2-cx*s1; c.oy=c.V/2-cy*s1; fCropClamp(); fCropRender();
+}
+function fCropPointerDown(e){ var c=_crop; if(!c) return; var p=(e.touches&&e.touches[0])||e; c.drag={x:p.clientX,y:p.clientY,ox:c.ox,oy:c.oy}; }
+function fCropPointerMove(e){ var c=_crop; if(!c||!c.drag) return; var p=(e.touches&&e.touches[0])||e; c.ox=c.drag.ox+(p.clientX-c.drag.x); c.oy=c.drag.oy+(p.clientY-c.drag.y); fCropClamp(); fCropRender(); if(e.cancelable) e.preventDefault(); }
+function fCropPointerUp(){ var c=_crop; if(c) c.drag=null; }
+function fCropConfirm(){
+  var c=_crop; if(!c) return;
+  try{
+    var OUT=256, s=c.scaleBase*c.zoom;
+    var sx=-c.ox/s, sy=-c.oy/s, sSize=c.V/s;
+    var cv=document.createElement('canvas'); cv.width=OUT; cv.height=OUT;
+    var ctx=cv.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,OUT,OUT);
+    ctx.drawImage(c.img, sx, sy, sSize, sSize, 0, 0, OUT, OUT);
+    C.portrait = cv.toDataURL('image/jpeg', 0.78);
+  }catch(e){ console.error('crop confirm', e); alert(ft('Ritaglio non riuscito.','Crop failed.')); }
+  fCropClose(); re();
+}
+function fCropCancel(){ fCropClose(); }
+function fCropClose(){
+  if(_crop && _crop._listen){ try{ window.removeEventListener('pointermove', _crop._mv); window.removeEventListener('pointerup', _crop._up); }catch(e){} }
+  _crop=null;
+  var ov=document.getElementById('crop-modal'); if(ov){ ov.style.display='none'; ov.innerHTML=''; }
+  document.body.style.overflow='';
 }
 function fPortraitHTML(){
   var has = !!C.portrait;
@@ -6665,8 +6755,9 @@ function fToggleSubclassSkill(skillEn, max){
 // EXPORT / PRINT FUNCTIONS
 // ═══════════════════════════════════════
 function fOpenExport(){
-  if(!fIsNative() && !IS_FULL_BUILD){ try{ alert(ft('L\u2019export PDF \u00e8 disponibile nell\u2019app per dispositivi.','PDF export is available in the device app.')); }catch(e){} return; }
-  if(!fIsPro()){ screen='pro'; re(); return; }   // gating Pro: Stampa/Export PDF
+  // Vetrina web della SRD: stampa concessa come "assaggio" con filigrana e rimando all'app.
+  var webSrdPreview = (!fIsNative() && !IS_FULL_BUILD);
+  if(!webSrdPreview && !fIsPro()){ screen='pro'; re(); return; }   // gating Pro su app/FULL (non sull'assaggio web SRD)
   const modal=document.getElementById('export-modal');
   const preview=document.getElementById('exp-preview');
   document.getElementById('exp-title').textContent='Scheda — '+(C.name||'Personaggio');
@@ -6874,6 +6965,8 @@ function fBuildClassResourcesPrint(){
 }
 
 function fBuildPrintSheet(){
+  // Assaggio vetrina web SRD: filigrana + rimando all'app (la FULL e l'APK non hanno filigrana)
+  const isWebSrdPreview = (typeof fIsNative==='function') && !fIsNative() && (typeof IS_FULL_BUILD!=='undefined') && !IS_FULL_BUILD;
   const sp=fgSp(),cl=fgCl(),bg=fgBg(),sr=fgSr(),al=fgAl(),sc=fgSc();
   const hpMax=fMaxHP(cl,fTotalStat('CON'),C.level);
   const pb=fpb(C.level);
@@ -6963,7 +7056,27 @@ function fBuildPrintSheet(){
       <td></td>
     </tr>`;
   }).join('');
-  const emptyN=Math.max(0,32-allIds.length);
+  // Incantesimi SEMPRE PREPARATI da specie/talenti/sottoclasse/stile (non tra i preparati manuali)
+  const _prepSet=new Set(allIds);
+  const _srcLbl={species:'specie',feat:'talento',subclass:'sottocl.',style:'stile'};
+  const alwaysList=(typeof fGetAlwaysPrepared==='function'?fGetAlwaysPrepared():[])
+    .map(e=>{ const s=SPELLS.find(x=>x.nome.toLowerCase()===e.nome.toLowerCase()); return s?{s:s,fonte:e.fonte}:null; })
+    .filter(e=>e && !_prepSet.has(e.s.id));
+  // dedup per id (uno stesso incantesimo può arrivare da più fonti)
+  const _seenAlw=new Set();
+  const alwaysRows=alwaysList.filter(e=>{ if(_seenAlw.has(e.s.id))return false; _seenAlw.add(e.s.id); return true; }).map(e=>{
+    const s=e.s; const lv=s.livello===0?'T':s.livello+'°';
+    return`<tr>
+      <td class="tc">${lv}</td>
+      <td>${fSpN(s)} <span style="font-size:5pt;color:#777">◆${_srcLbl[e.fonte]||''}</span></td>
+      <td>${s.tempoLancio||'—'}</td>
+      <td>${s.gittata||'—'}</td>
+      <td class="tc" style="white-space:nowrap;font-size:5.5pt;">${s.concentrazione?'●C':'○C'} ${s.rituale?'●R':'○R'} ${s.materiale?'●M':'○M'}</td>
+      <td></td>
+    </tr>`;
+  }).join('');
+  const _usedRows=allIds.length+_seenAlw.size;
+  const emptyN=Math.max(0,32-_usedRows);
   const emptyRows=Array(emptyN).fill(`<tr><td></td><td></td><td></td><td></td><td class="tc" style="font-size:5.5pt;">○C ○R ○M</td><td></td></tr>`).join('');
 
   // Class features
@@ -7010,12 +7123,12 @@ function fBuildPrintSheet(){
 /* main 3-col */
 .pmain{display:grid;grid-template-columns:40mm 1fr 42mm;gap:2mm}
 /* stat block */
-.pstat{border:1px solid #666;border-radius:3px;padding:1mm;margin-bottom:1mm;background:#fafafa}
+.pstat{border:1px solid #666;border-radius:3px;padding:0.6mm;margin-bottom:0.6mm;background:#fafafa}
 .pstat-n{font-size:5.5pt;text-transform:uppercase;letter-spacing:0.4px;color:#444;text-align:center}
-.pstat-v{font-size:18pt;font-weight:bold;text-align:center;line-height:1}
-.pstat-c{font-size:10pt;font-weight:bold;text-align:center;border:1.5px solid #333;border-radius:50%;width:8mm;height:8mm;line-height:8mm;margin:0.5mm auto 0.5mm}
+.pstat-v{font-size:13pt;font-weight:bold;text-align:center;line-height:1}
+.pstat-c{font-size:8.5pt;font-weight:bold;text-align:center;border:1.2px solid #333;border-radius:50%;width:6mm;height:6mm;line-height:6mm;margin:0.4mm auto 0.4mm}
 /* skills */
-.psk{display:flex;align-items:center;gap:1mm;font-size:6.5pt;padding:0.2mm 0;border-top:0.3px solid #e8e8e8}
+.psk{display:flex;align-items:center;gap:1mm;font-size:6.2pt;padding:0.1mm 0;border-top:0.3px solid #e8e8e8}
 .psd{font-size:7pt;min-width:4mm;text-align:center}.psn{flex:1}.psm{font-weight:bold;min-width:5mm;text-align:right}
 /* section title */
 .pst{font-size:5.5pt;text-transform:uppercase;letter-spacing:0.5px;color:#333;border-bottom:0.5px solid #999;margin:1.5mm 0 0.8mm;font-weight:bold}
@@ -7049,15 +7162,23 @@ function fBuildPrintSheet(){
 .pmn{display:grid;grid-template-columns:repeat(5,1fr);gap:0.8mm}
 .pmncl{border:1px solid #666;text-align:center;padding:0.5mm;border-radius:2px;background:#fafafa}
 .pmncl .pl{font-size:5.5pt;color:#555;text-transform:uppercase}
+/* filigrana assaggio web SRD */
+.pswm{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-30deg);font-size:46pt;color:rgba(0,0,0,0.06);font-weight:bold;letter-spacing:5px;z-index:9999;pointer-events:none;white-space:nowrap}
+.psbn{border:1px dashed #a83;background:#fcf3e0;color:#6a4a00;border-radius:2px;padding:1mm 2mm;font-size:6.5pt;text-align:center;margin-bottom:1.5mm;letter-spacing:.3px}
 </style>
 <div class="ps">
+${isWebSrdPreview?'<div class="pswm">ARCANA · '+ft('VERSIONE WEB','WEB VERSION')+'</div>':''}
 
 <!-- ══════════════ PAGINA 1 ══════════════ -->
 <div class="psp">
-  ${C.portrait?'<div style="text-align:center;margin-bottom:1mm"><img src="'+C.portrait+'" style="width:18mm;height:18mm;object-fit:cover;border:1px solid #333;border-radius:50%"></div>':''}
-  <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1mm">DUNGEONS &amp; DRAGONS · 5.5e 2024 · SCHEDA PERSONAGGIO</div>
-
-  <div class="phdr">
+  ${isWebSrdPreview?'<div class="psbn">'+ft('Anteprima dalla versione web \u00b7 Sblocca l\u2019app Arcana per l\u2019export senza filigrana','Preview from the web version \u00b7 Unlock the Arcana app for watermark-free export')+'</div>':''}
+  <div style="display:grid;grid-template-columns:20mm 1fr;gap:2mm;align-items:stretch;margin-bottom:2mm">
+    <div style="border:1px solid #333;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fafafa;width:20mm;height:20mm;align-self:start">
+      ${C.portrait?'<img src="'+C.portrait+'" style="width:100%;height:100%;object-fit:cover">':'<span style="font-size:5pt;color:#aaa;letter-spacing:1px;text-transform:uppercase">Ritratto</span>'}
+    </div>
+    <div>
+      <div style="font-size:5.5pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:0.8mm">DUNGEONS &amp; DRAGONS \u00b7 5.5e 2024 \u00b7 SCHEDA PERSONAGGIO</div>
+      <div class="phdr" style="margin-bottom:0">
     <div class="phdr1">
       <div class="phc"><div class="pl">Nome del Personaggio</div><div class="pv">${C.name||'—'}</div></div>
       <div class="phc"><div class="pl">Background</div><div class="pv">${bgName}</div></div>
@@ -7071,6 +7192,8 @@ function fBuildPrintSheet(){
       <div class="phc"><div class="pl">PE</div><div class="pv">0</div></div>
       <div class="phc"><div class="pl">Taglia</div><div class="pv">${spSize}</div></div>
       <div class="phc"><div class="pl">Velocità</div><div class="pv">${spSpeed}</div></div>
+    </div>
+      </div>
     </div>
   </div>
 
@@ -7176,6 +7299,21 @@ ${(function(){
     var cName=C.name||'—';
     var equipTxt2=C.equipNotes||(fgCl()?fgCl().equipIt||'':'');
     var backstoryTxt=C.backstory||'';
+    // Incantesimi concessi da SPECIE/TALENTI a un personaggio NON incantatore
+    var _apNM=(typeof fGetAlwaysPrepared==='function'?fGetAlwaysPrepared():[]);
+    var _seenNM={};
+    var _apRowsNM=_apNM.map(function(e){
+      var s=SPELLS.find(function(x){return x.nome.toLowerCase()===e.nome.toLowerCase();});
+      if(!s||_seenNM[s.id]) return ''; _seenNM[s.id]=1;
+      var lv=s.livello===0?'Truc.':(s.livello+'\u00b0');
+      var src={species:'specie',feat:'talento',subclass:'sottocl.',style:'stile'}[e.fonte]||'';
+      return '<div style="border-bottom:0.3px solid #ccc;padding:0.8mm 0;font-size:6pt;line-height:1.25">'
+        +'<b>'+fSpN(s)+'</b> <span style="color:#777">\u00b7 '+lv+' \u00b7 \u25c6'+src+'</span><br>'
+        +'<span style="color:#666;font-size:5.5pt">'+(s.tempoLancio||'\u2014')+' \u00b7 '+(s.gittata||'\u2014')+'</span></div>';
+    }).join('');
+    var featSpellsBlockNM=_apRowsNM
+      ? '<div class="pst">Incantesimi (Specie/Talenti)</div><div class="ptx" style="min-height:0;margin-bottom:2mm">'+_apRowsNM+'</div>'
+      : '';
     return `<div class="psp" style="page-break-before:always">
   <div style="text-align:center;font-size:6pt;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:1.5mm">${cName} · Note &amp; Equipaggiamento</div>
   <div style="display:grid;grid-template-columns:1fr 1.4fr 0.75fr;gap:3mm;min-height:268mm">
@@ -7204,6 +7342,7 @@ ${(function(){
 
     <!-- COLONNA DESTRA: Denari + PNG + Condizioni -->
     <div style="overflow:hidden">
+      ${featSpellsBlockNM}
       <div class="pst">Denari</div>
       <div class="pmn" style="flex-direction:column;gap:1mm">
         <div class="pmncl"><div class="pl">MR</div></div>
@@ -7270,7 +7409,7 @@ ${(function(){
           <th style="width:13%" class="tc">C / R / M</th>
           <th>Note / Danni</th>
         </tr></thead>
-        <tbody>${spellRows}${emptyRows}</tbody>
+        <tbody>${spellRows}${alwaysRows}${emptyRows}</tbody>
       ${(function(){if(C.cls!=='warlock')return '';var arcs=fGetWarlockArcanaLevels(C.level||1);if(!arcs.length)return '';var rows=arcs.map(function(l){var nm=(C.arcanaSpells&&C.arcanaSpells[l])||'--';var used=(C.arcanaUsed&&C.arcanaUsed[l])?'USATO':'';return '<tr><td class="tc">'+l+'</td><td>'+nm+'</td><td class="tc">'+used+'</td></tr>';}).join('');return '<div class="pst">Arcana Mistici Warlock</div><table class="pspt"><thead><tr><th style="width:12%">Lv.</th><th>Incantesimo</th><th style="width:20%">Stato</th></tr></thead><tbody>'+rows+'</tbody></table>';})()}
       </table>
     </div>
@@ -9772,18 +9911,18 @@ const ALWAYS_PREPARED_SUBCLASS = {
 // ── Incantesimi SEMPRE PREPARATI da specie/sottospecie ───────────────────
 const ALWAYS_PREPARED_SPECIES = {
   elfo: {
-    'elfo-alto':   { 3:['Individuazione del Magico'], 5:['Passo Nebbia'] },
-    'elfo-boschi': { 3:['Andatura del Vento'],        5:['Passare senza Tracce'] },
-    'drow':        { 3:['Luci Fatue'],                5:['Oscurità'] },
+    'elfo-alto':   { 1:['Prestidigitazione'], 3:['Individuazione del magico'], 5:['Passo velato'] },
+    'elfo-boschi': { 1:['Artificio druidico'], 3:['Passo veloce'],             5:['Passare senza tracce'] },
+    'drow':        { 1:['Luci danzanti'],      3:['Luminescenza'],             5:['Oscurità'] },
   },
   tiefling: {
-    'infernale': { 3:['Rivincita Infernale'], 5:['Oscurità'] },
-    'abissale':  { 3:['Raggio di Malattia'],  5:['Blocca Persone'] },
-    'ctonio':    { 3:['Falsa Vita'],          5:['Raggio di Affaticamento'] },
+    'infernale': { 1:['Taumaturgia','Dardo di fuoco'],   3:['Intimorire infernale'], 5:['Oscurità'] },
+    'abissale':  { 1:['Taumaturgia','Spruzzo velenoso'], 3:['Raggio di infermità'],  5:['Blocca persone'] },
+    'ctonio':    { 1:['Taumaturgia','Tocco gelido'],     3:['Vita falsata'],         5:['Raggio di affaticamento'] },
   },
   gnomo: {
     'gnomo-rocce':   { 1:['Riparare','Prestidigitazione'] },
-    'gnomo-foreste': { 1:['Illusione Minore'] },
+    'gnomo-foreste': { 1:['Illusione minore','Parlare con gli animali'] },
   },
   aasimar: { 'null': { 1:['Luce'] } },
 };
@@ -10122,6 +10261,14 @@ function fGetFeatSpells(){
       if(f.id === 'contaminazione-fatata') add('Passo velato');
       if(f.id === 'contaminazione-oscura') add('Invisibilità');
       add(ch.spell1);
+    }
+    // Telecinesi / Telepatia ecc.: incantesimo concesso in modo fisso dal talento
+    if(Array.isArray(meta.fixedSpells)){
+      meta.fixedSpells.forEach(add);
+    }
+    // Incantesimi fissi concessi dal talento (es. Telecinesi→Mano magica, Telepatia→Individuazione dei pensieri)
+    if(Array.isArray(meta.fixedSpells)){
+      meta.fixedSpells.forEach(add);
     }
   });
   return out;
