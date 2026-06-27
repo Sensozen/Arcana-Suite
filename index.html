@@ -8762,15 +8762,39 @@ function fRWordInText(q,txt){
   try{ return new RegExp('(^|[^a-z\u00e0-\u00ff0-9])'+esc+'([^a-z\u00e0-\u00ff0-9]|$)','i').test(String(txt)); }
   catch(e){ return String(txt).toLowerCase().indexOf(q)>=0; }
 }
-// punteggio di pertinenza: prefisso titolo > titolo > alias > testo
-function fRulesScore(r,q){
+// cache dei campi normalizzati per la ricerca a token (ricalcolata solo al cambio lingua)
+function _rNz(r){
+  if(r._rnLang!==lang){ r._rnLang=lang; r._rnT=_rNorm(fRTit(r)); r._rnA=(r.alias||[]).map(function(a){return _rNorm(a);}); r._rnX=_rNorm(fRTxt(r)); }
+  return r;
+}
+// punteggio di pertinenza: 1) frase esatta (titolo>alias>testo); 2) match per token (query multi-parola)
+function fRulesScore(r,q,toks){
   var t=fRTit(r).toLowerCase();
+  // 1) FRASE ESATTA — prioritaria: parola singola o frase contigua
   var it=t.indexOf(q);
-  if(it===0) return {s:5,where:'titolo'};
-  if(it>0)   return {s:4,where:'titolo'};
-  if((r.alias||[]).some(function(a){return String(a).toLowerCase().indexOf(q)>=0;})) return {s:3,where:'alias'};
-  // match nel corpo solo a parola intera e per query di almeno 3 caratteri (riduce il rumore)
-  if(q.length>=3 && fRWordInText(q, fRTxt(r))) return {s:1,where:'testo'};
+  if(it===0) return {s:100,where:'titolo'};
+  if(it>0)   return {s:80,where:'titolo'};
+  if((r.alias||[]).some(function(a){return String(a).toLowerCase().indexOf(q)>=0;})) return {s:60,where:'alias'};
+  // corpo: solo a parola intera e per query >=3 char (riduce il rumore)
+  if(q.length>=3 && fRWordInText(q, fRTxt(r))) return {s:40,where:'testo'};
+  // 2) MATCH PER TOKEN — query con piu' parole non contigue (es. "tiro salvezza contro incantesimo")
+  if(toks && toks.length>=2){
+    _rNz(r); var tn=r._rnT, an=r._rnA, xn=r._rnX;
+    var titleHits=0, aliasHits=0, bodyHits=0, covered=0;
+    toks.forEach(function(w){
+      var inT,inA,inX;
+      if(w.length<3){ inA=an.indexOf(w)>=0; inT=false; inX=false; }   // abbreviazioni (CD, CA, TS...): solo alias esatto
+      else { inT=tn.indexOf(w)>=0; inA=an.some(function(a){return a.indexOf(w)>=0;}); inX=xn.indexOf(w)>=0; }
+      if(inT) titleHits++; if(inA) aliasHits++; if(inX) bodyHits++;
+      if(inT||inA||inX) covered++;
+    });
+    if(covered>0 && (covered>=2 || titleHits>0 || aliasHits>0)){
+      var s = titleHits*6 + aliasHits*4 + bodyHits*2 + covered*2;
+      if(covered===toks.length) s += 6;          // copre tutte le parole-chiave
+      if(s>38) s=38;                               // resta sotto la frase esatta nel corpo (40)
+      return {s:s, where: titleHits?'titolo':(aliasHits?'alias':'testo')};
+    }
+  }
   return null;
 }
 // ricerca con filtro categoria e ordinamento per pertinenza
@@ -8778,8 +8802,11 @@ function fRulesSearch(query,cat){
   var q=String(query==null?'':query).trim().toLowerCase();
   var pool=(cat&&cat!=='all')?fRulesByCat(cat):RULES_DB.slice();
   if(!q) return pool.map(function(r){return {r:r,s:0,where:null};});
+  // token distinti (>=3 char, senza stopword) per il match multi-parola
+  var toks=_rNorm(q).split(/[^a-z0-9]+/).filter(function(w){return w.length>=2 && !_R_STOP[w];});
+  toks=toks.filter(function(w,i){return toks.indexOf(w)===i;});
   var res=[];
-  pool.forEach(function(r){ var sc=fRulesScore(r,q); if(sc) res.push({r:r,s:sc.s,where:sc.where}); });
+  pool.forEach(function(r){ var sc=fRulesScore(r,q,toks); if(sc) res.push({r:r,s:sc.s,where:sc.where}); });
   // a pari pertinenza: regole/glossario PRIMA degli oggetti magici (declassati), poi titolo
   res.sort(function(a,b){
     var ma=(a.r.cat==='oggetti_magici')?1:0, mb=(b.r.cat==='oggetti_magici')?1:0;
