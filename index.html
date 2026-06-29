@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "26/06/2026 · 12:47"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "29/06/2026 · 16:48"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -2820,6 +2820,19 @@ function fGetSpellSlots(clsId,lv){
   if(fullCasters.includes(clsId))return{type:"full",slots:FFULL_SLOTS[lv-1].filter(s=>s>0)};
   if(halfCasters.includes(clsId))return{type:"half",slots:FFHALF_SLOTS[lv-1].filter(s=>s>0)};
   if(clsId==="warlock"){const p=FFPACT_SLOTS[lv-1];return{type:"pact",slots:[p[0]],slotLv:p[1]};}
+  // Sottoclassi a 1/3 (Cavaliere Mistico / Mistificatore Arcano): tabella ridotta PHB 2024.
+  // Restituire qui gli slot rende fGetSpellSlots la fonte UNICA per ogni classe, così
+  // i tracker (incluso un futuro "uso incantesimo → consuma slot") leggono tutti da qui.
+  if(clsId==="fighter"||clsId==="rogue"){
+    const sub=((typeof C!=='undefined'&&C.classes||[]).find(c=>c.cls===clsId)||{}).subclass
+              || (typeof C!=='undefined'&&clsId===C.cls?C.subclass:'');
+    if(typeof SUBCLASS_CASTER_IDS!=='undefined' && SUBCLASS_CASTER_IDS[clsId] && SUBCLASS_CASTER_IDS[clsId].includes(sub)){
+      const TS={3:[2],4:[3],5:[3],6:[3],7:[4,2],8:[4,2],9:[4,2],10:[4,3],11:[4,3],12:[4,3],
+        13:[4,3,2],14:[4,3,2],15:[4,3,2],16:[4,3,3],17:[4,3,3],18:[4,3,3],19:[4,3,3,1],20:[4,3,3,1]};
+      const arr=TS[Math.min(lv,20)];
+      if(arr) return {type:"third", slots:arr.slice()};
+    }
+  }
   return null;
 }
 function fRSpellSlotsBlock(clsId,lv,isIt){
@@ -2888,6 +2901,9 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
 
   // ── MONOCLASSE: comportamento originale ──
   const ss=fGetSpellSlots(clsId,lv);if(!ss)return"";
+  // Le sottoclassi a 1/3 (Cavaliere Mistico / Mistificatore Arcano) mostrano il
+  // riepilogo slot nel blocco "Risorse di Classe"; condividono comunque C.slotsUsed.
+  if(ss.type==="third") return "";
 
   if(ss.type==="pact"){
     return`<div class="box"><div class="box-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px"><span>✨ ${lbl}</span><span>${addBtn}${resetBtn}</span></div>
@@ -3147,7 +3163,7 @@ function fLongRest(){
   C.bardicInsp={used:0};C.channelDiv={used:0};
   C.charmMagic={used:0};C.cloakMajesty={used:0};C.unbreakableMajesty={used:0}; // Bardo Fascino/Sapienza
   C.wildShapeUsed=0;C.starDartUsed=0;C.moonStepUsed=0;C.cosmicOmenUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
-  C.innateUsed=0;C.arcanaUsed={};C.eldritchKnightSpells={};
+  C.innateUsed=0;C.arcanaUsed={};C.slotsUsed={};
   C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;C.coronaLuceUsed=0;C.bagliorUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
   C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
@@ -3193,8 +3209,20 @@ function fUseSupDie(){if(!C.superiorityDice)C.superiorityDice={used:0};var lv=(t
 function fRestoreSupDie(){if(C.superiorityDice&&C.superiorityDice.used>0)C.superiorityDice.used--;re();}
 function fUsePsiDie(){if(!C.psiDice)C.psiDice={used:0};var tot=C.level>=17?12:C.level>=13?10:C.level>=11?8:C.level>=9?8:C.level>=5?6:4;if(C.psiDice.used<tot)C.psiDice.used++;re();}
 function fRestorePsiDie(){if(C.psiDice&&C.psiDice.used>0)C.psiDice.used--;re();}
-function fUseEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};C.eldritchKnightSpells[slv]=(C.eldritchKnightSpells[slv]||0)+1;re();}
-function fRestoreEKSlot(slv){if(!C.eldritchKnightSpells)C.eldritchKnightSpells={};if((C.eldritchKnightSpells[slv]||0)>0)C.eldritchKnightSpells[slv]--;re();}
+// Uso/recupero di uno slot incantesimo per QUALSIASI classe: opera sullo store
+// comune C.slotsUsed leggendo il totale da fGetSpellSlots (fonte unica). Usato dai
+// riepiloghi slot delle sottoclassi 1/3 e disponibile per un futuro tracker
+// "uso incantesimo → consuma lo slot correlato".
+function fUseClassSlot(slv){
+  if(!C.slotsUsed)C.slotsUsed={};
+  var ss=(typeof fGetSpellSlots==='function')?fGetSpellSlots(C.cls,C.level):null;
+  var max=(ss&&ss.slots)?(ss.slots[slv-1]||0):0;
+  C.slotsUsed[slv]=Math.min((C.slotsUsed[slv]||0)+1,max);re();
+}
+function fRestoreClassSlot(slv){
+  if(!C.slotsUsed)C.slotsUsed={};
+  C.slotsUsed[slv]=Math.max((C.slotsUsed[slv]||0)-1,0);re();
+}
 function fUseKi(){if(!C.ki)C.ki={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('monk')>0)?fClassLevel('monk'):(C.level||1);if(C.ki.used<fMaxKi(lv))C.ki.used++;re();}
 function fRestoreKi(){if(C.ki&&C.ki.used>0)C.ki.used--;re();}
 function fUseBardicInsp(){if(!C.bardicInsp)C.bardicInsp={used:0};var bMax=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.bardicInsp.used<bMax)C.bardicInsp.used++;re();}
@@ -3614,23 +3642,23 @@ function fRClassBlock(){
 
     // Mistificatore Arcano: slot incantesimo
     if(sc==='arcane' && lv>=3){
-      var amSlots={3:[2],4:[3],5:[3],6:[3],7:[4,2],8:[4,2],9:[4,2],10:[4,3],
-        11:[4,3],12:[4,3],13:[4,3,2],14:[4,3,2],15:[4,3,2],16:[4,3,3],
-        17:[4,3,3],18:[4,3,3],19:[4,3,3,1],20:[4,3,3,1]};
-      var amSl=amSlots[lv]||[2];
-      var usedSp2=C.eldritchKnightSpells||{};
-      html+='<div style="'+boxS+'">';
-      html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🔮 '+(isIt?'Slot Incantesimo — INT':'Spell Slots — INT')+'</div>';
-      for(var sv2=1;sv2<=amSl.length;sv2++){
-        var tot2=amSl[sv2-1];
-        var usedV2=usedSp2[sv2]||0;
-        html+='<div style="'+rowS+'"><span style="'+lblS+'">Slot '+sv2+'°</span>';
-        html+=fDots(usedV2,tot2,'fUseEKSlot('+sv2+')','fRestoreEKSlot('+sv2+')','#7a8fff');
-        html+='<span style="font-size:10px;color:var(--vdim)">'+(tot2-usedV2)+'/'+tot2+'</span></div>';
+      var amSS=(!fIsMulticlass()&&typeof fGetSpellSlots==='function')?fGetSpellSlots('rogue',lv):null;
+      if(amSS&&amSS.slots){
+        if(!C.slotsUsed)C.slotsUsed={};
+        var amSl=amSS.slots;
+        html+='<div style="'+boxS+'">';
+        html+='<div style="font-size:11px;color:var(--gold2);font-weight:700;margin-bottom:5px">🔮 '+(isIt?'Slot Incantesimo — INT':'Spell Slots — INT')+'</div>';
+        for(var sv2=1;sv2<=amSl.length;sv2++){
+          var tot2=amSl[sv2-1];
+          var usedV2=C.slotsUsed[sv2]||0;
+          html+='<div style="'+rowS+'"><span style="'+lblS+'">Slot '+sv2+'°</span>';
+          html+=fDots(usedV2,tot2,'(function(){fUseClassSlot('+sv2+')})','(function(){fRestoreClassSlot('+sv2+')})','#7a8fff');
+          html+='<span style="font-size:10px;color:var(--vdim)">'+(tot2-usedV2)+'/'+tot2+'</span></div>';
+        }
+        html+='<div style="font-size:9px;color:var(--muted);margin-top:4px">Recupero: riposo lungo · Focus: focus arcano o arnesi da scasso</div>';
+        if(lv>=3)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">🤚 Mano Magica come azione bonus (mano invisibile)</div>';
+        html+='</div>';
       }
-      html+='<div style="font-size:9px;color:var(--muted);margin-top:4px">Recupero: riposo lungo · Focus: focus arcano o arnesi da scasso</div>';
-      if(lv>=3)html+='<div style="font-size:9px;color:var(--gold2);margin-top:3px">🤚 Mano Magica come azione bonus (mano invisibile)</div>';
-      html+='</div>';
     }
 
     // Lama Spirituale: dadi Energia Psionica
@@ -9979,8 +10007,8 @@ const CANTRIPS_TABLE = {
   sorcerer: [4,4,4,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,6],
   warlock:  [2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
   wizard:   [3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,5,5],
-  fighter:  [0,0,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3],
-  rogue:    [0,0,2,2,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3],
+  fighter:  [0,0,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3],
+  rogue:    [0,0,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4],
   barbarian:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
   monk:     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 };
@@ -10143,6 +10171,26 @@ function fClassMaxCantrips(clsId, clsLv){
   const t = CANTRIPS_TABLE[clsId];
   if(!t) return 0;
   return t[Math.min(clsLv,20)-1] || 0;
+}
+
+// ─── Sottoclassi a 1/3 (Cavaliere Mistico / Mistificatore Arcano) ──────────
+// PHB 2024: entrambe scelgono trucchetti e incantesimi dalla LISTA DEL MAGO.
+// (Cavaliere Mistico: pag. 41-42 "dalla lista degli incantesimi da mago";
+//  Mistificatore Arcano: "wizard spell list"). INT è la caratteristica.
+// Vero se la classe+sottoclasse indicata pesca dalla lista del mago.
+function fThirdCasterUsesWizardList(clsId, subclass){
+  return (clsId==='fighter' || clsId==='rogue') && !!(SUBCLASS_CASTER_IDS[clsId]?.includes(subclass));
+}
+// Livello massimo di incantesimo accessibile da una sottoclasse a 1/3 in base al
+// livello di classe, secondo la tabella Incantesimi del Cavaliere Mistico (PHB 2024):
+// 1° (Lv.3-6), 2° (Lv.7-12), 3° (Lv.13-18), 4° (Lv.19-20).
+function fThirdCasterMaxSpellLevel(clsLv){
+  clsLv = parseInt(clsLv)||0;
+  if(clsLv>=19) return 4;
+  if(clsLv>=13) return 3;
+  if(clsLv>=7)  return 2;
+  if(clsLv>=3)  return 1;
+  return 0;
 }
 
 // Restituisce, per ogni classe incantatrice posseduta, un riepilogo:
@@ -10474,7 +10522,15 @@ function fRenderSpellPicker(){
   // offrire incantesimi di livello superiore a quello accessibile dalla classe al
   // suo livello attuale. fClassLevel(clsId) = livello della SINGOLA classe.
   const _pickLv = (typeof fClassLevel === 'function') ? (fClassLevel(clsId) || C.level || 1) : (C.level || 1);
-  const _maxSpLv = (typeof fMaxSpellLevel === 'function') ? fMaxSpellLevel(clsId, _pickLv) : 9;
+  // Sottoclasse della classe di preparazione corrente (monoclasse: C.subclass).
+  const _pickSub = ((C.classes||[]).find(c => c.cls === clsId) || {}).subclass
+                   || (clsId===C.cls ? C.subclass : '');
+  // Cavaliere Mistico / Mistificatore Arcano: pescano dalla LISTA DEL MAGO (PHB 2024)
+  // e il livello massimo di incantesimo segue la loro tabella di slot ridotta.
+  const _isThirdW = (typeof fThirdCasterUsesWizardList==='function') && fThirdCasterUsesWizardList(clsId, _pickSub);
+  const _maxSpLv = _isThirdW
+    ? (typeof fThirdCasterMaxSpellLevel==='function' ? fThirdCasterMaxSpellLevel(_pickLv) : 1)
+    : ((typeof fMaxSpellLevel === 'function') ? fMaxSpellLevel(clsId, _pickLv) : 9);
 
   // Filtra per classe e per tipo (trucchetto vs livellato)
   let filtered = SPELLS.filter(s => {
@@ -10505,10 +10561,12 @@ function fRenderSpellPicker(){
       if(clsId === 'wizard' && !isCtrip && C.spellbookSpells && C.spellbookSpells.length){
         const sbIdsW = fSpellbookIds(); if(!sbIdsW.has(s.id)) return false;
       } else if(clsId && s.classi && s.classi.length){
-        const hasClass = s.classi.some(cl =>
-          cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase() ||
-          cl.toLowerCase().includes(clsId.toLowerCase())
-        );
+        const hasClass = _isThirdW
+          ? s.classi.some(cl => cl.toLowerCase()==='mago' || cl.toLowerCase()==='wizard')
+          : s.classi.some(cl =>
+              cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase() ||
+              cl.toLowerCase().includes(clsId.toLowerCase())
+            );
         if(!hasClass) return false;
       }
     }
@@ -10524,9 +10582,13 @@ function fRenderSpellPicker(){
 
   // Livelli disponibili per i tab
   const levels = isCtrip ? [0] : [...new Set(
-    SPELLS.filter(s => s.livello > 0 && (_maxSpLv <= 0 || s.livello <= _maxSpLv) && (!clsId || (s.classi||[]).some(cl =>
-      cl.toLowerCase().includes(clsId.toLowerCase()) ||
-      cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase()
+    SPELLS.filter(s => s.livello > 0 && (_maxSpLv <= 0 || s.livello <= _maxSpLv) && (!clsId || (
+      _isThirdW
+        ? (s.classi||[]).some(cl => cl.toLowerCase()==='mago' || cl.toLowerCase()==='wizard')
+        : (s.classi||[]).some(cl =>
+            cl.toLowerCase().includes(clsId.toLowerCase()) ||
+            cl.toLowerCase() === (isIt ? clsNameIt : clsNameEn).toLowerCase()
+          )
     ))).map(s => s.livello)
   )].sort((a,b)=>a-b);
 
