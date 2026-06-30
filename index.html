@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "29/06/2026 · 16:48"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "30/06/2026 · 01:33"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -3213,15 +3213,117 @@ function fRestorePsiDie(){if(C.psiDice&&C.psiDice.used>0)C.psiDice.used--;re();}
 // comune C.slotsUsed leggendo il totale da fGetSpellSlots (fonte unica). Usato dai
 // riepiloghi slot delle sottoclassi 1/3 e disponibile per un futuro tracker
 // "uso incantesimo → consuma lo slot correlato".
+// Totali degli slot NORMALI per livello: combinati in multiclasse, da
+// fGetSpellSlots in monoclasse. Fonte condivisa da cap, disponibilità e lancio.
+function fNormalSlotTotals(){
+  if(typeof fIsMulticlass==='function' && fIsMulticlass()){
+    var mc=(typeof fGetMulticlassSlots==='function')?fGetMulticlassSlots():null;
+    return (mc && mc.normal)?mc.normal:[];
+  }
+  var ss=(typeof fGetSpellSlots==='function')?fGetSpellSlots(C.cls,C.level):null;
+  return (ss && ss.type!=='pact' && ss.slots)?ss.slots:[];
+}
+// Uso/recupero di uno slot incantesimo per QUALSIASI classe: opera sullo store
+// comune C.slotsUsed leggendo il totale corretto (mono o multiclasse). Usato dai
+// riepiloghi slot delle sottoclassi 1/3, dall'azione di lancio, e disponibile per
+// un futuro tracker "uso incantesimo → consuma lo slot correlato".
 function fUseClassSlot(slv){
   if(!C.slotsUsed)C.slotsUsed={};
-  var ss=(typeof fGetSpellSlots==='function')?fGetSpellSlots(C.cls,C.level):null;
-  var max=(ss&&ss.slots)?(ss.slots[slv-1]||0):0;
+  var totals=fNormalSlotTotals();
+  var max=totals[slv-1]||0;
   C.slotsUsed[slv]=Math.min((C.slotsUsed[slv]||0)+1,max);re();
 }
 function fRestoreClassSlot(slv){
   if(!C.slotsUsed)C.slotsUsed={};
   C.slotsUsed[slv]=Math.max((C.slotsUsed[slv]||0)-1,0);re();
+}
+// ── Step 1: motore di disponibilità slot ──────────────────────────────────
+// Ritorna il livello di slot NORMALE disponibile più basso ≥ spellLv (upcasting
+// automatico), oppure null se nessuno è disponibile. È la base sia per il consumo
+// sia per disabilitare ("grigio") gli incantesimi non più lanciabili. Il pool del
+// patto (Warlock) è gestito separatamente in uno step successivo.
+function fLowestAvailableSlot(spellLv){
+  spellLv=parseInt(spellLv)||0;
+  if(spellLv<1) return null;            // i trucchetti non consumano slot
+  if(!C.slotsUsed) C.slotsUsed={};
+  var totals=fNormalSlotTotals();
+  for(var lv=spellLv; lv<=totals.length; lv++){
+    var tot=totals[lv-1]||0;
+    var used=C.slotsUsed[lv]||0;
+    if(tot-used>0) return lv;
+  }
+  return null;
+}
+// ── Step 4: pool del Patto (Warlock) ──────────────────────────────────────
+// Info sul Patto: { total, slotLv } o null. Gli slot del Patto sono tutti dello
+// stesso livello (slotLv) e separati dagli slot normali. C.warlockSlotsUsed è un
+// contatore unico (PHB 2024: Magia del Patto).
+function fGetPactInfo(){
+  var p=null;
+  if(typeof fIsMulticlass==='function' && fIsMulticlass()){
+    var mc=(typeof fGetMulticlassSlots==='function')?fGetMulticlassSlots():null;
+    if(mc && mc.pact) p={total:mc.pact.slots[0], slotLv:mc.pact.slotLv};
+  } else {
+    var ss=(typeof fGetSpellSlots==='function')?fGetSpellSlots(C.cls,C.level):null;
+    if(ss && ss.type==='pact') p={total:ss.slots[0], slotLv:ss.slotLv};
+  }
+  return p;
+}
+function fUsePactSlot(){
+  var p=fGetPactInfo(); if(!p) return;
+  if(C.warlockSlotsUsed===undefined) C.warlockSlotsUsed=0;
+  C.warlockSlotsUsed=Math.min((C.warlockSlotsUsed||0)+1, p.total); re();
+}
+// ── Step 2/4: lancio di un incantesimo (consumo automatico dello slot) ─────
+// Instrada al pool corretto: incantesimi da Warlock → Patto (slot del livello del
+// Patto); tutti gli altri → slot normali con upcasting automatico. I trucchetti
+// non consumano nulla; se non c'è alcuno slot disponibile non accade niente.
+function fCastSpell(spellId){
+  var s=SPELLS.find(function(x){return x.id===spellId;}); if(!s) return;
+  var lv=parseInt(s.livello)||0;
+  if(lv<1) return;                       // trucchetto: nessuno slot
+  var src=(typeof fSpellClassOf==='function')?fSpellClassOf(spellId):C.cls;
+  if(src==='warlock'){                   // pool del Patto
+    var p=fGetPactInfo();
+    if(p && lv<=p.slotLv && (C.warlockSlotsUsed||0)<p.total){
+      if(s.concentrazione) C.concentratingSpell=spellId;   // Step 7: concentrazione auto
+      fUsePactSlot();
+      if(typeof showToast==='function') showToast((typeof ft==='function')?ft('✦ Lanciato — slot del Patto ({L}°)','✦ Cast — Pact slot (level {L})').replace('{L}',p.slotLv):'✦ Lanciato — slot del Patto ('+p.slotLv+'°)');
+    }
+    return;
+  }
+  var slot=fLowestAvailableSlot(lv);     // pool normale (upcasting automatico)
+  if(slot===null) return;
+  if(s.concentrazione) C.concentratingSpell=spellId;       // Step 7: concentrazione auto
+  fUseClassSlot(slot);
+  if(typeof showToast==='function') showToast((typeof ft==='function')?ft('✦ Lanciato — slot di {L}°','✦ Cast — level {L} slot').replace('{L}',slot):'✦ Lanciato — slot di '+slot+'°');
+}
+// ── Step 6: upcasting volontario (solo pool normale) ──────────────────────
+// Livelli di slot NORMALI disponibili ≥ spellLv (per offrire la scelta del livello
+// solo quando esiste più di un'opzione). Il Patto ha livello fisso: nessun upcasting.
+function fAvailableSlotLevels(spellLv){
+  spellLv=parseInt(spellLv)||0;
+  var out=[]; if(spellLv<1) return out;
+  var totals=fNormalSlotTotals();
+  for(var lv=spellLv; lv<=totals.length; lv++){
+    var tot=totals[lv-1]||0;
+    var used=(C.slotsUsed&&C.slotsUsed[lv])||0;
+    if(tot-used>0) out.push(lv);
+  }
+  return out;
+}
+// Lancio a un livello di slot scelto (upcasting volontario, solo pool normale).
+function fCastSpellAt(spellId, slotLv){
+  var s=SPELLS.find(function(x){return x.id===spellId;}); if(!s) return;
+  var lv=parseInt(s.livello)||0; slotLv=parseInt(slotLv)||0;
+  if(lv<1 || slotLv<lv) return;          // lo slot dev'essere ≥ livello incantesimo
+  var totals=fNormalSlotTotals();
+  var tot=totals[slotLv-1]||0;
+  var used=(C.slotsUsed&&C.slotsUsed[slotLv])||0;
+  if(tot-used<=0) return;                 // nessuno slot di quel livello
+  if(s.concentrazione) C.concentratingSpell=spellId;       // Step 7: concentrazione auto
+  fUseClassSlot(slotLv);
+  if(typeof showToast==='function') showToast((typeof ft==='function')?ft('✦ Lanciato — slot di {L}°','✦ Cast — level {L} slot').replace('{L}',slotLv):'✦ Lanciato — slot di '+slotLv+'°');
 }
 function fUseKi(){if(!C.ki)C.ki={used:0};var lv=(typeof fClassLevel==='function'&&fClassLevel('monk')>0)?fClassLevel('monk'):(C.level||1);if(C.ki.used<fMaxKi(lv))C.ki.used++;re();}
 function fRestoreKi(){if(C.ki&&C.ki.used>0)C.ki.used--;re();}
@@ -11038,15 +11140,34 @@ function fRSpellsSection(){
   // ── Riga incantesimo ────────────────────────────────────────────────────
   function spellRow(s, always){
     const isConc   = s.id === C.concentratingSpell;
+    const _lvl     = parseInt(s.livello)||0;
+    // Lanciabile: trucchetto sempre; incantesimi da Warlock → slot del Patto liberi
+    // e livello ≤ livello del Patto; altri → esiste uno slot normale ≥ loro livello.
+    const _src     = (typeof fSpellClassOf==='function') ? fSpellClassOf(s.id) : C.cls;
+    let castable;
+    if(_lvl<1){ castable=true; }
+    else if(_src==='warlock'){
+      const _p=(typeof fGetPactInfo==='function')?fGetPactInfo():null;
+      castable = !!(_p && _lvl<=_p.slotLv && (C.warlockSlotsUsed||0)<_p.total);
+    } else {
+      castable = (typeof fLowestAvailableSlot==='function') ? fLowestAvailableSlot(_lvl)!==null : true;
+    }
+    // Upcasting volontario offerto solo se esistono ≥2 livelli di slot spendibili
+    // (pool normale; il Patto è a livello fisso).
+    const _upLevels = (_lvl>0 && _src!=='warlock' && castable && typeof fAvailableSlotLevels==='function') ? fAvailableSlotLevels(_lvl) : [];
+    const dim      = (_lvl>0 && !castable) ? ';opacity:.45' : '';
     const concBg   = isConc ? ';background:rgba(200,164,90,.06);border-left:2px solid var(--gold)' : '';
     const alwaysBg = always ? ';background:rgba(200,164,90,.04)' : '';
-    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04)${concBg}${alwaysBg}">
+    return `<div style="display:flex;align-items:center;gap:6px;padding:5px 4px;border-bottom:1px solid rgba(255,255,255,.04)${concBg}${alwaysBg}${dim}">
       ${always ? '<span style="color:var(--gold2);font-size:10px;flex-shrink:0">★</span>' : ''}
-      <span onclick="fShowSpellDetail(${s.id})" style="flex:1;font-size:12px;color:${always?'var(--gold2)':'var(--text)'};font-weight:${always?'500':'500'};cursor:pointer">${fSpN(s)}${isConc?'<span style="color:var(--gold);font-size:9px;margin-left:4px">◎</span>':''}</span>
+      <span onclick="fShowSpellDetail(${s.id})" style="flex:1;font-size:12px;color:${(_lvl>0&&!castable)?'var(--vdim)':(always?'var(--gold2)':'var(--text)')};font-weight:${always?'500':'500'};cursor:pointer">${fSpN(s)}${isConc?'<span style="color:var(--gold);font-size:9px;margin-left:4px">◎</span>':''}</span>
       <span style="font-size:9px;color:var(--vdim);font-family:'Comfortaa',sans-serif">${s.scuola}</span>
       ${always ? '' : _spClsBadge(s.id)}
       ${s.concentrazione?`<span onclick="fSetConcentration(${s.id})" style="color:${isConc?'var(--gold)':'var(--vdim)'};font-size:10px;cursor:pointer" title="${isConc?'Perdi conc.':'Attiva conc.'}">${isConc?'◎':'○'}</span>`:''}
       ${s.rituale?`<span style="color:var(--vdim);font-size:9px">R</span>`:''}
+      ${_lvl>0?(castable
+        ? `<button onclick="fCastSpell(${s.id})" title="Lancia (slot più basso disponibile)" style="background:rgba(123,143,255,.12);border:1px solid rgba(123,143,255,.4);border-radius:3px;cursor:pointer;color:#9db0ff;font-size:10px;padding:1px 6px">▸</button>${_upLevels.length>=2?`<select onchange="if(this.value)fCastSpellAt(${s.id},this.value)" title="Lancia a un livello scelto (upcasting)" style="background:rgba(123,143,255,.08);border:1px solid rgba(123,143,255,.3);border-radius:3px;color:#9db0ff;font-size:9px;padding:1px 2px;cursor:pointer"><option value="">⬆</option>${_upLevels.map(L=>`<option value="${L}">${L}°</option>`).join('')}</select>`:''}`
+        : `<button disabled title="Nessuno slot disponibile" style="background:none;border:1px solid rgba(255,255,255,.08);border-radius:3px;cursor:not-allowed;color:var(--vdim);font-size:10px;padding:1px 6px;opacity:.5">▸</button>`):''}
       <button onclick="fShowSpellDetail(${s.id})" style="background:none;border:1px solid rgba(200,164,90,.2);border-radius:3px;cursor:pointer;color:var(--gold2);font-size:9px;padding:1px 5px">i</button>
       ${always?'':`<button onclick="fRemovePreparedSpell(${s.id})" style="background:none;border:none;cursor:pointer;color:var(--vdim);font-size:13px;padding:0 3px" onmouseover="this.style.color='#c45a5a'" onmouseout="this.style.color=''">✕</button>`}
     </div>`;
