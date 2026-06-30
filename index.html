@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "30/06/2026 · 01:33"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "30/06/2026 · 10:46"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -14703,6 +14703,70 @@ function fTogSpeciesSkill(skillEn){
   }
   re();
 }
+// ── Rigenerazione/traduzione dei campi narrativi nella lingua corrente ─────
+// Rigenera trait/ideal/bond/flaw/backstory con il generatore LOCALE, nella lingua
+// attiva, mantenendo la build (classe/specie/background già scelti).
+function fRegenNarrative(){
+  if(typeof lgNarrative!=='function') return;
+  var tr=(typeof lgPool==='function')?lgPool('TRAITS'):null;
+  if(!tr || !tr.trait || !tr.trait.length){
+    if(typeof showToast==='function') showToast(ft('Generazione locale non ancora disponibile in questa lingua','Local generation not yet available in this language'));
+    return;
+  }
+  try{
+    var n = lgNarrative(C.cls, C.bg, C.name, C.species);
+    if(n){
+      if(n.trait) C.trait=n.trait;
+      if(n.ideal) C.ideal=n.ideal;
+      if(n.bond)  C.bond=n.bond;
+      if(n.flaw)  C.flaw=n.flaw;
+      if(n.backstory) C.backstory=n.backstory;
+      if(typeof showToast==='function') showToast(ft('🪶 Personalità e storia rigenerate','🪶 Personality & story regenerated'));
+      re();
+    }
+  }catch(e){
+    if(typeof showToast==='function') showToast(ft('Generazione non riuscita','Generation failed'));
+  }
+}
+// Traduce i campi narrativi ESISTENTI nella lingua corrente tramite Groq (solo se
+// la chiave è attiva). Non rigenera: conserva il contenuto, ne cambia la lingua.
+function fTranslateNarrative(){
+  var key=(typeof fGroqKeyActive==='function')?fGroqKeyActive():null;
+  if(!key){ if(typeof showToast==='function') showToast(ft('Inserisci una chiave Groq nelle impostazioni','Enter a Groq key in settings')); return; }
+  if(typeof fAIConsentEnsure==='function' && !fAIConsentEnsure()) return;
+  var payload={trait:C.trait||'',ideal:C.ideal||'',bond:C.bond||'',flaw:C.flaw||'',backstory:C.backstory||''};
+  if(!payload.trait && !payload.ideal && !payload.bond && !payload.flaw && !payload.backstory){
+    if(typeof showToast==='function') showToast(ft('Nessun testo da tradurre','Nothing to translate')); return;
+  }
+  var target=(typeof fAiLang==='function')?fAiLang():'italiano';
+  if(typeof showToast==='function') showToast(ft('🌐 Traduzione in corso…','🌐 Translating…'));
+  fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body:JSON.stringify({
+      model:'llama-3.1-8b-instant', temperature:0.3, max_tokens:1000,
+      response_format:{type:'json_object'},
+      messages:[
+        {role:'system',content:'Sei un traduttore. Traduci in '+target+' i valori di testo del JSON in input. Mantieni esattamente le stesse chiavi (trait, ideal, bond, flaw, backstory) e non aggiungerne altre. Conserva il senso e lo stile narrativo. Rispondi SOLO con il JSON tradotto, senza commenti né markdown.'},
+        {role:'user',content:JSON.stringify(payload)}
+      ]
+    })
+  })
+  .then(function(r){ if(!r.ok) return r.json().then(function(e){throw new Error((e.error&&e.error.message)||('HTTP '+r.status));}); return r.json(); })
+  .then(function(d){
+    var raw=(d&&d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content)||'';
+    var clean=String(raw).replace(/```json[\s\S]*?```|```/g,'').trim();
+    var o=JSON.parse(clean);
+    if(o.trait) C.trait=o.trait;
+    if(o.ideal) C.ideal=o.ideal;
+    if(o.bond)  C.bond=o.bond;
+    if(o.flaw)  C.flaw=o.flaw;
+    if(o.backstory) C.backstory=o.backstory;
+    if(typeof showToast==='function') showToast(ft('🌐 Testo tradotto','🌐 Text translated'));
+    re();
+  })
+  .catch(function(err){ if(typeof showToast==='function') showToast(ft('Errore traduzione: ','Translation error: ')+err.message); });
+}
 function fRS10(){
   const fields=[{k:"trait",it:"Tratto di Personalità",en:"Personality Trait",ph:ft("Come ti percepiscono?","How do others see you?"),suggest:true},{k:"ideal",it:"Ideale",en:"Ideal",ph:ft("In cosa credi?","What do you believe in?")},{k:"bond",it:"Legame",en:"Bond",ph:ft("Cosa ti lega al mondo?","What ties you to the world?")},{k:"flaw",it:"Difetto",en:"Flaw",ph:ft("Qual è il tuo punto debole?","What is your weakness?")}];
   return`
@@ -14715,6 +14779,10 @@ function fRS10(){
     }).join("")}
     <label style="color:var(--muted);font-size:13px;display:block;margin-bottom:5px">${ft("Storia","Backstory")}</label>
     <textarea rows="4" placeholder="${ft("Scrivi la storia...","Write the backstory...")}" oninput="C.backstory=this.value">${C.backstory||""}</textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+      <button type="button" onclick="fRegenNarrative()" style="font-size:12px;background:rgba(200,164,90,.12);border:1px solid var(--gold);color:var(--gold);padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.04em" title="${ft('Rigenera tratti e storia nella lingua attiva','Regenerate traits and story in the active language')}">🎲 ${ft('Rigenera nella lingua corrente','Regenerate in current language')}</button>
+      ${(typeof fGroqKeyActive==='function'&&fGroqKeyActive())?`<button type="button" onclick="fTranslateNarrative()" style="font-size:12px;background:rgba(123,143,255,.12);border:1px solid rgba(123,143,255,.5);color:#9db0ff;padding:5px 12px;border-radius:4px;cursor:pointer;font-family:'Comfortaa',sans-serif;letter-spacing:.04em" title="${ft("Traduci i campi attuali nella lingua attiva (AI)","Translate current fields into the active language (AI)")}">🌐 ${ft("Traduci l'esistente (AI)","Translate existing (AI)")}</button>`:''}
+    </div>
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border)"></div>
   
   </div>`;
