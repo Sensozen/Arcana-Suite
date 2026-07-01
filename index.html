@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "30/06/2026 · 10:46"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "30/06/2026 · 18:55"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -2848,10 +2848,16 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
 
   // Render caselle slot per un livello (slot normali)
   function renderCells(slotLv, max, used){
+    const bonus=(C.bonusSlots&&C.bonusSlots[slotLv])||0;
+    const total=max+bonus;
     let cells = '';
-    for(let i=0;i<max;i++){
+    for(let i=0;i<total;i++){
       const isUsed = i < used;
-      cells += `<span onclick="fToggleSlot(${slotLv},${i})" style="display:inline-block;width:20px;height:20px;line-height:18px;text-align:center;border:1.5px solid var(--gold);border-radius:3px;margin:0 3px 3px 0;cursor:pointer;font-size:13px;color:${isUsed?'var(--vdim)':'var(--gold)'};background:${isUsed?'transparent':'rgba(200,164,90,.2)'};user-select:none">${isUsed?'◇':'◆'}</span>`;
+      const isBonus = i >= max;   // le caselle oltre il pool normale sono slot bonus (Fonte di Magia)
+      const col = isBonus ? '#9b59b6' : 'var(--gold)';
+      const bg = isUsed ? 'transparent' : (isBonus ? 'rgba(142,68,173,.2)' : 'rgba(200,164,90,.2)');
+      const ttl = isBonus ? (isIt?'Slot temporaneo (Fonte di Magia) — svanisce al riposo lungo':'Temporary slot (Font of Magic) — vanishes on a Long Rest') : '';
+      cells += `<span onclick="fToggleSlot(${slotLv},${i})" title="${ttl}" style="display:inline-block;width:20px;height:20px;line-height:18px;text-align:center;border:1.5px solid ${col};border-radius:3px;margin:0 3px 3px 0;cursor:pointer;font-size:13px;color:${isUsed?'var(--vdim)':col};background:${bg};user-select:none">${isUsed?'◇':'◆'}</span>`;
     }
     return cells;
   }
@@ -2865,7 +2871,7 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
       rows+=`<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
         <span style="font-size:10px;color:var(--muted);font-family:'Comfortaa',sans-serif;letter-spacing:.08em;width:26px">${slotLv}°</span>
         <div style="display:flex;flex-wrap:wrap;flex:1;align-items:center">${renderCells(slotLv,max,used)}</div>
-        <span style="font-size:10px;color:var(--vdim);min-width:30px;text-align:right">${used}/${max}</span>
+        <span style="font-size:10px;color:var(--vdim);min-width:30px;text-align:right">${used}/${max+((C.bonusSlots&&C.bonusSlots[slotLv])||0)}</span>
       </div>`;
     });
     return rows;
@@ -2919,7 +2925,7 @@ function fRSpellSlotsBlock(clsId,lv,isIt){
     rows+=`<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
       <span style="font-size:10px;color:var(--muted);font-family:'Comfortaa',sans-serif;letter-spacing:.08em;width:26px">${slotLv}°</span>
       <div style="display:flex;flex-wrap:wrap;flex:1;align-items:center">${renderCells(slotLv,max,used)}</div>
-      <span style="font-size:10px;color:var(--vdim);min-width:30px;text-align:right">${used}/${max}</span>
+      <span style="font-size:10px;color:var(--vdim);min-width:30px;text-align:right">${used}/${max+((C.bonusSlots&&C.bonusSlots[slotLv])||0)}</span>
     </div>`;
   });
   
@@ -2942,6 +2948,7 @@ function fToggleSlot(slotLv, idx){
     if(!ss||ss.type==='pact')return;
     max=ss.slots[slotLv-1]||0;
   }
+  max += (C.bonusSlots&&C.bonusSlots[slotLv])||0;   // include gli slot bonus (Fonte di Magia)
   // Se idx è già consumato (idx < used), recupera fino a idx; altrimenti usa fino a idx+1
   if(idx < C.slotsUsed[slotLv]){
     C.slotsUsed[slotLv]=idx;
@@ -3163,7 +3170,7 @@ function fLongRest(){
   C.bardicInsp={used:0};C.channelDiv={used:0};
   C.charmMagic={used:0};C.cloakMajesty={used:0};C.unbreakableMajesty={used:0}; // Bardo Fascino/Sapienza
   C.wildShapeUsed=0;C.starDartUsed=0;C.moonStepUsed=0;C.cosmicOmenUsed=0;C.nemesisMark={used:0};C.sorcPoints={used:0};
-  C.innateUsed=0;C.arcanaUsed={};C.slotsUsed={};
+  C.innateUsed=0;C.arcanaUsed={};C.slotsUsed={};C.bonusSlots={};
   C.divPunish={used:false};C.arcaneRecovUsed=false;C.warPriestUsed=0;C.coronaLuceUsed=0;C.bagliorUsed=0;
   if(C.arcaneWardHP)C.arcaneWardHP.cur=C.arcaneWardHP.max;
   C.presageUsed=[false,false,false];C.thirdEyeUsed=false;
@@ -3230,7 +3237,7 @@ function fNormalSlotTotals(){
 function fUseClassSlot(slv){
   if(!C.slotsUsed)C.slotsUsed={};
   var totals=fNormalSlotTotals();
-  var max=totals[slv-1]||0;
+  var max=(totals[slv-1]||0)+((C.bonusSlots&&C.bonusSlots[slv])||0); // include slot bonus Fonte di Magia
   C.slotsUsed[slv]=Math.min((C.slotsUsed[slv]||0)+1,max);re();
 }
 function fRestoreClassSlot(slv){
@@ -3248,7 +3255,7 @@ function fLowestAvailableSlot(spellLv){
   if(!C.slotsUsed) C.slotsUsed={};
   var totals=fNormalSlotTotals();
   for(var lv=spellLv; lv<=totals.length; lv++){
-    var tot=totals[lv-1]||0;
+    var tot=(totals[lv-1]||0)+((C.bonusSlots&&C.bonusSlots[lv])||0); // +slot bonus Fonte di Magia
     var used=C.slotsUsed[lv]||0;
     if(tot-used>0) return lv;
   }
@@ -3306,7 +3313,7 @@ function fAvailableSlotLevels(spellLv){
   var out=[]; if(spellLv<1) return out;
   var totals=fNormalSlotTotals();
   for(var lv=spellLv; lv<=totals.length; lv++){
-    var tot=totals[lv-1]||0;
+    var tot=(totals[lv-1]||0)+((C.bonusSlots&&C.bonusSlots[lv])||0); // +slot bonus Fonte di Magia
     var used=(C.slotsUsed&&C.slotsUsed[lv])||0;
     if(tot-used>0) out.push(lv);
   }
@@ -3382,18 +3389,35 @@ function fShowSorcMsg(msg,isErr){
 }
 function fConvertSlotToSP(slotLv){
   if(!C.sorcPoints)C.sorcPoints={used:0};
-  var spMax=fMaxSorcPoints(C.level||1);
+  // BUGFIX cap: i punti massimi dipendono dal livello da STREGONE, non dal livello totale del PG (multiclasse)
+  var sorcLv=(typeof fClassLevel==='function'&&fClassLevel('sorcerer')>0)?fClassLevel('sorcerer'):(C.level||1);
+  var spMax=fMaxSorcPoints(sorcLv);
   var avail=spMax-(C.sorcPoints.used||0);
-  if(avail+slotLv>spMax){fShowSorcMsg('Hai già il massimo di punti stregoneria!',true);return;}
+  if(avail+slotLv>spMax){fShowSorcMsg('Supereresti il massimo di punti stregoneria!',true);return;}
+  // BUGFIX consumo: convertire uno slot in punti deve CONSUMARE davvero uno slot normale di quel livello
+  var totals=(typeof fNormalSlotTotals==='function')?fNormalSlotTotals():[];
+  var availSlot=(totals[slotLv-1]||0)-((C.slotsUsed&&C.slotsUsed[slotLv])||0);
+  if(availSlot<=0){fShowSorcMsg('Nessuno slot '+slotLv+'° disponibile da convertire',true);return;}
+  if(!C.slotsUsed)C.slotsUsed={};
+  C.slotsUsed[slotLv]=(C.slotsUsed[slotLv]||0)+1;
   C.sorcPoints.used=Math.max(0,(C.sorcPoints.used||0)-slotLv);
-  fShowSorcMsg('+'+slotLv+' PS recuperati da slot '+slotLv+'°',false);
+  fShowSorcMsg('+'+slotLv+' PS da uno slot '+slotLv+'° consumato',false);
 }
 function fConvertSPtoSlot(slotLv,cost){
   if(!C.sorcPoints)C.sorcPoints={used:0};
-  var avail=fMaxSorcPoints(C.level||1)-(C.sorcPoints.used||0);
+  // BUGFIX cap: punti disponibili sul livello da STREGONE, non sul livello totale del PG (multiclasse)
+  var sorcLv=(typeof fClassLevel==='function'&&fClassLevel('sorcerer')>0)?fClassLevel('sorcerer'):(C.level||1);
+  // Vincolo SRD: livello da stregone minimo per creare uno slot di un dato livello (max 5°)
+  var minSorc={1:2,2:3,3:5,4:7,5:9};
+  if(slotLv>5){fShowSorcMsg('Non puoi creare slot oltre il 5°',true);return;}
+  if(sorcLv<(minSorc[slotLv]||99)){fShowSorcMsg('Servono almeno '+minSorc[slotLv]+' livelli da stregone per uno slot '+slotLv+'°',true);return;}
+  var avail=fMaxSorcPoints(sorcLv)-(C.sorcPoints.used||0);
   if(avail<cost){fShowSorcMsg('Punti insufficienti — servono '+cost+' PS',true);return;}
   C.sorcPoints.used=(C.sorcPoints.used||0)+cost;
-  fShowSorcMsg(cost+' PS spesi → aggiungi 1 slot '+slotLv+'° ai tuoi slot disponibili',false);
+  // Approccio B: slot bonus temporaneo (svanisce al riposo lungo), separato dai normali
+  if(!C.bonusSlots)C.bonusSlots={};
+  C.bonusSlots[slotLv]=(C.bonusSlots[slotLv]||0)+1;
+  fShowSorcMsg(cost+' PS → +1 slot '+slotLv+'° (temporaneo, fino al riposo lungo)',false);
 }
 function fUseClockworkEquil(){if(!C.clockworkEquil)C.clockworkEquil={used:0};var m=Math.max(1,Math.floor((fTotalStat('CHA')-10)/2));if(C.clockworkEquil.used<m)C.clockworkEquil.used++;re();}
 function fRestoreClockworkEquil(){if(C.clockworkEquil&&C.clockworkEquil.used>0)C.clockworkEquil.used--;re();}
@@ -4074,7 +4098,8 @@ function fRClassBlock(){
     html+='<div style="font-size:10px;color:var(--gold2);margin-bottom:6px">♻️ '+(isIt?'Converti Slot ↔ Punti':'Convert Slots ↔ Points')+'</div>';
     html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+(isIt?'Slot → Punti (costo = livello slot):':'Slots → Points (cost = slot level):')+'</div>';
     html+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
-    var lvToSlot=[1,2,3,4,5];
+    var _slotTot=(typeof fNormalSlotTotals==='function')?fNormalSlotTotals():[];
+    var lvToSlot=[1,2,3,4,5].filter(function(n){return (_slotTot[n-1]||0)>0;}); // solo livelli di slot posseduti
     lvToSlot.forEach(function(n){
       html+='<button onclick="fConvertSlotToSP('+n+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+n+'°→'+n+(isIt?'PS':'SP')+'</button>';
     });
@@ -4082,7 +4107,8 @@ function fRClassBlock(){
     html+='<div style="font-size:10px;color:var(--muted);margin-bottom:5px">'+(isIt?'Punti → Slot:':'Points → Slots:')+'</div>';
     html+='<div style="display:flex;gap:4px;flex-wrap:wrap">';
     var spCost={1:2,2:3,3:5,4:6,5:7};
-    Object.keys(spCost).forEach(function(lvl){
+    var _minSorc={1:2,2:3,3:5,4:7,5:9};
+    Object.keys(spCost).filter(function(lvl){return lv>=_minSorc[lvl];}).forEach(function(lvl){ // solo slot creabili al livello da stregone attuale
       var cost=spCost[lvl];
       html+='<button onclick="fConvertSPtoSlot('+lvl+','+cost+')" style="background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.3);border-radius:3px;color:#9b59b6;font-size:10px;padding:2px 7px;cursor:pointer">'+cost+(isIt?'PS':'SP')+'→'+lvl+'°</button>';
     });
