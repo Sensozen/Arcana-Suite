@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "18/07/2026 · 21:00"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "25/07/2026 · 16:00"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1005,7 +1005,7 @@ tr.desc-row td{
 <script>
 (function(){
   try{ var _v=document.getElementById('pw-version'); if(_v&&window.BUILD_VERSION) _v.textContent='vers. '+window.BUILD_VERSION; }catch(e){}
-  const HASH = 'ec3471459e6bec66c87c800239aa2db1e075dfa180a5fdcc019309277ec623fc';
+  const HASH = '8aeed92438c6a33ff9b87cb63d2b8329380ec65d40026f684e72466f3fb282e0';
   // Controlla se già autenticato in questa sessione
   if(sessionStorage.getItem('arcana_auth') === HASH){
     document.getElementById('pw-overlay').classList.add('hidden');
@@ -1025,7 +1025,7 @@ function pwCheck(){
       .map(b => b.toString(16).padStart(2,'0')).join('');
   }
   sha256(val).then(h => {
-    if(h === 'ec3471459e6bec66c87c800239aa2db1e075dfa180a5fdcc019309277ec623fc'){
+    if(h === '8aeed92438c6a33ff9b87cb63d2b8329380ec65d40026f684e72466f3fb282e0'){
       sessionStorage.setItem('arcana_auth', h);
       document.getElementById('pw-overlay').classList.add('hidden');
       document.body.style.overflow = '';
