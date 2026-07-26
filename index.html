@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Arcana — Suite D&D 5e Italiana</title>
-<script>window.BUILD_VERSION = "25/07/2026 · 16:00"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
+<script>window.BUILD_VERSION = "26/07/2026 · 13:45"; /* >>> AGGIORNARE A OGNI BUILD: data e ora di consegna (UTC+2) <<< */</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -7576,14 +7576,14 @@ function fBuildPrintSheet(){
   const spSpeed=fBaseSpeedStr();
 
   return`<style>
-.ps{font-family:"Arial Narrow",Arial,sans-serif;font-size:7.5pt;color:#000;background:#fff;width:190mm;margin:0 auto}
+.ps{font-family:"Arial Narrow",Arial,sans-serif;font-size:7.5pt;color:#000;background:#fff;width:190mm;margin:0 auto;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 .psp{width:190mm;min-height:274mm;page-break-after:always;box-sizing:border-box;padding:3mm 3mm 2mm}
 .psp:last-child{page-break-after:avoid}
-/* header */
+/* header — testo scuro su grigi chiari: leggibile anche se il browser non stampa gli sfondi */
 .phdr{border:1.5px solid #333;border-radius:3px;margin-bottom:2mm;overflow:hidden}
-.phdr1{background:#1a1a1a;color:#fff;display:grid;grid-template-columns:2.5fr 1fr 1.3fr 0.5fr;border-bottom:1px solid #444}
-.phdr2{background:#3a3a3a;color:#fff;display:grid;grid-template-columns:1.2fr 1fr 0.8fr 0.5fr 1fr 1fr}
-.phc{padding:1mm 2mm}.phc .pl{font-size:5pt;text-transform:uppercase;letter-spacing:0.4px;color:#aaa}.phc .pv{font-size:9pt;font-weight:bold}
+.phdr1{background:#ececec;color:#000;display:grid;grid-template-columns:2.5fr 1fr 1.3fr 0.5fr;border-bottom:1px solid #999}
+.phdr2{background:#dedede;color:#000;display:grid;grid-template-columns:1.2fr 1fr 0.8fr 0.5fr 1fr 1fr}
+.phc{padding:1mm 2mm}.phc .pl{font-size:5pt;text-transform:uppercase;letter-spacing:0.4px;color:#555}.phc .pv{font-size:9pt;font-weight:bold}
 .phdr2 .pv{font-size:8pt}
 /* combat bar */
 .pcb{display:grid;grid-template-columns:0.7fr 0.7fr 0.4fr 1.4fr 0.6fr 1.1fr 0.8fr;gap:1mm;margin-bottom:2mm}
@@ -7605,7 +7605,7 @@ function fBuildPrintSheet(){
 .pst{font-size:5.5pt;text-transform:uppercase;letter-spacing:0.5px;color:#333;border-bottom:0.5px solid #999;margin:1.5mm 0 0.8mm;font-weight:bold}
 /* weapon table */
 .pwt{width:100%;border-collapse:collapse;font-size:6.5pt;margin-bottom:1.5mm}
-.pwt th{background:#333;color:#fff;padding:0.5mm 1mm;font-size:5.5pt;text-transform:uppercase;letter-spacing:0.3px}
+.pwt th{background:#e4e4e4;color:#000;border-bottom:1px solid #999;padding:0.5mm 1mm;font-size:5.5pt;text-transform:uppercase;letter-spacing:0.3px}
 .pwt td{border:0.4px solid #ccc;padding:0.8mm 1mm;height:5mm}
 .pwt tr:nth-child(even) td{background:#f5f5f5}
 /* text box */
@@ -7621,7 +7621,7 @@ function fBuildPrintSheet(){
 .psld{font-size:7pt;letter-spacing:1px}
 /* spell table */
 .pspt{width:100%;border-collapse:collapse;font-size:6.5pt}
-.pspt th{background:#222;color:#fff;padding:0.5mm 1mm;font-size:5.5pt;text-transform:uppercase;letter-spacing:0.3px}
+.pspt th{background:#e4e4e4;color:#000;border-bottom:1px solid #999;padding:0.5mm 1mm;font-size:5.5pt;text-transform:uppercase;letter-spacing:0.3px}
 .pspt td{border:0.3px solid #ddd;padding:0.4mm 0.8mm;height:4.5mm}
 .pspt tr:nth-child(even) td{background:#f9f9f9}
 .tc{text-align:center}
